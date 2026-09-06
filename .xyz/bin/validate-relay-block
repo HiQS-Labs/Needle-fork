@@ -1,0 +1,88 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if [ "$#" -lt 1 ]; then
+  echo "Usage: bin/validate-relay-block <relay-file>" >&2
+  exit 1
+fi
+
+relay_file="$1"
+
+if [ ! -f "$relay_file" ]; then
+  echo "Error: file not found: $relay_file" >&2
+  exit 1
+fi
+
+# Source shared rtl_relay_field from relay-turn-lib.sh if available
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+RTL_LIB=""
+if [ -f "$SCRIPT_DIR/../relay-automation/relay-turn-lib.sh" ]; then
+  RTL_LIB="$SCRIPT_DIR/../relay-automation/relay-turn-lib.sh"
+elif [ -f "$SCRIPT_DIR/../.xyz/relay-automation/relay-turn-lib.sh" ]; then
+  RTL_LIB="$SCRIPT_DIR/../.xyz/relay-automation/relay-turn-lib.sh"
+elif [ -n "${TICK_REPO_ROOT:-}" ] && [ -f "$TICK_REPO_ROOT/relay-automation/relay-turn-lib.sh" ]; then
+  RTL_LIB="$TICK_REPO_ROOT/relay-automation/relay-turn-lib.sh"
+fi
+
+if [ -n "$RTL_LIB" ]; then
+  # shellcheck source=/dev/null
+  source "$RTL_LIB"
+fi
+
+# If rtl_relay_field wasn't sourced, define the canonical single parser
+if ! declare -f rtl_relay_field >/dev/null 2>&1; then
+  rtl_relay_field() {
+    local key="$1" file="${2:-${RELAY_FILE:-}}"
+    [[ -f "$file" ]] || return 1
+    sed -n "s/^[[\`*]*${key}[[\`*]*:[[\`*]*[[:space:]]*//p" "$file" 2>/dev/null \
+      | head -n 1 \
+      | sed -E 's/[`*]+[[:space:]]*$//; s/[[:space:]]*$//'
+  }
+fi
+
+# Assertion 2: Header STATUS: is set to a valid completed state
+status_val="$(rtl_relay_field STATUS "$relay_file" || true)"
+if [ -z "$status_val" ]; then
+  if ! grep -E -i '^[[:space:]]*[`*]*STATUS[`*]*:' "$relay_file" >/dev/null 2>&1; then
+    echo "STATUS: header is missing" >&2
+    exit 8
+  else
+    echo "STATUS: header is empty" >&2
+    exit 8
+  fi
+fi
+
+status_lower=$(echo "$status_val" | tr '[:upper:]' '[:lower:]')
+if [ "$status_lower" = "in progress" ]; then
+  echo "STATUS: STATUS cannot be In Progress" >&2
+  exit 8
+fi
+
+# Assertion 1: ## Log section exists and contains at least one log entry
+if ! grep -q '^[[:space:]]*##[[:space:]]*Log' "$relay_file"; then
+  echo "Log: ## Log section is missing" >&2
+  exit 8
+fi
+
+# Extract everything after ## Log
+log_after=$(sed -e '1,/^[[:space:]]*##[[:space:]]*Log/d' "$relay_file")
+stripped_log=$(echo "$log_after" | tr -d '[:space:]')
+if [ -z "$stripped_log" ]; then
+  echo "Log: ## Log section has no entries" >&2
+  exit 8
+fi
+
+# Assertion 3: VERDICT: line is present and valid
+if ! echo "$log_after" | grep -E -i -q '^[[:space:]]*[`*]*VERDICT[`*]*:[`*]*[[:space:]]*(PASS|FAIL|PARKED)'; then
+  echo "VERDICT: line is missing or invalid" >&2
+  exit 8
+fi
+
+# Assertion 4: Basis: line is present and non-empty
+if ! echo "$log_after" | grep -E -i -q '^[[:space:]]*[`*]*Basis[`*]*:[`*]*[[:space:]]*.+'; then
+  echo "Basis: line is missing or empty" >&2
+  exit 8
+fi
+
+exit 0
+

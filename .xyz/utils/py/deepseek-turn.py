@@ -1,0 +1,362 @@
+#!/usr/bin/env python3
+import os
+import sys
+import subprocess
+import shlex
+import shutil
+import tempfile
+import signal
+from rtl import RelayTurnLib, claim_task_or_exit, rtl_default_log, resolve_turn_root
+from turn_diagnostics import TurnDiagnostics
+from model_alias import resolve_model_slug
+
+
+def die(msg):
+    print(f"deepseek-turn: {msg}", file=sys.stderr)
+    sys.exit(2)
+
+
+def default_deepseek_bin():
+    if "DEEPSEEK_BIN" in os.environ:
+        return os.environ["DEEPSEEK_BIN"]
+    default_path = "/Users/noelsaw/Documents/GH Repos/deepseek-harness/apps/cli/lib/bin.js"
+    if os.path.exists(default_path):
+        return default_path
+    which_dsh = shutil.which("dsh")
+    if which_dsh:
+        return which_dsh
+    return default_path
+
+
+def default_deepseek_flags():
+    return shlex.split(os.environ.get("DEEPSEEK_FLAGS", ""))
+
+
+# GH-397: the provider routing table. This was an if/else whose `else` was a SILENT catch-all --
+# any DEEPSEEK_PROVIDER that was not exactly "openrouter" got api.deepseek.com and the DeepSeek
+# key. A profile naming a third provider therefore resolved cleanly, recorded the provider it
+# asked for in telemetry, and sent the request somewhere else entirely. An unrecognised provider
+# now refuses the turn instead of being quietly rewritten.
+#   provider -> (base URL, default key variable, key-file fallback or None)
+PROVIDER_ROUTES = {
+    "openrouter": ("https://openrouter.ai/api/v1", "OPENROUTER_API_KEY", None),
+    "deepseek": ("https://api.deepseek.com", "DEEPSEEK_API_KEY", None),
+    # Alibaba Cloud Model Studio "Token Plan" -- an OpenAI-compatible endpoint serving the Qwen
+    # catalog under BARE ids ("qwen3.8-max"), not OpenRouter's vendor-prefixed "qwen/..." slugs.
+    # Its key is issued as a file rather than an environment variable, hence the third element.
+    "alibaba": (
+        "https://token-plan.ap-southeast-1.maas.aliyuncs.com/compatible-mode/v1",
+        "ALIBABA_TOKEN_PLAN_API_KEY",
+        "~/secrets/xyz/qwen-token-plan.txt",
+    ),
+}
+
+# Per-provider max output tokens the endpoint will accept. The dsh agent requests the model's
+# maxTokens verbatim as `max_tokens`; a catalog gateway (OpenRouter) serves any id and its own
+# default silently, but Alibaba hard-rejects values above 131072 with a 400, so the route must
+# size the model entry. Providers absent here keep the bundle default.
+PROVIDER_MAX_TOKENS = {
+    "alibaba": 131072,
+}
+
+
+def provider_route(provider):
+    """Resolve a provider to (base_url, key_env, key_file). Refuse an unknown one."""
+    try:
+        return PROVIDER_ROUTES[provider]
+    except KeyError:
+        die(
+            "unknown DEEPSEEK_PROVIDER %r -- known providers: %s"
+            % (provider, ", ".join(sorted(PROVIDER_ROUTES)))
+        )
+
+
+def load_provider_key(provider, key_env):
+    """Fill key_env from the provider's key file when the environment does not already carry it.
+
+    Warns rather than dies on a miss: the DeepSeek CLI carries its own credential config, so an
+    unset variable here is not proof the turn has no key. Never prints the file path -- turn
+    stderr lands in relay transcripts, which are committed.
+    """
+    if os.environ.get(key_env):
+        return
+    key_file = os.environ.get(key_env + "_FILE") or provider_route(provider)[2]
+    if not key_file:
+        print(
+            f"deepseek-turn: {key_env} is unset and provider {provider!r} has no key-file fallback",
+            file=sys.stderr,
+        )
+        return
+    try:
+        with open(os.path.expanduser(key_file)) as fh:
+            secret = fh.readline().strip()
+    except OSError as exc:
+        print(
+            f"deepseek-turn: {key_env} unset and its key file could not be read ({exc.strerror})",
+            file=sys.stderr,
+        )
+        return
+    if not secret:
+        print(f"deepseek-turn: {key_env} unset and its key file is empty", file=sys.stderr)
+        return
+    os.environ[key_env] = secret
+
+
+def generate_patch_overlay(provider, model_id, api_key_env):
+    """Generate a temporary cordis patch overlay configuring the LLM route."""
+    base_url, default_key_env, _key_file = provider_route(provider)
+    key_env = api_key_env or default_key_env
+
+    # The route's `models` list only REGISTERS models; the model the agent actually runs comes
+    # from the base bundle's `agent-default-model` entry (deepseek-v4-flash). Without the second
+    # patch entry below, every turn ran the bundle default while telemetry recorded model_id --
+    # invisible on OpenRouter (any id resolves), fatal on a catalog gateway (HTTP 403 denied).
+    model_entry = f"      - id: {model_id}\n        name: {model_id}"
+    cap = PROVIDER_MAX_TOKENS.get(provider)
+    if cap:
+        model_entry += f"\n        maxTokens: {cap}"
+
+    content = f"""- id: llm-deepseek
+  name: '@deepseek-ai/dsh-llm-deepseek'
+  config:
+    apiKeyEnv: {key_env}
+    baseURL: {base_url}
+    thinking: enabled
+    reasoningEffort: high
+    models:
+{model_entry}
+- id: agent-default-model
+  name: '@deepseek-ai/dsh-agent-default-model'
+  config:
+    provider: deepseek-official
+    model: {model_id}
+"""
+    fd, path = tempfile.mkstemp(prefix="dsh-patch-", suffix=".cordis.yml")
+    with os.fdopen(fd, "w") as f:
+        f.write(content)
+    return path
+
+
+def _kill_turn_group(proc):
+    """Kill the child process's entire process group."""
+    try:
+        pgid = os.getpgid(proc.pid)
+    except (ProcessLookupError, PermissionError, OSError):
+        return
+
+    for sig, wait_s in ((signal.SIGTERM, 5), (signal.SIGKILL, 2)):
+        try:
+            os.killpg(pgid, sig)
+        except (ProcessLookupError, PermissionError, OSError):
+            return
+        try:
+            proc.wait(timeout=wait_s)
+            return
+        except subprocess.TimeoutExpired:
+            pass
+    try:
+        proc.wait(timeout=1)
+    except Exception:
+        pass
+
+
+def main():
+    if "--print-bin" in sys.argv[1:]:
+        b = default_deepseek_bin()
+        print(b)
+        sys.exit(0 if (b and os.path.exists(b)) else 1)
+
+    if "-h" in sys.argv[1:] or "--help" in sys.argv[1:]:
+        print("Usage: deepseek-turn.py")
+        print("Required environment variables: RELAY_AGENT, RELAY_FILE, RELAY_TASK")
+        sys.exit(0)
+
+    xyz_root = os.environ.get(
+        "XYZ_ROOT",
+        os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+    )
+    root = resolve_turn_root(os.environ.get("DEEPSEEK_TURN_ROOT"), xyz_root)
+    deepseek_bin = default_deepseek_bin()
+
+    me = os.environ.get("RELAY_AGENT", "")
+    f = os.environ.get("RELAY_FILE", "")
+    t = os.environ.get("RELAY_TASK", "RELAY-TURN")
+    deepseek_agent = os.environ.get("DEEPSEEK_AGENT", "")
+
+    if not me:
+        die("RELAY_AGENT required")
+    if not f:
+        die("RELAY_FILE required")
+    if not deepseek_agent:
+        die("DEEPSEEK_AGENT required")
+
+    if me != deepseek_agent:
+        print(
+            f"deepseek-turn: actor {me} is not the DeepSeek agent ({deepseek_agent}) — deferring (window-driven)",
+            file=sys.stderr,
+        )
+        sys.exit(0)
+
+    # GH-397: validate the provider here, ABOVE claim_task_or_exit. provider_route() exits 2 on
+    # an unknown value; doing that after the claim would leave the relay token held by a turn that
+    # never ran.
+    provider_route(os.environ.get("DEEPSEEK_PROVIDER", "openrouter"))
+
+    allow_paths = os.environ.get("ALLOW_PATHS", "")
+    peer = os.environ.get("RELAY_PEER", "")
+
+    deepseek_log = os.environ.get("DEEPSEEK_LOG") or rtl_default_log(
+        root, "deepseek-turn", t
+    )
+    os.environ["RTL_LOG"] = deepseek_log
+
+    rtl = RelayTurnLib(root, xyz_root, f, allow_paths)
+
+    prompt = rtl.turn_prompt(me, t, peer)
+    tick_repo_root = os.environ.get("TICK_REPO_ROOT", root)
+    drift_brief = rtl.drift_brief(me, tick_repo_root)
+    if drift_brief:
+        prompt = drift_brief + "\n" + prompt
+
+    tick_repo_root, _tick_bin = claim_task_or_exit(
+        root, xyz_root, f, allow_paths, t, me, "deepseek-turn"
+    )
+
+    dflags = default_deepseek_flags()
+    # GH-346 Phase 1: let the operator write DEEPSEEK_MODEL="deepseek v4 pro" and have the alias
+    # table canonicalise it. This is an ENHANCEMENT layered over the literal, not a swap:
+    # resolve-model-alias.sh exits 1 with no output on a miss and has no canonical-slug
+    # passthrough, so a bare resolver call would blank out every already-canonical id. The literal
+    # below stays as the floor and resolve_model_slug() returns its input unchanged on any miss.
+    deepseek_model = resolve_model_slug(
+        os.environ.get("DEEPSEEK_MODEL", "deepseek/deepseek-v4-pro"), xyz_root
+    )
+    deepseek_provider = os.environ.get("DEEPSEEK_PROVIDER", "openrouter")
+    _base_url, api_key_env, _key_file = provider_route(deepseek_provider)
+    load_provider_key(deepseek_provider, api_key_env)
+
+    patch_file = generate_patch_overlay(deepseek_provider, deepseek_model, api_key_env)
+
+    rtl.before()
+
+    turn_timeout = int(os.environ.get("RELAY_TURN_TIMEOUT_S", 900))
+
+    bounded_rc = 0
+    wt = ""
+    run_cwd = root
+    deepseek_env = dict(os.environ)
+    deepseek_env["TICK_REPO_ROOT"] = tick_repo_root
+    deepseek_env["DSH_PERMISSION_MODE"] = os.environ.get(
+        "DSH_PERMISSION_MODE", "danger-full-access"
+    )
+
+    if os.environ.get("RELAY_WORKTREE_ISOLATION", "0") == "1":
+        wt = rtl.worktree_begin()
+        if wt:
+            run_cwd = wt
+            print(f"deepseek-turn: worktree isolation ON ({wt})", file=sys.stderr)
+        else:
+            print(
+                "deepseek-turn: worktree isolation requested but `git worktree add` failed — failing turn",
+                file=sys.stderr,
+            )
+            bounded_rc = 5
+
+    # Build runner command
+    if deepseek_bin.endswith(".js"):
+        cmd = ["node", deepseek_bin, "--profile", "headless", "--patch", patch_file] + dflags + [prompt]
+    else:
+        cmd = [deepseek_bin, "--profile", "headless", "--patch", patch_file] + dflags + [prompt]
+
+    diag = TurnDiagnostics(worktree=run_cwd)
+    if bounded_rc == 0:
+        diag.start()
+        try:
+            with open(deepseek_log, "a") as log_f:
+                proc = subprocess.Popen(
+                    cmd,
+                    env=deepseek_env,
+                    cwd=run_cwd,
+                    stdout=log_f,
+                    stderr=subprocess.STDOUT,
+                    stdin=subprocess.DEVNULL,
+                    start_new_session=True,
+                )
+                try:
+                    proc.wait(timeout=turn_timeout)
+                    bounded_rc = proc.returncode
+                except subprocess.TimeoutExpired:
+                    _kill_turn_group(proc)
+                    bounded_rc = 7
+        except Exception as exc:
+            print(f"deepseek-turn: deepseek launch failed: {exc}", file=sys.stderr)
+            bounded_rc = 5
+        finally:
+            diag.stop()
+            try:
+                os.remove(patch_file)
+            except OSError:
+                pass
+
+    if wt:
+        off_lane = rtl.worktree_end(wt)
+        if off_lane:
+            print(
+                "deepseek-turn: deepseek made off-lane edits in the isolated worktree — discarded; failing the turn (exit 6)",
+                file=sys.stderr,
+            )
+            bounded_rc = 6
+
+    if bounded_rc == 7:
+        _reason, _detail = diag.classify()
+        print(
+            f"deepseek-turn: deepseek exec exceeded {turn_timeout}s wall-clock cap — killed [{_reason}]",
+            file=sys.stderr,
+        )
+        print(f"deepseek-turn: timeout attribution: {_detail}", file=sys.stderr)
+    elif bounded_rc != 0:
+        print(f"deepseek-turn: deepseek exec failed (exit {bounded_rc})", file=sys.stderr)
+
+    if bounded_rc == 0 and (
+        not os.path.exists(deepseek_log) or os.path.getsize(deepseek_log) == 0
+    ):
+        print(
+            "deepseek-turn: deepseek exited 0 but produced NO output — failing the turn.",
+            file=sys.stderr,
+        )
+        bounded_rc = 5
+
+    rc = rtl.enforce(t, me, deepseek_log, "deepseek")
+
+    try:
+        from harness_turn_logger import HarnessTurnLogger
+        with HarnessTurnLogger(
+            harness_id="dsh",
+            shim="deepseek-turn.py",
+            task_scope=t,
+            model_id=deepseek_model,
+            gateway=deepseek_provider,
+            reasoning_effort=os.environ.get("DEEPSEEK_REASONING_EFFORT", "high"),
+            cli_flags=dflags,
+            repo_root=xyz_root,
+        ) as logger:
+            logger.exit_code = bounded_rc or rc
+    except Exception as _telemetry_exc:
+        # GH-346: this used to be a bare `pass`. Three shims passed an undefined name as
+        # cli_flags, raised NameError here, and silently wrote NO telemetry row for the entire
+        # life of the shim -- a telemetry system that fails closed and says nothing. Still
+        # non-fatal (a turn must never fail because logging did), but never again invisible.
+        print(f"deepseek-turn: telemetry not recorded: %r" % (_telemetry_exc,), file=sys.stderr)
+
+    if rc == 6 or bounded_rc == 6:
+        sys.exit(6)
+    if bounded_rc == 7:
+        sys.exit(7)
+    if bounded_rc != 0:
+        sys.exit(5)
+
+    sys.exit(rc)
+
+
+if __name__ == "__main__":
+    main()

@@ -95,3 +95,22 @@ needle-ui.*
 *.vocab 
 *.model
 *.cact
+
+# --- Vendored harness (XYZ + PDDA) ---------------------------------------
+# .xyz/ and utils/pdda/ are vendored deliberately and are TRACKED, not ignored,
+# so the harness travels with the repo. Two notes:
+#
+# 1. The xyz vendor installer appends `.xyz/` here by default. Do not restore
+#    that line — it would untrack the harness. (It previously fused with the
+#    `*.cact` rule above, because this file had no trailing newline, silently
+#    disabling `*.cact`. Keep a trailing newline.)
+# 2. This file's Python packaging patterns collide with real harness source.
+#    `lib/` (line 12) swallows .xyz/test/lib/*.sh, so re-include it explicitly.
+!.xyz/test/lib/
+!.xyz/test/lib/**
+
+# Machine-local / generated state that stays ignored inside the vendored trees:
+.xyz/**/__pycache__/
+/.tick/
+PROJECT/PDDA-ACTIVITY.jsonl
+.pdda-gh-state.tsv
