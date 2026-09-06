@@ -87,23 +87,28 @@ you're not about to spend real time on a broken base.
 Before changing anything, run the existing path once and keep its output:
 
 ```bash
-needle run <checkpoint> --prompt "<representative prompt>" > baseline.out
+needle run --checkpoint <base.pkl> --query "<representative query>" --tools <tools.json> > baseline.out
 ```
 
-or the equivalent direct call for what you're changing (a quantization scheme, a LoRA config). This
-is what step 5 compares against.
+`needle run` takes a **`.pkl` checkpoint**, not a `.cact` — `run.py:load_checkpoint` unpickles the
+v2 checkpoint dict. `--temperature 0` (the default) is greedy, which is what you want for a
+comparable baseline. This is what step 5 compares against.
 
 ### Step 4: Campaign execution
 
 Run the actual finetune, quantization sweep, or eval. Examples:
 
 ```bash
-# Finetune
-needle finetune --data <path.jsonl> --checkpoint <base> --out <adapter.pkl>
+# Finetune — JSONL path is POSITIONAL; --checkpoint auto-downloads from HF if omitted
+needle finetune <data.jsonl> --checkpoint <base.pkl> --out <adapter.pkl> \
+  --epochs 3 --lora-rank 16 --qat-bits auto
 
-# Build / export at a given bit width
-needle build --checkpoint <base> --lora <adapter.pkl> --bits 4 --out <model.cact>
+# Build / export — checkpoint is POSITIONAL; --bits accepts only "2" or "4"
+needle build <base.pkl> --lora <adapter.pkl> --bits 4 --out <model.cact>
 ```
+
+`--qat-bits auto` (the default) matches the checkpoint's own export scheme — override it only when
+you are deliberately testing a mismatch between training and export numerics.
 
 Capture stdout/stderr to a log file rather than letting it scroll away — you need it for step 6
 regardless of outcome.
@@ -112,8 +117,21 @@ regardless of outcome.
 
 **Load the actual artifact and run it — don't trust a clean exit code as the verdict.**
 
+A `.cact` is not loadable by `needle run` (that path takes a `.pkl`). Exercise the exported artifact
+through the runtime SDK or the playground instead:
+
 ```bash
-needle run <out.cact> --prompt "<same prompt as baseline>"
+# Structural round-trip: does the .cact parse back with the geometry you expect?
+python3 -c "from needle.model.export import read_export; print(read_export('<out.cact>'))"
+
+# Behavioral: run the tuned weights through the native engine
+python3 -c "
+import needle
+a = needle.Needle(tools=open('<tools.json>').read(), weights='<out.cact>')
+print(a.complete('<same query as baseline>'))"
+
+# Or interactively
+needle playground --weights <out.cact>
 ```
 
 Compare against the Step 3 baseline. For a quantization change, confirm the exported `.cact`

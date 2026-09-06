@@ -34,7 +34,7 @@ A 14MB tool-calling foundation model ("needle") for tiny/edge devices, plus the 
 - **`needle/_worker.py`** — that subprocess primitive (`FineTuneWorker`): spawns itself as a child process, speaks length-prefixed JSON over stdin/stdout, loads the native library in the child. Explains its graph shape (high fan-in, zero fan-out) — every `Needle` method has a `self._worker` branch.
 - **`needle/agent/tools.py`** — the tool-schema compiler: `@needle.tool`, `Field`, `build_schema` introspect Python signatures + docstrings + type hints into JSON-schema tool specs for constrained decoding. Pure stdlib, no I/O.
 - **`needle/agent/fetch.py`** — despite the package name, this is unrelated to "agents": it's the engine-binary/weights downloader (HuggingFace Hub), called by `needle download`/`needle fetch` and by `needle/__init__.py`'s library-path resolution.
-- **`needle/environments/`** — 6 duck-typed example modules (`smart_home`, `media_player`, `productivity`, `wearable`, `kitchen_appliance`, `data_capture`), each declaring `TOOLS`/`SYSTEM`/`TEST_CASES` and a lazy `agent` singleton via `_harness.py`. **Not wired into the CLI, SDK, or any test suite** — invocation is manual (`python -m needle.environments.<name>`) or via README examples only.
+- **`needle/environments/`** — 6 duck-typed example modules (`smart_home`, `media_player`, `productivity`, `wearable`, `kitchen_appliance`, `data_capture`), each declaring `TOOLS`/`SYSTEM`/`TEST_CASES` and a lazy `agent` singleton via `_harness.py`. Covered by a contract suite (`tests/test_environments.py` — registry/module agreement, tool surface, test-case categories, tool execution), but **not imported by the CLI, the SDK, or the training code** — at runtime they are invoked manually (`python -m needle.environments.<name>`) or from the README/`doc/environments.md` examples.
 
 ### 3. Playground (local dev UI)
 
@@ -45,7 +45,11 @@ A 14MB tool-calling foundation model ("needle") for tiny/edge devices, plus the 
 - **Checkpoint format** (`format_version: 2`, `{params, config, step, run}` pickle) — the contract between `finetune.py` (writer) and `run.py`/`export.py` (readers).
 - **`.cact` binary format** — documented in `export.py`'s module docstring; the boundary between the Python training/export side and the native C engine.
 - **LoRA adapter dict** (`{lora, scale, base, rank, qat_bits, qat_bits_map}`) — between `finetune_local` and `build_main`.
-- **8 env vars**: `NEEDLE_TELEMETRY`, `NEEDLE_TELEMETRY_URL`, `DO_NOT_TRACK`, `CI` (telemetry opt-out), `NEEDLE_LIB_PATH`/`NEEDLE{gen}_LIB_PATH` (native lib override), `OPENROUTER_URL`, `OPENROUTER_API_KEY`, `NEEDLE_HF_REPO` (upload target for `needle build --upload`).
+- **Environment variables** (verified by sweeping every `os.environ`/`getenv` call under `needle/`):
+  - Telemetry (`needle/_telemetry.py`): `NEEDLE_TELEMETRY=0`, `DO_NOT_TRACK`, or `CI` disable it; `NEEDLE_TELEMETRY_URL` overrides the endpoint.
+  - Native engine (`needle/__init__.py:47,51`): `NEEDLE{generation}_LIB_PATH`, falling back to legacy `NEEDLE_LIB_PATH`.
+  - Finetuning (`needle/model/finetune.py:26,81,489`): `OPENROUTER_URL`, `OPENROUTER_API_KEY`, `NEEDLE_HF_REPO` (upload target for `needle build --upload`).
+  - Set as defaults, not read as config: `TF_CPP_MIN_LOG_LEVEL` / `GRPC_VERBOSITY` (`needle/cli.py:109-110`, XLA log noise), `ENABLE_PJRT_COMPATIBILITY` (`needle/model/finetune.py:13`, must precede JAX backend init), `NEEDLE_STRICT_VALIDATE` (`needle/environments/_harness.py:12`).
 
 ## Build & release
 
@@ -53,9 +57,8 @@ A 14MB tool-calling foundation model ("needle") for tiny/edge devices, plus the 
 
 ## Test coverage shape
 
-15 test files under `tests/` cover: build/export, environments contract, fetch/lib-path resolution, finetune pipeline, data generation, inference, LoRA target selection, the runtime-vs-train dependency split (`test_packaging.py`), the release workflow's git logic, prompt rendering/building, tool-schema decorator, weights/checkpoint loading, and the `_worker.py` subprocess. **Gaps**: no direct test of the playground HTTP routes; `needle/environments/` has contract tests but the modules themselves are otherwise unused by the rest of the repo.
+15 test files under `tests/` cover: build/export, environments contract, fetch/lib-path resolution, finetune pipeline, data generation, inference, LoRA target selection, the runtime-vs-train dependency split (`test_packaging.py`), the release workflow's git logic, prompt rendering/building, tool-schema decorator, weights/checkpoint loading, and the `_worker.py` subprocess. **Gap**: no test references the playground at all (`rg 'playground|_Handler|load-model|finetune/status' tests/` returns nothing), so the HTTP layer is covered only indirectly, through the finetune/engine functions its routes call.
 
-## Known dead/orphaned code
+## Known dead code
 
-- `needle/model/export.py:main` — unreferenced, superseded by `finetune.build_main`.
-- `needle/environments/*` — fully functional but not invoked by CLI, SDK, or finetune/training code; example/demo fixtures only.
+- `needle/model/export.py:536` (`def main(args)`) — unreferenced: not wired into `needle/cli.py`, not in `pyproject.toml`'s `[project.scripts]`, and the module has no `if __name__ == "__main__"` block, so there is no `python -m` path to it either. `needle build` reaches export through `finetune.build_main` → `export.write_export` instead. The rest of `export.py` is live: `write_export` is called from `needle/model/finetune.py:441,479`, and `read_export`/`write_export` are exercised by `tests/test_build.py` and `tests/test_finetune.py`.
