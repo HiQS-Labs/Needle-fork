@@ -11,6 +11,13 @@ into `main`. Plan, gates and bounds: `PROJECT/1-INBOX/GH-5-MLX-FINETUNE-SPIKE.md
 | `parity_check.py` | P1/P2 harness. **JAX reference side works today.** Loads a checkpoint (tiny fixture or real `.pkl`), runs fixed token batches through the Flax model, then through `san_mlx`, reports max \|Δlogits\| and argmax agreement. |
 | `san_mlx.py` | the port target. One class per block of `needle/model/architecture.py`, each with the source line range it must match and a `NotImplementedError` until it does. Port in the order listed; run `parity_check.py --tiny` after each. |
 
+## Scope: MLX on the **GPU**. Not the ANE, not a recompile.
+
+`mlx.core.DeviceType` is exactly `['cpu', 'gpu']` — MLX has **no** Neural Engine backend, so no
+result here is evidence about the ANE. That path is Orion's (Orion-fork#1). `san_mlx.py` is a
+hand-written re-implementation of `architecture.py` that loads the same checkpoint; nothing is
+compiled from the JAX source. See the "Scope boundary" table in the capture doc.
+
 ## Status (2026-09-07)
 
 **P0 environment PASS** · **P1 parity PASS** (fp32 max |Δlogits| 4.172e-07, argmax 100%) ·

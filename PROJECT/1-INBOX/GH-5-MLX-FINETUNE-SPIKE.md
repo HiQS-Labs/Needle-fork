@@ -104,6 +104,32 @@ Studio's transcripts via the SMB share). It is gitignored; never commit it — t
 
 ---
 
+## Scope boundary: this spike tests **MLX on the GPU. It does not touch the ANE.**
+
+Stated first because misreading it is the expensive mistake. Umbrella
+[XYZ-forge#467](https://github.com/HiQS-Labs/XYZ-forge/issues/467) goal 1 is *"shift the
+baseline governance routing entirely to the M1 Max ANE"*, so "the MLX spike passed" is very
+easy to hear as "the ANE path is proven." **It is not, and it cannot be.**
+
+| question | answer |
+|---|---|
+| Is Needle's forward pass running under MLX? | **Yes** — ported and verified at fp32 max \|Δlogits\| 4.172e-07 (P1). |
+| Is Needle *training* under MLX? | **Not yet** — that is P3 (LoRA loop) and P4 (full epoch). |
+| Is any of this "recompiling" Needle? | **No.** `san_mlx.py` is a hand-written re-implementation of `architecture.py`, weight-compatible with the same checkpoint. Nothing is compiled from the JAX source. |
+| Is any of this running on the **ANE**? | **No.** |
+| Could MLX reach the ANE? | **No.** `mlx.core.DeviceType` exposes exactly `['cpu', 'gpu']`; `mx.default_device()` is `Device(gpu, 0)`. MLX has no Neural Engine backend, so no MLX result — however good — is evidence about the ANE. |
+
+**The ANE path is Orion's**, tracked in [Orion-fork#1](https://github.com/HiQS-Labs/Orion-fork/issues/1)
+(CoreML/ANE runtime), and it inherits its own constraint from Phase 1: fp32 program I/O is
+rejected by M1-generation ANE and accepted by M4, so ANE work must design fp16-only program
+boundaries. That is a different runtime, a different repo, and a different set of gates.
+
+What a **go** on this spike would actually buy: faster *training* iteration on Apple Silicon GPU
+for Phase 3/4, and a second numerically-verified implementation of the forward pass. It buys
+**nothing** toward ANE inference.
+
+---
+
 ## Decisions — codified 2026-09-07 (MBP session)
 
 Recorded here **and** at the place each one bites, because this spike runs on one machine
