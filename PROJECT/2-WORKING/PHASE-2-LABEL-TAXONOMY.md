@@ -277,7 +277,7 @@ would be ~13 s run on the Studio itself.
 ## Decision record — the support floor is a supplementation gate
 
 **Adjudicated 2026-09-07** against `GUIDING-PRINCIPLES.md`, `AGENTS.md` and `SOP.md`.
-The process that produced it is `SOP.md` §5. Codified in four places so it is found
+The process that produced it is `SOP.md` §4. Codified in four places so it is found
 later: `utils/corpus/taxonomy.py` (the decision record, at the constant itself),
 `oracle/labels-v1.json` (`support_floor`, so downstream consumers inherit it),
 `CHANGELOG.md`, and here. Guarded by

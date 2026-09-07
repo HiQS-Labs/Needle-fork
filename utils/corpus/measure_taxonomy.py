@@ -15,7 +15,7 @@ local-only spot check and do not commit that output.
     python3 utils/corpus/measure_taxonomy.py --out TESTS-RESULTS/<campaign>/raw-metrics.json
 """
 from __future__ import annotations
-import argparse, collections, glob, json, os, platform, subprocess, sys, time
+import argparse, collections, glob, json, math, os, platform, subprocess, sys, time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import taxonomy as tx  # noqa: E402
@@ -114,7 +114,9 @@ def main() -> int:
     top3 = 100 * sum(v for _, v in ranked[:3]) / total
     gov_groups = {"pdda", "prs", "xyz"}
     gov = sum(v for k, v in counts.items() if tx.LABELS_V1[k]["group"] in gov_groups)
-    floor = max(1, int(args.min_support_rate * total))
+    # ceil, not int: with int(), 0.1% of 74,909 is 74 -- which is 0.0988%, BELOW the
+    # stated floor. The gate must mean 'at least this share'.
+    floor = max(1, math.ceil(args.min_support_rate * total))
     thin = sorted(k for k in tx.LABELS_V1 if counts[k] < floor)
 
     print(f"source            {args.source}")

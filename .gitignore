@@ -120,3 +120,6 @@ PROJECT/PDDA-ACTIVITY.jsonl
 # Only the transient worktree/log spill is ignored.
 relay-system/**/*.log
 .relay-artifacts/
+# Relay/turn runtime state inside the vendored harness (telemetry + per-turn scratch), not source.
+.xyz/XYZ.json*
+.xyz/.relay-scratch/

@@ -41,7 +41,7 @@ LABEL_SET_VERSION = "v1.0.0-draft"
 # Adjudicated 2026-09-07 against GUIDING-PRINCIPLES.md, AGENTS.md and SOP.md.
 # Recorded here because this is where someone is tempted to act on it. The same
 # record is in PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md, CHANGELOG.md, and
-# oracle/labels-v1.json; SOP.md §5 has the process that produced it.
+# oracle/labels-v1.json; SOP.md §4 has the process that produced it.
 #
 # A label below SUPPORT_FLOOR_RATE is FLAGGED FOR SUPPLEMENTATION (issue #1 §3b
 # governance-doc synthesis, §3c git/PR-history mining). It is NEVER deleted or
