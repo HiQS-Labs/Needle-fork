@@ -14,7 +14,7 @@
 
 | What was just completed | What's next |
 |---|---|
-| Installed PDDA (2026-09-06). | Open a `PROJECT/**` doc for the first tracked effort and add its pointer here. |
+| Phase 2 §1 taxonomy authored, published and tested, and the full Studio corpus re-extracted under it — coverage 98.52%, 39/44 labels supported (2026-09-07). | Cut `v1.0.0-draft` → `v1.0.0`, then design §3's `query` serialization. |
 
 ## Ledger
 
@@ -24,7 +24,7 @@
 
 ### In progress
 
-- No active `PROJECT/2-WORKING` docs.
+- [Phase 2 §1 — Freeze the v1 Oracle label taxonomy](PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md) — v1 published as `oracle/labels-v1.json`; Studio corpus re-extracted (74,909 pairs, coverage 98.52%). ([#1](https://github.com/HiQS-Labs/Needle-fork/issues/1))
 
 ### Completed
 

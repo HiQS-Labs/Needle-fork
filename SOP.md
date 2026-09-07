@@ -5,13 +5,15 @@
 >   discipline. Nothing here restates it.
 > - **`AGENTS.md`** owns repo-wide behavioral governance: danger commands, the reversibility scale,
 >   blast-radius sizing, and "verified beats plausible."
-> - **`SOP.md` (this file)** is a tactical, step-by-step procedure specifically for **running and
->   recording a finetune, quantization, or evaluation campaign** against this model — the closest
->   thing this repo has to a heavy, repeatable, artifact-producing process.
+> - **`SOP.md` (this file)** is a tactical, step-by-step procedure for **running and recording a
+>   finetune, quantization, or evaluation campaign** against this model — the closest thing this repo
+>   has to a heavy, repeatable, artifact-producing process — plus, in §4, the procedure for
+>   **adjudicating a contested decision** that such a campaign surfaces.
 
 This covers designing, executing, verifying, and recording evidence from a LoRA finetune run, a
 quantization sweep (`quantize.py`'s fake-quant or CQ codebooks), or an accuracy/eval benchmark
-against a checkpoint.
+against a checkpoint — and, in §4, how to settle a judgment call the run surfaces so it stays
+settled.
 
 ---
 
@@ -160,7 +162,65 @@ retained run artifacts. Do not let evidence live only in a terminal that's about
    into this issue's closeout.
 3. Close the issue, or hand it off with a clear next step if the result was inconclusive.
 
-## 4. Anti-patterns (apply `AGENTS.md` §6 here specifically)
+## 4. Adjudicating a contested decision
+
+A campaign regularly surfaces a judgment call that the numbers alone do not settle —
+keep a label or merge it, ship a threshold or move it, accept a regression or block on
+it. This is the procedure for those. It is deliberately heavier than "decide and move
+on", because these are the decisions that get silently re-litigated six weeks later by
+someone who cannot find why it went the way it did.
+
+Use it when a decision (a) changes a published contract or a shared surface, (b) would
+be expensive to reverse, or (c) has already been argued once. Skip it for a reversible
+local call — `AGENTS.md` §8 still applies.
+
+1. **Fix the measurement before adjudicating anything the measurement drives.**
+   -> expect the number you are about to decide on to have survived a deliberate attempt
+   to break it. If the decision rides on a count, a score, or a coverage figure, audit how
+   that figure is produced *first*. `AGENTS.md` §6 is the rail: *an empty input passes
+   every check*, and a threshold applied to a buggy measurement is a check that reports
+   confidence it never earned. In practice this step has dissolved the decision outright
+   more than once — the Phase 2 `pkg_manage` question turned out to be two bugs in our own
+   labeler, not a question (see `PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md`).
+
+2. **Adjudicate against the governance docs explicitly, naming which rail bears.**
+   -> expect a citation, not a vibe. `GUIDING-PRINCIPLES.md` for the durable/reversible/DRY
+   trade, `AGENTS.md` §3 for the reversibility read, `SOP.md` for campaign procedure. Where
+   two rails pull against each other, say so and pick — `GUIDING-PRINCIPLES.md` is explicit
+   that the tension *is* the decision, not something to average away.
+
+3. **Check the reversibility asymmetry before anything else decides it.**
+   -> expect an `Easy / Costly / One-way door` read on *each* option, per `AGENTS.md` §3.
+   Options are rarely symmetric, and when one is Easy to undo and the other is not, that
+   usually settles it on its own. Prefer the option that keeps the expensive move available
+   later; consolidation applied downstream (at a dataloader, a projection, a view) beats the
+   same consolidation baked into a canonical source.
+
+4. **Get independent feedback — `/consult` — and state the degrade if it fails.**
+   -> expect a cross-model read, or an explicit note that there wasn't one. Advisors are
+   advisory; the operator breaks ties. Two things must be recorded honestly: when advisors
+   fail (auth, entitlement, an unreachable backend), say so rather than quietly proceeding;
+   and when only one answered, label it a single-model read, not a consult — one model that
+   agrees with the framing you handed it is corroboration, not verification.
+
+5. **Codify the outcome in at least two places that are easy to find later.**
+   -> expect one of them to be where the decision would actually bite. A decision recorded
+   only in a doc gets re-litigated by whoever is reading the code. Land it in at least:
+   - the **code or contract** the decision governs — at the constant, flag, or schema field
+     itself, so it is read at the moment someone is tempted to change it; and
+   - a **durable record** — the `PROJECT/**` doc that owns the work, plus `CHANGELOG.md` per
+     `PROJECT/PDDA.md` if it is consequential (`AGENTS.md` §7).
+
+   Include *why*, the rails it was decided against, and what would have to change for the
+   answer to change. A decision without its reasoning is re-argued from zero.
+
+6. **Guard it with a test that you have watched fail.**
+   -> expect red, then green. Where the decision is expressible as an invariant, assert it,
+   then mutate the thing it guards and confirm the test goes red — `AGENTS.md` §6: a check
+   that cannot fail is decorative and worse than nothing. This is what stops a written-down
+   decision from quietly reverting.
+
+## 5. Anti-patterns (apply `AGENTS.md` §6 here specifically)
 
 - **Trusting exit code 0 as the verdict.** A training loop or export that exits cleanly can still
   have produced a checkpoint nobody can load, or a quantized model that silently diverges. Step 5
@@ -171,3 +231,9 @@ retained run artifacts. Do not let evidence live only in a terminal that's about
 - **Iterating against a checkout you also rely on for other work.** A campaign that downloads large
   artifacts or writes to shared caches is easiest to reason about from a clone or scratch directory
   you're willing to throw away.
+- **Adjudicating a decision on a number you have not audited.** A threshold applied to a buggy
+  measurement produces a confident, wrong answer that then gets written down as settled. §4 step 1
+  exists because this has already happened here once.
+- **Recording a decision in exactly one place.** A decision that lives only in a doc is invisible to
+  whoever is editing the code, and a decision that lives only in a code comment is invisible to
+  whoever is reading the plan. §4 step 5 requires both.

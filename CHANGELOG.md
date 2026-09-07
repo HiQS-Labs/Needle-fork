@@ -3,6 +3,111 @@
 Newest-first, dated end-of-iteration record. One entry per substantive iteration: what changed,
 why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
+## 2026-09-07
+
+### Phase 2 §1 — v1 Oracle label taxonomy authored, published and tested
+
+- Added `utils/corpus/taxonomy.py` as the single source of truth for the label set
+  (`LABELS_V1`, 44 labels) and the labeling function (`label_call`), so the extractor,
+  trainer, evaluator and end-of-turn hook cannot drift apart (issue #1 §1).
+- Published the cross-repo contract as `oracle/labels-v1.json`, **generated** by
+  `utils/corpus/export_label_schemas.py` through this repo's own
+  `needle/agent/tools.py` `build_schema` rather than hand-written. Labels take no
+  arguments, per Message 3's Ponytail Output Simplification.
+- Added `utils/corpus/measure_taxonomy.py`, which reports the §2 mapping-coverage
+  **gate** plus per-label support, static baselines and the rule-ambiguity rate, and
+  writes a `TESTS-RESULTS/` receipt. Receipts carry aggregates only — no prompt text,
+  commands or paths — since `data/` is gitignored and this repo is public.
+- Added `TESTS-RESULTS/README.md` adopting the Message 4 receipt protocol.
+
+Why: the first-pass labels from `16bce0b` cannot be frozen. Measured on 1,220 local
+Bash calls, 97.9% of commands are compound and 74.0% match two or more rules, so
+whole-string first-match-wins let a rule's **position in the list** decide most
+labels — `git_mutate` was collecting `grep -n …` and `sed -n 1,120p ROUTER.md`.
+Separately the extractor read only `command` and never `file_path`, so no governance
+label was detectable at all; `file_path` is present on 100% of Edit/Write/Read calls
+and 26.6% of those target a governance doc. v1 segments the command, drops preamble
+and display tails, and resolves by an explicit specificity tier; a segment led by an
+argument-consuming program (`grep`, `cat`, `find`) is that program's label so that a
+search *mentioning* governance is not scored as a governance move.
+
+Effect, both labelers over the same 1,446 local calls: static top-3 baseline
+68.66% → 46.27%, governance labels 0 → 54 calls, fall-through 2.99% → 0.97%,
+mapping coverage 97.01% → 99.03%.
+
+### Re-extracted the full Mac Studio corpus under v1
+
+The Studio's home folder turned out to be reachable as an SMB share, so the
+re-extraction ran from this machine instead of needing a handoff. It reproduced the
+handoff's session counts exactly (359 used, 24 skipped), confirming this is the same
+corpus relabelled rather than a different sample: **74,909 pairs, mapping coverage
+98.52%, governance share 7.26%, static top-3 baseline 45.82%**.
+
+Closing four coverage gaps found by diagnosing the unmapped remainder took the gate
+from 97.26% to 98.52%: MCP tools were unmapped entirely (their intent is in the tool
+name), `git -C <path> <verb>` broke every git rule, `[ -f x ] && …` conditionals were
+the largest single unmapped leading token, and `python3 -m` / `npx` / `swift` /
+`$VAR/script.sh` were uncovered. All regression-tested.
+
+Both open decisions are now answered by data rather than preference:
+
+- **Label-set size:** 40 of 44 labels clear the 0.1% support floor. Only
+  `park_roadmap_row` (68), `promote_capture` (14) and `publish_release` (1) fall
+  below, plus `no_action` at 0 — expected, since it comes from §3's `"answers": []`
+  slice and not from labelling a call.
+- **Governance support:** traces do carry it, at 7.26%, with 10 of 13 governance
+  labels above the floor. §3b doc-synthesis and §3c git/PR-mining therefore stay
+  supplements rather than load-bearing, needed for the three thin labels — which are
+  exactly the ones that land as commits with no prompt, the case §3c exists for.
+
+**The bar the Oracle is judged against is 45.82% top-3, not the previously published
+61.83%**, which was computed on order-artifact labels.
+
+### Adjudicated the `pkg_manage` decision — and it dissolved
+
+`pkg_manage` measured 60 calls, under the 74-call floor, and the open question was
+whether to merge it into `run_script`. **Both numbers were artifacts of bugs in our
+own labeler:** `uv add ruff` scored as `run_linter` (the linter regex matched the
+package *name* as though it were an invocation — the same class of error as a `grep`
+whose pattern mentions a governance word), and dependency *inspection* (`pip list`,
+`pip show`, `brew list`, `npm ls`) had been tightened out of `pkg_manage` into
+`unmapped`. Fixed, `pkg_manage` measures **111** — above the floor. There was no
+decision to make; there was a bug to fix.
+
+Adjudicated against `GUIDING-PRINCIPLES.md`, `AGENTS.md` and `SOP.md`, the durable
+outcome is a rule rather than a one-off call: **the support floor is a
+supplementation gate, not a deletion gate.** A label below it is flagged for §3b/§3c
+synthesis and is never deleted or merged on the floor alone; consolidating labels for
+training belongs at the dataloader as a projection, not at the canonical taxonomy
+root. DRY is about duplication, not rarity — "mutate/inspect the dependency
+environment" and "run something ad hoc" are two concepts. Reversibility is asymmetric
+(`AGENTS.md` §3): keeping a label is Easy to undo, merging is Costly.
+
+Codified in four places so it is found later — `utils/corpus/taxonomy.py` (at the
+constant itself), `oracle/labels-v1.json` (`support_floor`, so consumers inherit it),
+`PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md`, and here — and guarded by a test that
+was verified to fail when the rule is reversed.
+
+`SOP.md` gains **§4, "Adjudicating a contested decision"**, generalising the procedure:
+fix the measurement first, cite the rail, read the reversibility asymmetry, consult
+independently and state the degrade, codify in at least two places, and guard it with
+a test you have watched fail. `AGENTS.md` points at it.
+
+Cross-model `/consult` **could not run** — `codex` is authenticated but its ChatGPT
+account supports none of its models (HTTP 400), and `agy` needs an interactive login.
+A single independent read (Gemini via `aider`, in a throwaway worktree) agreed on all
+five points, but one model that agrees with the framing it was handed is corroboration,
+not verification, and is recorded as such.
+
+Not yet done: `v1.0.0-draft` has not been cut to `v1.0.0`. Tracked in
+`PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md`.
+
+Verification: `python3.11 -m pytest tests/test_taxonomy.py -q` → 46 passed;
+`utils/corpus/extract_claude_transcripts.py` over the Studio corpus → 74,909 pairs,
+coverage 98.52%; receipts in `TESTS-RESULTS/2026-09-07-taxonomy-v1/` (local
+mechanism) and `TESTS-RESULTS/2026-09-07-taxonomy-v1-studio/` (full corpus);
+`./utils/pdda/pdda.sh run`
+
 ## 2026-09-06
 
 ### PDDA installed
