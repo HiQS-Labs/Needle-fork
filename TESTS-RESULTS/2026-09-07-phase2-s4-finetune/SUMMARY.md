@@ -49,7 +49,26 @@ row**: roughly 1,200 of the ~1,700 tokens per row are the same schema block, rep
 times. There is no short-row bucket to exploit, so length bucketing buys nothing. This is a
 serializer design property, not a training-config one.
 
-## Decision — §4 is on hold (2026-09-07)
+## Decision — all execution moves to the MBP 14" M4 Pro (2026-09-07)
+
+**Superseding decision.** Running Phase 2 §4 on the Studio and GH-5 on the MBP created two
+lanes whose results had to be reconciled by hand — different corpora, different baselines,
+different receipts. That coordination cost was not worth it. **All execution now happens on
+one machine: the MBP 14" M4 Pro.**
+
+- The MBP has the GPU, MLX parity already passing (GH-5 P1), and both corpora on disk.
+- The Studio's only unique contribution was the `~/.claude` transcripts the corpus was built
+  from. Those are copied and checksum-verified at `data/corpus-studio/` on the MBP, so the
+  Studio is no longer on the critical path for anything.
+- The Studio remains the git host and the place planning happens. **It runs no jobs.**
+- The 512-row smoke pass documented below was stopped at step 10/32 under this decision. Its
+  measured rate stands; it never produced a saved adapter.
+
+§4 and GH-5 are no longer separate lanes. They are one lane on one machine: MLX first, with
+the JAX/CPU path retained only as the correctness reference it already serves as in
+`parity_check.py`.
+
+## Prior decision — §4 on hold (2026-09-07, superseded above)
 
 The rescoped 6,000-row run was **not launched**. On the same day this receipt was written, the
 MBP 14" M4 Pro cleared GH-5 P1 (MLX forward-pass parity, fp32 `max|dlogits| = 4.172e-07`, 240x
