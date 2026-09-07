@@ -14,7 +14,7 @@
 
 | What was just completed | What's next |
 |---|---|
-| Installed PDDA (2026-09-06). | Open a `PROJECT/**` doc for the first tracked effort and add its pointer here. |
+| Phase 2 §1 taxonomy authored, published and tested; first-pass labels shown unfreezable (2026-09-07). | Operator decision on label-set size and governance-label support, then re-extract on the Mac Studio under v1. |
 
 ## Ledger
 
@@ -24,7 +24,7 @@
 
 ### In progress
 
-- No active `PROJECT/2-WORKING` docs.
+- [Phase 2 §1 — Freeze the v1 Oracle label taxonomy](PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md) — v1 published as `oracle/labels-v1.json`; blocked on a Mac Studio re-extraction. ([#1](https://github.com/HiQS-Labs/Needle-fork/issues/1))
 
 ### Completed
 

@@ -19,53 +19,34 @@ PRIVACY -- READ BEFORE CHANGING
     highest-volume material. The output still contains real prompt text, so it
     lands in data/ (gitignored) and must never be committed. Needle-fork is PUBLIC.
 
-TAXONOMY IS DEFERRED, NOT DECIDED
-    Every pair carries BOTH labelings so training can choose without re-extracting:
-      label_raw    -- Bash intents kept distinct from same-intent native tools
-      label_merged -- same intent collapsed across transport (cat == Read)
-    They imply different baselines to beat (top-3: ~55% raw, ~62% merged).
+TAXONOMY LIVES IN taxonomy.py, NOT HERE
+    The first version of this file carried its own ordered regex list and matched it
+    against the WHOLE command string, first match wins. Measured on 1,220 local Bash
+    calls: 97.9% of commands are compound and 74.0% matched two or more rules, so for
+    most calls the label was chosen by a rule's POSITION IN THE LIST rather than by the
+    command -- `git_mutate` was collecting `grep -n ...` and `sed -n 1,120p ROUTER.md`.
+    It also read only `command` and never `file_path`, which made every governance
+    label undetectable: `Edit` was 11.33% of the corpus with `update_changelog`,
+    `file_capture_doc` and ordinary code edits collapsed into one token.
+
+    Both are fixed in `taxonomy.py`, which is now the single source of truth shared by
+    this extractor, the trainer, the evaluator and the end-of-turn hook. Do not
+    re-introduce rules here. See PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md.
 """
 from __future__ import annotations
-import argparse, collections, glob, hashlib, json, os, re, sys
+import argparse, collections, glob, hashlib, json, os, sys
 
-# --- Bash command -> intent. First match wins; order matters. ------------------
-BASH_RULES = [
-    ("run_tests",   r"\b(pytest|jest|vitest|go test|cargo test|npm (run )?test|make test|\./validate\.sh|ci-local\.sh|run-tests)"),
-    ("git_inspect", r"\bgit\s+(status|log|diff|show|branch|remote|rev-parse|rev-list|describe|blame|check-ignore|ls-files)"),
-    ("git_mutate",  r"\bgit\s+(add|commit|push|pull|fetch|merge|rebase|checkout|switch|reset|stash|clone|worktree|tag|cherry-pick)"),
-    ("search_code", r"\b(rg|grep|ag|ack)\b"),
-    ("find_files",  r"\b(find|fd|ls|tree)\b"),
-    ("read_file",   r"\b(cat|head|tail|less|bat|sed -n|awk)\b"),
-    ("build",       r"\b(make|cmake|cargo build|go build|npm run build|xcodebuild|clang|gcc|tsc)\b"),
-    ("pkg_manage",  r"\b(pip|pip3|npm install|yarn|brew|uv|poetry|apt|gem)\b"),
-    ("gh_cli",      r"\bgh\s+"),
-    ("run_script",  r"\b(python3?|node|bash|sh|zsh|ruby|perl)\s+\S+\.(py|js|ts|sh|rb|pl)"),
-    ("db_query",    r"\b(sqlite3|psql|mysql|bq)\b"),
-    ("fs_mutate",   r"\b(mkdir|rm|mv|cp|touch|chmod|ln)\b"),
-    ("sys_inspect", r"\b(ps|top|uptime|sysctl|df|du|whoami|which|uname|sw_vers|scutil|env)\b"),
-    ("net",         r"\b(curl|wget|ping|ssh|scp|rsync)\b"),
-]
-BASH_RE = [(n, re.compile(p)) for n, p in BASH_RULES]
-
-# Native tools whose intent duplicates a Bash bucket, for label_merged only.
-MERGE_INTO = {"Read": "read_file", "Grep": "search_code", "Glob": "find_files"}
-
-
-def bash_intent(cmd: str) -> str:
-    for name, rx in BASH_RE:
-        if rx.search(cmd):
-            return name
-    return "bash_other"
-
-
-def label_for(tool: str, cmd: str) -> tuple[str, str]:
-    """Return (label_raw, label_merged)."""
-    raw = bash_intent(cmd) if tool == "Bash" else tool
-    return raw, MERGE_INTO.get(raw, raw)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import taxonomy as tx  # noqa: E402
 
 
 def iter_steps(path: str):
-    """Yield ('user', text) and ('action', tool, cmd) in transcript order."""
+    """Yield ('user', text) and ('action', tool, input) in transcript order.
+
+    The full tool input is carried through because governance labels live in
+    `file_path`, not in `command`. Only the label is kept downstream -- the input
+    itself never reaches the corpus.
+    """
     with open(path, errors="replace") as fh:
         for line in fh:
             line = line.strip()
@@ -93,8 +74,7 @@ def iter_steps(path: str):
                 elif btype == "tool_use":
                     name = block.get("name")
                     if name:
-                        cmd = (block.get("input") or {}).get("command") or ""
-                        yield ("action", name, cmd)
+                        yield ("action", name, block.get("input") or {})
 
 
 def main() -> int:
@@ -120,7 +100,7 @@ def main() -> int:
     os.makedirs(args.out_dir, exist_ok=True)
     pairs_path = os.path.join(args.out_dir, "pairs.jsonl")
 
-    raw_counts, merged_counts = collections.Counter(), collections.Counter()
+    counts = collections.Counter()
     n_pairs = n_sessions = n_skipped = 0
     split_counts = collections.Counter()
 
@@ -144,8 +124,8 @@ def main() -> int:
                 if step[0] == "user":
                     recent_user = step[1][: args.user_chars]
                     continue
-                _, tool, cmd = step
-                raw, merged = label_for(tool, cmd)
+                _, tool, tool_input = step
+                label, _evidence = tx.label_call(tool, tool_input)
                 if history:  # a pair needs at least one step of context
                     out.write(json.dumps({
                         "session": sid,
@@ -153,18 +133,27 @@ def main() -> int:
                         "split": split,
                         "recent_user_request": recent_user,
                         "prior_actions": history[-args.context_steps:],
-                        "label_raw": raw,
-                        "label_merged": merged,
+                        "label": label,
                         "tool_name": tool,
                     }) + "\n")
                     n_pairs += 1
-                    raw_counts[raw] += 1
-                    merged_counts[merged] += 1
-                history.append(raw)
+                    counts[label] += 1
+                history.append(label)
 
     def baseline(counter: collections.Counter, k: int) -> float:
         tot = sum(counter.values()) or 1
         return 100.0 * sum(v for _, v in counter.most_common(k)) / tot
+
+    # #1 §3: assert non-empty. `load_jsonl` silently skips rows without a `query`
+    # key, so a converter bug yields an empty training set and a run that reports
+    # success against zero rows. Fail here instead.
+    if n_pairs == 0:
+        print("extracted 0 pairs -- refusing to write an empty corpus", file=sys.stderr)
+        return 1
+
+    coverage = tx.coverage(counts.elements())
+    gov_groups = {"pdda", "prs", "xyz"}
+    gov = sum(v for k, v in counts.items() if tx.LABELS_V1[k]["group"] in gov_groups)
 
     stats = {
         "generated_from": args.source,
@@ -175,25 +164,24 @@ def main() -> int:
         "split_sessions": dict(split_counts),
         "context_steps": args.context_steps,
         "user_chars": args.user_chars,
-        "labels_raw": len(raw_counts),
-        "labels_merged": len(merged_counts),
-        "baseline_raw_top1_pct": round(baseline(raw_counts, 1), 2),
-        "baseline_raw_top3_pct": round(baseline(raw_counts, 3), 2),
-        "baseline_merged_top1_pct": round(baseline(merged_counts, 1), 2),
-        "baseline_merged_top3_pct": round(baseline(merged_counts, 3), 2),
-        "distribution_raw": dict(raw_counts.most_common()),
-        "distribution_merged": dict(merged_counts.most_common()),
+        "label_set_version": tx.LABEL_SET_VERSION,
+        "labels": len(counts),
+        "labels_defined": len(tx.LABELS_V1),
+        "mapping_coverage": round(coverage, 4),
+        "governance_share": round(gov / n_pairs, 4),
+        "baseline_top1_pct": round(baseline(counts, 1), 2),
+        "baseline_top3_pct": round(baseline(counts, 3), 2),
+        "distribution": dict(counts.most_common()),
     }
     with open(os.path.join(args.out_dir, "stats.json"), "w") as fh:
         json.dump(stats, fh, indent=2)
 
     print(f"sessions {n_sessions} (skipped {n_skipped})   pairs {n_pairs:,}")
     print(f"split sessions: {dict(split_counts)}")
-    print(f"labels raw={len(raw_counts)} merged={len(merged_counts)}")
-    print(f"baselines to beat  raw: top1 {stats['baseline_raw_top1_pct']}%  "
-          f"top3 {stats['baseline_raw_top3_pct']}%")
-    print(f"                merged: top1 {stats['baseline_merged_top1_pct']}%  "
-          f"top3 {stats['baseline_merged_top3_pct']}%")
+    print(f"label set {tx.LABEL_SET_VERSION}   labels in use {len(counts)}/{len(tx.LABELS_V1)}")
+    print(f"MAPPING COVERAGE {100 * coverage:.2f}%   governance share {100 * gov / n_pairs:.2f}%")
+    print(f"baselines to beat: top1 {stats['baseline_top1_pct']}%  "
+          f"top3 {stats['baseline_top3_pct']}%")
     print(f"wrote {pairs_path} and stats.json")
     return 0
 
