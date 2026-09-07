@@ -14,7 +14,7 @@
 
 | What was just completed | What's next |
 |---|---|
-| Phase 2 §1 taxonomy authored, published and tested, and the full Studio corpus re-extracted under it — coverage 98.52%, 39/44 labels supported (2026-09-07). | Cut `v1.0.0-draft` → `v1.0.0`, then design §3's `query` serialization. |
+| Phase 2 §3 `query` serialization shipped as one shared function for trainer and Stop hook, with the train/serve invariant as a test; token budget measured (schemas alone = 1,383 tokens) so §4 trains at `--max-len 2048` (2026-09-07). | Cut `v1.0.0-draft` → `v1.0.0`; first `needle finetune` run on JAX/CPU at `--max-len 2048`; §3b/§3c synthesis for the abstain slice and three thin governance labels. |
 
 ## Ledger
 

@@ -25,13 +25,14 @@ branch: main
 
 | What was just completed | What's next |
 |---|---|
-| Adjudicated the `pkg_manage` decision — it dissolved: the 60-call count was an artifact of two bugs in our own labeler, and fixing them took it to **111**, above the floor. **40 of 44** labels now clear it. | Cut `v1.0.0-draft` → `v1.0.0`, then start §3's `query` serialization, the last design decision before training. |
+| §3's `query` serialization shipped as **one shared function** (`utils/corpus/serialize.py`) used by both the corpus builder and the end-of-turn Stop hook; the train/serve invariant is a test. Token budget measured: 44 full schemas = **1,383 tokens**, so training runs at `--max-len 2048`, not the default 1024 (Phase D). | Cut `v1.0.0-draft` → `v1.0.0`; run `needle finetune` on `data/corpus/oracle-train.jsonl` at `--max-len 2048` (§4); §3b/§3c synthesis for the three thin governance labels and the `no_action` abstain slice. |
 
 ## Table of contents
 
 - [Phase A — Establish whether the existing labels can be frozen](#phase-a--establish-whether-the-existing-labels-can-be-frozen)
 - [Phase B — Author and publish the v1 taxonomy](#phase-b--author-and-publish-the-v1-taxonomy)
 - [Phase C — Re-extract on the Studio and freeze](#phase-c--re-extract-on-the-studio-and-freeze)
+- [Phase D — §3 `query` serialization: one function for training and the hook](#phase-d--3-query-serialization-one-function-for-training-and-the-hook)
 
 ---
 
@@ -336,3 +337,72 @@ not committed (it is scratch); the reasoning that matters is reproduced above.
 
 Nothing on this decision. `pkg_manage` stays, `run_script` stays, and the floor's
 role is written down in four places.
+
+## Phase D — §3 `query` serialization: one function for training and the hook
+
+**Gate:** the hook and the trainer must produce byte-identical queries from the same steps,
+and every training row must fit the trainer's cap without truncation. Both are tests.
+
+### The format, and why it looks like this
+
+```
+[oracle-q1]
+REQUEST: <most recent user request, whitespace-collapsed, ≤600 chars>
+RECENT ACTIONS (oldest->newest): read_file, search_code, git_inspect
+LAST: git_inspect
+```
+
+- **Every line is a citable anchor** (`REQUEST:`, `RECENT ACTIONS`, `LAST:`) because #1 §3
+  requires `reasoning` to cite a span inside the query. The templated reasoning is
+  `LAST: <prev> -> <label>` — no generated prose, per §6.
+- **Actions are v1 labels, never raw tool names.** The model reads the vocabulary it must emit.
+- **`[oracle-q1]` is a version stamp.** If the hook and the trainer ever disagree on format,
+  the mismatch shows up in the data instead of as a silently useless model.
+- **Window of 12 prior actions, request truncated to 600 chars** — the extractor's defaults,
+  carried through unchanged so the corpus and the hook agree.
+
+### The token budget was measured, and it changed a §4 parameter
+
+Measured with the real Needle tokenizer on 2026-09-07:
+
+| block | tokens |
+|---|---|
+| 44 full label schemas (inline `tools` on every row) | **1,383** |
+| name + description only | 1,080 |
+| names only | 435 |
+| a representative `q1` query | 83 |
+
+`finetune`'s default `--max-len` is **1024**, and `_encode` truncates `ids[:max_len]` from
+the **end** — the target side. So at 1024 the schemas alone overflow and every row would
+train toward a cut-off answer, silently. Two ways out: shrink the schemas or raise the cap.
+**Raised the cap.** The schemas stay in the shape the base model was trained on; training
+runs at `--max-len 2048`, the architecture's `max_seq_len`, and `run.py:182` enforces the
+same ceiling at inference so the hook cannot exceed it either. Names-only (435 tokens)
+was rejected: it discards the descriptions the model maps a request against.
+
+`build_oracle_jsonl.py --check-max-len` renders every row exactly as the trainer will and
+refuses the build if any exceeds the cap. Without the tokenizer it skips **loudly**.
+
+### What shipped
+
+| | |
+|---|---|
+| `utils/corpus/serialize.py` | `serialize_query`, `templated_reasoning`, `to_finetune_row`, `load_schemas` (checks the schema's `label_set_version` against `taxonomy.py`). |
+| `utils/corpus/build_oracle_jsonl.py` | `pairs.jsonl` → `oracle-train.jsonl` / `oracle-holdout.jsonl` by the session-level `split`. Refuses an empty split; writes to `.tmp` and renames on success so a crash leaves nothing a trainer could mistake for data; refuses a pre-v1 corpus with a message naming the fix. |
+| `utils/hooks/oracle_stop_hook.py` | Claude Code Stop hook. Rebuilds context from the live transcript through the **same** `iter_steps` → `label_call` → `serialize_query` path, logs the query and latency to `data/hook-log.jsonl`. Always exits 0. Does not call a model yet — no adapter exists; that is a one-function change once §4 lands. |
+| `tests/test_serialize.py` | 9 tests: determinism, version marker, span-citability, window/truncation, v1-label enforcement, finetune row contract, `no_action` → `answers: []`, schema version parity, **hook == trainer byte-for-byte**, and the token-budget guard (skips without the tokenizer). |
+
+### Phase D gate — met
+
+- `tests/test_serialize.py` + `tests/test_taxonomy.py`: 68 passed, 1 skipped (tokenizer test under a Python without sentencepiece).
+- Corpus re-extracted on the Studio under v1 to confirm the pipeline end-to-end: 359 sessions, 74,428 pairs, coverage 98.52%, top-3 bar 45.99%.
+- `--check-max-len 2048` over every row with the real tokenizer: **longest rendered row 1,950 tokens**.
+  Headroom is 98 tokens — watch it if schema descriptions grow or `user_chars` rises; the check
+  runs on every build and refuses overflow, so drift fails loudly.
+- Rows: 48,744 train / 25,684 holdout (session-hash split; 63 of 359 sessions, but a few very long
+  sessions sit in holdout, so it is 34.5% of rows). `abstain_rows: 0` — confirms §3b is required.
+
+### Still open in §3
+
+- **`"answers": []` abstain slice.** `no_action` has zero support in traces by construction (it is never a tool call). `doc/finetuning.md` rule 2 says without ~1 in 8 refusals the tuned model calls a tool on everything. Source: `needle generate-data` per §3b — not fabricated from traces.
+- §3b/§3c synthesis for `park_roadmap_row`, `promote_capture`, `publish_release`.
