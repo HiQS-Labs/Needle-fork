@@ -5,6 +5,49 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-07
 
+### SOP §5: the GitHub issue is the actionable source of truth
+
+This repo is worked from more than one machine at a time — the Studio runs the Phase 2 lane, the
+MBP runs side quests — and from more than one branch and session per machine. The GitHub issue on
+the server is the only surface all of them can see, so a decision or finding recorded only in a
+local doc on an unmerged branch is one the other machine will unknowingly contradict.
+
+`SOP.md` gains **§5, "Source of truth: the GitHub issue wins"** (Anti-patterns moves to §6):
+
+- **§5.1** read the issue *and its comments* before any local doc — the body is frequently the
+  oldest text in the thread, and a plan revised in comments while the body still shows the
+  original sketch is the normal case here.
+- **§5.2** sync both ways: push issue changes down into the `PROJECT/**` doc and its ROADMAP row,
+  and push results, decisions and contradictions *up* to the issue in the same iteration that
+  produced them. Comment; never silently rewrite an issue body, which destroys the record of what
+  was believed when.
+- **§5.3** on conflict the issue wins by default.
+- **§5.4** the carve-out — an issue is a plan written at a moment in time and can be wrong about
+  the world. Verified local evidence with a receipt outranks a plan's assumption, but you neither
+  obey nor override silently: post the contradiction, propose the edit, then proceed on the
+  evidence and say so. Three real instances are cited, all from this repo: `rebalance.db` named as
+  a corpus source that has no tool-call column; a `min_confidence` hook gate against a confidence
+  head that fine-tuning leaves uncalibrated (`None` for tuned weights); and a required ~1-in-8
+  abstain slice that measures 0.00% in the built corpus.
+- **§5.5** when confidence is low, stop and ask — with concrete triggers rather than vibes: the
+  issue is newer than your evidence, obeying it would discard verified work or cost ~an hour
+  before surfacing, the conflict touches a decision already adjudicated under §4, the action is
+  Costly or a one-way door, two issues disagree, or the fix would cross a stated bound.
+- **§5.6** a table of which artifact carries what: a receipt is authoritative for *what happened*,
+  an issue for *what to do*, and a doc that contradicts both is stale.
+
+Three anti-patterns added to §6: leaving a finding in a local doc or commit message only, acting
+on an issue body without reading its comments, and silently resolving a doc-vs-issue conflict in
+either direction.
+
+`ROUTER.md` names GitHub issues as canonical in its role split, adds reading the issue and its
+comments as startup step 5, and adds a canonical rule that a finding left only on a branch does
+not exist for the other machine. `AGENTS.md` points at §5 before acting on any plan.
+
+Verification: `./utils/pdda/pdda.sh run`
+
+## 2026-09-07
+
 ### Phase 2 §3 — `query` serialization is one shared function; token budget forces `--max-len 2048`
 
 - Added `utils/corpus/serialize.py`: `serialize_query` (format `q1`, versioned, every line a
