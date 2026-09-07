@@ -351,9 +351,15 @@ class Stack:
 
 
 def _slice_layer(tree, i):
-    """Take layer `i` from a pytree whose leaves are stacked on axis 0 by nn.scan."""
+    """Take layer `i` from a pytree whose leaves are stacked on axis 0 by nn.scan.
+
+    An `mx.array` leaf is indexed in-graph. Going through numpy here would sever
+    the autodiff chain, which is exactly what a LoRA-merged weight needs to keep.
+    """
     if isinstance(tree, dict):
         return {k: _slice_layer(v, i) for k, v in tree.items()}
+    if isinstance(tree, mx.array):
+        return tree[i]
     return np.asarray(tree)[i]
 
 
@@ -392,6 +398,13 @@ class SimpleAttentionNetworkMLX:
         return (mx.stack([k for k, _ in pairs]), mx.stack([v for _, v in pairs]))
 
     def logits(self, tokens):
+        """Eager float32 numpy logits -- the inference/parity entry point."""
+        out = self.logits_mx(tokens)
+        mx.eval(out)
+        return np.asarray(out, dtype=np.float32)
+
+    def logits_mx(self, tokens):
+        """Same forward pass, left as a lazy `mx.array` so gradients can flow."""
         toks = _a(tokens, mx.int32)
         mask = make_causal_mask(toks.shape[1])
         x = mx.take(self.embedding, toks.reshape(-1), axis=0).reshape(
@@ -401,9 +414,7 @@ class SimpleAttentionNetworkMLX:
                           toks.shape[1], self.config["rope_theta"])
         engram_kv = self._engram_kv(toks, mask)
         x = self.stack(x.astype(self.dtype), mask=mask, rope=rope, engram_kv=engram_kv)
-        out = mx.matmul(x.astype(mx.float32), self.embedding.astype(mx.float32).T)
-        mx.eval(out)
-        return np.asarray(out, dtype=np.float32)
+        return mx.matmul(x.astype(mx.float32), self.embedding.astype(mx.float32).T)
 
 
 def normalize_config(config: dict) -> dict:
