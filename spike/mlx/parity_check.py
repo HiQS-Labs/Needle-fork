@@ -79,6 +79,12 @@ def main() -> int:
     ap.add_argument("--seq", type=int, default=32)
     ap.add_argument("--batches", type=int, default=4)
     ap.add_argument("--atol", type=float, default=1e-4)
+    ap.add_argument("--dtype", choices=("as-is", "float32", "bfloat16"), default="as-is",
+                    help="override the checkpoint's activation dtype on BOTH sides. The default "
+                         "tolerance of 1e-4 is an fp32-vs-fp32 number; the checkpoint config "
+                         "defaults to bfloat16, whose ~8-bit mantissa cannot reach it. Run "
+                         "--dtype float32 to test the PORT, and as-is to measure the deployed "
+                         "numerics. Report both; do not silently relax --atol.")
     ap.add_argument("--receipt", default=None, help="write JSON receipt here (aggregates only)")
     args = ap.parse_args()
     if not (args.tiny or args.checkpoint):
@@ -86,6 +92,9 @@ def main() -> int:
 
     import numpy as np
     ckpt = load(args.checkpoint, args.tiny)
+    if args.dtype != "as-is":
+        ckpt["config"] = dict(ckpt["config"])
+        ckpt["config"]["dtype"] = args.dtype
     vocab = int(ckpt["config"]["vocab_size"])
     seq = min(args.seq, int(ckpt["config"]["max_seq_len"]))
     batches = fixed_batches(vocab, seq, args.batches)
@@ -98,6 +107,7 @@ def main() -> int:
     result = {"source": "tiny" if args.tiny else os.path.basename(args.checkpoint),
               "config": {k: (list(v) if isinstance(v, tuple) else v) for k, v in ckpt["config"].items()},
               "seq": seq, "batches": args.batches, "atol": args.atol,
+              "dtype_mode": args.dtype, "activation_dtype": ckpt["config"].get("dtype", "bfloat16"),
               "jax_ms": round(t_jax * 1000, 1)}
     try:
         t0 = time.perf_counter()

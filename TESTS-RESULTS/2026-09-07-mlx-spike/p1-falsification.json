@@ -1,0 +1,39 @@
+{
+  "atol": 0.0001,
+  "clean_delta": 4.172325134277344e-07,
+  "batches": 2,
+  "dtype": "float32",
+  "faults": [
+    {
+      "fault": "control:shared_weight_perturbation",
+      "delta": 4.172325134277344e-07,
+      "caught": null,
+      "expect": "unchanged"
+    },
+    {
+      "fault": "rope: sin sign flipped",
+      "delta": 0.5498241186141968,
+      "caught": true
+    },
+    {
+      "fault": "engram: indices shifted +1",
+      "delta": 0.06359606981277466,
+      "caught": true
+    },
+    {
+      "fault": "rms_unit: epsilon 1e-6->1e-2",
+      "delta": 0.003523692488670349,
+      "caught": true
+    },
+    {
+      "fault": "sinkhorn: 20 -> 3 iters",
+      "delta": 1.1742115020751953e-05,
+      "caught": false
+    }
+  ],
+  "caught": 3,
+  "injected": 4,
+  "not_caught": [
+    "sinkhorn: 20 -> 3 iters"
+  ]
+}

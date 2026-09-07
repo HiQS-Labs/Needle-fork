@@ -1,0 +1,41 @@
+{
+  "timestamp": "2026-09-07T18:49:14Z",
+  "machine": "noel\u2019s MacBook Pro 14\"",
+  "chip": "Apple M4 Pro",
+  "cores": {
+    "total": 12,
+    "performance": 8,
+    "efficiency": 4,
+    "ane": 16
+  },
+  "memory_gb": 25.8,
+  "os_version": "15.6",
+  "git_commit": "3be720a",
+  "branch": "spike/mlx-finetune",
+  "target": "gh5-p0-environment",
+  "benchmark": "mlx import + Metal GPU matmul smoke",
+  "python": "3.11.15",
+  "versions": {
+    "mlx": "0.32.2",
+    "jax": "0.10.2",
+    "flax": "0.12.8",
+    "optax": "0.2.8",
+    "numpy": "2.4.6"
+  },
+  "mlx_default_device": "Device(gpu, 0)",
+  "mlx_gpu_matmul_2048": {
+    "seconds": 0.00192,
+    "gflops": 8931.0
+  },
+  "jax_backend": "cpu",
+  "corpus": {
+    "built_from": "data/corpus-v1/pairs.jsonl (Studio-derived, v1 labels)",
+    "train_rows": 61629,
+    "holdout_rows": 13280,
+    "longest_rendered_tokens": 1950,
+    "max_len_checked": 2048,
+    "subset_rows": 2000,
+    "subset_sha256_16": "522283369fd4005e"
+  },
+  "status": "ok"
+}

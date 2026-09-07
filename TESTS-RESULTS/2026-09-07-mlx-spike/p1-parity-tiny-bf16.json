@@ -1,0 +1,29 @@
+{
+  "source": "tiny",
+  "config": {
+    "vocab_size": 8192,
+    "d_model": 64,
+    "num_heads": 4,
+    "num_kv_heads": 2,
+    "num_layers": 2,
+    "max_seq_len": 128,
+    "engram_layers": [
+      1
+    ],
+    "engram_slots": 64,
+    "mhc_lanes": 2,
+    "flash": false,
+    "attn_dim": 64,
+    "dtype": "bfloat16"
+  },
+  "seq": 32,
+  "batches": 4,
+  "atol": 0.0001,
+  "dtype_mode": "bfloat16",
+  "activation_dtype": "bfloat16",
+  "jax_ms": 11379.4,
+  "status": "FAIL",
+  "max_abs_delta": 0.008570477366447449,
+  "argmax_agreement": 1.0,
+  "mlx_ms": 331.0
+}
