@@ -1,0 +1,6 @@
+# GH-5 MLX spike only. Never referenced from pyproject.toml or the train extra.
+# The JAX side of the parity harness needs the repo's own `train` extra:
+#   pip install -e '.[train]'
+mlx>=0.22
+numpy
+sentencepiece

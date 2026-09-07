@@ -20,7 +20,7 @@
 
 ### Queue / parked intake
 
-- No parked intake docs.
+- [GH-5 — MLX fine-tuning spike (side quest, MBP 14" M4 Pro only)](PROJECT/1-INBOX/GH-5-MLX-FINETUNE-SPIKE.md) — standalone runtime spike on `spike/mlx-finetune`; consumes the Phase 2 corpus, never merges MLX into `main`. ([#5](https://github.com/HiQS-Labs/Needle-fork/issues/5))
 
 ### In progress
 
