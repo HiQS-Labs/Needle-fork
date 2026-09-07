@@ -49,6 +49,14 @@ row**: roughly 1,200 of the ~1,700 tokens per row are the same schema block, rep
 times. There is no short-row bucket to exploit, so length bucketing buys nothing. This is a
 serializer design property, not a training-config one.
 
+## Decision — §4 is on hold (2026-09-07)
+
+The rescoped 6,000-row run was **not launched**. On the same day this receipt was written, the
+MBP 14" M4 Pro cleared GH-5 P1 (MLX forward-pass parity, fp32 `max|dlogits| = 4.172e-07`, 240x
+inside the 1e-4 tolerance). Spending ~15.5 h of the Studio's wall-clock on a CPU adapter is not
+worth it while the GPU path is one gate from a training loop. §4 resumes when GH-5 reaches P3,
+or when MLX returns a no-go.
+
 ## Consequences
 
 1. **§4 is rescoped** to a subsample (~6,000 rows, 1 epoch ≈ 15.5 h) so an adapter exists to
