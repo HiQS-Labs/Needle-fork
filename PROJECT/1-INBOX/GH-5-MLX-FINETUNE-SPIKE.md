@@ -1,6 +1,6 @@
 ---
 title: "GH-5 — MLX fine-tuning spike (side quest, MBP 14\" M4 Pro only)"
-status: Queued
+status: In progress
 created: 2026-09-07
 updated: 2026-09-07
 owner: noelsaw1
@@ -26,7 +26,7 @@ branch: spike/mlx-finetune
 
 | What was just completed | What's next |
 |---|---|
-| Spike scaffolded: issue #5, this capture doc, `spike/mlx/` with the JAX reference side of a parity harness working and the MLX side stubbed block-by-block against `architecture.py` line refs. | On the **MBP 14" M4 Pro**: P0 (install `mlx`, record the JAX/CPU baseline), then P1 (port the forward pass, pass the tiny-fixture parity check). |
+| **P0 environment PASS** (mlx 0.32.2 on `Device(gpu, 0)`, 8,931 GFLOP/s) and **P1 parity PASS** (fp32 max \|Δlogits\| **4.172e-07** vs 1e-4, argmax 100%), with a falsification harness proving the check is not vacuous. Corpus built on this laptop. | The **P0 JAX/CPU training baseline** is mid-run; P2 (parity on the real `needle2.pkl`) starts when it finishes — deliberately not sooner, because P2 runs JAX on CPU and would corrupt the very timing P4 compares against. |
 
 ## Why this is a side quest and not Phase 2 work
 
@@ -56,15 +56,16 @@ bonus for Phase 3/4. If it does not, nothing on `main` changes.** Either outcome
 
 ### P0 — Environment
 
-- [ ] `pip install -r spike/mlx/requirements-mlx.txt` on the M4 Pro; `python3 -c "import mlx.core as mx; print(mx.default_device())"` reports the GPU.
-- [ ] Record the **JAX/CPU baseline on the same machine**: `needle finetune` on a fixed 2,000-row subset of `oracle-train.jsonl`, `--max-len 2048`, 1 epoch — wall-clock, peak RSS, final loss. This is the number P4 compares against; without it P4 has no meaning.
-- Gate: both recorded in `TESTS-RESULTS/<date>-mlx-spike/`.
+- [x] **PASS** — `mlx` 0.32.2, `mx.default_device()` = `Device(gpu, 0)`; GPU smoke 2048³ fp32 matmul ×10 → 1.92 ms, **8,931 GFLOP/s**. `jax.default_backend()` = `cpu`, as `doc/finetuning.md` predicts.
+- [ ] **IN FLIGHT** — JAX/CPU baseline: `needle finetune` on the fixed 2,000-row subset, `--max-len 2048`, 1 epoch. ~10 min of JAX compilation before step 1; 113 steps at batch 16. Wall-clock, peak RSS and final loss land in `p0-jax-baseline.json`.
+- Gate: both recorded in `TESTS-RESULTS/2026-09-07-mlx-spike/`. Environment half done; baseline half pending.
 
 ### P1 — Forward-pass parity on the tiny fixture
 
-- [ ] Port `SimpleAttentionNetwork` to `spike/mlx/san_mlx.py`, block by block, against these source lines in `needle/model/architecture.py`: `ZCRMSNorm` (46), RoPE (97–118), `Engram` + `_sinkhorn` (169–207), `MultiHeadAttention` GQA (209–278), `_walsh_matrix` + `HadamardMLP` (280–303), `Block` (305), the top-level model.
-- [ ] `python3 spike/mlx/parity_check.py --tiny`: same random-init tiny checkpoint (`tests/conftest.py::tiny_checkpoint` config) loaded into both; fixed token batches; report max |Δlogits| and argmax agreement.
-- Gate: max |Δ| under a tolerance you state in the receipt (fp32 vs fp32 should be ~1e-4; state it, do not hand-wave). Argmax agreement 100% on the fixture.
+- [x] Ported all blocks to `spike/mlx/san_mlx.py`. Per-layer weights are sliced off **axis 0**, where `nn.scan(variable_axes={"params": 0})` stacked them — the documented trap, and the mapping is explicit in the module docstring.
+- [x] `parity_check.py --tiny` — **PASS in fp32**: max |Δlogits| **4.172e-07**, argmax agreement **100%**.
+- [x] `falsify_parity.py` — the check is **not vacuous**: 3 of 4 injected faults caught (see Findings F2).
+- Gate: **met in fp32.** The tolerance is stated in Decision D1 below, not hand-waved, and both dtypes are reported.
 
 ### P2 — Parity on the real base checkpoint
 
@@ -100,3 +101,135 @@ python3 spike/mlx/parity_check.py --tiny        # P1: JAX reference runs today; 
 The corpus must be present at `data/corpus/oracle-train.jsonl` (copy from the Studio, or re-run
 `utils/corpus/extract_claude_transcripts.py` + `build_oracle_jsonl.py --check-max-len` over the
 Studio's transcripts via the SMB share). It is gitignored; never commit it — this repo is public.
+
+---
+
+## Decisions — codified 2026-09-07 (MBP session)
+
+Recorded here **and** at the place each one bites, because this spike runs on one machine
+while Phase 2 runs on another and a decision that lives in only one of them gets re-litigated
+or, worse, silently contradicted.
+
+### D1 — Parity tolerance: fp32 is the gate, bf16 is measured and reported
+
+**The 1e-4 in this plan is an fp32-vs-fp32 number, but the fixture's config defaults to
+`bfloat16`.** Both are reported; neither is quietly dropped.
+
+| activation dtype | max \|Δlogits\| | relative | argmax | vs 1e-4 |
+|---|---|---|---|---|
+| **float32** | **4.172e-07** | 4.94e-07 | 100% | **PASS**, 240× inside |
+| bfloat16 (fixture default) | 8.570e-03 | 9.74e-03 | 100% | over |
+
+bf16 carries ~8 mantissa bits (epsilon ≈3.9e-3), so 9.7e-3 relative is the expected
+accumulation of independent rounding between two runtimes — **not** a port defect. Predictions
+are identical either way.
+
+**The rule:** judge the *port* in fp32; judge a *bf16 GPU training path* against the bf16
+number. Never relax `--atol` to make a run pass.
+*Also codified in:* `spike/mlx/parity_check.py --dtype` help text, `TESTS-RESULTS/2026-09-07-mlx-spike/SUMMARY.md`.
+
+### D2 — MLX is installed only in an isolated venv
+
+`.venv-mlx-spike` (Python 3.11), never the system interpreter. `python3` on this laptop is
+3.14 and has no `pip` on PATH; `python3.11 -m pip` works.
+
+`.venv-mlx-spike/` is excluded via **`.git/info/exclude`, not `.gitignore`** — `.gitignore` is
+outside this branch's bounds (only `spike/mlx/` and this doc may change). That exclusion is
+**local to this clone** and will not travel; another clone must redo it.
+
+### D3 — The corpus is built here, never re-extracted here
+
+`data/corpus/oracle-train.jsonl` did not exist on this laptop. It was built from the
+**Studio-derived** v1 corpus already on disk. The extractor was **never** pointed at this
+machine's own `~/.claude` — doing so silently yields a different, smaller corpus.
+
+```sh
+python3 utils/corpus/build_oracle_jsonl.py --pairs data/corpus-v1/pairs.jsonl \
+        --out-dir data/corpus --check-max-len
+```
+
+⚠️ **`--pairs` must be passed explicitly on this laptop.** It defaults to
+`data/corpus/pairs.jsonl`, which here is the **stale pre-v1 corpus** (`label_raw` /
+`label_merged`, no `label`) that `serialize.to_finetune_row` cannot consume. Local staleness,
+not a defect in `main`.
+
+Result: 61,629 train / 13,280 holdout, longest rendered row **1,950 tokens** against the 2,048
+cap (nothing truncates), 43 labels present. Fixed P0/P3 subset = first 2,000 rows,
+`sha256[:16] = 522283369fd4005e` — **pin this hash before comparing any P3 loss curve to
+JAX's**, or the curves are not measuring the same data.
+
+---
+
+## Findings
+
+### F1 — 🚨 The corpus has **zero** abstain rows (a finding for #1, not fixable here)
+
+`build_oracle_jsonl.py` emitted **0 rows with `"answers": []`** in *both* splits (0.00% of
+61,629 train / 13,280 holdout), and `no_action` has no support.
+
+This contradicts what #1 §3 requires and what `doc/finetuning.md:22` warns about:
+
+> *"Include off topic examples with `"answers": []`. The built in generator produces about 1 in 8.
+> **Without them the tuned model calls a tool on everything.**"*
+
+It is structural, not a bug in the converter: every pair in `pairs.jsonl` is a real tool call, so
+the converter has nothing to turn into an abstention. The off-topic slice has simply not been
+built yet by anyone.
+
+**Why this is urgent for the other machine:** a full Phase 2 training run on this corpus
+produces a model that can never abstain; #1 §5's abstention precision/recall is **vacuous**
+(no positives exist in the holdout); and #1 §6's every-turn hook would fire a recommendation on
+every single turn — the exact failure §6 names, *"an Oracle that emits noise every turn trains
+the operator to ignore it, which is worse than silence."* That is hours of GPU/CPU time spent
+before the gap surfaces at eval.
+
+**Reported to #1.** Not fixed here — out of bounds, and it is a main-lane data decision.
+
+### F2 — The parity harness is insensitive to Sinkhorn iteration count
+
+`spike/mlx/falsify_parity.py`, fp32 @ atol 1e-4, faults injected into the MLX side only:
+
+| injected fault | max \|Δ\| | |
+|---|---|---|
+| *control:* perturb a weight **both** sides read | 4.172e-07, unchanged | confirms both read the same weights |
+| RoPE sin sign flipped | 5.498e-01 | caught |
+| Engram indices shifted +1 | 6.360e-02 | caught |
+| `_rms_unit` epsilon 1e-6 → 1e-2 | 3.524e-03 | caught |
+| **Sinkhorn 20 → 3 iterations** | **1.174e-05** | **NOT caught** |
+
+On a 2-layer / 2-lane fixture, 3 Sinkhorn iterations already converge under the tolerance.
+**P1 passing therefore does not prove the Sinkhorn loop count matches.** Carry this into P2
+explicitly: the real checkpoint is 27 layers / 4 lanes, where the residual mixing compounds and
+a mismatch should become visible. If P2 passes too, say plainly that the iteration count remains
+unverified rather than implying it was checked.
+
+### F3 — Two port limits that P2 must resolve
+
+1. **Non-flash attention only.** The tiny fixture sets `flash=False`, so the port implements the
+   manual softmax path. If `needle2.pkl` sets `flash=True`, JAX takes
+   `jax.nn.dot_product_attention` and any difference surfaces at P2 — attributable to the path,
+   not the weights.
+2. **Quant path unported.** Under `quant=False` both `_aq` and `maybe_quant_kv` are the identity
+   in JAX, so P1 never exercised them. `--qat-bits auto` is P2/P3 scope, and P0's baseline is
+   already training under `CQ mixed[embedding=4,mhc=4,default=2] STE + A8`.
+
+---
+
+## Cross-machine contract
+
+Two machines, one plan. What each must not assume about the other:
+
+| | |
+|---|---|
+| **This laptop (MBP 14" M4 Pro)** owns | GH-5 only: `spike/mlx/`, this doc, `TESTS-RESULTS/*-mlx-spike/`, branch `spike/mlx-finetune`. |
+| **The Studio** owns | Phase 2 (#1) and the canonical corpus extraction. |
+| Shared, must not diverge | `oracle/labels-v1.json`, `utils/corpus/serialize.py`, `needle/model/finetune.render_example`. The spike **imports** these; it never re-implements them. |
+| Not shared | `data/**` (gitignored, per-machine), `.venv-mlx-spike/`, `.git/info/exclude`, `checkpoints/`. |
+
+**Before acting on this doc from another machine, check:** the `updated:` date in the
+frontmatter, the Status table, and issue #5's comment thread — the issue carries each gate as
+it lands and is the faster read.
+
+**A change needed in `utils/corpus/`, `oracle/`, `needle/`, `tests/` or the #1 plan is a
+finding to post on #1** (see F1), never a commit on this branch. That bound is what keeps the
+two machines from fighting over the same files.

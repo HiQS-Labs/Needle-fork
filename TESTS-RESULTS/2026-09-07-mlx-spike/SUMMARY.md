@@ -44,7 +44,20 @@ python3 utils/corpus/build_oracle_jsonl.py --pairs data/corpus-v1/pairs.jsonl \
 | train / holdout rows | 61,629 / 13,280 (session-level split inherited as-is) |
 | longest rendered row | **1,950 tokens** against the 2,048 cap — no row truncates |
 | labels present | 43 of 44 |
+| **abstain rows (`"answers": []`)** | **0 in both splits (0.00%)** — see finding below |
 | fixed P0/P3 subset | first 2,000 rows, `sha256[:16] = 522283369fd4005e` |
+
+### 🚨 Finding: the corpus has zero abstain rows
+
+`doc/finetuning.md:22` — *"Include off topic examples with `"answers": []`. The built in
+generator produces about 1 in 8. **Without them the tuned model calls a tool on everything.**"*
+This corpus has **none**, in either split, and `no_action` has no support.
+
+It is structural rather than a converter bug: every pair in `pairs.jsonl` is a real tool call,
+so there is nothing to convert into an abstention. Consequences for the main lane — a model that
+can never abstain, a **vacuous** abstention precision/recall in #1 §5 (no holdout positives), and
+an every-turn hook that fires on every turn, which #1 §6 names as worse than silence. Reported to
+#1; out of bounds to fix here.
 
 `data/corpus/pairs.jsonl` on this laptop is the **stale pre-v1 corpus** (`label_raw`/`label_merged`,
 no `label`), which `serialize.to_finetune_row` cannot consume. That is a local staleness, not a
