@@ -1,0 +1,74 @@
+> **ATTESTATION**
+> Model: gpt-5.4
+> Provider: openai
+> Sandbox: read-only
+
+Reading additional input from stdin...
+2026-09-07T17:00:00.513803Z ERROR codex_models_manager::cache: failed to load models cache: missing field `base_instructions` at line 133 column 5
+OpenAI Codex v0.142.5
+--------
+workdir: /private/var/folders/z0/92pfvhnn06z2_7hnpdb4kkbw0000gn/T/consult-wt-89724-urzdf8a7
+model: gpt-5.4
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: high
+reasoning summaries: none
+session id: 01a07ccf-fe30-7951-b83d-8b4484fd803b
+--------
+user
+You are an INDEPENDENT advisor in a one-shot cross-model consult. Another model is answering the SAME question separately and a coordinator will reconcile both answers, so give your own honest, specific read — do not hedge toward a consensus you cannot see. Read any repo files the question references (cite file:line). Respond with: (1) a short direct ANSWER; (2) graded FINDINGS — [Blocker]/[Should]/[Nit]/[Pass] — where applicable; (3) a one-line RECOMMENDATION. You are ADVISORY ONLY: output your analysis as text; do not rely on writing files (you are running in a throwaway copy).
+
+=== CONSULT QUESTION ===
+Adjudicate a label-taxonomy decision in this repo (Needle-fork, Phase 2 Oracle, issue #1), against this repo's own GUIDING-PRINCIPLES.md, AGENTS.md and SOP.md. Read those three files plus utils/corpus/taxonomy.py and PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md.
+
+## Context
+
+We are training a 45M tool-selection model ("the Oracle") to predict the next SDLC action label from Claude Code transcript history. The v1 taxonomy is `utils/corpus/taxonomy.py` (44 labels, single source of truth), published as the cross-repo contract `oracle/labels-v1.json`.
+
+Corpus: 74,909 (context -> next action) pairs from 359 sessions. Mapping coverage 98.52%. Governance share 7.26%. Static top-3 majority baseline 45.84%.
+
+I introduced a "support floor" of 0.1% of calls (= 74 calls) to flag labels too sparse to train on. 39 of 44 labels clear it. Below it:
+
+- `no_action` (0) -- expected; it is the abstention target produced by issue #1 §3's `"answers": []` off-topic slice, not by labelling a call
+- `promote_capture` (14)
+- `park_roadmap_row` (68)
+- `publish_release` (1)
+- `pkg_manage` (60)
+
+We already decided to KEEP the three governance stragglers (promote_capture, park_roadmap_row, publish_release), because governance is the entire point of this Oracle, and issue #1 §3b (synthesize training examples from the governance docs) and §3c (mine git/PR history) exist precisely to supplement labels that land as commits with no corresponding prompt.
+
+## The question
+
+What should happen to `pkg_manage` (60 calls, 0.080%, just under the 74-call floor)?
+
+(a) merge it into `run_script`; (b) keep it and accept sparsity; (c) something else.
+
+## Important new evidence -- please weigh this
+
+The 60 is partly an artifact of MY OWN rule bugs, not a property of the corpus. `pkg_manage` was 99 calls in the previous pass. Two bugs:
+
+1. I tightened its regex from bare tokens (`pip|brew|uv|apt|gem`) to install-only subcommands, which dropped dependency INSPECTION (`pip list`, `pip show`, `brew list`, `pip freeze`, `npm ls`) into `unmapped`.
+2. `uv add ruff` was being labelled `run_linter`, because the run_linter regex matched the package NAME "ruff" as though it were an invocation.
+
+I have fixed both (package managers now consume their arguments as package names, except delegating subcommands like `uv run pytest` / `npm run build`), added regression tests, and a re-extraction is running now. The count will rise.
+
+## What I want from you
+
+1. Is my reasoning right that you must fix a measurement bug BEFORE adjudicating a decision the measurement drives? Does that follow from AGENTS.md §6 ("verified beats plausible", "a check that cannot fail is not a check", "an empty input passes every check")?
+
+2. Independent of the count: is merging `pkg_manage` into `run_script` defensible on DRY grounds, or is it a semantic conflation? GUIDING-PRINCIPLES says "One source of truth per concept" -- are "install a dependency" and "run an ad-hoc script" one concept or two?
+
+3. Reversibility (AGENTS.md §3, Easy/Costly/One-way door): keeping the label is trivially reversible (collapse labels with a dict at dataset-build time), while merging requires a ~6 minute re-extraction over a network share that is not always mounted. Does that asymmetry decide it?
+
+4. Bigger question: is a numeric support floor the right instrument at all? I am now inclined to say the floor should be a "needs-supplementation" gate (flag the label for §3b/§3c synthesis) rather than a "delete-the-label" gate -- because a threshold I invented should not be silently deleting semantically distinct labels. Is that the durable fix, or am I over-generalizing from a single label?
+
+5. What argument am I missing FOR merging? For example calibration: issue #1 §5 requires confidence separation, and a label with only ~60-100 training examples may be poorly calibrated and fire spuriously in the end-of-turn hook, which suppresses below a confidence threshold.
+
+Be concrete, cite the governance docs where they actually bear, and disagree with me if I am wrong. I will break ties.
+
+warning: Model metadata for `gpt-5.4` not found. Defaulting to fallback metadata; this can degrade performance and cause issues.
+ERROR: {"type":"error","status":400,"error":{"type":"invalid_request_error","message":"The 'gpt-5.4' model is not supported when using Codex with a ChatGPT account."}}
+ERROR: {"type":"error","status":400,"error":{"type":"invalid_request_error","message":"The 'gpt-5.4' model is not supported when using Codex with a ChatGPT account."}}
+
+consult: advisor failed with exit 1

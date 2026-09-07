@@ -115,5 +115,8 @@ needle-ui.*
 PROJECT/PDDA-ACTIVITY.jsonl
 .pdda-gh-state.tsv
 
-# Consult/relay harness output (.xyz/relay-automation) — generated advisor transcripts, not source.
-relay-system/
+# Consult/relay harness scratch. Relay THREADS under relay-system/ are audit artifacts and stay
+# tracked — a reviewer's verdict has to be committable, and the shim commits the relay file.
+# Only the transient worktree/log spill is ignored.
+relay-system/**/*.log
+.relay-artifacts/
