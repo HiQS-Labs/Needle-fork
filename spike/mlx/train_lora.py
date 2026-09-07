@@ -130,6 +130,15 @@ def main():
     ap.add_argument("--max-steps", type=int, default=0, help="stop early (smoke test)")
     ap.add_argument("--out", default="data/spike-mlx/mlx-lora-adapter.pkl")
     ap.add_argument("--log-every", type=int, default=0, help="0 = match JAX (total/50)")
+    ap.add_argument("--micro-batch", type=int, default=0,
+                    help="gradient-accumulation micro-batch; 0 = no accumulation. "
+                         "Keeps the effective batch (and so the loss curve) while "
+                         "bounding activation memory.")
+    ap.add_argument("--mem-limit-gb", type=float, default=12.0,
+                    help="hard MLX allocation ceiling. MLX draws from unified memory "
+                         "with no default ceiling, so an oversized run starves the "
+                         "kernel and takes the MACHINE down rather than the process. "
+                         "0 disables (do not).")
     ap.add_argument("--receipt", default="")
     args = ap.parse_args()
 
@@ -139,6 +148,15 @@ def main():
 
     t_start = time.time()
     print(f"  {'device':<9} {mx.default_device()}", flush=True)
+
+    if args.mem_limit_gb > 0:
+        mx.set_memory_limit(int(args.mem_limit_gb * 2 ** 30))
+        # MEASURED, do not trust this as a guarantee: with the cap at 12 GB a
+        # micro-batch-2 step still peaked at 13.4 GB and MLX allocated straight
+        # through without raising. The limit is advisory. The pre-flight estimate
+        # below is the check that actually protects the host.
+        print(f"  {'memcap':<9} {args.mem_limit_gb:.1f} GB (ADVISORY -- MLX has been "
+              f"observed to exceed it; the pre-flight estimate is the real guard)", flush=True)
 
     params, config = load_checkpoint(args.checkpoint)
     cfg = normalize_config(dict(vars(config)) if not isinstance(config, dict) else dict(config))
@@ -184,6 +202,28 @@ def main():
         val_seqs, val_masks, seqs, masks = seqs[:n_val], masks[:n_val], seqs[n_val:], masks[n_val:]
         print(f"  {'holdout':<9} {n_val} examples for validation", flush=True)
 
+    # Pre-flight: the dominant activation term is one [B, H, S, S] float32 score
+    # matrix per layer, all retained for the backward pass. At batch 16 / seq 2048
+    # on this 27-layer model that is ~54 GB -- more than twice a 24 GB machine --
+    # and MLX will take the host down rather than fail. Refuse first, and say so.
+    micro = args.micro_batch or args.batch_size
+    scores_gb = (micro * cfg["num_heads"] * max_len * max_len * 4
+                 * cfg["num_layers"]) / 2 ** 30
+    # Attention scores are the dominant term but not the only one; MLP
+    # intermediates, logits and the merged weight copies add roughly as much
+    # again. Calibrated against a measured micro-batch-2 run: predicted 6.8 GB
+    # of scores, observed 13.4 GB peak -> ~2.0x. Rounded up to 2.2x for margin.
+    OVERHEAD = 2.2
+    est_gb = scores_gb * OVERHEAD
+    print(f"  {'memest':<9} ~{scores_gb:.1f} GB attention scores -> ~{est_gb:.1f} GB "
+          f"projected peak at micro-batch {micro} x seq {max_len}", flush=True)
+    if args.mem_limit_gb > 0 and est_gb > args.mem_limit_gb:
+        raise SystemExit(
+            f"  refusing: projected peak {est_gb:.1f} GB exceeds the {args.mem_limit_gb:.1f} GB "
+            f"budget. Lower --micro-batch (memory scales linearly in it) or raise "
+            f"--mem-limit-gb only if the host truly has the headroom. Note the machine "
+            f"has been taken down once by ignoring this.")
+
     batch, count = args.batch_size, len(seqs)
     steps_per_epoch = -(-count // batch)
     total_steps = args.epochs * steps_per_epoch
@@ -193,16 +233,47 @@ def main():
     base_mx = {p: mx.array(w) for p, w in flat.items()}
     opt = mlx_opt.AdamW(learning_rate=args.lr)
 
-    def loss_fn(lora, ids, mask):
-        """finetune.py:379-390, minus the QAT branch (see module docstring)."""
+    def loss_sum_fn(lora, ids, mask):
+        """finetune.py:379-390 minus the QAT branch, returning the SUM of masked
+        token losses rather than the mean.
+
+        The JAX loss is  L = sum(ce*m) / sum(m)  over the whole batch, so
+            dL/dw = [ sum over micro-batches of d(sum(ce*m))/dw ] / sum(m).
+        Summing here and dividing once by the batch-wide token count at the end
+        makes accumulation EXACTLY equal to the full-batch gradient -- which a
+        per-micro-batch mean would not be, since micro-batches hold unequal
+        numbers of supervised tokens.
+        """
         merged = merge_lora(base_mx, lora, scale)
         model = SimpleAttentionNetworkMLX(unflatten(merged), cfg)
         logits = model.logits_mx(ids)
         logits, targets, m = logits[:, :-1], ids[:, 1:], mask[:, 1:]
         ce = mlx_nn.losses.cross_entropy(logits, targets, reduction="none")
-        return (ce * m).sum() / mx.maximum(m.sum(), 1.0)
+        return (ce * m).sum()
 
-    grad_fn = mx.value_and_grad(loss_fn)
+    grad_sum_fn = mx.value_and_grad(loss_sum_fn)
+
+    def batch_grads(lora, b_ids, b_mask):
+        """One optimiser step's gradient, over micro-batches if asked."""
+        n = len(b_ids)
+        step = micro if micro < n else n
+        acc, tot_loss, tot_tok = None, 0.0, 0.0
+        for off in range(0, n, step):
+            ids = mx.array(b_ids[off:off + step].astype(np.int32))
+            m = mx.array(b_mask[off:off + step].astype(np.float32))
+            lsum, g = grad_sum_fn(lora, ids, m)
+            ntok = float(m[:, 1:].sum())
+            if acc is None:
+                acc = g
+            else:
+                acc = {k: {n2: acc[k][n2] + v for n2, v in ad.items()}
+                       for k, ad in g.items()}
+            mx.eval(acc, lsum)
+            tot_loss += float(lsum)
+            tot_tok += ntok
+        denom = max(tot_tok, 1.0)
+        return ({k: {n2: v / denom for n2, v in ad.items()} for k, ad in acc.items()},
+                tot_loss / denom)
     every = args.log_every or max(1, total_steps // 50)
     step_i, last, hist = 0, 0.0, []
     rng = np.random.default_rng(args.seed)
@@ -211,14 +282,12 @@ def main():
         order = rng.permutation(count)
         for start in range(0, count, batch):
             idx = order[start:start + batch]
-            ids = mx.array(seqs[idx].astype(np.int32))
-            m = mx.array(masks[idx].astype(np.float32))
             t0 = time.time()
-            loss, grads = grad_fn(lora, ids, m)
+            grads, loss = batch_grads(lora, seqs[idx], masks[idx])
             grads, gnorm = clip_by_global_norm(grads, 1.0)
             opt.learning_rate = warmup_cosine(step_i, args.lr, warmup, total_steps)
             lora = opt.apply_gradients(grads, lora)
-            mx.eval(lora, loss)
+            mx.eval(lora)
             dt = time.time() - t0
             last, step_i = float(loss), step_i + 1
             hist.append({"step": step_i, "loss": last, "s": round(dt, 3),
@@ -235,8 +304,9 @@ def main():
     wall = time.time() - t_start
     steps_timed = [h["s"] for h in hist]
     med = float(np.median(steps_timed)) if steps_timed else 0.0
+    peak_gb = mx.get_peak_memory() / 2 ** 30
     print(f"  {'done':<9} {step_i} steps  loss {last:.4f}  median {med:.2f} s/step"
-          f"  wall {wall/60:.1f} min", flush=True)
+          f"  wall {wall/60:.1f} min  peak {peak_gb:.1f} GB", flush=True)
 
     os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
     with open(args.out, "wb") as fh:
@@ -255,6 +325,8 @@ def main():
                        "lora_alpha": args.lora_alpha, "lr": args.lr,
                        "steps_run": step_i, "total_steps": total_steps,
                        "final_loss": last, "median_s_per_step": med,
+                       "micro_batch": micro, "peak_gb": round(peak_gb, 2),
+                       "mem_limit_gb": args.mem_limit_gb,
                        "wall_seconds": round(wall, 1), "history": hist}, fh, indent=2)
         print(f"  {'receipt':<9} {args.receipt}", flush=True)
 
