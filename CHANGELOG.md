@@ -5,6 +5,38 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-07
 
+### Phase 2 §3 — `query` serialization is one shared function; token budget forces `--max-len 2048`
+
+- Added `utils/corpus/serialize.py`: `serialize_query` (format `q1`, versioned, every line a
+  citable anchor), `templated_reasoning`, `to_finetune_row`, `load_schemas`. It is the only
+  place the model input is rendered; the corpus builder and the Stop hook both call it, so
+  training-time and hook-time queries cannot drift (issue #1 §3, §6).
+- Added `utils/corpus/build_oracle_jsonl.py`: `pairs.jsonl` → `oracle-{train,holdout}.jsonl`
+  in the exact shape `needle/model/finetune.py` consumes. Refuses an empty split (§3's
+  silent-drop hazard), writes via `.tmp` + rename so a crash cannot leave 0-byte files a
+  trainer would accept as zero rows, and refuses a pre-v1 corpus by name.
+- Added `utils/hooks/oracle_stop_hook.py`: the Claude Code Stop hook's serve side, built on
+  the same `iter_steps` → `label_call` → `serialize_query` path as training. Logs query and
+  latency to `data/hook-log.jsonl`; always exits 0; calls no model yet because no adapter
+  exists.
+- **Measured** with the real tokenizer: the 44 inline label schemas are **1,383 tokens**,
+  over `finetune`'s default `--max-len 1024` on their own, and `_encode` truncates from the
+  target end. Decision recorded in the project doc: keep full schemas, train at
+  `--max-len 2048` (the architecture's `max_seq_len`; `run.py:182` enforces the same ceiling
+  at inference). `--check-max-len` renders every row as the trainer will and refuses the
+  build on overflow.
+- Verification: `tests/test_serialize.py` (9 tests, incl. hook == trainer byte-for-byte) +
+  `tests/test_taxonomy.py` → 68 passed, 1 skipped. Corpus re-extracted on the Studio under
+  v1 end-to-end: 359 sessions, 74,428 pairs, coverage 98.52%, top-3 bar 45.99%.
+  `build_oracle_jsonl.py --check-max-len` over all 74,428 rows with the real tokenizer:
+  **longest rendered row = 1,950 tokens** — fits 2048 with 98 tokens of headroom, and
+  would have been truncated at 1024. Split by session hash landed 48,744 train /
+  25,684 holdout rows (63 of 359 sessions; a few long sessions fell on the holdout side).
+  `abstain_rows: 0` — the `no_action` slice must come from §3b synthesis, not traces.
+- Framework codified: **JAX/Flax** (the repo's declared stack; `doc/finetuning.md` confirms
+  `jax-metal` is not viable on current JAX, so Apple Silicon trains on CPU — fine for a 45M
+  LoRA). MLX deferred to Phase 3/4, recorded in #1 and umbrella #467.
+
 ### Phase 2 §1 — v1 Oracle label taxonomy authored, published and tested
 
 - Added `utils/corpus/taxonomy.py` as the single source of truth for the label set
