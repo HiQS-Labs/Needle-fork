@@ -39,14 +39,33 @@ def delta(ckpt, batches) -> float:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--atol", type=float, default=1e-4)
+    ap.add_argument("--rtol", type=float, default=None,
+                    help="use a RELATIVE threshold instead of --atol. Required on the real "
+                         "checkpoint, whose logits reach ~7e3 and where an absolute 1e-4 is "
+                         "below fp32 machine epsilon.")
+    ap.add_argument("--checkpoint", default=None,
+                    help="real checkpoint to falsify against; default is the tiny fixture")
+    ap.add_argument("--seq", type=int, default=32)
     ap.add_argument("--batches", type=int, default=2)
     ap.add_argument("--receipt", default=None)
     args = ap.parse_args()
 
-    ckpt = tiny_checkpoint()
+    if args.checkpoint:
+        import pickle
+        with open(args.checkpoint, "rb") as fh:
+            ckpt = pickle.load(fh)
+    else:
+        ckpt = tiny_checkpoint()
     ckpt["config"] = dict(ckpt["config"])
     ckpt["config"]["dtype"] = "float32"
-    batches = fixed_batches(int(ckpt["config"]["vocab_size"]), 32, args.batches)
+    batches = fixed_batches(int(ckpt["config"]["vocab_size"]), args.seq, args.batches)
+
+    # Scale the threshold to the model's own logit magnitude when --rtol is given.
+    if args.rtol is not None:
+        _ref = jax_logits(ckpt, batches[0])
+        _scale = float(np.max(np.abs(_ref)))
+        args.atol = args.rtol * _scale
+        print(f"logit scale {_scale:.4g}; rtol {args.rtol:g} -> effective atol {args.atol:.4g}")
 
     clean = delta(ckpt, batches)
     print(f"clean                         max|d| = {clean:.3e}   (baseline, must be <= atol)")

@@ -79,6 +79,14 @@ def main() -> int:
     ap.add_argument("--seq", type=int, default=32)
     ap.add_argument("--batches", type=int, default=4)
     ap.add_argument("--atol", type=float, default=1e-4)
+    ap.add_argument("--rtol", type=float, default=1e-5,
+                    help="relative tolerance = max|delta| / max|reference logit|. The real "
+                         "checkpoint's logits reach ~7.4e3, so an ABSOLUTE 1e-4 there is a "
+                         "relative 1.3e-8 -- below fp32 machine epsilon and unreachable by any "
+                         "correct port. Absolute is the right gate on the tiny fixture (logits "
+                         "~1); relative is the right gate on the real one. Both are reported.")
+    ap.add_argument("--gate", choices=("abs", "rel"), default="abs",
+                    help="which criterion decides PASS/FAIL. State it in the receipt.")
     ap.add_argument("--dtype", choices=("as-is", "float32", "bfloat16"), default="as-is",
                     help="override the checkpoint's activation dtype on BOTH sides. The default "
                          "tolerance of 1e-4 is an fp32-vs-fp32 number; the checkpoint config "
@@ -120,11 +128,29 @@ def main() -> int:
         return 3
 
     max_abs = max(float(np.max(np.abs(a - b))) for a, b in zip(ref, got))
+    scale = max(float(np.max(np.abs(a))) for a in ref)
+    max_rel = max_abs / (scale + 1e-12)
     agree = float(np.mean([np.mean(np.argmax(a, -1) == np.argmax(b, -1)) for a, b in zip(ref, got)]))
-    ok = max_abs <= args.atol and agree == 1.0
+
+    # The Oracle's production surface is a TOP-3 list, so top-3 set agreement is the
+    # property that actually has to hold -- a port could keep argmax and still reorder
+    # positions 2 and 3, which would change what the hook shows.
+    def top3_agree(a, b):
+        ta = np.argsort(-a, axis=-1)[..., :3]
+        tb = np.argsort(-b, axis=-1)[..., :3]
+        return float(np.mean([len(set(x) & set(y)) / 3.0
+                              for x, y in zip(ta.reshape(-1, 3), tb.reshape(-1, 3))]))
+    t3 = float(np.mean([top3_agree(a, b) for a, b in zip(ref, got)]))
+
+    gated = max_abs <= args.atol if args.gate == "abs" else max_rel <= args.rtol
+    ok = gated and agree == 1.0
     result.update(status="PASS" if ok else "FAIL", max_abs_delta=max_abs,
-                  argmax_agreement=agree, mlx_ms=round(t_mlx * 1000, 1))
-    print(f"max |Δlogits| = {max_abs:.3e}  argmax agreement = {agree:.4f}  -> {result['status']}")
+                  max_rel_delta=max_rel, logit_scale=scale, argmax_agreement=agree,
+                  top3_agreement=t3, gate=args.gate, rtol=args.rtol,
+                  mlx_ms=round(t_mlx * 1000, 1))
+    print(f"max |Δlogits| = {max_abs:.3e}   (|logits|max = {scale:.4g}, relative = {max_rel:.3e})")
+    print(f"argmax agreement = {agree:.4f}   top-3 agreement = {t3:.4f}")
+    print(f"gate = {args.gate} (atol {args.atol:g} / rtol {args.rtol:g})  -> {result['status']}")
     _write(args.receipt, result)
     return 0 if ok else 1
 

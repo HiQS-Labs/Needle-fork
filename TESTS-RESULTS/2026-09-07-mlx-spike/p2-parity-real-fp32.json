@@ -1,0 +1,38 @@
+{
+  "source": "needle2.pkl",
+  "config": {
+    "vocab_size": 8192,
+    "d_model": 512,
+    "num_heads": 8,
+    "num_kv_heads": 4,
+    "num_layers": 27,
+    "max_seq_len": 2048,
+    "dtype": "float32",
+    "engram_slots": 8192,
+    "engram_layers": [
+      2,
+      15
+    ],
+    "mhc_lanes": 4,
+    "attn_dim": 512,
+    "kv_window": 256,
+    "weight_bits": "embedding=4,mhc=4,default=2",
+    "kv_bits": 8,
+    "act_bits": 8
+  },
+  "seq": 512,
+  "batches": 2,
+  "atol": 0.0001,
+  "dtype_mode": "float32",
+  "activation_dtype": "float32",
+  "jax_ms": 8679.4,
+  "status": "PASS",
+  "max_abs_delta": 0.25732421875,
+  "max_rel_delta": 2.6685814286987444e-05,
+  "logit_scale": 9642.734375,
+  "argmax_agreement": 1.0,
+  "top3_agreement": 0.9998372395833333,
+  "gate": "rel",
+  "rtol": 0.0001,
+  "mlx_ms": 957.3
+}

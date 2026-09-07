@@ -26,7 +26,7 @@ branch: spike/mlx-finetune
 
 | What was just completed | What's next |
 |---|---|
-| **P0 environment PASS** (mlx 0.32.2 on `Device(gpu, 0)`, 8,931 GFLOP/s) and **P1 parity PASS** (fp32 max \|Δlogits\| **4.172e-07** vs 1e-4, argmax 100%), with a falsification harness proving the check is not vacuous. Corpus built on this laptop. | The **P0 JAX/CPU training baseline** is mid-run; P2 (parity on the real `needle2.pkl`) starts when it finishes — deliberately not sooner, because P2 runs JAX on CPU and would corrupt the very timing P4 compares against. |
+| **P2 PASS** on the real 27-layer/4-lane checkpoint (relative 2.67e-05, argmax 100%, top-3 99.98%) after finding and fixing two fp16-only port bugs. F2 resolved and F3 limit 1 closed. P0 environment and P1 parity already passed. | **P3** — the MLX LoRA loop. Phase 2 §4 is now satisfied by the MLX-trained adapter; there is no separate CPU run. The P0 JAX/CPU baseline continues in the background purely as P3/P4's comparison point. |
 
 ## Why this is a side quest and not Phase 2 work
 
@@ -57,7 +57,7 @@ bonus for Phase 3/4. If it does not, nothing on `main` changes.** Either outcome
 ### P0 — Environment
 
 - [x] **PASS** — `mlx` 0.32.2, `mx.default_device()` = `Device(gpu, 0)`; GPU smoke 2048³ fp32 matmul ×10 → 1.92 ms, **8,931 GFLOP/s**. `jax.default_backend()` = `cpu`, as `doc/finetuning.md` predicts.
-- [ ] **IN FLIGHT** — JAX/CPU baseline: `needle finetune` on the fixed 2,000-row subset, `--max-len 2048`, 1 epoch. ~10 min of JAX compilation before step 1; 113 steps at batch 16. Wall-clock, peak RSS and final loss land in `p0-jax-baseline.json`.
+- [~] **IN FLIGHT** — JAX/CPU baseline: `needle finetune` on the fixed 2,000-row subset, `--max-len 2048`, 1 epoch. ~10 min of JAX compilation before step 1; 113 steps at batch 16. Wall-clock, peak RSS and final loss land in `p0-jax-baseline.json`.
 - Gate: both recorded in `TESTS-RESULTS/2026-09-07-mlx-spike/`. Environment half done; baseline half pending.
 
 ### P1 — Forward-pass parity on the tiny fixture
@@ -69,8 +69,21 @@ bonus for Phase 3/4. If it does not, nothing on `main` changes.** Either outcome
 
 ### P2 — Parity on the real base checkpoint
 
-- [ ] `python3 spike/mlx/parity_check.py --checkpoint <needle2.pkl>` (the checkpoint `needle finetune` downloads on first run). Includes the quant-aware path if `--qat-bits auto` applies.
-- Gate: same tolerance as P1 on real weights. **If this fails and the cause is not local to the port, stop and record — that is a complete no-go.**
+- [x] **PASS on a restated criterion (Decision D4).** Relative 2.669e-05 at seq 512, argmax 100%,
+      top-3 99.98%. The literal 1e-4 *absolute* gate is unreachable by construction — the real
+      model's logits reach 2,322-9,643, so 1e-4 absolute is a relative 1.1e-8 to 4.3e-8, below
+      fp32 machine epsilon.
+- [x] Cause of the residual identified and **local to the port**, so not a no-go: the real
+      checkpoint stores **fp16** params. Casting the same weights to fp32 gives 3.054e-04
+      absolute = **4.1e-08 relative**, i.e. machine-exact. The residual is fp16 rounding order
+      between two runtimes, ~35x *below* fp16's own epsilon (9.77e-04).
+- [x] **Two genuine port bugs found and fixed**, both invisible on the fp32 fixture — see D4.
+- [x] Relative error is **flat across seq 32/128/512** (2.8e-05 -> 2.2e-05), ruling out accumulation.
+- [x] `flash=True` confirmed on the real checkpoint (absent from its config, so the dataclass
+      default applies) and **ruled out as the cause** — forcing `flash=False` gives a byte-identical
+      delta. **F3 limit 1 closed.**
+- [ ] Quant-aware path (`--qat-bits auto`) still unexercised — `parity_check` runs `quant=False`.
+      Carried into P3/P4 as F3 limit 2.
 
 ### P3 — LoRA training loop in MLX
 
@@ -186,6 +199,46 @@ JAX's**, or the curves are not measuring the same data.
 
 ---
 
+### D4 — On the real checkpoint the parity gate is RELATIVE, not absolute
+
+Recorded because it changes a stated gate, and because "the number moved so I changed the
+threshold" is exactly the move that should never pass unchallenged.
+
+**Why absolute cannot work here.** The tiny fixture's logits are ~0.89, so 1e-4 absolute is a
+sane 1.1e-4 relative. The real checkpoint's logits are **2,322-9,643**, where the same 1e-4
+absolute means **1.1e-8 to 4.3e-8 relative** — below fp32 machine epsilon (1.19e-7). It is not a
+strict gate, it is an impossible one, and no correct port could ever pass it.
+
+**The threshold, justified rather than picked.** `rtol = 1e-4`, i.e. the port must agree to
+within one ten-thousandth of the logit scale. The weights themselves are fp16, whose epsilon is
+9.77e-04, so this demands agreement ~10x tighter than the precision of the weights being
+compared. Observed: **2.67e-05**, another ~4x inside that.
+
+**What makes it honest rather than a fudge:** the same gate, at real scale, still catches injected
+faults by 3 orders of magnitude (RoPE 6.1e+01, Engram 6.1e+01, Sinkhorn 3.4e+02 against a clean
+6.6e-02), and the port is machine-exact (4.1e-08) once the fp16 confound is removed. The
+criterion was loosened; the *evidence* was not.
+
+**Both numbers are always reported.** `parity_check.py` prints absolute, relative, argmax and
+top-3 on every run, and `--gate abs|rel` names which one decided. Absolute stays the gate on the
+tiny fixture.
+
+*Also codified in:* `spike/mlx/parity_check.py --rtol/--gate` help, the P2 section of
+`TESTS-RESULTS/2026-09-07-mlx-spike/SUMMARY.md`.
+
+### D5 — Two fp16-only port bugs, and why the fp32 fixture could not see them
+
+JAX evaluates some expressions in the **param's** dtype, not the module's. With fp32 params the
+two are the same and the bug is invisible; with the real fp16 params they diverge:
+
+1. `ZCRMSNorm` — JAX computes `1 + scale` in fp16. Upcasting `scale` first (the obvious thing to
+   write) makes the norm *more accurate than the reference*. Near zero, fp16 resolves `1 + scale`
+   to ~1e-3. This was the dominant error term.
+2. `Block.attn_gate` — JAX applies `sigmoid` in the param dtype, then casts.
+
+**Rule for the rest of the port:** match the reference's dtype flow exactly, including where it is
+*less* precise. A port that is more accurate than its reference is still wrong.
+
 ## Findings
 
 ### F1 — 🚨 The corpus has **zero** abstain rows (a finding for #1, not fixable here)
@@ -224,10 +277,21 @@ before the gap surfaces at eval.
 | **Sinkhorn 20 → 3 iterations** | **1.174e-05** | **NOT caught** |
 
 On a 2-layer / 2-lane fixture, 3 Sinkhorn iterations already converge under the tolerance.
-**P1 passing therefore does not prove the Sinkhorn loop count matches.** Carry this into P2
-explicitly: the real checkpoint is 27 layers / 4 lanes, where the residual mixing compounds and
-a mismatch should become visible. If P2 passes too, say plainly that the iteration count remains
-unverified rather than implying it was checked.
+**P1 passing therefore does not prove the Sinkhorn loop count matches.**
+
+**RESOLVED at P2, exactly as predicted.** On the real 27-layer / 4-lane checkpoint the same
+injected fault moves max \|Δ\| to **3.365e+02** against a clean 6.567e-02 — ~5,000x, caught
+decisively. The Sinkhorn iteration count is now verified.
+
+### F4 — The two fixtures catch *different* faults; run falsification on both
+
+P2's falsification surfaced the mirror image of F2: `_rms_unit` epsilon 1e-6 -> 1e-2 is **caught
+on the tiny fixture (3.524e-03) and NOT caught on the real checkpoint (6.470e-02 vs a clean
+6.567e-02)**. Real activations are large enough that the epsilon is negligible.
+
+So neither fixture alone is a sufficient falsification target, and the later receipt does **not**
+supersede the earlier one — the P1 and P2 falsification tables must be read together. Any future
+change to `san_mlx.py` should re-run `falsify_parity.py` against both.
 
 ### F3 — Two port limits that P2 must resolve
 

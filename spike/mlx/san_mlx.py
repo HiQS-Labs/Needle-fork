@@ -45,9 +45,17 @@ def _a(x, dtype=None):
 
 # --- ZCRMSNorm ---------------------------------------------------------- 46-57
 def zc_rms_norm(x, scale, dtype, epsilon: float = 1e-6):
+    """JAX: ((1 + scale) * x / rms).astype(dtype), architecture.py 46-57.
+
+    `1 + scale` is evaluated in the PARAM's dtype, not float32. That matters: the
+    real checkpoint stores fp16 params, and fp16 has ~10 mantissa bits, so near
+    zero `1 + scale` resolves to ~1e-3 rather than ~1e-7. Upcasting scale first --
+    the obvious thing to write -- silently makes this norm MORE accurate than the
+    reference and was the dominant term in the P2 divergence on real weights.
+    """
     xf = x.astype(mx.float32)
     rms = mx.sqrt(mx.mean(xf ** 2, axis=-1, keepdims=True) + epsilon)
-    return ((1.0 + scale.astype(mx.float32)) * xf / rms).astype(dtype)
+    return ((1 + scale) * xf / rms).astype(dtype)
 
 
 def _rms_unit(x, epsilon: float = 1e-6):                                 # 160-162
@@ -267,7 +275,9 @@ class Block:
         x = zc_rms_norm(x, self.norm0, dt)
         x = self.attn(x, mask=mask, rope=rope)
         x = zc_rms_norm(x, self.post_attn_norm, dt)
-        gate = mx.sigmoid(self.attn_gate.astype(mx.float32)).astype(dt)
+        # JAX: nn.sigmoid(param).astype(dtype) -- sigmoid in the PARAM's dtype
+        # (fp16 on the real checkpoint), then cast. Same reasoning as zc_rms_norm.
+        gate = mx.sigmoid(self.attn_gate).astype(dt)
         x = skip + gate * x
 
         skip = x

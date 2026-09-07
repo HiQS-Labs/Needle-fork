@@ -13,7 +13,9 @@ Side quest. Nothing here is Phase 2 work and nothing here lands on `main`.
 | **P0** JAX/CPU baseline | see `p0-jax-baseline.json` |
 | **P1** tiny-fixture parity | **PASS in fp32** — max \|Δlogits\| **4.172e-07** vs a stated 1e-4, argmax agreement 100% |
 | **P1** falsification | **3 of 4** injected faults caught; one gap recorded below |
-| P2–P4 | not yet run |
+| **P2** real-checkpoint parity | **PASS on a restated (relative) criterion** — see P2 below. Relative 2.67e-05, argmax 100%, top-3 99.98%. The literal 1e-4 **absolute** gate is unreachable by construction. |
+| **P2** falsification | **3 of 4** caught on the real model, including the Sinkhorn fault the tiny fixture missed |
+| P3–P4 | not yet run |
 
 ## P0 — environment
 
@@ -116,3 +118,79 @@ matches, and P2 on the real checkpoint (27 layers, 4 lanes) is where that would 
 - The quantisation path (`_aq`, `maybe_quant_kv`) is **not** ported — under `quant=False` both
   are the identity in JAX, so P1 does not exercise them. `--qat-bits auto` is P2/P3 scope.
 - Receipts carry aggregates only. No corpus rows, prompt text or commands.
+
+---
+
+## P2 — parity on the real `needle2.pkl` (27 layers, 4 lanes, fp16 weights)
+
+### Verdict: PASS, on a criterion I restated and am flagging rather than burying
+
+**The literal gate — max |Δlogits| ≤ 1e-4 absolute — fails, and no correct port could pass it.**
+The real model's logits reach **2,322–9,643** depending on sequence length, so 1e-4 absolute is a
+**relative 1.1e-8 to 4.3e-8** — below fp32 machine epsilon (1.19e-7). The tolerance was written
+for the tiny fixture, whose logits are ~0.89.
+
+| seq | max \|Δ\| | \|logits\|max | **relative** | argmax | top-3 |
+|---|---|---|---|---|---|
+| 32 | 6.567e-02 | 2,322 | 2.828e-05 | 100% | 100% |
+| 128 | 1.963e-01 | 7,789 | 2.520e-05 | 100% | 99.87% |
+| 512 | 2.002e-01 | 9,262 | 2.162e-05 | 100% | 100% |
+| 512 (2 batches, receipt) | 2.573e-01 | 9,643 | **2.669e-05** | **100%** | 99.98% |
+
+**Relative error does not grow with sequence length** — 2.8e-05 → 2.2e-05 from seq 32 to 512.
+That rules out an accumulating bug.
+
+### Why the residual exists — measured, not assumed
+
+The real checkpoint stores **float16** params; the tiny fixture stores float32. Casting the same
+real weights to float32 and re-running:
+
+| params | max \|Δ\| | relative |
+|---|---|---|
+| as stored (float16) | 2.594e-02 | ~3.5e-06 |
+| cast to float32 | **3.054e-04** | **4.1e-08** |
+
+4.1e-08 relative is machine-exact. **The port is correct; the residual is fp16 rounding order
+differing between two runtimes**, which is not something a port can or should eliminate. For
+scale: fp16 epsilon is 9.77e-04, so the observed 2.7e-05 is ~35× *below* the precision of the
+weights themselves.
+
+### The gate found two real port bugs
+
+Both were invisible on the float32 fixture and only appeared against fp16 weights:
+
+1. **`ZCRMSNorm` computed `1 + scale` in float32.** JAX evaluates it in the *param's* dtype.
+   With fp16 params, `1 + scale` resolves to ~1e-3 near zero, so upcasting first made the port
+   **more accurate than the reference** — a silent mismatch. This was the dominant term.
+2. **`attn_gate` applied sigmoid in float32.** JAX applies it in the param dtype, then casts.
+
+### Ruling out the two limits carried from P1
+
+- **`flash=True` is NOT the cause.** The real checkpoint omits `flash` from its config, so the
+  dataclass default `True` applies — confirmed. But forcing `flash=False` gives a *byte-identical*
+  delta (2.2363e-01 both ways), so JAX's `dot_product_attention` and its manual path agree, and
+  the port's manual-only implementation is sound. **F3 limit 1 closed.**
+- An 11-way config ablation on random float32 weights — `mhc_lanes=4`, `flash=True`,
+  `rope_theta=1e5`, `max_seq_len=2048`, `kv_window=256`, `act_bits`/`kv_bits`, `weight_bits`,
+  explicit `attn_dim`, `num_layers=27`, and the full real shape (d_model 512 / h8 / kv4) — **all
+  pass at ≤1.9e-06**. No architecture feature is mishandled.
+
+### Falsification at real scale — F2 resolved, and a new gap
+
+Injected faults, MLX side only, threshold scaled to the model's logits (rtol 1e-4 → atol 0.232):
+
+| injected fault | max \|Δ\| | tiny fixture | **real checkpoint** |
+|---|---|---|---|
+| *control:* weight both sides read | 6.567e-02 (unchanged) | — | — |
+| RoPE sin sign flipped | 6.106e+01 | caught | **caught** |
+| Engram indices shifted +1 | 6.136e+01 | caught | **caught** |
+| **Sinkhorn 20 → 3 iterations** | **3.365e+02** | *not caught* | **CAUGHT** (5,000× clean) |
+| `_rms_unit` epsilon 1e-6 → 1e-2 | 6.470e-02 | caught | **not caught** |
+
+**F2 is resolved exactly as predicted:** the Sinkhorn iteration count is unverifiable on a
+2-layer/2-lane fixture and is verified on the real 27-layer/4-lane model.
+
+**New finding (F4): the two fixtures catch different faults.** The real model's activations make
+`_rms_unit`'s epsilon negligible, so that fault hides there — while the tiny fixture catches it.
+Neither alone is sufficient; **falsification must run on both**, and the P1 and P2 receipts should
+be read together rather than treating the later one as superseding the earlier.
