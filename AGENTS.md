@@ -27,7 +27,8 @@ Read `GUIDING-PRINCIPLES.md` for the *why* — its "The North Star" and "Fork di
 canonical and govern everything below.
 
 Read `SOP.md` before running a finetune/quantization campaign, an eval sweep, or anything that
-touches the daily PyPI release train.
+touches the daily PyPI release train — and its §4 before settling a contested decision that changes
+a published contract, would be expensive to reverse, or has already been argued once.
 
 Read `ARCHITECTURE.md` for the system map — entry points, the model/training stack, the runtime SDK,
 and the implicit contracts (checkpoint format, `.cact` binary layout, hardcoded param paths) that a

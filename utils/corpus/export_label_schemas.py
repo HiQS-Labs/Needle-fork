@@ -47,6 +47,15 @@ def main() -> int:
         "label_set_version": tx.LABEL_SET_VERSION,
         "source_of_truth": "utils/corpus/taxonomy.py",
         "output_contract": "The model predicts ONLY a label name. Labels take no arguments.",
+        # Consumers must not prune the contract on their own support counts.
+        "support_floor": {
+            "rate": tx.SUPPORT_FLOOR_RATE,
+            "action": tx.SUPPORT_FLOOR_ACTION,
+            "meaning": ("A label below this share of calls is flagged for supplementation "
+                        "(issue #1 §3b/§3c), never deleted or merged on the floor alone. "
+                        "Consolidation for training belongs at the dataloader as a projection, "
+                        "not in this contract. See the decision record in utils/corpus/taxonomy.py."),
+        },
         "groups": sorted({m["group"] for m in tx.LABELS_V1.values()}),
         "labels": {n: {"group": m["group"], "tier": m["tier"], "detect": m["detect"]}
                    for n, m in tx.LABELS_V1.items()},

@@ -37,6 +37,41 @@ import re
 
 LABEL_SET_VERSION = "v1.0.0-draft"
 
+# --- DECISION RECORD: the support floor is a SUPPLEMENTATION gate --------------
+# Adjudicated 2026-09-07 against GUIDING-PRINCIPLES.md, AGENTS.md and SOP.md.
+# Recorded here because this is where someone is tempted to act on it. The same
+# record is in PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md, CHANGELOG.md, and
+# oracle/labels-v1.json; SOP.md §5 has the process that produced it.
+#
+# A label below SUPPORT_FLOOR_RATE is FLAGGED FOR SUPPLEMENTATION (issue #1 §3b
+# governance-doc synthesis, §3c git/PR-history mining). It is NEVER deleted or
+# merged on the strength of the floor alone.
+#
+# Why not a delete gate:
+#   - The floor is a threshold we chose, not a measured property. Letting an
+#     invented number silently delete semantically distinct labels is exactly the
+#     "check that reports confidence it never earned" AGENTS.md §6 warns about.
+#   - "One source of truth per concept" (GUIDING-PRINCIPLES, DRY) is about
+#     duplication, not rarity. `pkg_manage` (mutate/inspect the dependency
+#     environment) and `run_script` (run something ad hoc) are two concepts.
+#     Collapsing them destroys meaning without removing any duplication.
+#   - Reversibility is asymmetric (AGENTS.md §3). Keeping a label is Easy to undo
+#     -- collapse labels with a dict at dataset-build time, downstream of this
+#     file and of the published contract. Merging is Costly to undo: it needs a
+#     re-extraction over a network share that is not always mounted.
+#   - Consolidation for TRAINING is legitimate; it belongs at the dataloader as a
+#     projection, never at the canonical taxonomy root.
+#
+# The case that set the rule: `pkg_manage` was measured at 60 calls, under the
+# 74-call floor, and was about to be merged into `run_script`. Both figures were
+# artifacts of bugs in THIS file -- `uv add ruff` scored as `run_linter` (a
+# package NAME read as an invocation) and dependency inspection (`pip list`,
+# `brew list`) had been tightened out of `pkg_manage` into `unmapped`. Fixing
+# them took the count to 111, above the floor, and the decision dissolved.
+# Fix the measurement before adjudicating anything the measurement drives.
+SUPPORT_FLOOR_RATE = 0.001  # 0.1% of calls
+SUPPORT_FLOOR_ACTION = "supplement"  # never "delete" -- see the decision record
+
 # --- Specificity tiers ---------------------------------------------------------
 # When one compound command yields several segment labels, the HIGHEST tier wins;
 # ties break to the earliest segment. Tiers are a design decision, stated openly:
@@ -183,7 +218,10 @@ BASH_RULES = [
     ("run_tests",        r"\b(pytest|jest|vitest|go test|cargo test|npm (run )?test|make test|run-tests)\b"),
     ("run_linter",       r"\b(ruff|flake8|eslint|black|prettier|mypy|shellcheck|golangci-lint)\b"),
     ("run_build",        r"\b(make|cmake|cargo build|go build|npm run build|xcodebuild|clang|gcc|tsc)\b"),
-    ("pkg_manage",       r"\b(pip3?\s+install|npm\s+(install|ci)|yarn\s+add|brew\s+(install|upgrade)|uv\s+(pip|add)|poetry\s+(add|install)|apt(-get)?\s+install|gem\s+install)\b"),
+    ("pkg_manage",       r"\b(pip3?|uv|poetry|pipx|conda)\s+(install|add|remove|uninstall|sync|list|show|freeze)\b"
+                         r"|\b(npm|yarn|pnpm)\s+(install|ci|add|remove|uninstall|ls|list|outdated)\b"
+                         r"|\b(brew|apt|apt-get|gem)\s+(install|upgrade|uninstall|remove|list|info)\b"
+                         r"|\brequirements(-\w+)?\.txt\b"),
     ("run_script",       r"(<<\s*'?[A-Z_]+'?|\bpython3?\s+-[cm]\b|/bin/python\b"
                          r"|\b(python3?|node|npx|bash|sh|zsh|ruby|perl|swift|deno|tsx)\s+\S+"
                          r"|^\./\S+|^\$[A-Za-z_])"),
@@ -222,6 +260,26 @@ ARG_CONSUMERS = {
     "sed": "read_file",
 }
 _LEAD = re.compile(r"^\s*(?:[A-Za-z_][A-Za-z0-9_]*=\S*\s+)*([^\s;|&]+)")
+
+# Package managers take PACKAGE NAMES as arguments, so their arguments must not be
+# read as invocations -- `uv add ruff` is installing ruff, not running it, and was
+# being labelled run_linter. Same class of error as ARG_CONSUMERS above.
+#
+# They are also runners (`uv run pytest`, `poetry run pytest`), so the delegating
+# subcommands fall through to the normal rules instead.
+PKG_MANAGERS = {"pip", "pip3", "pipx", "brew", "apt", "apt-get", "gem", "poetry",
+                "uv", "conda", "cargo-install"}
+PKG_DELEGATES = {"run", "exec", "tool"}
+# npm/yarn/pnpm delegate constantly (`npm run build`), so only their own
+# dependency subcommands count as package management.
+NODE_PKG = {"npm", "yarn", "pnpm"}
+NODE_PKG_SUBCOMMANDS = {"install", "i", "ci", "add", "remove", "uninstall", "rm",
+                        "ls", "list", "outdated", "update", "upgrade", "link", "prune"}
+
+
+def _second_token(seg: str) -> str:
+    parts = seg.split()
+    return parts[1].strip("\"'") if len(parts) > 1 else ""
 
 
 def leading_program(seg: str) -> str:
@@ -279,6 +337,10 @@ def substantive_segments(cmd: str) -> list[str]:
 def label_segment(seg: str) -> str | None:
     """Label one segment, or None if no rule matches."""
     lead = leading_program(seg)
+    if lead in PKG_MANAGERS and _second_token(seg) not in PKG_DELEGATES:
+        return "pkg_manage"
+    if lead in NODE_PKG and _second_token(seg) in NODE_PKG_SUBCOMMANDS:
+        return "pkg_manage"
     if lead in ARG_CONSUMERS:
         # `sed -i` rewrites a file; `sed -n 1,20p` reads one.
         if lead == "sed":

@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-09-07T16:41:25Z",
+  "timestamp": "2026-09-07T17:11:17Z",
   "machine": "noel\u2019s MacBook Pro 14\"",
   "chip": "Apple M4 Pro",
   "cores": {
@@ -11,7 +11,7 @@
   "memory_gb": 25.8,
   "os_version": "15.6",
   "python": "3.14.7",
-  "git_commit": "2dffb56",
+  "git_commit": "fe0e12a",
   "branch": "phase-2/label-taxonomy-v1",
   "target": "taxonomy-v1-studio-corpus",
   "benchmark": "extract_claude_transcripts.py over the Mac Studio transcript corpus, read over SMB",
@@ -30,17 +30,17 @@
   "mapping_coverage": 0.9852,
   "governance_share": 0.0726,
   "baseline_top1_pct": 16.8,
-  "baseline_top3_pct": 45.84,
+  "baseline_top3_pct": 45.82,
   "min_support_rate": 0.001,
   "min_support_calls": 74,
+  "min_support_action": "supplement",
   "labels_below_min_support": [
     "no_action",
     "park_roadmap_row",
-    "pkg_manage",
     "promote_capture",
     "publish_release"
   ],
-  "labels_at_or_above_floor": 39,
+  "labels_at_or_above_floor": 40,
   "governance_labels": {
     "update_working_doc": 1356,
     "run_pdda_check": 961,
@@ -56,30 +56,30 @@
     "promote_capture": 14,
     "publish_release": 1
   },
-  "wall_clock_seconds": 347.88,
+  "wall_clock_seconds": 389.93,
   "timing_breakdown": {
-    "extract_real_seconds": 347.88,
-    "extract_user_cpu_seconds": 12.51,
-    "note": "3.6% CPU -- bound on SMB reads of 935MB, not on labelling. On the Studio itself this is ~13s."
+    "extract_real_seconds": 389.93,
+    "extract_user_cpu_seconds": 12.54,
+    "note": "3.2% CPU -- bound on SMB reads of 935MB, not on labelling; ~13s on the Studio itself."
   },
   "throughput": {
-    "pairs_per_second_cpu": 5987.9
+    "pairs_per_second_cpu": 5973.6
   },
   "distribution": {
     "read_file": 12584,
-    "run_script": 12027,
-    "search_code": 9724,
+    "run_script": 12015,
+    "search_code": 9721,
     "apply_patch": 7776,
-    "git_inspect": 4163,
+    "git_inspect": 4160,
     "git_sync": 3306,
-    "find_files": 2846,
+    "find_files": 2835,
     "commit_changes": 2110,
     "review_pr": 1832,
-    "run_tests": 1576,
-    "sys_inspect": 1441,
+    "run_tests": 1568,
+    "sys_inspect": 1432,
     "update_working_doc": 1356,
     "read_issue": 1200,
-    "unmapped": 1106,
+    "unmapped": 1105,
     "run_pdda_check": 961,
     "run_validate": 927,
     "gh_cli": 918,
@@ -87,7 +87,7 @@
     "update_pr": 804,
     "net": 779,
     "delegate_agent": 653,
-    "fs_mutate": 585,
+    "fs_mutate": 583,
     "file_capture_doc": 556,
     "track_todo": 489,
     "start_relay": 472,
@@ -95,7 +95,7 @@
     "file_issue": 445,
     "update_roadmap": 369,
     "open_pr": 318,
-    "run_linter": 318,
+    "run_linter": 316,
     "update_changelog": 291,
     "ask_user": 261,
     "db_query": 256,
@@ -104,9 +104,9 @@
     "cloud_cli": 180,
     "create_branch": 170,
     "cut_release": 130,
+    "pkg_manage": 111,
     "complete_doc": 104,
     "park_roadmap_row": 68,
-    "pkg_manage": 60,
     "promote_capture": 14,
     "publish_release": 1
   },

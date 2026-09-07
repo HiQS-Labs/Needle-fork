@@ -19,14 +19,14 @@ label set. This is the real corpus.
 | **Mapping coverage (§2 gate)** | **98.52%** |
 | **Governance share** | **7.26%** (5,441 calls) |
 | Labels in use | 43 of 44 |
-| Labels at or above the 0.1% floor | **39** |
+| Labels at or above the 0.1% floor | **40** |
 | Static top-1 baseline | 16.80% (`read_file`) |
-| **Static top-3 baseline** | **45.84%** (`read_file`, `run_script`, `search_code`) |
+| **Static top-3 baseline** | **45.82%** (`read_file`, `run_script`, `search_code`) |
 
 The extractor reproduced the handoff's session counts exactly (359 used, 24
 skipped), so this is the same corpus, relabelled — not a different sample.
 
-## The bar the Oracle must beat is 45.84%, not 61.83%
+## The bar the Oracle must beat is 45.82%, not 61.83%
 
 The previously published top-3 baseline of 61.83% was computed on labels that were
 substantially an artifact of regex ordering: 97.9% of Bash commands are compound and
@@ -34,21 +34,27 @@ substantially an artifact of regex ordering: 97.9% of Bash commands are compound
 mass piled into whichever buckets sorted highest. Spreading it across real intents
 lowers what a static majority-class predictor scores.
 
-**Report model accuracy against 45.84%.** A model scoring 60% against the old
+**Report model accuracy against 45.82%.** A model scoring 60% against the old
 number would look like a win while having learned less than one scoring 50% here.
 
 ## Both open decisions are now answered by data
 
-**Label-set size — keep the set; the floor prunes almost nothing.** 39 of 44 labels
-clear the 0.1% floor (74 calls). Only five fall below:
+**Label-set size — keep the set; the floor prunes nothing.** 40 of 44 labels clear the
+0.1% floor (74 calls). Only four fall below, and all four are kept:
 
 | label | calls | disposition |
 |---|---|---|
 | `no_action` | 0 | **Expected.** It is the abstention target produced by the `"answers": []` off-topic slice (#1 §3), not by labelling a call. Not a gap. |
-| `pkg_manage` | 60 | Merge into `run_script`, or keep and accept sparsity. |
 | `park_roadmap_row` | 68 | Just under the floor. Detectable only via the `releases_app.py roadmap add` CLI form. |
 | `promote_capture` | 14 | Genuinely rare in traces. |
 | `publish_release` | 1 | Genuinely rare in traces. |
+
+`pkg_manage` was on this list at 60 calls and is not any more. Two bugs in our own
+labeler were suppressing it — `uv add ruff` scored as `run_linter` (a package *name*
+read as an invocation) and dependency inspection (`pip list`, `brew list`, `npm ls`)
+had been tightened out into `unmapped`. Fixed, it measures **111**. See the decision
+record in `PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md` and `SOP.md` §4 for the
+procedure that caught it.
 
 So #1 §1's "roughly 20-30" understates what the corpus actually contains: 39 labels
 are independently supported. The overage is real actions §1 omits (`find_files`,

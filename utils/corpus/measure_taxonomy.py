@@ -82,9 +82,11 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--source", default=os.path.expanduser("~/.claude/projects"))
     ap.add_argument("--out", help="write a raw-metrics.json receipt here")
-    ap.add_argument("--min-support-rate", type=float, default=0.001,
-                    help="labels below this SHARE of calls are flagged for merge (default 0.1%%); "
-                         "a rate, not a count, so the gate does not change meaning with sample size")
+    ap.add_argument("--min-support-rate", type=float, default=tx.SUPPORT_FLOOR_RATE,
+                    help="labels below this SHARE of calls are FLAGGED FOR SUPPLEMENTATION "
+                         "(issue #1 §3b/§3c), never deleted or merged on the floor alone -- see the "
+                         "decision record in taxonomy.py. A rate, not a count, so the gate does not "
+                         "change meaning with sample size")
     ap.add_argument("--show-evidence", action="store_true",
                     help="LOCAL ONLY: print matched command text per label; never commit it")
     args = ap.parse_args()
@@ -130,8 +132,8 @@ def main() -> int:
     for k, v in ranked:
         cum += v
         print(f"  {k:24s} {tx.LABELS_V1[k]['group']:8s} {v:6,d} {100*v/total:6.2f}%  cum {100*cum/total:6.2f}%")
-    print(f"\nbelow support floor ({args.min_support_rate:.2%} = {floor} calls) -- "
-          f"merge or defer before training: {', '.join(thin) or 'none'}")
+    print(f"\nbelow support floor ({args.min_support_rate:.2%} = {floor} calls) -- FLAGGED FOR "
+          f"SUPPLEMENTATION (§3b/§3c), not for deletion: {', '.join(thin) or 'none'}")
 
     if args.show_evidence:
         print("\n--- LOCAL EVIDENCE (do not commit) ---")
@@ -167,6 +169,7 @@ def main() -> int:
             "labels_below_min_support": thin,
             "min_support_rate": args.min_support_rate,
             "min_support_calls": floor,
+            "min_support_action": tx.SUPPORT_FLOOR_ACTION,
             "distribution": dict(ranked),
             "status": "ok",
         }

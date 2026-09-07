@@ -25,7 +25,7 @@ branch: main
 
 | What was just completed | What's next |
 |---|---|
-| Re-extracted the full Studio corpus under v1 (359 sessions, 74,909 pairs): coverage **98.52%**, governance share **7.26%**, 39 of 44 labels clear the support floor. Both open decisions resolved by data. | Cut `v1.0.0-draft` → `v1.0.0` and start §3's `query` serialization, the last design decision before training. |
+| Adjudicated the `pkg_manage` decision — it dissolved: the 60-call count was an artifact of two bugs in our own labeler, and fixing them took it to **111**, above the floor. **40 of 44** labels now clear it. | Cut `v1.0.0-draft` → `v1.0.0`, then start §3's `query` serialization, the last design decision before training. |
 
 ## Table of contents
 
@@ -184,8 +184,8 @@ The extractor reproduced the handoff's session counts exactly — 359 used, 24 s
 | Pairs | 1,439 | **74,909** |
 | Mapping coverage | 99.03% | **98.52%** |
 | Governance share | 3.75% | **7.26%** |
-| Static top-3 baseline | 46.91% | **45.84%** |
-| Labels at/above 0.1% floor | — | **39 of 44** |
+| Static top-3 baseline | 46.91% | **45.82%** |
+| Labels at/above 0.1% floor | — | **40 of 44** |
 
 The local sample understated governance support by half but got the mechanism and
 the baseline right to within ~1 point, which is the outcome that justifies having
@@ -193,11 +193,13 @@ designed the rules there.
 
 ### Both open decisions, resolved by data
 
-1. **Label-set size — keep the set.** 39 of 44 labels clear the 0.1% floor (74
-   calls). Only `pkg_manage` (60), `park_roadmap_row` (68), `promote_capture` (14)
-   and `publish_release` (1) fall below, plus `no_action` at 0 — which is expected,
-   since it is produced by §3's `"answers": []` off-topic slice and not by labelling
-   a call. #1 §1's "roughly 20-30" understates what the corpus contains.
+1. **Label-set size — keep the set.** 40 of 44 labels clear the 0.1% floor (74
+   calls). Only `park_roadmap_row` (68), `promote_capture` (14) and `publish_release`
+   (1) fall below, plus `no_action` at 0 — which is expected, since it is produced by
+   §3's `"answers": []` off-topic slice and not by labelling a call. #1 §1's "roughly
+   20-30" understates what the corpus contains. (`pkg_manage` was on this list at 60
+   until two of our own labeler bugs were fixed; it measures 111 — see the decision
+   record at the end of this doc.)
 2. **Governance support — traces carry it, at 7.26%.** 10 of 13 governance labels
    clear the floor, led by `update_working_doc` (1,356), `run_pdda_check` (961) and
    `run_validate` (927). §3b (doc synthesis) and §3c (git/PR mining) therefore stay
@@ -221,8 +223,8 @@ than action — left unmapped deliberately so the gate keeps its meaning.
       `taxonomy.label_call` instead of its own `BASH_RULES` — done and verified locally
       (16 sessions, 1,439 pairs, coverage 99.03%, governance share 3.75%)
 - [x] Re-extract on the Mac Studio — done from this machine over SMB; coverage 98.52%
-- [x] Apply the support floor (0.1% of calls) — 39 of 44 clear it; 4 real stragglers
-- [ ] Decide `pkg_manage` (60 calls): merge into `run_script`, or keep and accept sparsity
+- [x] Apply the support floor (0.1% of calls) — 40 of 44 clear it; 3 real stragglers + `no_action`
+- [x] Decide `pkg_manage` — **kept**; the decision dissolved once the measurement was fixed (below)
 - [ ] Cut `label_set_version` from `v1.0.0-draft` to `v1.0.0` and re-publish the contract
 - [x] Report the Studio coverage number to issue #1 as the §2 gate result
 
@@ -268,3 +270,69 @@ would be ~13 s run on the Studio itself.
   specificity tier, plus `file_path` as the governance signal.
 - **Pain:** counts look identical whether a label is right or wrong → **Fix:** tests
   and review assert on matched evidence, never on totals.
+
+
+---
+
+## Decision record — the support floor is a supplementation gate
+
+**Adjudicated 2026-09-07** against `GUIDING-PRINCIPLES.md`, `AGENTS.md` and `SOP.md`.
+The process that produced it is `SOP.md` §5. Codified in four places so it is found
+later: `utils/corpus/taxonomy.py` (the decision record, at the constant itself),
+`oracle/labels-v1.json` (`support_floor`, so downstream consumers inherit it),
+`CHANGELOG.md`, and here. Guarded by
+`tests/test_taxonomy.py::test_support_floor_is_a_supplementation_gate_not_a_delete_gate`,
+verified to fail when the rule is reversed.
+
+### The rule
+
+> A label below `SUPPORT_FLOOR_RATE` (0.1% of calls) is **flagged for supplementation**
+> — issue #1 §3b governance-doc synthesis, §3c git/PR-history mining. It is **never
+> deleted or merged on the strength of the floor alone.** Consolidating labels for
+> training is legitimate, but belongs at the dataloader as a projection, never at the
+> canonical taxonomy root.
+
+### The case that set it
+
+`pkg_manage` measured 60 calls, under the 74-call floor, and the open question was
+whether to merge it into `run_script`. **Both numbers were wrong**, and wrong because
+of bugs in our own labeler:
+
+1. `uv add ruff` was labelled `run_linter` — the linter regex matched the package
+   *name* as though it were an invocation. The same class of error as a `grep` whose
+   pattern mentions a governance word, which we had already fixed once.
+2. Dependency *inspection* (`pip list`, `pip show`, `brew list`, `pip freeze`,
+   `npm ls`) had been tightened out of `pkg_manage` into `unmapped` when the regex
+   moved from bare tokens to install-only subcommands.
+
+Fixing both took `pkg_manage` from 60 to **111** — above the floor. There was no
+decision to make; there was a bug to fix. **40 of 44** labels now clear the floor.
+
+### Why the rule reads the way it does
+
+| Rail | Bearing |
+|---|---|
+| `AGENTS.md` §6 — *"an empty input passes every check"*, *"a check that cannot fail is not a check"* | The floor is a number we invented, not a measured property. Letting it silently delete semantically distinct labels is a check reporting confidence it never earned. **Fix the measurement before adjudicating anything the measurement drives.** |
+| `GUIDING-PRINCIPLES.md` — DRY, *"one source of truth per concept"* | DRY is about duplication, not rarity. "Mutate/inspect the dependency environment" and "run something ad hoc" are two concepts; collapsing them destroys meaning without removing any duplication. |
+| `AGENTS.md` §3 — reversibility | Asymmetric. Keeping a label is **Easy** to undo (collapse with a dict at dataset-build time, downstream of both this file and the published contract). Merging is **Costly** to undo — it needs a re-extraction over a network share that is not always mounted. |
+| `GUIDING-PRINCIPLES.md` — durable | Fixing the floor's *role* removes the root cause; re-litigating each sparse label one at a time is the band-aid that gets torn out at the next one. |
+
+### Cross-model feedback
+
+`/consult` **could not run**: `codex` is authenticated but its ChatGPT account
+supports none of its models (HTTP 400 on `gpt-5.4`, `gpt-5.1-codex`, `gpt-5-codex`,
+`gpt-5.1`, `gpt-5`), and `agy` needs an interactive `agy login`. Recorded because a
+silent degrade would be worse than none.
+
+A single independent read was obtained instead — Gemini (`gemini-flash-latest`) via
+`aider`, run in a throwaway worktree. **This is one model, not a cross-model consult**,
+and it broadly agreed with a framing supplied to it, so treat it as corroboration
+rather than verification. It graded "adjudicating on uncorrected telemetry" a
+**[Blocker]** against `AGENTS.md` §6, called the merge "semantic conflation, not DRY",
+and independently proposed the same supplementation-gate reframing. Transcript is
+not committed (it is scratch); the reasoning that matters is reproduced above.
+
+### Still open
+
+Nothing on this decision. `pkg_manage` stays, `run_script` stays, and the floor's
+role is written down in four places.

@@ -41,7 +41,7 @@ The Studio's home folder turned out to be reachable as an SMB share, so the
 re-extraction ran from this machine instead of needing a handoff. It reproduced the
 handoff's session counts exactly (359 used, 24 skipped), confirming this is the same
 corpus relabelled rather than a different sample: **74,909 pairs, mapping coverage
-98.52%, governance share 7.26%, static top-3 baseline 45.84%**.
+98.52%, governance share 7.26%, static top-3 baseline 45.82%**.
 
 Closing four coverage gaps found by diagnosing the unmapped remainder took the gate
 from 97.26% to 98.52%: MCP tools were unmapped entirely (their intent is in the tool
@@ -51,20 +51,56 @@ the largest single unmapped leading token, and `python3 -m` / `npx` / `swift` /
 
 Both open decisions are now answered by data rather than preference:
 
-- **Label-set size:** 39 of 44 labels clear the 0.1% support floor. Only `pkg_manage`
-  (60), `park_roadmap_row` (68), `promote_capture` (14) and `publish_release` (1)
-  fall below, plus `no_action` at 0 — expected, since it comes from §3's
-  `"answers": []` slice and not from labelling a call.
+- **Label-set size:** 40 of 44 labels clear the 0.1% support floor. Only
+  `park_roadmap_row` (68), `promote_capture` (14) and `publish_release` (1) fall
+  below, plus `no_action` at 0 — expected, since it comes from §3's `"answers": []`
+  slice and not from labelling a call.
 - **Governance support:** traces do carry it, at 7.26%, with 10 of 13 governance
   labels above the floor. §3b doc-synthesis and §3c git/PR-mining therefore stay
   supplements rather than load-bearing, needed for the three thin labels — which are
   exactly the ones that land as commits with no prompt, the case §3c exists for.
 
-**The bar the Oracle is judged against is 45.84% top-3, not the previously published
+**The bar the Oracle is judged against is 45.82% top-3, not the previously published
 61.83%**, which was computed on order-artifact labels.
 
-Not yet done: `v1.0.0-draft` has not been cut to `v1.0.0` — `pkg_manage`'s
-disposition is open. Tracked in `PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md`.
+### Adjudicated the `pkg_manage` decision — and it dissolved
+
+`pkg_manage` measured 60 calls, under the 74-call floor, and the open question was
+whether to merge it into `run_script`. **Both numbers were artifacts of bugs in our
+own labeler:** `uv add ruff` scored as `run_linter` (the linter regex matched the
+package *name* as though it were an invocation — the same class of error as a `grep`
+whose pattern mentions a governance word), and dependency *inspection* (`pip list`,
+`pip show`, `brew list`, `npm ls`) had been tightened out of `pkg_manage` into
+`unmapped`. Fixed, `pkg_manage` measures **111** — above the floor. There was no
+decision to make; there was a bug to fix.
+
+Adjudicated against `GUIDING-PRINCIPLES.md`, `AGENTS.md` and `SOP.md`, the durable
+outcome is a rule rather than a one-off call: **the support floor is a
+supplementation gate, not a deletion gate.** A label below it is flagged for §3b/§3c
+synthesis and is never deleted or merged on the floor alone; consolidating labels for
+training belongs at the dataloader as a projection, not at the canonical taxonomy
+root. DRY is about duplication, not rarity — "mutate/inspect the dependency
+environment" and "run something ad hoc" are two concepts. Reversibility is asymmetric
+(`AGENTS.md` §3): keeping a label is Easy to undo, merging is Costly.
+
+Codified in four places so it is found later — `utils/corpus/taxonomy.py` (at the
+constant itself), `oracle/labels-v1.json` (`support_floor`, so consumers inherit it),
+`PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md`, and here — and guarded by a test that
+was verified to fail when the rule is reversed.
+
+`SOP.md` gains **§4, "Adjudicating a contested decision"**, generalising the procedure:
+fix the measurement first, cite the rail, read the reversibility asymmetry, consult
+independently and state the degrade, codify in at least two places, and guard it with
+a test you have watched fail. `AGENTS.md` points at it.
+
+Cross-model `/consult` **could not run** — `codex` is authenticated but its ChatGPT
+account supports none of its models (HTTP 400), and `agy` needs an interactive login.
+A single independent read (Gemini via `aider`, in a throwaway worktree) agreed on all
+five points, but one model that agrees with the framing it was handed is corroboration,
+not verification, and is recorded as such.
+
+Not yet done: `v1.0.0-draft` has not been cut to `v1.0.0`. Tracked in
+`PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md`.
 
 Verification: `python3.11 -m pytest tests/test_taxonomy.py -q` → 46 passed;
 `utils/corpus/extract_claude_transcripts.py` over the Studio corpus → 74,909 pairs,

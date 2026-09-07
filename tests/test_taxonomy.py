@@ -153,6 +153,40 @@ def test_mcp_tools_carry_intent_in_the_name(tool, expected):
     assert tx.label_call(tool, {})[0] == expected
 
 
+# --- package managers take package NAMES, not invocations ----------------------
+
+@pytest.mark.parametrize("cmd,expected", [
+    ("uv add ruff", "pkg_manage"),          # installing ruff, not running it
+    ("uv add black", "pkg_manage"),
+    ("pip install pytest", "pkg_manage"),
+    ("brew install shellcheck", "pkg_manage"),
+])
+def test_installing_a_tool_is_not_running_it(cmd, expected):
+    """`uv add ruff` was labelled run_linter: a package name read as an invocation.
+
+    Same class as a grep whose pattern mentions a governance word.
+    """
+    assert tx.label_bash(cmd)[0] == expected
+
+
+@pytest.mark.parametrize("cmd,expected", [
+    ("uv run pytest -q", "run_tests"),
+    ("poetry run pytest", "run_tests"),
+    ("npm run build", "run_build"),
+])
+def test_package_managers_still_delegate(cmd, expected):
+    """They are runners too, so `run`/`exec` must fall through to the real action."""
+    assert tx.label_bash(cmd)[0] == expected
+
+
+@pytest.mark.parametrize("cmd", ["pip list", "pip show needle", "brew list",
+                                 "pip freeze > requirements.txt", "npm ls"])
+def test_dependency_inspection_is_package_management(cmd):
+    """Tightening pkg_manage to install-only dropped these to `unmapped`, which is
+    most of why the label fell under the support floor."""
+    assert tx.label_bash(cmd)[0] == "pkg_manage"
+
+
 # --- contract integrity --------------------------------------------------------
 
 def test_every_rule_names_a_declared_label():
@@ -178,6 +212,30 @@ def test_published_contract_matches_the_taxonomy():
     assert contract["label_set_version"] == tx.LABEL_SET_VERSION
     assert set(contract["labels"]) == set(tx.LABELS_V1)
     assert len(contract["schemas"]) == len(tx.LABELS_V1)
+
+
+def test_support_floor_is_a_supplementation_gate_not_a_delete_gate():
+    """Adjudicated 2026-09-07 — see the decision record in taxonomy.py.
+
+    `pkg_manage` was about to be merged into `run_script` on a 60-call count that
+    was an artifact of two bugs in taxonomy.py itself; fixing them took it to 111.
+    This test exists so the floor cannot quietly become a pruning rule again.
+    """
+    assert tx.SUPPORT_FLOOR_ACTION == "supplement"
+    contract = json.load(open(os.path.join(REPO, "oracle", "labels-v1.json")))
+    assert contract["support_floor"]["action"] == "supplement"
+    # The three governance stragglers and the abstention target stay in the contract.
+    for label in ("promote_capture", "park_roadmap_row", "publish_release", "no_action"):
+        assert label in tx.LABELS_V1
+        assert label in contract["labels"]
+
+
+def test_pkg_manage_and_run_script_are_distinct_concepts():
+    """The merge that was rejected: dependency management is not ad-hoc execution."""
+    assert tx.label_bash("pip install -r requirements.txt")[0] == "pkg_manage"
+    assert tx.label_bash("python3 - <<'PY'\nprint(1)\nPY")[0] == "run_script"
+    assert tx.LABELS_V1["pkg_manage"]["group"] == "code"
+    assert "pkg_manage" in tx.LABELS_V1 and "run_script" in tx.LABELS_V1
 
 
 def test_label_schemas_take_no_arguments():
