@@ -212,8 +212,10 @@ def main():
     # Attention scores are the dominant term but not the only one; MLP
     # intermediates, logits and the merged weight copies add roughly as much
     # again. Calibrated against a measured micro-batch-2 run: predicted 6.8 GB
-    # of scores, observed 13.4 GB peak -> ~2.0x. Rounded up to 2.2x for margin.
-    OVERHEAD = 2.2
+    # of scores, observed 13.4 GB peak -> ~2.0x. Held at 2.64x: 2.2x with a
+    # further 20% conservatism, on operator instruction, because the downside is
+    # not a failed run but a downed host -- this has already happened once.
+    OVERHEAD = 2.64
     est_gb = scores_gb * OVERHEAD
     print(f"  {'memest':<9} ~{scores_gb:.1f} GB attention scores -> ~{est_gb:.1f} GB "
           f"projected peak at micro-batch {micro} x seq {max_len}", flush=True)
