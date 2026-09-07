@@ -124,6 +124,26 @@ NATIVE = {
     "SendMessage": "session_control", "ExitPlanMode": "session_control",
 }
 
+# --- MCP tool name -> label ----------------------------------------------------
+# MCP servers expose intent directly in the tool name (`mcp__github__issue_read`),
+# so they need no command parsing. Matched by longest prefix.
+MCP_RULES = [
+    ("mcp__github__issue_write", "file_issue"),
+    ("mcp__github__issue_read", "read_issue"),
+    ("mcp__github__search_issues", "read_issue"),
+    ("mcp__github__list_issues", "read_issue"),
+    ("mcp__github__pull_request_read", "review_pr"),
+    ("mcp__github__pull_request_write", "update_pr"),
+    ("mcp__github__get_commit", "git_inspect"),
+    ("mcp__github__list_commits", "git_inspect"),
+    ("mcp__github__get_file_contents", "read_file"),
+    ("mcp__github__search_code", "search_code"),
+    ("mcp__github__merge_pull_request", "merge_pr"),
+    ("mcp__github__create_pull_request", "open_pr"),
+    ("mcp__github__", "gh_cli"),
+    ("mcp__", "session_control"),
+]
+
 # --- file_path -> governance label (checked BEFORE the native map) -------------
 PATH_RULES = [
     ("update_changelog",      re.compile(r"(^|/)CHANGELOG\.md$", re.I)),
@@ -154,17 +174,19 @@ BASH_RULES = [
     ("merge_pr",         r"\bgh\s+pr\s+merge\b"),
     ("review_pr",        r"\bgh\s+pr\s+(view|diff|checks|list|status)\b"),
     ("update_pr",        r"\bgh\s+(pr\s+(edit|comment|review|ready)|issue\s+(comment|edit|close))\b"),
-    ("create_branch",    r"\bgit\s+(checkout\s+-b|switch\s+-c|branch\s+[^-])"),
-    ("commit_changes",   r"\bgit\s+(commit|add)\b"),
-    ("git_sync",         r"\bgit\s+(push|pull|fetch|merge(?!-tree|-base)|rebase|stash|clone|worktree|cherry-pick|reset)\b"),
-    ("git_inspect",      r"\bgit\s+(status|log|diff|show|remote|rev-parse|rev-list|describe|blame|check-ignore|ls-files|merge-tree|merge-base|branch\b)"),
+    ("create_branch",    r"\bgit\s+(-C\s+\S+\s+)?(checkout\s+-b|switch\s+-c|branch\s+[^-])"),
+    ("commit_changes",   r"\bgit\s+(-C\s+\S+\s+)?(commit|add)\b"),
+    ("git_sync",         r"\bgit\s+(-C\s+\S+\s+)?(push|pull|fetch|merge(?!-tree|-base)|rebase|stash|clone|worktree|cherry-pick|reset)\b"),
+    ("git_inspect",      r"\bgit\s+(-C\s+\S+\s+)?(status|log|diff|show|remote|rev-parse|rev-list|describe|blame|check-ignore|ls-files|merge-tree|merge-base|config|branch\b)"),
 
     # code / dev
     ("run_tests",        r"\b(pytest|jest|vitest|go test|cargo test|npm (run )?test|make test|run-tests)\b"),
     ("run_linter",       r"\b(ruff|flake8|eslint|black|prettier|mypy|shellcheck|golangci-lint)\b"),
     ("run_build",        r"\b(make|cmake|cargo build|go build|npm run build|xcodebuild|clang|gcc|tsc)\b"),
     ("pkg_manage",       r"\b(pip3?\s+install|npm\s+(install|ci)|yarn\s+add|brew\s+(install|upgrade)|uv\s+(pip|add)|poetry\s+(add|install)|apt(-get)?\s+install|gem\s+install)\b"),
-    ("run_script",       r"(<<\s*'?[A-Z_]+'?|\bpython3?\s+-c\b|/bin/python\b|\b(python3?|node|bash|sh|zsh|ruby|perl)\s+\S+\.(py|js|ts|sh|rb|pl)\b|^\./\S+)"),
+    ("run_script",       r"(<<\s*'?[A-Z_]+'?|\bpython3?\s+-[cm]\b|/bin/python\b"
+                         r"|\b(python3?|node|npx|bash|sh|zsh|ruby|perl|swift|deno|tsx)\s+\S+"
+                         r"|^\./\S+|^\$[A-Za-z_])"),
 
     ("gh_cli",           r"\bgh\s+\w+"),
 
@@ -172,7 +194,7 @@ BASH_RULES = [
     ("cloud_cli",        r"\b(gcloud|oci|aws|az)\s+"),
     ("db_query",         r"\b(sqlite3|psql|mysql|bq)\b"),
     ("net",              r"\b(curl|wget|ping|ssh|scp|rsync)\b"),
-    ("sys_inspect",      r"\b(ps|top|uptime|sysctl|df|du|whoami|which|uname|sw_vers|scutil|env|pkill|lsof)\b|\bcommand\s+-v\b"),
+    ("sys_inspect",      r"\b(ps|top|uptime|sysctl|df|du|whoami|which|uname|sw_vers|scutil|env|pkill|pgrep|lsof|sleep|true|false|cmp|tar|jq)\b|\bcommand\s+-v\b"),
 
     # generic
     ("search_code",      r"\b(rg|grep|ag|ack)\b"),
@@ -211,6 +233,7 @@ def leading_program(seg: str) -> str:
 _PREAMBLE = re.compile(
     r"^\s*(cd\b|export\b|source\b|\.\s|set\b|nohup\b|time\b|nice\b|sudo\b|timeout\s+\d+\b"
     r"|for\b|while\b|do\b|done\b|if\b|then\b|fi\b|else\b|case\b|esac\b|function\b"
+    r"|continue\b|break\b|return\b|exit\b|\[|\(|\\\\$|test\s"
     r"|[A-Za-z_][A-Za-z0-9_]*=)")
 _DISPLAY = re.compile(r"^\s*(echo|printf|head|tail|wc|sort|uniq|column|less|more|tee|jq|cut|tr|xargs\s+echo)\b")
 _HEREDOC = re.compile(r"<<-?\s*'?[A-Za-z_][A-Za-z0-9_]*'?")
@@ -287,6 +310,10 @@ def label_call(tool: str, tool_input: dict | None) -> tuple[str, str]:
     inp = tool_input or {}
     if tool == "Bash":
         return label_bash(inp.get("command") or "")
+    if tool.startswith("mcp__"):
+        for prefix, label in MCP_RULES:
+            if tool.startswith(prefix):
+                return label, tool
     path = inp.get("file_path") or inp.get("notebook_path") or ""
     if path:
         for name, rx in PATH_RULES:

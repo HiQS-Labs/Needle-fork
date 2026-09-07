@@ -112,6 +112,47 @@ def test_edit_paths_carry_the_governance_signal(path, expected):
     assert tx.label_call("Edit", {"file_path": path})[0] == expected
 
 
+# --- gaps found against the full Mac Studio corpus -----------------------------
+
+@pytest.mark.parametrize("cmd,expected", [
+    ("git -C /repo status", "git_inspect"),
+    ("git -C /repo commit -m x", "commit_changes"),
+    ("git -C /repo push origin main", "git_sync"),
+])
+def test_git_dash_C_does_not_break_the_git_rules(cmd, expected):
+    """`git -C <path> <verb>` put 25 leading-`git` commands in `unmapped`."""
+    assert tx.label_bash(cmd)[0] == expected
+
+
+def test_test_conditional_is_preamble():
+    """`[ -f x ] && ...` was the single largest unmapped leading token."""
+    assert tx.label_bash('[ -f pyproject.toml ] && pytest -q')[0] == "run_tests"
+
+
+@pytest.mark.parametrize("cmd,expected", [
+    ("python3 -m pytest tests/", "run_tests"),
+    ("npx tsc --noEmit", "run_build"),
+    ("swift build/run.swift", "run_script"),
+    ("$TICK/scripts/run.sh --once", "run_script"),
+    ("sleep 2", "sys_inspect"),
+])
+def test_interpreters_and_plumbing(cmd, expected):
+    assert tx.label_bash(cmd)[0] == expected
+
+
+@pytest.mark.parametrize("tool,expected", [
+    ("mcp__github__issue_read", "read_issue"),
+    ("mcp__github__issue_write", "file_issue"),
+    ("mcp__github__pull_request_read", "review_pr"),
+    ("mcp__github__get_commit", "git_inspect"),
+    ("mcp__github__some_new_thing", "gh_cli"),
+    ("mcp__codebase_memory__list_projects", "session_control"),
+])
+def test_mcp_tools_carry_intent_in_the_name(tool, expected):
+    """MCP calls need no command parsing; longest prefix wins."""
+    assert tx.label_call(tool, {})[0] == expected
+
+
 # --- contract integrity --------------------------------------------------------
 
 def test_every_rule_names_a_declared_label():
@@ -120,6 +161,8 @@ def test_every_rule_names_a_declared_label():
     for name, _ in tx.PATH_RULES:
         assert name in tx.LABELS_V1, name
     for name in list(tx.NATIVE.values()) + list(tx.ARG_CONSUMERS.values()):
+        assert name in tx.LABELS_V1, name
+    for _, name in tx.MCP_RULES:
         assert name in tx.LABELS_V1, name
 
 

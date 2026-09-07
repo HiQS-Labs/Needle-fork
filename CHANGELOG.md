@@ -35,13 +35,42 @@ Effect, both labelers over the same 1,446 local calls: static top-3 baseline
 68.66% → 46.27%, governance labels 0 → 54 calls, fall-through 2.99% → 0.97%,
 mapping coverage 97.01% → 99.03%.
 
-Not yet done: the corpus itself is unchanged. Re-extraction on the Mac Studio is
-required before `v1.0.0-draft` can be cut to `v1.0.0` — tracked in
-`PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md`.
+### Re-extracted the full Mac Studio corpus under v1
 
-Verification: `python3.11 -m pytest tests/test_taxonomy.py -q` → 31 passed;
-`python3 utils/corpus/measure_taxonomy.py` → coverage 99.03%, receipt in
-`TESTS-RESULTS/2026-09-07-taxonomy-v1/`; `./utils/pdda/pdda.sh run`
+The Studio's home folder turned out to be reachable as an SMB share, so the
+re-extraction ran from this machine instead of needing a handoff. It reproduced the
+handoff's session counts exactly (359 used, 24 skipped), confirming this is the same
+corpus relabelled rather than a different sample: **74,909 pairs, mapping coverage
+98.52%, governance share 7.26%, static top-3 baseline 45.84%**.
+
+Closing four coverage gaps found by diagnosing the unmapped remainder took the gate
+from 97.26% to 98.52%: MCP tools were unmapped entirely (their intent is in the tool
+name), `git -C <path> <verb>` broke every git rule, `[ -f x ] && …` conditionals were
+the largest single unmapped leading token, and `python3 -m` / `npx` / `swift` /
+`$VAR/script.sh` were uncovered. All regression-tested.
+
+Both open decisions are now answered by data rather than preference:
+
+- **Label-set size:** 39 of 44 labels clear the 0.1% support floor. Only `pkg_manage`
+  (60), `park_roadmap_row` (68), `promote_capture` (14) and `publish_release` (1)
+  fall below, plus `no_action` at 0 — expected, since it comes from §3's
+  `"answers": []` slice and not from labelling a call.
+- **Governance support:** traces do carry it, at 7.26%, with 10 of 13 governance
+  labels above the floor. §3b doc-synthesis and §3c git/PR-mining therefore stay
+  supplements rather than load-bearing, needed for the three thin labels — which are
+  exactly the ones that land as commits with no prompt, the case §3c exists for.
+
+**The bar the Oracle is judged against is 45.84% top-3, not the previously published
+61.83%**, which was computed on order-artifact labels.
+
+Not yet done: `v1.0.0-draft` has not been cut to `v1.0.0` — `pkg_manage`'s
+disposition is open. Tracked in `PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md`.
+
+Verification: `python3.11 -m pytest tests/test_taxonomy.py -q` → 46 passed;
+`utils/corpus/extract_claude_transcripts.py` over the Studio corpus → 74,909 pairs,
+coverage 98.52%; receipts in `TESTS-RESULTS/2026-09-07-taxonomy-v1/` (local
+mechanism) and `TESTS-RESULTS/2026-09-07-taxonomy-v1-studio/` (full corpus);
+`./utils/pdda/pdda.sh run`
 
 ## 2026-09-06
 

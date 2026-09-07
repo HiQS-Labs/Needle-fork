@@ -25,7 +25,7 @@ branch: main
 
 | What was just completed | What's next |
 |---|---|
-| Built and tested the v1 taxonomy (44 labels), rewired the extractor onto it, and showed the first-pass labels were 74% decided by regex list order and carried **zero** governance labels. | Re-extract on the Mac Studio — one command, everything else is in the repo. |
+| Re-extracted the full Studio corpus under v1 (359 sessions, 74,909 pairs): coverage **98.52%**, governance share **7.26%**, 39 of 44 labels clear the support floor. Both open decisions resolved by data. | Cut `v1.0.0-draft` → `v1.0.0` and start §3's `query` serialization, the last design decision before training. |
 
 ## Table of contents
 
@@ -171,33 +171,77 @@ intents lowers the score a majority-class predictor gets, which is the honest ba
 
 ## Phase C — Re-extract on the Studio and freeze
 
-Blocked on the operator: this machine holds 17 transcripts, the Studio holds ~420.
-Every number in Phase B is a **rule-design** measurement on a small local sample. It
-validates the mechanism; it does not size the label set.
+**Done.** The Studio's `~/.claude/projects` was reachable as an SMB share
+(`//noels-mac-studio.local/noelsaw`, mounted read-only), so the re-extraction ran
+from this machine rather than needing a handoff. Receipt:
+`TESTS-RESULTS/2026-09-07-taxonomy-v1-studio/`.
+
+The extractor reproduced the handoff's session counts exactly — 359 used, 24 skipped
+— so this is the same corpus relabelled, not a different sample.
+
+| | local (17 transcripts) | **Studio (383)** |
+|---|---|---|
+| Pairs | 1,439 | **74,909** |
+| Mapping coverage | 99.03% | **98.52%** |
+| Governance share | 3.75% | **7.26%** |
+| Static top-3 baseline | 46.91% | **45.84%** |
+| Labels at/above 0.1% floor | — | **39 of 44** |
+
+The local sample understated governance support by half but got the mechanism and
+the baseline right to within ~1 point, which is the outcome that justifies having
+designed the rules there.
+
+### Both open decisions, resolved by data
+
+1. **Label-set size — keep the set.** 39 of 44 labels clear the 0.1% floor (74
+   calls). Only `pkg_manage` (60), `park_roadmap_row` (68), `promote_capture` (14)
+   and `publish_release` (1) fall below, plus `no_action` at 0 — which is expected,
+   since it is produced by §3's `"answers": []` off-topic slice and not by labelling
+   a call. #1 §1's "roughly 20-30" understates what the corpus contains.
+2. **Governance support — traces carry it, at 7.26%.** 10 of 13 governance labels
+   clear the floor, led by `update_working_doc` (1,356), `run_pdda_check` (961) and
+   `run_validate` (927). §3b (doc synthesis) and §3c (git/PR mining) therefore stay
+   **supplements**, needed for exactly the three thin labels — which are precisely
+   the ones that land as commits with no corresponding prompt, the case §3c exists
+   for.
+
+### Coverage: 97.26% → 98.52%
+
+The first Studio pass scored 97.26%. Diagnosing the unmapped remainder on a 60-file
+sample found four fixable classes, now covered and regression-tested: MCP tools were
+unmapped entirely (intent is in the tool name); `git -C <path> <verb>` broke every
+git rule; `[ -f x ] && …` test conditionals were the largest single unmapped leading
+token; and `python3 -m` / `npx` / `swift` / `$VAR/script.sh` / `sleep` were
+uncovered. The residual 1.48% is mostly bare `echo`/`printf`, which is display rather
+than action — left unmapped deliberately so the gate keeps its meaning.
 
 - [x] Decide the two open items below — operator chose: size the set from Studio data
       via the support floor, and measure real governance support before planning §3b/§3c
 - [x] Teach `extract_claude_transcripts.py` to record `file_path` and to import
       `taxonomy.label_call` instead of its own `BASH_RULES` — done and verified locally
       (16 sessions, 1,439 pairs, coverage 99.03%, governance share 3.75%)
-- [ ] Re-extract on the Mac Studio; re-run `measure_taxonomy.py` there
-- [ ] Apply the support floor (default 0.1% of calls) — merge or defer thin labels
+- [x] Re-extract on the Mac Studio — done from this machine over SMB; coverage 98.52%
+- [x] Apply the support floor (0.1% of calls) — 39 of 44 clear it; 4 real stragglers
+- [ ] Decide `pkg_manage` (60 calls): merge into `run_script`, or keep and accept sparsity
 - [ ] Cut `label_set_version` from `v1.0.0-draft` to `v1.0.0` and re-publish the contract
-- [ ] Report the Studio coverage number to issue #1 as the §2 gate result
+- [x] Report the Studio coverage number to issue #1 as the §2 gate result
 
-### Run this on the Mac Studio
+### Reproducing the Studio extraction
 
-Everything below is in the repo; nothing else needs building first.
+The Studio's home folder is an SMB share; its `Documents` share does **not** contain
+`~/.claude`, and Remote Login is off, so SSH is not a route.
 
 ```sh
-python3 utils/corpus/extract_claude_transcripts.py --out-dir data/corpus
-python3 utils/corpus/measure_taxonomy.py \
-  --out TESTS-RESULTS/$(date +%F)-taxonomy-v1-studio/raw-metrics.json
+MNT="$(mktemp -d)"
+mount_smbfs -o ro,nobrowse //noels-mac-studio.local/noelsaw "$MNT"
+python3 utils/corpus/extract_claude_transcripts.py \
+  --source "$MNT/.claude/projects" --out-dir data/corpus-v1
+umount "$MNT"
 ```
 
-The corpus overwrites `data/corpus/` (gitignored). The receipt is aggregates only and
-is safe to commit. Labeling ~75,000 calls should take ~11s at the 6,580 calls/s
-measured here.
+The corpus lands in `data/corpus-v1/` (gitignored) and must never be committed.
+Extraction is ~348 s over SMB but only ~12.5 s of CPU — it is network-bound, and
+would be ~13 s run on the Studio itself.
 
 ### Open decisions — resolved 2026-09-07
 
