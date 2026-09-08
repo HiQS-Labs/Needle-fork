@@ -444,6 +444,7 @@ def build_main(args):
 
     adapter_qat_bits = None
     adapter_qat_bits_map = None
+    adapter_declared = False
     if args.lora:
         with open(args.lora, "rb") as handle:
             adapter = pickle.load(handle)
@@ -451,6 +452,10 @@ def build_main(args):
                 for key, v in adapter["lora"].items()}
         params = merge_lora(params, lora, adapter["scale"])
         print(f"  {'merged':<9} {len(lora)} weight groups  {args.lora}")
+        # An absent key and an explicit None both used to arrive here as None,
+        # which made "trained full precision" indistinguishable from "provenance
+        # unknown" -- and both fell through to the quantising branch below.
+        adapter_declared = "qat_bits" in adapter or "qat_bits_map" in adapter
         adapter_qat_bits = adapter.get("qat_bits")
         adapter_qat_bits_map = adapter.get("qat_bits_map")
 
@@ -474,6 +479,22 @@ def build_main(args):
         bits_map = None if bits else (getattr(config, "weight_bits", "") or None)
         if not bits and not bits_map:
             bits = "4"
+        # There is no full-precision export: write_export always quantises, at
+        # W4 if nothing else is specified. So an adapter that was NOT trained
+        # quantisation-aware is always deployed into numerics it never saw.
+        # That used to happen silently, which is strictly worse than the
+        # bit-width mismatch a few lines up -- which raises.
+        if args.lora and not getattr(args, "allow_numerics_mismatch", False):
+            deploying = f"mixed[{bits_map}]" if bits_map else f"W{bits}"
+            provenance = ("was trained at full precision"
+                          if adapter_declared else
+                          "does not declare its training numerics")
+            raise ValueError(
+                f"adapter {provenance}, but this build would deploy CQ {deploying}"
+                f" + A8, which it never saw during training. Either retrain with"
+                f" --qat-bits auto so training and deployment numerics agree, or"
+                f" pass --allow-numerics-mismatch to accept post-training"
+                f" quantisation and its accuracy cost.")
 
     out = args.out or (os.path.splitext(os.path.basename(args.checkpoint))[0] + ".cact")
     info = write_export(params, config, out,
