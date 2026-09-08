@@ -332,10 +332,19 @@ def main():
 
     os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
     with open(args.out, "wb") as fh:
+        # Declare the training numerics. `needle build` distinguishes "trained
+        # full precision" from "provenance unknown" and refuses both rather than
+        # silently deploying CQ numerics the adapter never saw (PR #8) -- so an
+        # adapter that stays silent here is the exact accident that guard exists
+        # to catch. This loop trains fp32, so both fields are None BY DECLARATION,
+        # not by omission.
         pickle.dump({"lora": {k: {"A": np.asarray(v["A"]), "B": np.asarray(v["B"])}
                               for k, v in lora.items()},
                      "scale": scale, "rank": args.lora_rank,
-                     "alpha": args.lora_alpha}, fh)
+                     "alpha": args.lora_alpha,
+                     "qat_bits": None, "qat_bits_map": None,
+                     "trained_by": "spike/mlx/train_lora.py",
+                     "trained_numerics": "float32"}, fh)
     print(f"  {'saved':<9} {args.out}", flush=True)
 
     if args.receipt:
