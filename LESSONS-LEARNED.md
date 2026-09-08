@@ -29,7 +29,9 @@ the first build and all found late:
 - **Governance is 6.8% of the holdout** — 68 of 1,000 rows — while governance is the entire
   justification for the Oracle (#1: *"an Oracle that only knows `run_tests` does not know our
   SDLC"*). Measured: the tuned model scores **19.1% top-3 on governance vs 49.0% on coding**
-  (`TESTS-RESULTS/2026-09-07-oracle-eval/`). It is worst at the thing it exists for.
+  (`TESTS-RESULTS/2026-09-07-oracle-eval/`). It is worst at the thing it exists for. Five of the
+  13 governance labels have **zero** holdout rows, and it earns a top-1 on only three. Tracked as
+  [#9](https://github.com/HiQS-Labs/Needle-fork/issues/9).
 - **The prompt is ~80% boilerplate.** All 44 tool schemas are embedded in every row — 1,383 tokens
   of schema against rows rendering at 1,524–1,950 tokens. This is also why `--max-len` could not
   rescue CPU training: coverage at both 512 and 1024 is **0.0%**, so no short-row bucket exists
