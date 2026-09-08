@@ -255,6 +255,20 @@ def main():
 
     grad_sum_fn = mx.value_and_grad(loss_sum_fn)
 
+    def eval_loss(lora, e_seqs, e_masks):
+        """finetune.py:413-415 -- mean masked-token loss over the holdout, no
+        gradient. Chunked at `micro` so the 200-row split doesn't retrigger the
+        same [B,H,S,S] memory cost training was just bounded against."""
+        if e_seqs is None or len(e_seqs) == 0:
+            return None
+        tot_loss, tot_tok = 0.0, 0.0
+        for off in range(0, len(e_seqs), micro):
+            ids = mx.array(e_seqs[off:off + micro].astype(np.int32))
+            m = mx.array(e_masks[off:off + micro].astype(np.float32))
+            tot_loss += float(loss_sum_fn(lora, ids, m))
+            tot_tok += float(m[:, 1:].sum())
+        return tot_loss / max(tot_tok, 1.0)
+
     def batch_grads(lora, b_ids, b_mask):
         """One optimiser step's gradient, over micro-batches if asked."""
         n = len(b_ids)
@@ -300,6 +314,12 @@ def main():
                       f"  {dt:.1f}s  lr {float(opt.learning_rate):.2e}", flush=True)
             if args.max_steps and step_i >= args.max_steps:
                 break
+        if n_val > 0:
+            val = eval_loss(lora, val_seqs, val_masks)
+            print(f"  {'epoch':<9} {epoch + 1}/{args.epochs}  loss {last:.4f}  val {val:.4f}", flush=True)
+        else:
+            val = None
+            print(f"  {'epoch':<9} {epoch + 1}/{args.epochs}  loss {last:.4f}", flush=True)
         if args.max_steps and step_i >= args.max_steps:
             break
 
@@ -326,7 +346,7 @@ def main():
                        "batch_size": batch, "lora_rank": args.lora_rank,
                        "lora_alpha": args.lora_alpha, "lr": args.lr,
                        "steps_run": step_i, "total_steps": total_steps,
-                       "final_loss": last, "median_s_per_step": med,
+                       "final_loss": last, "final_val_loss": val, "median_s_per_step": med,
                        "micro_batch": micro, "peak_gb": round(peak_gb, 2),
                        "mem_limit_gb": args.mem_limit_gb,
                        "wall_seconds": round(wall, 1), "history": hist}, fh, indent=2)
