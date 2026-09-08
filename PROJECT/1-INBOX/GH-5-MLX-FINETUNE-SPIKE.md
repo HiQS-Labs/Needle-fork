@@ -289,6 +289,14 @@ two are the same and the bug is invisible; with the real fp16 params they diverg
 
 ### F5 — 🚨 The tuned model does not beat the static top-3 baseline (a finding for #1 §5)
 
+> **Split out 2026-09-08 → [#9](https://github.com/HiQS-Labs/Needle-fork/issues/9)** for the
+> governance half of this finding. At n=1000 the governance split is **13.2% top-1 / 19.1% top-3**
+> against coding's 24.9% / 49.0%; five governance labels have **zero** holdout rows
+> (`complete_doc`, `cut_release`, `park_roadmap_row`, `promote_capture`, `publish_release`) and
+> only three ever earn a top-1. §3b/§3c were specified to supplement exactly these and have never
+> been run. #9 also carries the measured CLIO-prompt ↔ git-history correlation as a candidate
+> source, with its null control.
+
 **Measured 2026-09-07**, 200 holdout rows, all three columns the same rows, static baseline built
 from **train-split** frequencies so it never sees holdout answers:
 
