@@ -7,6 +7,7 @@ This file is the first entry point for an AI agent working in this repo: it tell
 - `ROUTER.md` = startup order and canonical entry points
 - `GUIDING-PRINCIPLES.md` = the north star; what the repo's goals and design tradeoffs answer to
 - `AGENTS.md` = behavioral rules, decision quality, reversibility, blast radius, proof
+- `LESSONS-LEARNED.md` = what we would tell ourselves at the START of the next similar effort; grounded entries only (every lesson cites a receipt, issue or commit). Read before planning a spike, a corpus build, or a long unattended run. Distinct from `FINDINGS.md`, which is the timestamped investigation log of what happened.
 - `README.md` = human-facing repo/product overview
 - `ROADMAP.md` = pointer ledger for this repo's own maintenance work
 - `CHANGELOG.md` = the end-of-iteration running log (first-class PDDA artifact; governed by `PROJECT/PDDA.md`)
