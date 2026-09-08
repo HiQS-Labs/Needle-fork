@@ -62,6 +62,10 @@ def main():
     ap.add_argument("--micro-batch", type=int, default=4)
     ap.add_argument("--mem-limit-gb", type=float, default=11.0)
     ap.add_argument("--receipt", default="")
+    ap.add_argument("--qat", action="store_true",
+                    help="score under DEPLOYMENT numerics: the checkpoint's CQ scheme on the "
+                         "merged weights + A8 activations (what needle build exports). Without "
+                         "this the fp32 number is one the hook cannot deliver (D7).")
     args = ap.parse_args()
 
     from needle.model.finetune import render_example
@@ -96,7 +100,16 @@ def main():
         tag = os.path.basename(args.adapter)
         print(f"  {'adapter':<10} {tag}  {len(lora)} groups  "
               f"numerics={ad.get('trained_numerics')}", flush=True)
-    model = SimpleAttentionNetworkMLX(unflatten(base), cfg)
+    numerics = "float32"
+    if args.qat:
+        import quant_mlx as QM
+        wb = getattr(config, "weight_bits", "") or None
+        plan = QM.ste_plan(params, wb)
+        delta = QM.ste_delta(base, plan); mx.eval(*delta.values())
+        base = {k: (v + delta[k]) if k in delta else v for k, v in base.items()}
+        numerics = QM.describe(plan, wb)
+        print(f"  {'numerics':<10} {numerics} -- deployment numerics, {len(plan)} leaves", flush=True)
+    model = SimpleAttentionNetworkMLX(unflatten(base), cfg, quant=args.qat)
 
     tok = get_tokenizer(cfg["vocab_size"])
     rows, total = load_rows(args.holdout, args.rows, args.seed)
@@ -178,6 +191,7 @@ def main():
         "wall_seconds": round(time.time() - t_start, 1),
         "peak_gb": round(mx.get_peak_memory() / 2 ** 30, 2),
         "scoring": "teacher-forced per-label sequence logprob, empty reasoning",
+        "numerics": numerics,
         "per_label": per_label,
     }
     print(f"\n  {'TOP-1':<10} {res['top1_sum']:.2f}%   (mean-normalised: {res['top1_mean']:.2f}%)")
