@@ -26,7 +26,7 @@ branch: spike/mlx-finetune
 
 | What was just completed | What's next |
 |---|---|
-| **P3 PASS.** The MLX LoRA loop trains: 113 steps, train 2.1044 → 0.1629, **holdout 0.1483**, 21.86 s/step, 42.7 min, peak 7.4 GB. P0/P1/P2 already passed. Phase 2 §4 is satisfied by this adapter; there is no separate CPU run. | **§5 — build the evaluation harness** (D6). Not P4, and not the QAT port: there is no model evaluation anywhere in this repo, so no adapter's value can currently be measured. The eval harness is the gate on shipping *and* the instrument that decides the QAT question. |
+| **§5 harness built and run** (`spike/mlx/eval_oracle.py`). First model scoring in this repo. On 200 holdout rows: tuned **top-1 22.00%** vs static 12.50% (**significant**, z≈2.51) but **top-3 46.00% vs static 44.00% — NOT distinguishable** (+4 rows, CI ±6.91pp). Untuned base control scores 3.50% / 17.00%, so training clearly worked; what is unproven is whether it beats guessing the three commonest labels. Receipt: `TESTS-RESULTS/2026-09-07-oracle-eval/`. | **A 1,000-row run** (launched 21:01, ~4 h) to separate two readings: n=200 is too small, or **top-3 is a weak gate** for a distribution where three labels dominate and static starts at 44%. If the latter holds, it is a finding about the metric in #1 §5, not about the model. |
 
 ## Why this is a side quest and not Phase 2 work
 
@@ -286,6 +286,39 @@ two are the same and the bug is invisible; with the real fp16 params they diverg
 *less* precise. A port that is more accurate than its reference is still wrong.
 
 ## Findings
+
+### F5 — 🚨 The tuned model does not beat the static top-3 baseline (a finding for #1 §5)
+
+**Measured 2026-09-07**, 200 holdout rows, all three columns the same rows, static baseline built
+from **train-split** frequencies so it never sees holdout answers:
+
+| | top-1 | top-3 |
+|---|---|---|
+| static majority class | 12.50% | 44.00% |
+| base checkpoint, untuned | 3.50% | 17.00% |
+| **tuned (MLX LoRA)** | **22.00%** | **46.00%** |
+
+**top-1 is a real win** — 44 hits vs 25, z ≈ 2.51, p ≈ 0.012. **top-3 is not**: +2.00pp is *four
+rows*, against a ±6.91pp CI (z ≈ 0.40, p ≈ 0.69).
+
+**The 45.99% bar is not cleared.** 46.00% must not be read as clearing it — that figure is from a
+different sample, and on *these* rows the static baseline is 44.00%. The bar moves ~±2pp with the
+sample, which is the size of the whole measured effect.
+
+The untuned control matters here: it scores **below** static (17.00% vs 44.00%), which is the
+right shape and proves the scorer has dynamic range rather than flattering everything. So
+fine-tuning unambiguously worked; the open question is only whether it beats a trivial guess.
+
+**Two readings, not yet separated** — a 1,000-row run was launched to decide:
+
+1. **n=200 is too small.** ±6.91pp swamps a 2pp effect; 1,000 rows gives ~±3pp.
+2. **top-3 may be the wrong gate.** Three labels dominate the corpus, so static top-3 starts at
+   44%. A model can rank much better — as top-1 shows — while barely moving top-3. If this holds
+   at n=1000 the metric is the problem, and #1 §5's surface gate needs rethinking, not the model.
+
+Caveats bounding the claim: the adapter is **one epoch on the 2k fixture** (a floor, not a
+ceiling), scoring uses an **empty reasoning block** so it measures `P(label|prompt)` rather than
+the deployed generate-then-call path, and it is full precision (D6).
 
 ### F1 — 🚨 The corpus has **zero** abstain rows (a finding for #1, not fixable here)
 
