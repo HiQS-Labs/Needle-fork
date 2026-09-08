@@ -26,7 +26,7 @@ branch: spike/mlx-finetune
 
 | What was just completed | What's next |
 |---|---|
-| **P2 PASS** on the real 27-layer/4-lane checkpoint (relative 2.67e-05, argmax 100%, top-3 99.98%) after finding and fixing two fp16-only port bugs. F2 resolved and F3 limit 1 closed. P0 environment and P1 parity already passed. | **P3** — the MLX LoRA loop. Phase 2 §4 is now satisfied by the MLX-trained adapter; there is no separate CPU run. The P0 JAX/CPU baseline continues in the background purely as P3/P4's comparison point. |
+| **P3 PASS.** The MLX LoRA loop trains: 113 steps, train 2.1044 → 0.1629, **holdout 0.1483**, 21.86 s/step, 42.7 min, peak 7.4 GB. P0/P1/P2 already passed. Phase 2 §4 is satisfied by this adapter; there is no separate CPU run. | **§5 — build the evaluation harness** (D6). Not P4, and not the QAT port: there is no model evaluation anywhere in this repo, so no adapter's value can currently be measured. The eval harness is the gate on shipping *and* the instrument that decides the QAT question. |
 
 ## Why this is a side quest and not Phase 2 work
 
@@ -148,6 +148,52 @@ for Phase 3/4, and a second numerically-verified implementation of the forward p
 Recorded here **and** at the place each one bites, because this spike runs on one machine
 while Phase 2 runs on another and a decision that lives in only one of them gets re-litigated
 or, worse, silently contradicted.
+
+### D6 — Build the eval harness before the QAT port, and before P4
+
+**Decided 2026-09-07 after P3, under /ponytail + /debug-mantra.** The question put was
+"port the CQ STE quantisation-aware path to MLX, or run a matched fp32 JAX baseline?"
+**The answer is neither, yet.**
+
+**First, a correction to this document's own earlier sizing.** P3's report and #7 both said a
+second runtime "must reimplement the Lloyd-Max codebook, the Hadamard rotation and the
+nearest-codeword search". Measured, that is wrong:
+
+| Probe | Result |
+|---|---|
+| `cq_ste` (`quantize.py:354`) | **one line** — `w + stop_gradient(cq_quantize(w) - w)` |
+| `_cq_codebook_np`, `_cq_hadamard_np` | `@lru_cache` **numpy constants**, keyed only on `(bits, group_size)` |
+| `cq_quantize` | ~12 lines of array math |
+| MLX ops needed | `searchsorted`, `pad`, `argmin`, `stop_gradient` — **all present** |
+
+The codebook and the Hadamard matrix do not depend on the weights, so they are **imported, not
+ported**. The real port is ~25 lines. The earlier estimate was off by an order of magnitude and
+was about to drive a decision.
+
+**But the port still is not next**, for a reason the sizing error was hiding. Ponytail rung 1 —
+*does this machinery need to exist at all?* — is **unanswerable today**, because:
+
+- **There is no model evaluation anywhere in this repo.** No top-3 scorer, no holdout accuracy.
+- `measure_taxonomy.py`'s "baseline top-3" is the **static majority-class frequency** — the bar
+  the model must beat, computed from label counts alone. It never runs a model.
+
+So porting QAT would produce an adapter whose benefit cannot be quantified. **That is the actual
+rabbit hole: not the port's size, but shipping an unverifiable artifact.** It is also why the
+45.99% bar cannot currently be claimed as cleared, however well training goes.
+
+**The eval harness is therefore next**, because it:
+
+1. is required regardless of which way the QAT question falls — it is #1 §5, an explicit
+   requirement, not speculative work;
+2. **converts the QAT question from an argument into a measurement**: score the *same* adapter
+   fp32-merged and CQ-exported; the delta is the answer;
+3. is the gate on shipping anything at all;
+4. may retire the QAT port entirely, at no cost, if the PTQ delta proves small.
+
+Deferring a ~25-line port costs almost nothing. Deciding it by argument costs the whole lane.
+
+**Ponytail bound on the harness itself:** subsample the 25,684-row holdout for a decision-grade
+signal rather than scoring all of it, and say so in the receipt.
 
 ### D1 — Parity tolerance: fp32 is the gate, bf16 is measured and reported
 
@@ -302,6 +348,13 @@ change to `san_mlx.py` should re-run `falsify_parity.py` against both.
 2. **Quant path unported.** Under `quant=False` both `_aq` and `maybe_quant_kv` are the identity
    in JAX, so P1 never exercised them. `--qat-bits auto` is P2/P3 scope, and P0's baseline is
    already training under `CQ mixed[embedding=4,mhc=4,default=2] STE + A8`.
+
+   **Still open after P3, and re-sized (D6).** P3 trains full precision, so its curve is not
+   comparable to the QAT baseline's and its adapter is not deployable without
+   `--allow-numerics-mismatch` (PR #8). The port itself is **~25 lines**, not the multi-day job
+   this document previously implied — the codebook and Hadamard matrix are cached numpy
+   constants that are imported rather than ported. It is deferred behind the eval harness on
+   purpose: the harness is what decides whether the port is needed at all.
 
 ---
 
