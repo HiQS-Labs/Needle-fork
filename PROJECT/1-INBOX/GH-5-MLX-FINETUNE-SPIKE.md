@@ -149,6 +149,20 @@ Recorded here **and** at the place each one bites, because this spike runs on on
 while Phase 2 runs on another and a decision that lives in only one of them gets re-litigated
 or, worse, silently contradicted.
 
+### D7 — PTQ destroys the fine-tune; the QAT port is the critical path (2026-09-08)
+
+Measured while building the §6 hook: the 2k adapter scores **24.1%** top-1 when ranked fp32 on
+MLX and **8–10%** through `needle build` → `.cact` → native engine. Isolated by four experiments:
+byte-identical tools serialisation changes nothing (to the decimal); W4 vs mixed-2-bit changes
+nothing; the **base** model through the engine is sane; the fp32 tuned model generates cleanly;
+**tuned weights + PTQ generated on MLX with no engine degenerate to `<think> } } } }`**; base + PTQ
+is sane. Post-training quantisation of the LoRA-merged weights is the cause.
+
+D6 is therefore resolved the other way: **no fp32-trained adapter can ship.** The CQ-STE + A8 port
+(KV quant is off at 8 bits) is mandatory and starts now, gated on parity against JAX `quant=True`.
+The fp32 10k run was killed at step ~45/563 — it had no deployment path — and the 10k retrain runs
+under QAT. Full table: [#5](https://github.com/HiQS-Labs/Needle-fork/issues/5).
+
 ### D6 — Build the eval harness before the QAT port, and before P4
 
 **Decided 2026-09-07 after P3, under /ponytail + /debug-mantra.** The question put was
