@@ -1,0 +1,58 @@
+{
+  "campaign": "2026-09-07-oracle-eval",
+  "gate": "#1 \u00a75 top-1 / top-3",
+  "runtime": "mlx-gpu",
+  "numerics": "float32 (no QAT)",
+  "corpus": "data/corpus-studio/oracle-holdout.jsonl (Studio corpus -- the SCORED one)",
+  "holdout_total": 25684,
+  "rows_scored": 200,
+  "seed": 0,
+  "sampling": "reservoir, seed 0; identical rows across all three columns",
+  "scoring": "teacher-forced per-label sequence logprob, empty reasoning",
+  "ranking": "sum of target-token logprob (mean-normalised also reported)",
+  "results": {
+    "static_majority_class": {
+      "top1": 12.5,
+      "top3": 44.0
+    },
+    "base_untuned": {
+      "top1": 3.5,
+      "top3": 17.0
+    },
+    "tuned_mlx_lora": {
+      "top1": 22.0,
+      "top3": 46.0
+    }
+  },
+  "mean_normalised": {
+    "base": {
+      "top1": 1.5,
+      "top3": 4.5
+    },
+    "tuned": {
+      "top1": 17.5,
+      "top3": 39.0
+    }
+  },
+  "deltas_tuned_minus_static": {
+    "top1_pp": 9.5,
+    "top3_pp": 2.0,
+    "top3_rows": 4
+  },
+  "significance": {
+    "top1_z": 2.51,
+    "top3_z": 0.4,
+    "top3_ci95_pp": 6.91,
+    "verdict": "top-1 significant (p~0.012); top-3 NOT distinguishable from the static baseline"
+  },
+  "cost": {
+    "median_s_per_row": 14.178561806678772,
+    "peak_gb": 2.21,
+    "jax_cpu_generation_s_per_row": 223.4
+  },
+  "caveats": [
+    "Candidates scored with an EMPTY reasoning block: measures P(label|prompt), not the deployed generate-then-call path.",
+    "The adapter is ONE epoch on the 2k-row fixture, not the full corpus -- a floor, not a ceiling.",
+    "n=200 gives +/-6.91pp on top-3; the 45.99% figure quoted elsewhere is a different sample (static is 44.00% on THESE rows)."
+  ]
+}
