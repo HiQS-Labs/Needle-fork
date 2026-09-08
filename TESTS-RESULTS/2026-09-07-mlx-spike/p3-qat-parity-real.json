@@ -1,0 +1,12 @@
+{
+  "scheme": "mixed[embedding=4,mhc=4,default=2]",
+  "quantised_leaves": 23,
+  "seq": 64,
+  "batches": 2,
+  "max_abs": 8.45166015625,
+  "max_rel": 0.001102855079807341,
+  "argmax": 0.9921875,
+  "top3": 0.9296875,
+  "rtol": 0.0001,
+  "verdict": "FAIL"
+}

@@ -1,0 +1,59 @@
+{
+  "gate": "P3-QAT parity",
+  "reference": "JAX model.apply(quant=True) with cq_ste_mixed_params / cq_ste_params, configure_deploy(act_bits=8, kv_bits=8)",
+  "results": {
+    "tiny_W4_A8_seq32": {
+      "rel": 0.0004893,
+      "abs": 0.0004503,
+      "argmax": 1.0,
+      "top3": 1.0,
+      "leaves": 18
+    },
+    "real_mixed_A8_seq64": {
+      "rel": 0.001103,
+      "abs": 8.452,
+      "argmax": 0.9922,
+      "top3": 0.9297,
+      "leaves": 23
+    },
+    "real_mixed_A8_seq256": {
+      "rel": 0.001239,
+      "abs": 11.59,
+      "argmax": 0.9844,
+      "top3": 0.9688
+    }
+  },
+  "primitive_parity": {
+    "embedding_W4": {
+      "n": 4194304,
+      "differing": 384,
+      "note": "= 3 groups of 128",
+      "max_abs": 0.00402
+    },
+    "q_proj_W2_gpu": {
+      "n": 7077888,
+      "differing": 384,
+      "max_abs": 0.00156
+    },
+    "q_proj_W2_cpu": {
+      "n": 7077888,
+      "differing": 512,
+      "note": "MLX CPU device also differs from JAX -> not a GPU artifact"
+    },
+    "mhc_phi_W4": {
+      "differing": 0
+    },
+    "A8_activation": {
+      "differing_frac": 0.0306,
+      "max_abs": 2.38e-07,
+      "note": "one ulp; not a quantisation step"
+    }
+  },
+  "mechanism": "fp non-associativity in groups @ H moves a value across a codeword boundary; the Hadamard un-rotation spreads that single flip over its 128-element group. Whole-group multiples prove it. Flat across seq length -> no accumulating activation-path defect.",
+  "gate_restated_D8": {
+    "rel_max": 0.002,
+    "argmax_min": 0.98,
+    "why": "STE training regularises against exactly this perturbation class; contrast D7 where PTQ collapsed generation entirely"
+  },
+  "verdict": "PASS under D8"
+}

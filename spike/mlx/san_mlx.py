@@ -37,6 +37,14 @@ _ENGRAM_PRIME = 0x01000193
 DTYPE_MAP = {"float32": mx.float32, "bfloat16": mx.bfloat16, "float16": mx.float16}
 
 
+import quant_mlx as QM  # noqa: E402
+
+
+def _aq(x, quant):
+    """architecture.py:22-25 -- A8 activation fake-quant when quant, identity otherwise."""
+    return QM.fake_quant_act(x) if quant else x
+
+
 def _a(x, dtype=None):
     """numpy/py -> mx.array, preserving dtype unless told otherwise."""
     arr = x if isinstance(x, mx.array) else mx.array(np.asarray(x))
@@ -133,7 +141,8 @@ def _sinkhorn(logits, iters: int = 20):                                 # 169-17
 
 # --- Engram module ---------------------------------------------------- 181-207
 class Engram:
-    def __init__(self, params, config, num_tables, sub_dim, conv_dilation, dtype):
+    def __init__(self, params, config, num_tables, sub_dim, conv_dilation, dtype, quant=False):
+        self.quant = quant
         self.tables = _a(params["embedding"])                    # (num_tables, slots, sub_dim)
         self.key_w = _a(params["key_proj"]["kernel"])
         self.value_w = _a(params["value_proj"]["kernel"])
@@ -152,7 +161,7 @@ class Engram:
         )
         fetched = fetched * ngram_ok[..., None]
         e = fetched.reshape(indices.shape[0], indices.shape[1], self.num_tables * self.sub_dim)
-        e = e.astype(self.dtype)
+        e = _aq(e.astype(self.dtype), self.quant)                     # architecture.py:197
         k = mx.matmul(e, self.key_w.astype(self.dtype))
         v = mx.matmul(e, self.value_w.astype(self.dtype))
         taps = self.taps.astype(self.dtype)
@@ -165,7 +174,8 @@ class Engram:
 
 # --- MultiHeadAttention (GQA) ----------------------------------------- 209-278
 class MultiHeadAttention:
-    def __init__(self, params, config, dtype):
+    def __init__(self, params, config, dtype, quant=False):
+        self.quant = quant
         self.q_w = _a(params["q_proj"]["kernel"])
         self.k_w = _a(params["k_proj"]["kernel"])
         self.v_w = _a(params["v_proj"]["kernel"])
@@ -185,6 +195,7 @@ class MultiHeadAttention:
         B = x.shape[0]
         dt = self.dtype
 
+        x = _aq(x, self.quant)                                          # architecture.py:225
         q = mx.matmul(x, self.q_w.astype(dt))
         k = mx.matmul(x, self.k_w.astype(dt))
         v = mx.matmul(x, self.v_w.astype(dt))
@@ -216,6 +227,7 @@ class MultiHeadAttention:
         out = out.transpose(0, 2, 1, 3).reshape(B, -1, attn_dim)
 
         out = out * mx.sigmoid(mx.matmul(x, self.gate_w.astype(dt)))
+        out = _aq(out, self.quant)                                      # architecture.py:276
         return mx.matmul(out, self.out_w.astype(dt))
 
 
@@ -250,12 +262,13 @@ class HadamardMLP:
 
 # --- Block ------------------------------------------------------------ 305-338
 class Block:
-    def __init__(self, params, config, dtype):
+    def __init__(self, params, config, dtype, quant=False):
+        self.quant = quant
         self.norm0 = _a(params["ZCRMSNorm_0"]["scale"])
         self.post_attn_norm = _a(params["post_attn_norm"]["scale"])
         self.pre_hada_norm = _a(params["pre_hada_norm"]["scale"])
         self.attn_gate = _a(params["attn_gate"])
-        self.attn = MultiHeadAttention(params["self_attn"], config, dtype)
+        self.attn = MultiHeadAttention(params["self_attn"], config, dtype, quant=quant)
         self.mlp = HadamardMLP(params["hadamard_mlp"], config["d_model"], dtype)
         self.d_model = config["d_model"]
         self.dtype = dtype
@@ -288,14 +301,15 @@ class Block:
 
 # --- Stack (MHC lanes + scanned layers) ------------------------------- 340-425
 class Stack:
-    def __init__(self, params, config, dtype):
+    def __init__(self, params, config, dtype, quant=False):
+        self.quant = quant
         self.config = config
         self.dtype = dtype
         self.num_layers = config["num_layers"]
         self.n = config["mhc_lanes"]
         self.d_model = config["d_model"]
         blk = params["layers"]["block"]
-        self.blocks = [Block(_slice_layer(blk, i), config, dtype) for i in range(self.num_layers)]
+        self.blocks = [Block(_slice_layer(blk, i), config, dtype, quant=quant) for i in range(self.num_layers)]
         self.final_norm = _a(params["final_norm"]["scale"])
         self.mhc = {k: _a(params[f"mhc_{k}"]) for k in
                     ("phi_pre", "phi_post", "phi_res", "b_pre", "b_post", "b_res",
@@ -371,18 +385,19 @@ def make_causal_mask(seq_len):                                          # 588-59
 class SimpleAttentionNetworkMLX:
     """Top-level model. `logits(tokens)` returns float32 [batch, seq, vocab]."""
 
-    def __init__(self, params, config):
+    def __init__(self, params, config, quant=False):
+        self.quant = quant
         self.config = config
         self.dtype = DTYPE_MAP[config.get("dtype", "bfloat16")]
         self.embedding = _a(params["embedding"]["embedding"])
         self.embed_scale = math.sqrt(config["d_model"])
-        self.stack = Stack(params["stack"], config, self.dtype)
+        self.stack = Stack(params["stack"], config, self.dtype, quant=quant)
 
         orders, heads, sub_dim = engram_geometry(config)
         self.orders, self.heads = orders, heads
         self.engrams = [
             Engram(params[f"engrams_{s}"], config, len(orders) * heads, sub_dim,
-                   max(orders), self.dtype)
+                   max(orders), self.dtype, quant=quant)
             for s in range(len(config["engram_layers"]))
         ]
 
@@ -414,7 +429,8 @@ class SimpleAttentionNetworkMLX:
                           toks.shape[1], self.config["rope_theta"])
         engram_kv = self._engram_kv(toks, mask)
         x = self.stack(x.astype(self.dtype), mask=mask, rope=rope, engram_kv=engram_kv)
-        return mx.matmul(x.astype(mx.float32), self.embedding.astype(mx.float32).T)
+        return mx.matmul(_aq(x, self.quant).astype(mx.float32),        # architecture.py:527
+                         self.embedding.astype(mx.float32).T)
 
 
 def normalize_config(config: dict) -> dict:

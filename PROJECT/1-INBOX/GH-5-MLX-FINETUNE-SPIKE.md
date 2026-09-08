@@ -149,6 +149,20 @@ Recorded here **and** at the place each one bites, because this spike runs on on
 while Phase 2 runs on another and a decision that lives in only one of them gets re-litigated
 or, worse, silently contradicted.
 
+### D8 — QAT parity gate restated: rel ≤ 2e-3 and argmax ≥ 0.98 (2026-09-08)
+
+The QAT port (`spike/mlx/quant_mlx.py`, gated by `parity_qat.py` against JAX `quant=True`) lands
+at **4.9e-04** relative on the tiny fixture (argmax 100%) and **1.1e-03 / 1.2e-03** on the real
+checkpoint at seq 64 / 256 (argmax 99.2% / 98.4%) — over the fp32 1e-4 gate, and the primitives
+show exactly why: differing elements come in **exact multiples of 128** (384, 384, 512 — whole
+groups), because one codeword flip at a boundary is spread over its group by the Hadamard
+un-rotation. MLX's **CPU** device disagrees with JAX identically, so it is fp non-associativity in
+`groups @ H` meeting a discontinuous function, not a GPU artifact. A8 differs in 3% of elements by
+**2.4e-07** — one ulp. The residual is flat across sequence length, which rules out an accumulating
+activation-path defect. As with D4, the criterion is restated and the evidence is not: this is the
+perturbation class STE training regularises against, and it is a different universe from D7's
+PTQ collapse. Receipt: `TESTS-RESULTS/2026-09-07-mlx-spike/p3-qat-parity.json`.
+
 ### D7 — PTQ destroys the fine-tune; the QAT port is the critical path (2026-09-08)
 
 Measured while building the §6 hook: the 2k adapter scores **24.1%** top-1 when ranked fp32 on

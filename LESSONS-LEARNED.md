@@ -219,7 +219,12 @@ Small, specific, each one grounded in a thing that actually went wrong:
 - **Process watchers match the wrong process.** A `pgrep -f` watcher matched its own command line,
   and later reported `cpu=0.0%` for a job running at 341% because it read the `zsh` wrapper rather
   than the Python child. Watch a **PID**, and sanity-check that a "dead" job is not simply being
-  measured wrong.
+  measured wrong. **Addendum, same day, same author:** `pkill -f <pattern>` also matches the
+  *shell running the chain that launched the pattern* — it killed a smoke → commit → launch
+  chain mid-way, and the commit never landed. Launch long jobs from a **script file** so no
+  shell's argv contains the pattern, write the PID to a file, and kill by that PID. Writing a
+  lesson down is not the same as having learned it; the test is whether the next run is
+  structured so the mistake cannot recur.
 - **A GPU job looks idle.** MLX training ran at 30% CPU and 960 MB RSS — nothing like the JAX
   baseline's 600% CPU and 8.7 GB. "Nothing is spinning" is not evidence a GPU job has stopped.
 
@@ -239,3 +244,47 @@ usually more useful.
   between a finding and a fabrication.
 
 If a number needs a specific framing to look good, that framing is the finding.
+
+---
+
+## 11. The eval number is not the deployed number — score the artifact you ship
+
+The 2k adapter scored **24.1%** top-1 when ranked at fp32 on MLX and **8–10%** through
+`needle build` → `.cact` → native engine, with degenerate reasoning (`LAST: read_file -> }] }] }]`).
+Four isolating experiments falsified the plausible suspects one by one — byte-identical tools
+serialisation changed nothing (to the decimal); W4 vs mixed-2-bit changed nothing; the *base*
+model through the engine was sane; the fp32 tuned model generated cleanly. Then the decisive one:
+**tuned weights + PTQ generated on MLX with no engine at all → `<think> } } } }`**, while base + PTQ
+stayed sane. Post-training quantisation of the LoRA-merged weights destroys the fine-tune. D7 on
+[#5](https://github.com/HiQS-Labs/Needle-fork/issues/5); `TESTS-RESULTS/2026-09-07-mlx-spike/`.
+
+**Lessons:**
+
+- **#1 §5 said "evaluate the exported `.cact`, not just the checkpoint" — and it was right before
+  the data existed to prove it.** A fine-tune whose quality is only ever measured in the training
+  numerics has not been measured. `utils/hooks/eval_cact.py` now scores the deployed path.
+- **QAT is not an optimisation; it is the deployment contract.** `needle finetune` defaults to
+  `--qat-bits auto` for a reason, and PR #8's guard exists because silence here is catastrophic.
+  The MLX port deferred QAT as "later" (D6) on the assumption an fp32 adapter would survive PTQ.
+  It did not survive at all.
+- **Isolate by falsification, one variable at a time, and keep a control.** Each of the four
+  negative results was cheap, and the base-model control is what let "the engine is fine" be a
+  conclusion rather than a hope.
+
+---
+
+## 12. A smell is not a verdict — test the primitive before restating a gate
+
+QAT parity landed at 4.9e-04 (tiny) / 1.1e-03 (real) relative against a 1e-4 fp32 gate, with
+argmax 100% / 99.2%. The pattern *smelled* like codebook-boundary flips from backend fp noise —
+inherent, not a bug. It would have been easy to loosen the gate on that smell. Instead the
+quantisers were compared directly on real leaves, and the mechanism was **proved**: differing
+elements came in **exact multiples of 128** (384, 384, 512 — whole groups), because one codeword
+flip is spread across its group by the Hadamard un-rotation; MLX's *CPU* device disagreed with JAX
+identically, ruling out a GPU artifact; A8 differed by one ulp; and the residual was flat across
+sequence length, ruling out an accumulating activation-path defect. D8 restated the gate on that
+evidence. `TESTS-RESULTS/2026-09-07-mlx-spike/p3-qat-parity.json`.
+
+**Lesson:** when a parity gate fails by a little, the two honest moves are "find the bug" or "prove
+the residual is inherent, with a mechanism and a number". "It's probably fine" is neither. D4 and D8
+both restated a criterion; both did it with the evidence unchanged and the mechanism named.

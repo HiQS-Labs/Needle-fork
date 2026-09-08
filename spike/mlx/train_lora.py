@@ -13,13 +13,14 @@ What is re-implemented here is only the part MLX has to own: the optimiser
 schedule (optax has no MLX build) and the training step itself. Both are written
 against the JAX source line-for-line and the reference is cited at each site.
 
-SCOPE (GH-5 D6): this runs FULL PRECISION. The JAX baseline defaults to
-`--qat-bits auto`, which on needle2.pkl resolves to
-`CQ mixed[embedding=4,mhc=4,default=2] STE + A8`, so its loss is a
-quantisation-aware objective and its curve is NOT directly comparable to this
-one. Getting the fp32 loop stepping proves the backward pass through the port;
-QAT is the following step. Do not report a curve from here against a QAT
-baseline without saying so.
+NUMERICS (GH-5 D7): `--qat-bits auto` (the default, matching `needle finetune`)
+trains THROUGH the checkpoint's own CQ scheme -- weight STE at the declared
+bit map plus A8 activation fake-quant -- via spike/mlx/quant_mlx.py, which is
+verified against JAX `quant=True` by parity_qat.py. This is not optional:
+post-training quantisation of a full-precision adapter destroys it (measured,
+D7). `--qat-bits none` keeps the old fp32 loop for comparison only; an adapter
+trained that way cannot be deployed through `needle build` without
+--allow-numerics-mismatch, and should not be.
 """
 import argparse
 import json
@@ -36,6 +37,7 @@ import mlx.optimizers as mlx_opt
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from san_mlx import SimpleAttentionNetworkMLX, normalize_config  # noqa: E402
+import quant_mlx as QM  # noqa: E402
 
 
 # --- params as a flat dict ---------------------------------------------------
@@ -134,6 +136,10 @@ def main():
                     help="gradient-accumulation micro-batch; 0 = no accumulation. "
                          "Keeps the effective batch (and so the loss curve) while "
                          "bounding activation memory.")
+    ap.add_argument("--qat-bits", choices=["auto", "none"], default="auto",
+                    help="auto = train through the checkpoint's CQ scheme + A8 "
+                         "(what needle finetune does; required for a deployable "
+                         "adapter). none = fp32, comparison only.")
     ap.add_argument("--mem-limit-gb", type=float, default=12.0,
                     help="hard MLX allocation ceiling. MLX draws from unified memory "
                          "with no default ceiling, so an oversized run starves the "
@@ -186,7 +192,16 @@ def main():
             raise SystemExit("  refusing: " + msg + ". Raise --max-len.")
         print(f"  {'WARNING':<9} {msg}", flush=True)
     print(f"  {'masked':<9} median {float(np.median(supervised)):.0f} supervised tokens/row", flush=True)
-    print(f"  {'numerics':<9} full precision (JAX baseline uses CQ STE -- curves not comparable)", flush=True)
+    weight_bits = getattr(config, "weight_bits", "") or None
+    if args.qat_bits == "auto":
+        plan = QM.ste_plan(params, weight_bits)          # JAX's own leaf/bits rule
+        qat_bits_map = weight_bits                       # what build_main reads back
+        qat_bits = None if weight_bits else 4
+        numerics = QM.describe(plan, weight_bits)
+        print(f"  {'numerics':<9} {numerics} (matches export)  {len(plan)} weight groups quantised", flush=True)
+    else:
+        plan, qat_bits_map, qat_bits, numerics = {}, None, None, "float32"
+        print(f"  {'numerics':<9} full precision -- NOT deployable without --allow-numerics-mismatch", flush=True)
 
     paths = lora_target_paths(flat, LORA_TARGETS)
     scale = args.lora_alpha / args.lora_rank
@@ -235,6 +250,15 @@ def main():
     base_mx = {p: mx.array(w) for p, w in flat.items()}
     opt = mlx_opt.AdamW(learning_rate=args.lr)
 
+    step_delta = {}   # STE constant for the current optimiser step; see QM.ste_delta
+
+    def refresh_delta(lora):
+        if not plan:
+            return
+        cur = merge_lora(base_mx, lora, scale)
+        step_delta.clear(); step_delta.update(QM.ste_delta(cur, plan))
+        mx.eval(*step_delta.values())
+
     def loss_sum_fn(lora, ids, mask):
         """finetune.py:379-390 minus the QAT branch, returning the SUM of masked
         token losses rather than the mean.
@@ -247,7 +271,9 @@ def main():
         numbers of supervised tokens.
         """
         merged = merge_lora(base_mx, lora, scale)
-        model = SimpleAttentionNetworkMLX(unflatten(merged), cfg)
+        if plan:                                          # finetune.py:381-385, hoisted
+            merged = {k: (v + step_delta[k]) if k in step_delta else v for k, v in merged.items()}
+        model = SimpleAttentionNetworkMLX(unflatten(merged), cfg, quant=bool(plan))
         logits = model.logits_mx(ids)
         logits, targets, m = logits[:, :-1], ids[:, 1:], mask[:, 1:]
         ce = mlx_nn.losses.cross_entropy(logits, targets, reduction="none")
@@ -261,6 +287,7 @@ def main():
         same [B,H,S,S] memory cost training was just bounded against."""
         if e_seqs is None or len(e_seqs) == 0:
             return None
+        refresh_delta(lora)                               # final weights, not last step's
         tot_loss, tot_tok = 0.0, 0.0
         for off in range(0, len(e_seqs), micro):
             ids = mx.array(e_seqs[off:off + micro].astype(np.int32))
@@ -273,6 +300,7 @@ def main():
         """One optimiser step's gradient, over micro-batches if asked."""
         n = len(b_ids)
         step = micro if micro < n else n
+        refresh_delta(lora)                               # once per optimiser step
         acc, tot_loss, tot_tok = None, 0.0, 0.0
         for off in range(0, n, step):
             ids = mx.array(b_ids[off:off + step].astype(np.int32))
@@ -314,12 +342,15 @@ def main():
                       f"  {dt:.1f}s  lr {float(opt.learning_rate):.2e}", flush=True)
             if args.max_steps and step_i >= args.max_steps:
                 break
-        if n_val > 0:
+        if n_val > 0 and not args.max_steps:
+            # A --max-steps smoke is a "does it step" check; scoring a 1,000-row holdout
+            # after two steps costs ~8 min and answers nothing. Full runs still score it.
             val = eval_loss(lora, val_seqs, val_masks)
             print(f"  {'epoch':<9} {epoch + 1}/{args.epochs}  loss {last:.4f}  val {val:.4f}", flush=True)
         else:
             val = None
-            print(f"  {'epoch':<9} {epoch + 1}/{args.epochs}  loss {last:.4f}", flush=True)
+            tag = "  (holdout skipped: --max-steps smoke)" if (n_val > 0 and args.max_steps) else ""
+            print(f"  {'epoch':<9} {epoch + 1}/{args.epochs}  loss {last:.4f}{tag}", flush=True)
         if args.max_steps and step_i >= args.max_steps:
             break
 
@@ -342,15 +373,15 @@ def main():
                               for k, v in lora.items()},
                      "scale": scale, "rank": args.lora_rank,
                      "alpha": args.lora_alpha,
-                     "qat_bits": None, "qat_bits_map": None,
+                     "qat_bits": qat_bits, "qat_bits_map": qat_bits_map,
                      "trained_by": "spike/mlx/train_lora.py",
-                     "trained_numerics": "float32"}, fh)
+                     "trained_numerics": numerics}, fh)
     print(f"  {'saved':<9} {args.out}", flush=True)
 
     if args.receipt:
         os.makedirs(os.path.dirname(args.receipt) or ".", exist_ok=True)
         with open(args.receipt, "w") as fh:
-            json.dump({"gate": "P3", "runtime": "mlx-gpu", "numerics": "float32 (no QAT)",
+            json.dump({"gate": "P3", "runtime": "mlx-gpu", "numerics": numerics,
                        "dataset": args.jsonl_path, "rows": int(count), "seq_len": int(max_len),
                        "batch_size": batch, "lora_rank": args.lora_rank,
                        "lora_alpha": args.lora_alpha, "lr": args.lr,
