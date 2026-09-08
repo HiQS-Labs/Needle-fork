@@ -35,6 +35,24 @@ local doc on an unmerged branch is one the other machine will unknowingly contra
   Costly or a one-way door, two issues disagree, or the fix would cross a stated bound.
 - **§5.6** a table of which artifact carries what: a receipt is authoritative for *what happened*,
   an issue for *what to do*, and a doc that contradicts both is stale.
+- **§5.7** when a decision *changes* — a pivot, a rescope, an abandoned approach, or a corrected
+  estimate that drove a choice — update every doc and issue carrying the old decision **before**
+  starting the new work. A stale decision is not neutral history; it is an active instruction
+  pointing the next reader, the next machine, or your own post-compact session at abandoned work,
+  and building first is what widens the window in which it is read. Two real instances are cited:
+  XYZ-forge #467 carrying "Framework: JAX/Flax, not MLX" in its checklist while a later comment on
+  the same issue said the opposite, and Needle-fork #1 §4 keeping "Framework decision: JAX" after
+  the consolidation — on the issue that is SSOT for that phase. The rule requires sweeping for the
+  same claim restated elsewhere (one re-sizing had already propagated into three documents before
+  it was caught) and marking supersessions rather than deleting them, since the reasoning for a
+  reversal is the useful record.
+
+  §5.7 also carves out §5.2's "never rewrite an issue body". That rule protects the audit trail for
+  *decisions and findings* and still holds. It does not license leaving a body-level **checklist or
+  status table** that contradicts a later comment on the same issue, because a checklist is read as
+  current instruction, not as history. Such a body is edited — but non-silently: the supersession is
+  marked in place, a comment records what changed and why, and the superseded reasoning is never
+  deleted. Silent is what §5.2 forbids.
 
 Three anti-patterns added to §6: leaving a finding in a local doc or commit message only, acting
 on an issue body without reading its comments, and silently resolving a doc-vs-issue conflict in

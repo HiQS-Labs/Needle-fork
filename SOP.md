@@ -311,6 +311,56 @@ behind each, your recommendation, and what you will do if they do not answer. Th
 A receipt beats a doc on *what happened*. An issue beats a doc on *what to do*. A doc that
 contradicts both is stale — fix it in the same commit that discovers it.
 
+### 5.7 When a decision changes, codify it *before* you build on it
+
+§5.2 says push findings up in the same iteration. This is the stricter case that governs a
+**reversal**: a pivot, a rescope, an abandoned approach, or a corrected estimate that drove a
+choice.
+
+> **Update every doc and issue carrying the old decision BEFORE starting the new work — not after
+> it lands, and not "once it settles".**
+
+-> expect a stale decision to behave as an *active instruction*, not as neutral history. It points
+the next reader — or the next machine, or your own next session after a compact — at abandoned
+work. The window between "we changed our mind" and "the docs say so" is precisely the window
+someone else reads them in, and starting the new work first is what widens it.
+
+This is not hypothetical. Both have already happened here:
+
+- **XYZ-forge #467** carried *"Framework: JAX/Flax, not MLX … MLX is deferred to Phase 3/4"* in its
+  checklist while a later comment on the **same issue** said CPU training does not finish and §4
+  now runs on MLX. A reader who stopped at the checklist got the opposite instruction from one who
+  scrolled to the bottom.
+- **Needle-fork #1 §4** kept *"Framework decision: JAX"* long after the consolidation — on the
+  issue that is SSOT for that phase, so the most authoritative artifact was the wrong one.
+
+How to apply:
+
+1. **Codify in at least two easily-found places**, always including the issue that is SSOT for the
+   workstream (§4's rule, applied to reversals as well as adjudications).
+2. **Sweep for the same claim restated elsewhere.** A reversal usually invalidates a sentence in
+   more than one artifact — including ones *you wrote earlier in the same session*. A corrected
+   estimate must be chased into every doc that quoted it, or the correction is cosmetic. One
+   re-sizing on 2026-09-07 had already propagated into three documents before it was caught.
+3. **Mark the supersession; do not delete the old text.** The reasoning for the reversal is the
+   useful record — "this previously said X, and here is what measurement changed" is worth more
+   than a clean page.
+4. **Then** start the new work.
+
+**Carve-out to §5.2's "do not rewrite the body".** §5.2's rule protects the audit trail, and it
+holds for *decisions and findings*: comment, never quietly restate. It does **not** license leaving
+a body-level **checklist or status table** that now contradicts a later comment on the same issue,
+because that artifact is read as current instruction rather than as history. Edit it — and make the
+edit non-silent:
+
+- mark the supersession **in place** ("revised YYYY-MM-DD; this supersedes …"), and
+- post a comment recording what changed and why, and
+- never delete the superseded reasoning — GitHub keeps edit history, but the next reader does not
+  read edit history.
+
+Silent is the thing §5.2 forbids. An announced, marked, comment-backed correction of a live
+checklist is the fix, not the violation.
+
 ## 6. Anti-patterns (apply `AGENTS.md` §6 here specifically)
 
 - **Trusting exit code 0 as the verdict.** A training loop or export that exits cleanly can still
