@@ -76,15 +76,20 @@ def pass1(root):
                 hits[lab] += 1
     return lines, cands, hits
 
-def pass2(root, out):
-    """Parse candidates as real tool calls and label via the shared taxonomy."""
+def pass2(root, out, scan_all=False):
+    """Parse candidates as real tool calls and label via the shared taxonomy.
+
+    `scan_all` drops the pass-1 prefilter. Only that mode yields a governance
+    SHARE comparable to the built corpus: filtering to candidates first inflates
+    the ratio by construction, since the filter selects for governance.
+    """
     sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                     "..", "..", "utils", "corpus"))
     import taxonomy as tx
     counts = collections.Counter(); written = 0
     fh_out = open(out, "w") if out else None
     for fp, line in iter_lines(root):
-        if not CANDIDATE.search(line):
+        if not scan_all and not CANDIDATE.search(line):
             continue
         try:
             rec = json.loads(line)
@@ -120,6 +125,11 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--root", required=True, help="a ~/.claude/projects directory")
     ap.add_argument("--pass2", action="store_true")
+    ap.add_argument("--all", action="store_true",
+                    help="pass 2 over EVERY tool call, not just regex candidates. "
+                         "This is the only mode whose governance SHARE is comparable "
+                         "to the built corpus -- the candidate-filtered share is "
+                         "biased upward by construction.")
     ap.add_argument("--out", default="", help="pass 2 only; MUST be outside the repo")
     args = ap.parse_args()
 
@@ -134,7 +144,7 @@ def main():
         print("\nThese are a RECALL CEILING, not labels. Run --pass2 to label them "
               "through taxonomy.py before believing any of them.")
     else:
-        counts, written = pass2(args.root, args.out)
+        counts, written = pass2(args.root, args.out, scan_all=args.all)
         gov = {k: v for k, v in counts.items()
                if k in ("promote_capture","complete_doc","park_roadmap_row","cut_release",
                         "publish_release","run_pdda_check","update_roadmap","update_changelog",
@@ -143,7 +153,11 @@ def main():
         print("labelled via taxonomy.py (governance only):")
         for k in sorted(gov, key=lambda k: -gov[k]):
             print(f"  {k:<22}{gov[k]:>7}")
-        print(f"\n  governance total {sum(gov.values())} of {sum(counts.values())} labelled calls")
+        tot = sum(counts.values()); g = sum(gov.values())
+        print(f"\n  governance total {g} of {tot} labelled calls  ({100*g/max(tot,1):.2f}%)")
+        if not args.all:
+            print("  NOTE: candidate-filtered -- this SHARE is inflated by construction. "
+                  "Use --all for a figure comparable to the built corpus.")
         if args.out:
             print(f"  wrote {written} rows -> {args.out}")
 
