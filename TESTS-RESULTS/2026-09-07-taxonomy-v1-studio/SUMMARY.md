@@ -4,12 +4,13 @@
 mounted read-only over SMB · **Label set:** `v1.0.0-draft` (44 labels)
 · **Issue:** [Needle-fork#1](https://github.com/HiQS-Labs/Needle-fork/issues/1) §1, §2
 
-> **Status 2026-09-09: STALE — measured under superseded rules.** #16 corrected
-> positional label assignment (322 labels move on the local corpus). The numbers
-> below stand as the record of what this run measured and are **not edited**; they
-> are no longer evidence about the current mapper. The §2 gate is re-opened in
-> `PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md` until the Studio corpus is
-> re-extracted. See `../2026-09-09-taxonomy-positional-fix/`.
+> **Status 2026-09-09: SUPERSEDED — measured under rules since corrected.** #16 fixed
+> positional label assignment. The numbers below stand as the record of what this run
+> measured and are **not edited**; they are no longer evidence about the current mapper.
+> **Current §2 gate result: `../2026-09-09-taxonomy-studio-postfix/` — 96.33%.**
+> A control there re-runs *this* receipt's mapper over the newer corpus and reproduces
+> 98.52% exactly, which is what attributes the 2.19-point fall to the rule change rather
+> than to corpus drift.
 
 Supersedes the local-sample measurement in `../2026-09-07-taxonomy-v1/`, which was
 17 transcripts on the MacBook and could validate the mechanism but not size the

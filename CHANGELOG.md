@@ -48,8 +48,31 @@ local corpus 2,111 commands, coverage 98.77% → 97.92%, 322 labels change, 3 go
 losses (each verified a false positive), 0 gained; receipt in
 `TESTS-RESULTS/2026-09-09-taxonomy-positional-fix/`.
 
-Not yet done: the Studio corpus has **not** been re-extracted under the corrected
-rules (SMB share unmounted). Until it is, the §2 gate has no current result.
+### The §2 gate, re-measured — 96.33%, and a control that attributes the fall
+
+The Studio corpus was re-scored under the corrected mapper once the share was mounted:
+**335 sessions, 71,547 calls, mapping coverage 96.33%** (corpus: 71,186 pairs, 274/47
+split). Receipt: `TESTS-RESULTS/2026-09-09-taxonomy-studio-postfix/`.
+
+Coverage fell 2.19 points from 98.52%. The Studio's transcript set had *also* drifted
+(383 files on 09-07, 337 now), so the raw delta confounded two changes. The **pre-fix
+mapper was re-run over today's corpus as a control** — identical 335 sessions and 71,547
+calls, mapper the only variable. It scores **98.52%**, exactly the 09-07 figure. Corpus
+drift moved the gate **0.00 pp**; the entire fall is the rule change.
+
+**The lower number is the fix working.** Coverage counts resolution, not correctness.
+Commands mislabelled from displayed text (`echo mv PROJECT/...` → `promote_capture`)
+used to count as covered — covered by a wrong label — and now fall to `unmapped`. On the
+identical corpus the fix removes **513 false governance calls** (6.61% → 5.90%), the
+exact error class #2 reported, in the group this Oracle exists to get right.
+
+Support floor: `park_roadmap_row` crossed it (68 → 96) because it had been losing real
+calls to mislabelling; `promote_capture` fell 14 → 8 because six were display text. Two
+stragglers now rather than three, both still #9's supplementation targets.
+
+Unchanged and still the structural risk: `multi_rule_pct` 78.09% over 55,269 bash
+commands, statistically identical to the control's 77.87%. The fix corrected *which*
+rule wins positionally; it did not reduce how often several match.
 
 ## 2026-09-07
 

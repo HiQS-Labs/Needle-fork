@@ -177,10 +177,12 @@ intents lowers the score a majority-class predictor gets, which is the honest ba
 
 ## Phase C — Re-extract on the Studio and freeze
 
-> **Re-opened 2026-09-09.** Every measurement in this section was produced by the
-> positional labelling rules that #16 replaces. That change moves **322 labels**, so
-> the §2 coverage gate below is **stale — not superseded by measurement**. No run has
-> yet scored the Studio corpus under the corrected rules. See
+> **Re-opened, then re-measured — 2026-09-09.** Every measurement in this section was
+> produced by the positional rules #16 replaced. The Studio corpus has now been
+> re-scored under the corrected mapper: the §2 gate reads **96.33%**, and a control run
+> attributes **all** of the 2.19-point fall to the rule change rather than to corpus
+> drift. Current gate result: `TESTS-RESULTS/2026-09-09-taxonomy-studio-postfix/`.
+> The numbers *below* are the superseded pre-fix record — see
 > [Superseded measurements](#superseded-measurements).
 
 **Ran 2026-09-07, under rules since corrected.** The Studio's `~/.claude/projects` was reachable as an SMB share
@@ -234,13 +236,13 @@ than action — left unmapped deliberately so the gate keeps its meaning.
 - [x] Teach `extract_claude_transcripts.py` to record `file_path` and to import
       `taxonomy.label_call` instead of its own `BASH_RULES` — done and verified locally
       (16 sessions, 1,439 pairs, coverage 99.03%, governance share 3.75%)
-- [ ] Re-extract on the Mac Studio — **re-opened.** The 2026-09-07 run (coverage
-      98.52%) measured rules #16 replaces; it must be re-run before the gate counts
+- [x] Re-extract on the Mac Studio — **re-done 2026-09-09** under the corrected mapper
+      (`5ed316d`): 335 sessions, 71,547 calls, coverage **96.33%**; corpus 71,186 pairs
 - [x] Apply the support floor (0.1% of calls) — 40 of 44 clear it; 3 real stragglers + `no_action`
 - [x] Decide `pkg_manage` — **kept**; the decision dissolved once the measurement was fixed (below)
 - [ ] Cut `label_set_version` from `v1.0.0-draft` to `v1.0.0` and re-publish the contract
-- [ ] Report the Studio coverage number to issue #1 as the §2 gate result —
-      **re-opened** with the box above; 98.52% is stale, not a current gate result
+- [x] Report the Studio coverage number to issue #1 as the §2 gate result — **96.33%**,
+      with the pre-fix mapper control that attributes the fall to the rule change
 
 ### Superseded measurements
 
@@ -261,6 +263,18 @@ these numbers as stale while this checklist claimed the gate was met.
 is not 322 corrections — 3 were governance losses, each verified a false positive.
 The claim is narrower and sufficient: the number was produced by rules that no longer
 exist, so it is not evidence about the rules that do.
+
+**How it resolved.** The re-measurement ran on 2026-09-09 once the share was mounted:
+**96.33%**, down 2.19 points. Because the Studio's transcript set had also drifted (383
+files then, 337 now), the raw delta was unattributable, so the pre-fix mapper was re-run
+over *today's* corpus as a control — identical 335 sessions and 71,547 calls, mapper the
+only variable. The control scores **98.52%**, exactly the 2026-09-07 figure: corpus drift
+moved the gate by **0.00 pp**, and the whole 2.19-point fall is the rule change.
+
+A lower number is the fix working. `unmapped` is the honest bucket; commands that were
+mislabelled from *displayed* text used to count as covered, covered by a wrong label. On
+the identical corpus the fix also removes 513 false governance calls (6.61% → 5.90%),
+which is the class of error #2 reported. The old 98.52% was inflated by mislabelling.
 
 **The general rule this is an instance of.** *A measurement is scoped to the code
 that produced it.* When a change moves the mapper, every acceptance box downstream of
