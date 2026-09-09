@@ -211,8 +211,8 @@ BASH_RULES = [
     ("update_pr",        r"\bgh\s+(pr\s+(edit|comment|review|ready)|issue\s+(comment|edit|close))\b"),
     ("create_branch",    r"\bgit\s+(-C\s+\S+\s+)?(checkout\s+-b|switch\s+-c|branch\s+[^-])"),
     ("commit_changes",   r"\bgit\s+(-C\s+\S+\s+)?(commit|add)\b"),
-    ("git_sync",         r"\bgit\s+(-C\s+\S+\s+)?(push|pull|fetch|merge(?!-tree|-base)|rebase|stash|clone|worktree|cherry-pick|reset)\b"),
-    ("git_inspect",      r"\bgit\s+(-C\s+\S+\s+)?(status|log|diff|show|remote|rev-parse|rev-list|describe|blame|check-ignore|ls-files|merge-tree|merge-base|config|branch\b)"),
+    ("git_sync",         r"\bgit\s+(-C\s+\S+\s+)?(push|pull|fetch|merge(?!-tree|-base)|rebase|stash|clone|worktree|cherry-pick|reset|checkout|switch|restore)\b"),
+    ("git_inspect",      r"\bgit\s+(-C\s+\S+\s+)?(status|log|diff|show|remote|rev-parse|rev-list|describe|blame|check-ignore|ls-files|merge-tree|merge-base|config|bisect|branch\b)"),
 
     # code / dev
     ("run_tests",        r"\b(pytest|jest|vitest|go test|cargo test|npm (run )?test|make test|run-tests)\b"),
@@ -221,7 +221,7 @@ BASH_RULES = [
     ("pkg_manage",       r"\b(pip3?|uv|poetry|pipx|conda)\s+(install|add|remove|uninstall|sync|list|show|freeze)\b"
                          r"|\b(npm|yarn|pnpm)\s+(install|ci|add|remove|uninstall|ls|list|outdated)\b"
                          r"|\b(brew|apt|apt-get|gem)\s+(install|upgrade|uninstall|remove|list|info)\b"
-                         r"|\brequirements(-\w+)?\.txt\b"),
+                         r"|\b(pip3?|uv|poetry)\s+install\s+-r\b"),
     ("run_script",       r"(<<\s*'?[A-Z_]+'?|\bpython3?\s+-[cm]\b|/bin/python\b"
                          r"|\b(python3?|node|npx|bash|sh|zsh|ruby|perl|swift|deno|tsx)\s+\S+"
                          r"|^\./\S+|^\$[A-Za-z_])"),
@@ -258,8 +258,151 @@ ARG_CONSUMERS = {
     "more": "read_file", "bat": "read_file", "awk": "read_file", "wc": "read_file",
     "find": "find_files", "fd": "find_files", "ls": "find_files", "tree": "find_files",
     "sed": "read_file",
+    "which": "sys_inspect", "command": "sys_inspect", "type": "sys_inspect",
+    "whereis": "sys_inspect", "basename": "unmapped", "dirname": "unmapped",
+    "realpath": "unmapped", "stat": "unmapped", "shasum": "unmapped",
+    "sha256sum": "unmapped", "md5": "unmapped",
 }
 _LEAD = re.compile(r"^\s*(?:[A-Za-z_][A-Za-z0-9_]*=\S*\s+)*([^\s;|&]+)")
+
+# ---------------------------------------------------------------------------
+# #2: a rule token in an ARGUMENT position is not an invocation.
+#
+# The first two instances of this bug class were each fixed with a list of
+# specific programs. The class is broader than any list, because the defect is
+# not "these programs take data" -- it is that a bare-name rule was allowed to
+# match ANYWHERE in a segment. `chmod +x validate.sh` is not a governance run;
+# `echo pytest` is not a test run; `tar -czf b.tgz validate.sh` is neither.
+#
+# So the default is inverted: a bare-name rule matches only in COMMAND POSITION.
+# Everything after the command is data unless the program is known to take
+# subcommands. That makes the fix positional rather than a fourth enumeration --
+# a program nobody listed, like `stat` or `realpath`, is handled by the default.
+# ---------------------------------------------------------------------------
+
+# Wrappers whose intent is their CHILD. Unwrapped before anything else looks at
+# the segment, so the effective command is what gets labelled.
+_WRAPPERS = re.compile(
+    r"^\s*(?:"
+    r"timeout\s+[\d.]+[smhd]?|nohup|nice(?:\s+-n\s+-?\d+)?|sudo(?:\s+-\w+)*"
+    # `-\S+(\s+\S+)?` would swallow the child command itself: in
+    # `xargs -I{} echo pytest`, the optional argument ate `echo` and left `pytest`.
+    # Only a NUMERIC flag argument is consumed, since that can never be a command.
+    r"|watch(?:\s+-n\s+[\d.]+)?|stdbuf(?:\s+-\w+)*|xargs(?:\s+-\S+(?:\s+\d+)?)*"
+    r"|env(?:\s+[A-Za-z_][A-Za-z0-9_]*=\S*)*"
+    r"|(?:uv|poetry|pdm|hatch)\s+run|git\s+bisect\s+run"
+    r"|(?:\S*/)?time(?:\s+-\w+)*"
+    r"|do|then|else|until|while|!"
+    r")\s+")
+# `python -m pip install X` IS package management, and `python -m pytest` IS a test
+# run: `-m` names the real program. Without this the region stops at `pip` and the
+# rule needing `pip install` never sees the subcommand. Anything else run this way
+# is still a script, so the fallback keeps that.
+_DASH_M = re.compile(r"^\s*(?:\S*/)?python[\d.]*\s+-m\s+")
+# `git bisect run <probe>` is still a git operation even though its probe is not.
+_WRAPPER_FALLBACK = ((re.compile(r"^\s*git\s+bisect\b"), "git_inspect"),)
+
+# Programs whose next tokens are SUBCOMMANDS, not data. Everything not listed
+# here is assumed to take operands -- the safe default, and the one that makes
+# an unlisted program behave correctly without being added.
+SUBCOMMAND_PROGRAMS = {"git", "gh", "npm", "yarn", "pnpm", "pip", "pip3", "pipx",
+                       "uv", "poetry", "brew", "apt", "apt-get", "gem", "conda",
+                       "cargo", "go", "docker", "podman", "xyz", "aws", "gcloud",
+                       "az", "oci", "make", "kubectl", "systemctl"}
+# Container images are `name:tag`, which reads as a bare tool name; one token is
+# all the subcommand ever is.
+_SUBCOMMAND_DEPTH = {"docker": 1, "podman": 1, "make": 1}
+# For these the next token is the SCRIPT being run, so it is in command position:
+# `bash scripts/validate.sh` really is a governance run.
+EXECUTORS = {"bash", "sh", "zsh", "ksh", "dash", "source", ".",
+             "python", "python3", "node", "npx", "ruby", "perl", "swift",
+             "deno", "tsx", "osascript"}
+# Rules that must keep reading operands: they match a PATH SHAPE, not a name.
+ANY_POSITION = {"promote_capture", "complete_doc", "park_roadmap_row"}
+_HEREDOC_BODY = re.compile(r"<<-?\s*'?[A-Za-z_]")
+_REDIRECT = re.compile(r"\s*\d?(?:>>|>|<)\s*\S+")
+# `cat > file <<EOF` WRITES a file -- the redirection is the whole action, and
+# stripping it leaves a bare `cat`, which reads as the opposite. Only for commands
+# that emit content and do nothing else: `pytest > out.txt` is still a test run.
+_CONTENT_PRODUCERS = {"cat", "echo", "printf", "tee"}
+# STDOUT only. `\d?` also matched `cat f 2>/dev/null`, turning 34 ordinary reads
+# into writes -- stderr redirection says nothing about where content goes.
+_WRITE_REDIRECT = re.compile(r"(?:^|\s)1?>>?\s*\S+")
+_QUOTED = re.compile(r"'[^']*'|\"[^\"]*\"")
+_FILEISH = re.compile(r"/|\.[A-Za-z][A-Za-z0-9]{0,4}$")
+
+
+def _effective_clause(seg: str) -> str:
+    """Drop leading setup clauses (`cd X &&`) from a HEREDOC-joined segment.
+
+    Only heredoc segments: `split_segments` has already cut every other segment on
+    `&&`/`;`, so a separator still present in one of those is inside quotes, and
+    splitting on it again mislabels 123 local commands.
+    """
+    if not _HEREDOC.search(seg):
+        return seg
+    for clause in re.split(r"&&|;", seg):
+        clause = clause.strip()
+        if clause and not _PREAMBLE.match(clause) and not _DISPLAY.match(clause):
+            return _unwrap(clause)[0]
+    return seg
+
+
+def _unwrap(seg: str) -> tuple[str, str | None]:
+    """Strip wrapper prefixes until the effective command is exposed."""
+    fallback = None
+    for _ in range(6):                       # bounded: wrappers do not nest deeply
+        for rx, label in _WRAPPER_FALLBACK:
+            if rx.match(seg):
+                fallback = label
+        m = _DASH_M.match(seg)
+        if m:
+            seg, fallback = seg[m.end():], "run_script"
+            continue
+        m = _WRAPPERS.match(seg)
+        if not m:
+            break
+        seg = seg[m.end():]
+    return seg, fallback
+
+
+def command_region(seg: str) -> str:
+    """The part of a segment a bare-name rule is allowed to match.
+
+    Quoted text is data everywhere -- a commit message naming `validate.sh` is not
+    running it -- so it is blanked before the region is cut.
+    """
+    seg = _REDIRECT.sub("", _QUOTED.sub('""', seg))
+    tokens = seg.split()
+    if not tokens:
+        return ""
+    lead = leading_program(seg)
+    if lead in EXECUTORS:
+        # lead plus the script it runs; flags in between belong to the lead.
+        out = []
+        for tok in tokens:
+            out.append(tok)
+            if len(out) > 1 and not tok.startswith("-"):
+                break
+        return " ".join(out)
+    if lead not in SUBCOMMAND_PROGRAMS:
+        return tokens[0]
+    depth, out, seen, prev_flag = _SUBCOMMAND_DEPTH.get(lead, 3), [tokens[0]], 0, False
+    for tok in tokens[1:]:
+        if tok.startswith("-"):
+            out.append(tok)
+            prev_flag = True
+            continue
+        # A filename or path is an operand, not a subcommand -- `make validate.sh`.
+        # Unless it is the argument of a flag, as in `git -C /repo status`.
+        if not prev_flag and _FILEISH.search(tok):
+            break
+        out.append(tok)
+        prev_flag = False
+        seen += 1
+        if seen >= depth:
+            break
+    return " ".join(out)
 
 # Package managers take PACKAGE NAMES as arguments, so their arguments must not be
 # read as invocations -- `uv add ruff` is installing ruff, not running it, and was
@@ -290,7 +433,7 @@ def leading_program(seg: str) -> str:
 # Segments that are setup or display, never the intent of the call.
 _PREAMBLE = re.compile(
     r"^\s*(cd\b|export\b|source\b|\.\s|set\b|nohup\b|time\b|nice\b|sudo\b|timeout\s+\d+\b"
-    r"|for\b|while\b|do\b|done\b|if\b|then\b|fi\b|else\b|case\b|esac\b|function\b"
+    r"|for\b|while\b|until\b|do\b|done\b|if\b|then\b|fi\b|else\b|case\b|esac\b|function\b"
     r"|continue\b|break\b|return\b|exit\b|\[|\(|\\\\$|test\s"
     r"|[A-Za-z_][A-Za-z0-9_]*=)")
 _DISPLAY = re.compile(r"^\s*(echo|printf|head|tail|wc|sort|uniq|column|less|more|tee|jq|cut|tr|xargs\s+echo)\b")
@@ -335,21 +478,50 @@ def substantive_segments(cmd: str) -> list[str]:
 
 
 def label_segment(seg: str) -> str | None:
-    """Label one segment, or None if no rule matches."""
+    """Label one segment, or None if no rule matches.
+
+    Order matters: the wrapper is unwrapped first so every later test sees the
+    EFFECTIVE command, and path-shaped governance rules run before the name-based
+    ones so `mv PROJECT/1-INBOX/x PROJECT/2-WORKING/x` stays a promotion.
+    """
+    seg, fallback = _unwrap(seg)
+    # A heredoc suppresses segment splitting, so `cd X && git commit -F - <<EOF`
+    # arrives here whole and its leading token is `cd`. While rules matched
+    # anywhere that did not matter; now the leading token decides, so the setup
+    # clause has to come off or every heredoc commit reads as a script run.
+    full = seg                 # path-shaped rules must still see the whole segment
+    seg = _effective_clause(seg)
     lead = leading_program(seg)
     if lead in PKG_MANAGERS and _second_token(seg) not in PKG_DELEGATES:
         return "pkg_manage"
     if lead in NODE_PKG and _second_token(seg) in NODE_PKG_SUBCOMMANDS:
         return "pkg_manage"
+    if lead in _CONTENT_PRODUCERS and _WRITE_REDIRECT.search(seg):
+        return "apply_patch"
     if lead in ARG_CONSUMERS:
         # `sed -i` rewrites a file; `sed -n 1,20p` reads one.
         if lead == "sed":
             return "apply_patch" if re.search(r"\s-i\b", seg) else "read_file"
         return ARG_CONSUMERS[lead]
+    region = command_region(seg)
+    # ONE ordered pass, so the original rule precedence is preserved exactly; only
+    # the HAYSTACK changes per rule. Splitting this into two passes silently
+    # promoted every heredoc above `commit_changes`, turning 44 real commits in the
+    # local corpus into `run_script` -- a regression no unit test caught, found only
+    # by diffing a re-extraction.
     for name, rx in BASH_RE:
-        if rx.search(seg):
+        if name in ANY_POSITION:
+            # The WHOLE segment, not the reduced clause: a heredoc keeps
+            # `mkdir -p PROJECT/3-COMPLETED && git mv PROJECT/2-WORKING/x ...` in one
+            # piece, and reducing to the first clause hid the completion behind mkdir.
+            hay = full             # path-shaped: an operand cannot spoof a directory move
+        elif name == "run_script" and _HEREDOC_BODY.search(full):
+            hay = full             # a heredoc body is script content wherever it sits
+        else:
+            hay = region
+        if rx.search(hay):
             return name
-    return None
+    return fallback
 
 
 def label_bash(cmd: str) -> tuple[str, str]:

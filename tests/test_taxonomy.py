@@ -250,3 +250,155 @@ def test_exporter_is_reproducible(tmp_path):
     subprocess.run([sys.executable, "utils/corpus/export_label_schemas.py", "--out", str(out)],
                    cwd=REPO, check=True, capture_output=True)
     assert json.load(open(out)) == json.load(open(os.path.join(REPO, "oracle", "labels-v1.json")))
+
+
+# --- #2: a rule's token in an ARGUMENT position is not an invocation ------------
+#
+# Third instance of this bug class. The first two were fixed with lists of specific
+# programs (ARG_CONSUMERS, PKG_MANAGERS); the class is broader than any list, so
+# these tests assert the POSITIONAL property, not the 14 reported commands.
+#
+# Every case below scored a wrong label before the fix. Governance labels are the
+# loudest false positives because they outrank everything on tier, so an operand
+# beats the real action.
+
+@pytest.mark.parametrize("cmd,expected", [
+    # wrappers: the intent is the wrapped child, not the wrapper
+    ("timeout 5 echo pytest",              "unmapped"),
+    ("nohup sleep 1 > validate.sh",        "sys_inspect"),
+    ("xargs -I{} echo pytest {}",          "unmapped"),
+    ("nice -n 10 make",                    "run_build"),
+    ("sudo apt-get install ripgrep",       "pkg_manage"),
+    ("env FOO=1 pytest -q",                "run_tests"),
+    ("stdbuf -oL pytest",                  "run_tests"),
+])
+def test_wrapper_delegates_to_its_child(cmd, expected):
+    assert tx.label_bash(cmd)[0] == expected
+
+
+@pytest.mark.parametrize("cmd,expected", [
+    ("python3 -c \"print('ruff')\"",       "run_script"),
+    ("node -e \"console.log('pytest')\"",  "run_script"),
+    ("sh -c 'validate.sh'",                "run_script"),
+])
+def test_inline_interpreter_body_is_data_not_invocation(cmd, expected):
+    assert tx.label_bash(cmd)[0] == expected
+
+
+@pytest.mark.parametrize("cmd,expected", [
+    ("echo pytest",                        "unmapped"),
+    ("touch requirements.txt",             "fs_mutate"),
+    ("cp requirements.txt /tmp/",          "fs_mutate"),
+    ("mv requirements.txt old.txt",        "fs_mutate"),
+    ("chmod +x validate.sh",               "fs_mutate"),
+    ("mv validate.sh scripts/",            "fs_mutate"),
+    ("make validate.sh",                   "run_build"),
+    ("make relay-drive.sh",                "run_build"),
+    ("docker run --rm ruff:latest --help", "unmapped"),
+    ("which ruff uv",                      "sys_inspect"),
+    ("command -v ruff uv uvx pipx python3", "sys_inspect"),
+])
+def test_operand_is_not_an_invocation(cmd, expected):
+    assert tx.label_bash(cmd)[0] == expected
+
+
+def test_git_bisect_run_is_a_git_operation_not_its_probe():
+    """`git bisect run echo validate.sh` was run_validate -- the loudest possible miss."""
+    assert tx.label_bash("git bisect run echo validate.sh")[0] == "git_inspect"
+
+
+@pytest.mark.parametrize("cmd,expected", [
+    ("git checkout main -- scripts/x.sh requirements.txt", "git_sync"),
+    ('ssh -i "$HOME/.ssh/id_ed25519" host "ls requirements.txt"', "net"),
+])
+def test_real_corpus_commands_that_were_mislabelled(cmd, expected):
+    assert tx.label_bash(cmd)[0] == expected
+
+
+def test_quoted_text_is_data_not_an_invocation():
+    """A commit message naming a governance script is not running it."""
+    assert tx.label_bash('git commit -m "run validate.sh before merging"')[0] == "commit_changes"
+    assert tx.label_bash('echo "pdda.sh roadmap"')[0] == "unmapped"
+
+
+@pytest.mark.parametrize("cmd,expected", [
+    # THE CLASS CONTROL. None of these programs is enumerated anywhere in the fix.
+    # If the fix were another special-case list, these would still be wrong.
+    ("tar -czf backup.tgz validate.sh",     "sys_inspect"),
+    ("shasum -a 256 pdda.sh",               "unmapped"),
+    ("basename /opt/relay-drive.sh",        "unmapped"),
+    ("realpath requirements.txt",           "unmapped"),
+    ("stat validate.sh",                    "unmapped"),
+])
+def test_unenumerated_program_with_a_rule_token_as_operand(cmd, expected):
+    assert tx.label_bash(cmd)[0] == expected
+
+
+# --- positive controls: the fix must not silence real invocations --------------
+
+@pytest.mark.parametrize("cmd,expected", [
+    ("./validate.sh",                                        "run_validate"),
+    ("bash scripts/validate.sh --fast",                      "run_validate"),
+    ("pdda.sh roadmap",                                      "run_pdda_check"),
+    ("xyz validate",                                         "run_validate"),
+    ("relay-drive.sh --id 1",                                "start_relay"),
+    ("pytest -q",                                            "run_tests"),
+    ("ruff check .",                                         "run_linter"),
+    ("uv run pytest",                                        "run_tests"),
+    ("uv add ruff",                                          "pkg_manage"),
+    ("pip install -r requirements.txt",                      "pkg_manage"),
+    ("npm run build",                                        "run_build"),
+    ("git -C /repo status",                                  "git_inspect"),
+    ("git tag -a v1.0.0 -m release",                         "publish_release"),
+    ("mv PROJECT/1-INBOX/a.md PROJECT/2-WORKING/a.md",       "promote_capture"),
+    ("sed -i 's/a/b/' f.py",                                 "apply_patch"),
+    ("sed -n '1,20p' f.py",                                  "read_file"),
+    ("cd /repo && pytest -q",                                "run_tests"),
+])
+def test_real_invocations_still_labelled(cmd, expected):
+    assert tx.label_bash(cmd)[0] == expected
+
+
+@pytest.mark.parametrize("cmd,expected", [
+    ("git commit -q -F - <<'EOF'",           "commit_changes"),
+    ("gh pr create --body-file - <<'EOF'",   "open_pr"),
+    ("python3 - <<'PY'",                     "run_script"),
+    ("cat > notes.md <<'EOF'",               "apply_patch"),   # writes, not reads
+    ("cat notes.md",                         "read_file"),
+    ("cat notes.md 2>/dev/null",             "read_file"),    # stderr is not a write
+    ("cat -n f.py 2>&1",                     "read_file"),
+])
+def test_heredoc_does_not_outrank_the_command_it_feeds(cmd, expected):
+    """A heredoc supplies an argument; it does not change what is being run.
+
+    Found by diffing a re-extraction, not by a unit test: hoisting the heredoc
+    check above the ordered rules turned 44 real `git commit -F -` calls in the
+    local corpus into `run_script`. Rule precedence is load-bearing, so the
+    positional fix changes only the haystack each rule sees, never the order.
+    """
+    assert tx.label_bash(cmd)[0] == expected
+
+
+@pytest.mark.parametrize("cmd,expected", [
+    (".venv/bin/python -m pip install -q pydantic", "pkg_manage"),
+    ("python3 -m pytest tests/ -q",                 "run_tests"),
+    ("python3 -m mymodule --flag",                  "run_script"),   # unknown module
+    ("/usr/bin/time -p python3 utils/x.py",         "run_script"),
+    ('echo "=== A ==="; python3 - <<\'PY\'',        "run_script"),
+])
+def test_dash_m_and_timing_wrappers_name_the_real_program(cmd, expected):
+    """`-m` names the program being run; `time` is a stopwatch, not the action."""
+    assert tx.label_bash(cmd)[0] == expected
+
+
+def test_governance_move_survives_a_heredoc_joined_segment():
+    """A heredoc stops segment splitting, so the promotion shares a segment with setup.
+
+    Path-shaped governance rules therefore read the WHOLE segment, while name-based
+    rules read only the command position. Reducing the segment before both hid a real
+    `git mv PROJECT/2-WORKING -> PROJECT/3-COMPLETED` behind the `mkdir` in front of it.
+    """
+    cmd = ('cd "/repo" && mkdir -p PROJECT/3-COMPLETED/v0.5'
+           ' && git mv PROJECT/2-WORKING/v0.5/GH-10.md PROJECT/3-COMPLETED/v0.5/GH-10.md'
+           " && .venv/bin/python - <<'PY'")
+    assert tx.label_bash(cmd)[0] == "complete_doc"
