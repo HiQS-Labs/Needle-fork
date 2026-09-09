@@ -171,15 +171,38 @@ shared by every arm. Full trail: [#12](https://github.com/HiQS-Labs/Needle-fork/
 **The real defect: the engine does not serve the prompt the model was trained on.** Sweeping
 declared tool count against the engine's own KV accounting, one row held constant:
 
-| declared tools | 1 | 3 | 5 | 6 | 10 | 44 |
-|---|---|---|---|---|---|---|
-| KV prefix | 73 | 131 | 183 | **0** | **0** | **0** |
-| turn tokens | 211 | 211 | 211 | 352 | 352 | 433 |
+> **CORRECTED 2026-09-09, same day, on re-verification.** The first sweep parsed the debug output
+> with `grep … | head -1`, and at ≥6 tools the engine emits **one `kv prefix 0` line per declared
+> tool** before the real one — so it captured a per-tool line and reported "prefix collapses to 0".
+> It does not. It drops to **39**. The original sweep also measured one row and counted turn tokens
+> with `wc -w` minus a fudge; turn length is query-dependent, so its absolute figures (352/433) were
+> not reproducible. Table below re-measured across three rows, parsing every occurrence and counting
+> real token ids. **The conclusion is unchanged and better grounded; two supporting details were
+> wrong.** Original claim retained in this note so the change is visible.
 
-At ≤5 tools the schemas are cached in the prefix and grow linearly. At ≥6 the prefix collapses to
-zero and a bounded subset moves per-turn — 6 and 10 declared tools yield *identical* 352-token
-turns, the signature of a fixed-capacity selection. Training rendered all 44 schemas inline
-(~1,383 tokens); the engine at 44 declared carries 433. The Oracle declares 44.
+| declared | KV prefix | turn tokens added vs the ≤5 baseline (rows 0 / 1 / 7) |
+|---|---|---|
+| 1 | 73 | — (baseline turn 136 / 354 / 324) |
+| 5 | 183 | — (identical to 1 tool: 136 / 354 / 324) |
+| 6 | **39** | +141 / +144 / +144 |
+| 10 | **39** | +144 / +145 / +141 |
+| 44 | **39** | **+222 / +219 / +228** |
+
+At ≤5 declared, the schemas live in the **cached prefix** and it grows with them — and the turn is
+byte-identical to the 1-tool turn, so nothing schema-shaped is in it. Cross-check: 5 schemas
+serialise to 140 tokens, and the measured 5-tool prefix is 183 − 39 (system-only) = **144**.
+
+At ≥6 declared the prefix drops to **39 — the system prompt alone** — and schema content moves
+per-turn at a fraction of its true size. Training rendered all 44 schemas inline at **1,383 tokens**
+(independently re-tokenised). The engine at 44 declared injects roughly **223**, about **16%** of
+what the model was trained on. The Oracle declares 44.
+
+**Refinement of the earlier reading:** 6 and 10 declared tools add ~143 tokens — indistinguishable,
+and equal to five schemas' worth (144), which is consistent with a fixed five-slot selection. But
+**44 adds ~223, roughly 80 tokens more**, so it is *not* a pure fixed-five injection at that size.
+Tool names alone (259 tokens for 44) do not account for the +80 either. **The mechanism above ten
+declared tools is unexplained**; the earlier claim that saturation extended to 44 was over-read from
+a single row.
 
 **Measured consequences** (frozen-200, strict validation, majority baseline 15.00%):
 
