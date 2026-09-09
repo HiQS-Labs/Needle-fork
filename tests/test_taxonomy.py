@@ -402,3 +402,88 @@ def test_governance_move_survives_a_heredoc_joined_segment():
            ' && git mv PROJECT/2-WORKING/v0.5/GH-10.md PROJECT/3-COMPLETED/v0.5/GH-10.md'
            " && .venv/bin/python - <<'PY'")
     assert tx.label_bash(cmd)[0] == "complete_doc"
+
+
+# --- #2 round 2: defects found by agy's adversarial review of PR #16 -------------
+
+@pytest.mark.parametrize("cmd,expected", [
+    # `--` is END OF OPTIONS; everything after it is an operand by definition.
+    ("git diff -- validate.sh",              "git_inspect"),
+    ("git log -- validate.sh",               "git_inspect"),
+    ("git checkout -- validate.sh",          "git_sync"),
+    ("git log --output=/tmp/validate.sh",    "git_inspect"),   # `=`-joined value is data
+])
+def test_operands_after_end_of_options_cannot_spoof_governance(cmd, expected):
+    """The first fix treated `--` as a flag, so it skipped the operand break.
+
+    That left a filename operand in command position and `git diff -- validate.sh`
+    scored run_validate -- reintroducing the exact defect #2 exists to remove.
+    """
+    assert tx.label_bash(cmd)[0] == expected
+
+
+def test_the_class_control_programs_are_genuinely_unenumerated():
+    """Pins that the class control actually tests the positional default.
+
+    The first fix added stat/realpath/shasum/basename/dirname to ARG_CONSUMERS, which
+    is checked BEFORE command_region -- so the control asserting "none of these is
+    enumerated anywhere" passed while the diff enumerated them. This test makes that
+    mistake impossible to repeat silently.
+    """
+    for program in ("stat", "realpath", "shasum", "basename", "dirname", "tar", "gzip"):
+        assert program not in tx.ARG_CONSUMERS, program
+        assert program not in tx.SUBCOMMAND_PROGRAMS, program
+        assert program not in tx.EXECUTORS, program
+        assert program not in tx._CONTENT_PRODUCERS, program
+
+
+@pytest.mark.parametrize("cmd,expected", [
+    ('bash "scripts/validate.sh"',           "run_validate"),   # quoted script path
+    ('"$P" -m pytest -q tests/',             "run_tests"),      # quoted interpreter var
+    ("env -u FOO python -m pytest",          "run_tests"),
+    ("bash -o errexit scripts/validate.sh",  "run_validate"),   # flag arg is not the script
+])
+def test_quoted_operands_survive_tokenisation(cmd, expected):
+    """Blanking quotes BEFORE tokenising destroyed the operand, dropping real runs."""
+    assert tx.label_bash(cmd)[0] == expected
+
+
+@pytest.mark.parametrize("cmd,expected", [
+    ('echo "hi" > /dev/null',                "unmapped"),       # discard, not a write
+    ("cat f.txt > /dev/null",                "read_file"),
+    ('echo "x" | tee out.txt',               "apply_patch"),    # tee writes via operand
+])
+def test_discarding_output_is_not_a_write(cmd, expected):
+    assert tx.label_bash(cmd)[0] == expected
+
+
+@pytest.mark.parametrize("cmd,expected", [
+    ("sudo -u root pytest",                  "run_tests"),
+    ("xargs -I {} pytest {}",                "run_tests"),
+    ("/usr/bin/time --verbose ./validate.sh", "run_validate"),
+    ("nice --adjustment=10 pytest",          "run_tests"),
+    ("watch --interval=2 pytest",            "run_tests"),
+])
+def test_wrappers_accept_long_and_argument_taking_flags(cmd, expected):
+    """`-\\w+` matched no `--long-flag`, so the flag stayed glued to the child."""
+    assert tx.label_bash(cmd)[0] == expected
+
+
+@pytest.mark.parametrize("cmd,expected", [
+    ("sqlite3 test.db <<'EOF'",              "db_query"),
+    ("ssh server <<'EOF'",                   "net"),
+    ("gh api graphql <<'EOF'",               "gh_cli"),
+    ("python3 - <<'PY'",                     "run_script"),     # still the fallback
+])
+def test_heredoc_is_a_fallback_not_a_preemption(cmd, expected):
+    """Testing the heredoc inside the ordered pass made every later rule unreachable."""
+    assert tx.label_bash(cmd)[0] == expected
+
+
+@pytest.mark.parametrize("cmd,expected", [
+    ("make -C /repo test",                   "run_tests"),
+    ("git --no-pager diff",                  "git_inspect"),
+    ("git -c color.ui=always status",        "git_inspect"),
+])
+def test_global_options_do_not_hide_the_subcommand(cmd, expected):
+    assert tx.label_bash(cmd)[0] == expected

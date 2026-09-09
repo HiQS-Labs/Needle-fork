@@ -209,13 +209,16 @@ BASH_RULES = [
     ("merge_pr",         r"\bgh\s+pr\s+merge\b"),
     ("review_pr",        r"\bgh\s+pr\s+(view|diff|checks|list|status)\b"),
     ("update_pr",        r"\bgh\s+(pr\s+(edit|comment|review|ready)|issue\s+(comment|edit|close))\b"),
-    ("create_branch",    r"\bgit\s+(-C\s+\S+\s+)?(checkout\s+-b|switch\s+-c|branch\s+[^-])"),
-    ("commit_changes",   r"\bgit\s+(-C\s+\S+\s+)?(commit|add)\b"),
-    ("git_sync",         r"\bgit\s+(-C\s+\S+\s+)?(push|pull|fetch|merge(?!-tree|-base)|rebase|stash|clone|worktree|cherry-pick|reset|checkout|switch|restore)\b"),
-    ("git_inspect",      r"\bgit\s+(-C\s+\S+\s+)?(status|log|diff|show|remote|rev-parse|rev-list|describe|blame|check-ignore|ls-files|merge-tree|merge-base|config|bisect|branch\b)"),
+    ("create_branch",    r"\bgit\s+(?:-{1,2}[\w-]+(?:=\S+)?\s+|-C\s+\S+\s+|-c\s+\S+\s+)*(checkout\s+-b|switch\s+-c|branch\s+[^-])"),
+    ("commit_changes",   r"\bgit\s+(?:-{1,2}[\w-]+(?:=\S+)?\s+|-C\s+\S+\s+|-c\s+\S+\s+)*(commit|add)\b"),
+    ("git_sync",         r"\bgit\s+(?:-{1,2}[\w-]+(?:=\S+)?\s+|-C\s+\S+\s+|-c\s+\S+\s+)*(push|pull|fetch|merge(?!-tree|-base)|rebase|stash|clone|worktree|cherry-pick|reset|checkout|switch|restore)\b"),
+    ("git_inspect",      r"\bgit\s+(?:-{1,2}[\w-]+(?:=\S+)?\s+|-C\s+\S+\s+|-c\s+\S+\s+)*(status|log|diff|show|remote|rev-parse|rev-list|describe|blame|check-ignore|ls-files|merge-tree|merge-base|config|bisect|branch\b)"),
 
     # code / dev
-    ("run_tests",        r"\b(pytest|jest|vitest|go test|cargo test|npm (run )?test|make test|run-tests)\b"),
+    # `make test` must survive global flags the same way the git rules do:
+    # `make -C /repo test` was scoring run_build because the tokens are not adjacent.
+    ("run_tests",        r"\b(pytest|jest|vitest|go test|cargo test|npm (run )?test|run-tests)\b"
+                         r"|\bmake(?:\s+-\S+(?:\s+\S+)?)*\s+test\b"),
     ("run_linter",       r"\b(ruff|flake8|eslint|black|prettier|mypy|shellcheck|golangci-lint)\b"),
     ("run_build",        r"\b(make|cmake|cargo build|go build|npm run build|xcodebuild|clang|gcc|tsc)\b"),
     ("pkg_manage",       r"\b(pip3?|uv|poetry|pipx|conda)\s+(install|add|remove|uninstall|sync|list|show|freeze)\b"
@@ -258,10 +261,14 @@ ARG_CONSUMERS = {
     "more": "read_file", "bat": "read_file", "awk": "read_file", "wc": "read_file",
     "find": "find_files", "fd": "find_files", "ls": "find_files", "tree": "find_files",
     "sed": "read_file",
+    # `which`/`command -v`/`type` report where a program LIVES; their arguments are
+    # program names being asked about, and they map to a real label, so they belong.
+    # `stat`/`realpath`/`shasum`/`basename`/`dirname` were also added here and that
+    # was wrong: ARG_CONSUMERS is checked BEFORE command_region, so the class-level
+    # control never exercised the positional default it claimed to test. Removed, so
+    # the control is real (agy, PR #16 review).
     "which": "sys_inspect", "command": "sys_inspect", "type": "sys_inspect",
-    "whereis": "sys_inspect", "basename": "unmapped", "dirname": "unmapped",
-    "realpath": "unmapped", "stat": "unmapped", "shasum": "unmapped",
-    "sha256sum": "unmapped", "md5": "unmapped",
+    "whereis": "sys_inspect",
 }
 _LEAD = re.compile(r"^\s*(?:[A-Za-z_][A-Za-z0-9_]*=\S*\s+)*([^\s;|&]+)")
 
@@ -284,21 +291,31 @@ _LEAD = re.compile(r"^\s*(?:[A-Za-z_][A-Za-z0-9_]*=\S*\s+)*([^\s;|&]+)")
 # the segment, so the effective command is what gets labelled.
 _WRAPPERS = re.compile(
     r"^\s*(?:"
-    r"timeout\s+[\d.]+[smhd]?|nohup|nice(?:\s+-n\s+-?\d+)?|sudo(?:\s+-\w+)*"
-    # `-\S+(\s+\S+)?` would swallow the child command itself: in
-    # `xargs -I{} echo pytest`, the optional argument ate `echo` and left `pytest`.
-    # Only a NUMERIC flag argument is consumed, since that can never be a command.
-    r"|watch(?:\s+-n\s+[\d.]+)?|stdbuf(?:\s+-\w+)*|xargs(?:\s+-\S+(?:\s+\d+)?)*"
-    r"|env(?:\s+[A-Za-z_][A-Za-z0-9_]*=\S*)*"
-    r"|(?:uv|poetry|pdm|hatch)\s+run|git\s+bisect\s+run"
-    r"|(?:\S*/)?time(?:\s+-\w+)*"
+    # A flag may be long, short, or `=`-joined. `-\w+` alone left every `--long-flag`
+    # attached to the child, dropping the command to unmapped (agy, PR #16 review).
+    r"timeout\s+[\d.]+[smhd]?|nohup"
+    r"|nice(?:\s+-n\s+-?\d+|\s+-{1,2}[\w-]+(?:=\S+)?)*"
+    # `sudo -u <user>` takes a SEPARATE argument; a generic `flag + next token` rule
+    # would eat the command itself, exactly as it did for xargs.
+    r"|sudo(?:\s+-u\s+\S+|\s+-{1,2}[\w-]+(?:=\S+)?)*"
+    r"|watch(?:\s+-n\s+[\d.]+|\s+-{1,2}[\w-]+(?:=\S+)?)*"
+    r"|stdbuf(?:\s+-{1,2}[\w-]+(?:=\S+)?)*"
+    # xargs: only a NUMBER or a `{}` placeholder is consumed as a flag argument --
+    # anything else could be the command.
+    r"|xargs(?:\s+-\S+(?:\s+(?:\d+|\{\}))?)*"
+    r"|env(?:\s+-[iu]\s+\S+|\s+-{1,2}[\w-]+|\s+[A-Za-z_][A-Za-z0-9_]*=\S*)*"
+    r"|(?:uv|poetry|pdm|hatch|pipenv|rye)\s+run|git\s+bisect\s+run"
+    r"|(?:\S*/)?time(?:\s+-{1,2}[\w-]+(?:=\S+)?)*"
     r"|do|then|else|until|while|!"
     r")\s+")
 # `python -m pip install X` IS package management, and `python -m pytest` IS a test
 # run: `-m` names the real program. Without this the region stops at `pip` and the
 # rule needing `pip install` never sees the subcommand. Anything else run this way
 # is still a script, so the fallback keeps that.
-_DASH_M = re.compile(r"^\s*(?:\S*/)?python[\d.]*\s+-m\s+")
+# The lead is often unresolvable: a shell variable holding an interpreter path
+# (`"$P" -m pytest`) is extremely common here, and requiring a literal `python`
+# dropped real test runs to unmapped. Key on the `-m` SHAPE instead.
+_DASH_M = re.compile(r"""^\s*(?:\S*python[\d.]*|["']?\$\{?\w+\}?["']?|\S*/\S+)\s+-m\s+""")
 # `git bisect run <probe>` is still a git operation even though its probe is not.
 _WRAPPER_FALLBACK = ((re.compile(r"^\s*git\s+bisect\b"), "git_inspect"),)
 
@@ -308,7 +325,10 @@ _WRAPPER_FALLBACK = ((re.compile(r"^\s*git\s+bisect\b"), "git_inspect"),)
 SUBCOMMAND_PROGRAMS = {"git", "gh", "npm", "yarn", "pnpm", "pip", "pip3", "pipx",
                        "uv", "poetry", "brew", "apt", "apt-get", "gem", "conda",
                        "cargo", "go", "docker", "podman", "xyz", "aws", "gcloud",
-                       "az", "oci", "make", "kubectl", "systemctl"}
+                       "az", "oci", "make", "kubectl", "systemctl",
+                       # Unlisted runners degrade to `unmapped`, never to a WRONG
+                       # label -- the safe direction, but these are common enough.
+                       "bundle", "just", "tox", "nox", "rake", "pipenv", "task"}
 # Container images are `name:tag`, which reads as a bare tool name; one token is
 # all the subcommand ever is.
 _SUBCOMMAND_DEPTH = {"docker": 1, "podman": 1, "make": 1}
@@ -327,7 +347,11 @@ _REDIRECT = re.compile(r"\s*\d?(?:>>|>|<)\s*\S+")
 _CONTENT_PRODUCERS = {"cat", "echo", "printf", "tee"}
 # STDOUT only. `\d?` also matched `cat f 2>/dev/null`, turning 34 ordinary reads
 # into writes -- stderr redirection says nothing about where content goes.
-_WRITE_REDIRECT = re.compile(r"(?:^|\s)1?>>?\s*\S+")
+# Any `/dev/*` target is a DISCARD, not a write: `echo x > /dev/null` was scoring
+# apply_patch. `\d?` also matched `2>/dev/null`, fixed earlier.
+_WRITE_REDIRECT = re.compile(r"(?:^|\s)1?>>?\s*(?!/dev/)\S+")
+# Quote-aware tokenisation, so a quoted operand survives as ONE token.
+_TOKEN = re.compile(r"""'[^']*'|"[^"]*"|\S+""")
 _QUOTED = re.compile(r"'[^']*'|\"[^\"]*\"")
 _FILEISH = re.compile(r"/|\.[A-Za-z][A-Za-z0-9]{0,4}$")
 
@@ -366,39 +390,86 @@ def _unwrap(seg: str) -> tuple[str, str | None]:
     return seg, fallback
 
 
+_INLINE_CODE_FLAGS = {"-c", "-e", "--command", "--eval", "-E"}
+
+
+def _tee_target(lead: str, seg: str) -> bool:
+    """`tee file` names its destination as an OPERAND, not through a redirection.
+
+    Without this `tee` sat in _CONTENT_PRODUCERS doing nothing at all.
+    """
+    if lead != "tee":
+        return False
+    return any(not t.startswith("-") and not t.startswith("/dev/")
+               for t in seg.split()[1:])
+
+
+def _is_quoted(tok: str) -> bool:
+    return len(tok) > 1 and tok[0] == tok[-1] and tok[0] in "\"'"
+
+
 def command_region(seg: str) -> str:
     """The part of a segment a bare-name rule is allowed to match.
 
-    Quoted text is data everywhere -- a commit message naming `validate.sh` is not
-    running it -- so it is blanked before the region is cut.
+    Tokenised QUOTE-AWARE, and a quoted token is emptied unless it sits in command
+    position. Blanking quotes BEFORE tokenising destroyed the operand outright, so
+    `bash "scripts/validate.sh"` lost its governance label and `"$P" -m pytest`
+    stopped being a test run (agy, PR #16 review).
     """
-    seg = _REDIRECT.sub("", _QUOTED.sub('""', seg))
-    tokens = seg.split()
+    seg = _REDIRECT.sub("", seg)
+    tokens = [t for t in _TOKEN.findall(seg) if t]
     if not tokens:
         return ""
+
+    def text(tok, keep=False):
+        if not _is_quoted(tok):
+            return tok
+        return tok[1:-1] if keep else '""'
+
     lead = leading_program(seg)
     if lead in EXECUTORS:
-        # lead plus the script it runs; flags in between belong to the lead.
-        out = []
-        for tok in tokens:
-            out.append(tok)
-            if len(out) > 1 and not tok.startswith("-"):
+        # lead plus the script it runs. A flag's ARGUMENT is not the script, so
+        # `bash -o errexit scripts/validate.sh` must not stop at `errexit`.
+        out, prev_flag, inline = [text(tokens[0], keep=True)], False, False
+        for tok in tokens[1:]:
+            if tok.startswith("-"):
+                out.append(tok)
+                # `-c`/`-e` introduce inline CODE, not a script path, so what
+                # follows is data: `python3 -c "print('ruff')"` is not a linter run.
+                inline = tok in _INLINE_CODE_FLAGS
+                prev_flag = "=" not in tok and tok != "--"
+                continue
+            out.append(text(tok, keep=not inline))
+            if not prev_flag:
                 break
+            prev_flag = False
         return " ".join(out)
     if lead not in SUBCOMMAND_PROGRAMS:
-        return tokens[0]
+        return text(tokens[0], keep=True)
     depth, out, seen, prev_flag = _SUBCOMMAND_DEPTH.get(lead, 3), [tokens[0]], 0, False
     for tok in tokens[1:]:
-        if tok.startswith("-"):
-            out.append(tok)
-            prev_flag = True
-            continue
-        # A filename or path is an operand, not a subcommand -- `make validate.sh`.
-        # Unless it is the argument of a flag, as in `git -C /repo status`.
-        if not prev_flag and _FILEISH.search(tok):
+        if tok == "--":
+            # END OF OPTIONS: everything after it is an operand by definition.
+            # Treating `--` as an ordinary flag set prev_flag and so skipped the
+            # _FILEISH break, leaving `git diff -- validate.sh` scoring run_validate
+            # -- the exact defect #2 exists to remove.
             break
-        out.append(tok)
-        prev_flag = False
+        if tok.startswith("-"):
+            # `--flag=value` carries its own argument, and the value is where a path
+            # like `--output=/tmp/validate.sh` hides. Keep the flag, drop the value.
+            out.append(tok.split("=", 1)[0])
+            prev_flag = "=" not in tok
+            continue
+        if prev_flag:
+            # A flag's argument (`git -C /repo status`): keep it, but it is not a
+            # subcommand, so it must not consume depth -- that truncated
+            # `make -C /repo test` before `test`.
+            out.append(text(tok))
+            prev_flag = False
+            continue
+        if _FILEISH.search(tok):
+            break                       # an operand: `make validate.sh`
+        out.append(text(tok))
         seen += 1
         if seen >= depth:
             break
@@ -496,7 +567,7 @@ def label_segment(seg: str) -> str | None:
         return "pkg_manage"
     if lead in NODE_PKG and _second_token(seg) in NODE_PKG_SUBCOMMANDS:
         return "pkg_manage"
-    if lead in _CONTENT_PRODUCERS and _WRITE_REDIRECT.search(seg):
+    if lead in _CONTENT_PRODUCERS and (_WRITE_REDIRECT.search(seg) or _tee_target(lead, seg)):
         return "apply_patch"
     if lead in ARG_CONSUMERS:
         # `sed -i` rewrites a file; `sed -n 1,20p` reads one.
@@ -515,12 +586,16 @@ def label_segment(seg: str) -> str | None:
             # `mkdir -p PROJECT/3-COMPLETED && git mv PROJECT/2-WORKING/x ...` in one
             # piece, and reducing to the first clause hid the completion behind mkdir.
             hay = full             # path-shaped: an operand cannot spoof a directory move
-        elif name == "run_script" and _HEREDOC_BODY.search(full):
-            hay = full             # a heredoc body is script content wherever it sits
         else:
             hay = region
         if rx.search(hay):
             return name
+    # A heredoc means script content is being fed in -- but only once nothing else
+    # matched. Testing it INSIDE the ordered pass made every rule after run_script
+    # unreachable, so `sqlite3 db <<EOF` scored run_script instead of db_query
+    # (agy, PR #16 review).
+    if _HEREDOC_BODY.search(full):
+        return "run_script"
     return fallback
 
 
