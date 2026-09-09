@@ -21,6 +21,7 @@
 ### Queue / parked intake
 
 - [GH-5 — MLX fine-tuning spike (side quest, MBP 14" M4 Pro only)](PROJECT/1-INBOX/GH-5-MLX-FINETUNE-SPIKE.md) — standalone runtime spike on `spike/mlx-finetune`; consumes the Phase 2 corpus, never merges MLX into `main`. ([#5](https://github.com/HiQS-Labs/Needle-fork/issues/5))
+- [GH-14 — round disposition: evidence gates reviewed, serving diagnosis banked](PROJECT/1-INBOX/GH-14-ROUND-DISPOSITION.md) — round **stopped** by reviewed decision, not by failure; three requirements deferred with owners and reopen conditions. Open dissent on the query-disjointness default is Noel's call. ([#14](https://github.com/HiQS-Labs/Needle-fork/issues/14))
 
 ### In progress
 

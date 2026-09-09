@@ -36,6 +36,16 @@ earliest non-PASS gate, and G0 is INCOMPLETE on every legacy arm for want of run
 metadata — so a genuine arithmetic contradiction in G4 was never reported as the thing
 to fix. `blocked_gates` lists both classes separately.
 
+**Exact query overlap between the fitting and evaluation files is rejected as a declared
+protocol choice, not as proof of copying.** Two independent sessions can legitimately
+produce the same observable history, so equal inputs are not evidence that anything was
+copied. Rejecting them is a conservative restriction that pins the estimand to
+*generalisation to unseen inputs*. It is the current default because it is conservative
+and trivially reversible — **reopen it before any round whose estimand is deployment
+performance on naturally recurring inputs**, where excluding repeats would bias the
+answer. Recorded dissent, AgentChorus #729301. No fuzzy or near-duplicate matching:
+source-event identity is the stronger next guard if one is ever needed.
+
 **The comparator's fitting data must be disjoint from the evaluation manifest, and the
 audit measures it rather than trusting the filename.** Selecting a baseline from data it
 is later scored against is the error behind a withdrawn #12 claim (LESSONS-LEARNED #2);
@@ -110,10 +120,12 @@ Do not read the issue's requirement table as a description of shipped behaviour.
 | Raw-output replay to the saved verdict, scoring false-positive rejection | **enforced** by G2 where raw exists; INCOMPLETE where it does not |
 | Paired contingency counts and exact McNemar arithmetic | **enforced** by G4 |
 | Immutable output, overwrite refusal, deterministic replay | **enforced** by the CLI |
-| Effective run provenance (engine binary, session IDs, tokenizer identity) | **unimplemented** — recorded as explicitly null, never inferred |
 | Served-token semantics and schema-span accounting (G3) | **manual review only** |
 | Session dependence, multiplicity, confidence intervals, power (G5) | **manual review only**; family size is reported, no adjustment is applied |
 | Scientific interpretation, dissent, next-action choice (G6) | **manual review only** |
+| Query-identity coverage, so a zero overlap is not mistaken for absent evidence | **enforced** by G0; a partial test is INCOMPLETE |
+| Session provenance recovery and cluster-robust sensitivity | **exploratory only** — `session_clustering.py` is not a gate and cannot close G5 |
+| Effective run provenance (engine binary, session IDs, tokenizer identity) | **unimplemented** — recorded as explicitly null, never inferred |
 | Overclaim detection in prose | **unimplemented**, and deliberately so — a word filter cannot certify a scientific claim |
 
 **Current deliberate limits:** G3 (served token semantics), G5 (population inference),
@@ -142,6 +154,13 @@ retains an incomplete `run.json` and any rows collected; it cannot pass as a ful
 Missing binary/session provenance is explicitly null. The recorded local tokenizer
 file hash does not attest which tokenizer the closed native engine actually loaded.
 Capture review must establish those remaining identities before claiming parity.
+
+**Historical note, so the scorer's own history is not misremembered.** At `e9e994f` the
+scorer selected the **first** `<tool_call>` block: it had no multiple-*block* check, and its
+`multiple_calls` status covered multiple *calls inside one block*. Its real gaps were
+invalid argument shapes, duplicate JSON keys, and a trailing unclosed block, all of which
+it scored `ok`. A later claim that it already rejected multiple blocks was wrong and was
+withdrawn in #14.
 
 The scorer is specifically for the existing **parameterless Oracle** label contract:
 omitted arguments or `{}` are allowed; nonempty/nonobject arguments, duplicate JSON

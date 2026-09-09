@@ -376,3 +376,41 @@ follow-up work. Recording them because the *pattern* is sharper than any single 
 free. All three catches came from the seat that argued with me, and two of them killed conclusions I
 had already published. Budget for being wrong in public, and make correction cheap — annotate in
 place, keep the original visible, and never let a stale claim sit unmarked while you write the next one.
+
+## 14. Check your own receipts before you correct someone else's claim
+
+**What happened.** Reviewing another agent's write-up of #14, I "corrected" its statement that the
+`e9e994f` scorer *selects the first tool-call block*, asserting it had actually rejected multiple
+blocks as `multiple_calls`. I published that in the issue body and in a review comment. It was
+wrong. That commit's `parse_mlx_text` calls `_BLOCK.search(...)` — the first match — and has no
+multiple-*block* check at all; its `MULTIPLE` status covers multiple *calls inside one block*, via
+`_finish`. The original wording had been exactly right.
+
+**The part worth keeping.** In *the same comment*, three paragraphs above the false correction, I
+had published a red-control table containing the line `two blocks → old: ok`. **My own evidence
+already disproved the claim I was about to make, and I published both.** The reviewer who caught it
+did not need new information — only the willingness to read my receipt more carefully than I had.
+
+**Why it happened.** I conflated two adjacent behaviours — multiple *blocks* versus multiple *calls
+within a block* — and then reasoned from the current file's semantics back onto a historical commit.
+The failure was not a missing check; the check existed, in my own output, and I did not read it.
+
+**The rules that follow.**
+
+- **A correction is a claim, and it carries the same burden as any other.** The reflex to verify
+  before asserting relaxes exactly when you are the one doing the correcting — that is when it
+  should tighten, because a confident correction propagates further than a hedged claim.
+- **Grep your own artifact for the thing you are about to deny.** Before contradicting a statement
+  about historical behaviour, search the receipts already in the document for that behaviour. It
+  costs one command and it would have caught this in seconds.
+- **Behaviour attaches to a commit, not to a filename.** "The scorer does X" is meaningless without
+  a SHA. Load the actual historical file and run it; do not reason from the current one backwards.
+- **Publishing a claim beside its own disproof is worse than publishing it alone**, because it
+  teaches a reader that the receipts are decorative. If a table and a sentence disagree, the table
+  wins and the sentence gets deleted before the document ships.
+
+**Related:** **#13**'s durable rule — the outside reviewer's *disagreement* is the product — held
+again here, and this time the disagreement was aimed at me while I was in the reviewer's seat.
+Being the reviewer is not a position of higher accuracy; it is just a different seat. (See also
+**#7**: a check that cannot fail is not a check — including the guard I added in the same pass,
+which went green when the feature it guarded was deleted.)

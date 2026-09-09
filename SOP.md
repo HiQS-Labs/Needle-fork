@@ -257,6 +257,18 @@ identity, available raw-output scoring, and paired arithmetic; served-token sema
 sampling independence, causal interpretation, and product decisions still require an
 explicit evidence-linked review. Do not turn those unknowns green by assertion.
 
+**Accepting an implementation is not disposing of a round.** They are separate decisions
+and both are required. *Implementation acceptance* asks whether the gates run, whether
+their negative controls were witnessed failing, and whether limits are documented.
+*Round disposition* asks what the evidence supports, and is written by a person. A review
+can be complete while its evidentiary verdict is INCOMPLETE — that is a finished review,
+not an unfinished one. Record the disposition in its own document pinned to the machine
+report's hash; never edit the report to mark a human judgment PASS. An issue closes when
+every requirement is either met or **explicitly deferred with an owner and a reopen
+condition** — a deferred requirement is not an implemented one, and must not be quietly
+checked off. [`GH-14-ROUND-DISPOSITION.md`](PROJECT/1-INBOX/GH-14-ROUND-DISPOSITION.md) is
+the worked example.
+
 Choose one bounded next action from the first unresolved prerequisite or the cheapest
 experiment that can change the decision; record its falsifier and stop cap. Two review
 revision rounds maximum, then a named blocker, explicit stop, or maintainer adjudication
