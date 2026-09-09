@@ -50,7 +50,7 @@ an identical 335 sessions and 71,547 calls, so the only variable is the mapper.
 > being removed. That is ~97% right, not 100%. A later adversarial review found round 4
 > also dropped **real** commands — env-prefixed invocations, boolean short flags,
 > long-flag path arguments. Controlled on one corpus (71,724 calls), fixing those
-> recovers **43 calls, +0.06 pp** of the ≈2.19 pp fall. The word "entirely" below was
+> recovers **45 calls, +0.06 pp** of the ≈2.19 pp fall. The word "entirely" below was
 > unsupported when written: the control I ran showed the fall was *caused by the rule
 > change*, which is not the same as showing every dropped call deserved to be dropped.
 > Numbers and reasoning: `../2026-09-09-gh17-clause-splitting/`.

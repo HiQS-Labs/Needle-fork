@@ -615,13 +615,13 @@ def test_quoted_text_cannot_forge_a_governance_clause():
 def test_quoted_git_mv_inside_echo_is_still_display():
     assert tx.label_bash(
         'echo "test; git mv PROJECT/2-WORKING/a.md PROJECT/3-COMPLETED/a.md"'
-    )[0] != "complete_doc"
+    )[0] == "unmapped"
 
 
 def test_quoted_move_inside_inline_python_is_not_a_promotion():
     assert tx.label_bash(
         'python3 -c "x = 1; mv PROJECT/1-INBOX/a.md PROJECT/2-WORKING/a.md"'
-    )[0] != "promote_capture"
+    )[0] == "run_script"
 
 
 # ...and the same splitter destroyed a REAL move whose path contained a `;`.
@@ -776,3 +776,21 @@ def test_control_invocation_gate_covers_all_three_ANY_POSITION_labels(monkeypatc
               ("echo releases_app.py roadmap add", "park_roadmap_row")]
     for cmd, spoofed in spoofs:
         assert tx.label_bash(cmd)[0] == spoofed, cmd
+
+
+# CodeRabbit, PR #18. Two defects introduced BY the GH-17 fix, both reproduced
+# before being fixed.
+def test_make_j_without_a_number_still_runs_the_target():
+    # GNU make reads `make -j test` as target `test`. Consuming it as -j's
+    # argument produced `make -j ""` -> run_build.
+    assert tx.label_bash("make -j test")[0] == "run_tests"
+    assert tx.label_bash("make -j 4 test")[0] == "run_tests"   # numeric arg still eaten
+    assert tx.label_bash("make -j4 test")[0] == "run_tests"
+
+
+def test_a_quoted_assignment_with_spaces_stays_one_token():
+    # `TITLE="fix pytest flake" git commit` scored run_tests: _TOKEN split the
+    # assignment, so the quoted TEXT landed in command position -- the same bug
+    # class, arriving through the tokenizer.
+    assert tx.label_bash('TITLE="fix pytest flake" git commit -m "x"')[0] == "commit_changes"
+    assert "pytest" not in tx.command_region('TITLE="fix pytest flake" git commit -m "x"')

@@ -19,18 +19,18 @@ the **same** corpus, 71,724 calls, mapper the only variable.
 | Mapper | Coverage | Unmapped | Governance |
 |---|---|---|---|
 | `b33b92a` (round 4) | 96.34% | 2,625 | 5.89% (4,225) |
-| **`11d04e8` (GH-17 fix)** | **96.40%** | **2,582** | **5.90%** (4,234) |
+| **`11d04e8` (GH-17 fix)** | **96.40%** | **2,580** | **5.90%** (4,234) |
 
-**The fix recovers 43 calls — +0.06 pp.**
+**The fix recovers 45 calls — +0.06 pp.**
 
 Round 4's total fall was ≈2.19 pp (≈1,570 calls). So of that fall:
 
-- **≈43 calls (≈2.7%) were real commands wrongly dropped** — env-prefixed invocations, boolean
+- **45 calls (≈2.9%) were real commands wrongly dropped** — env-prefixed invocations, boolean
   short flags, long-flag path arguments.
 - **≈97% remains attributable to false-positive removal.**
 
 **I was wrong, and agy was wrong in the other direction.** "Entirely" was too strong — real loss
-existed and I had asserted it did not. "An entire class" was also too strong — it is 43 calls in
+existed and I had asserted it did not. "An entire class" was also too strong — it is 45 calls in
 71,724, not a large share. The number is what separates a real defect from a large one, and
 neither of us had it when we made the claim.
 
@@ -53,7 +53,7 @@ unquoted examples.
 **Inline code.** `text(tok, keep=False)` returned an unquoted token intact, so `keep=False` was
 silently ignored: `python3 -c print(ruff)` → `run_linter`.
 
-**Three classes of real command dropped** (the 43 calls above): env prefixes (`CI=1
+**Three classes of real command dropped** (the 45 calls above): env prefixes (`CI=1
 ./validate.sh`), boolean short flags (`git -p diff`), long-flag path arguments
 (`cargo --manifest-path /p/Cargo.toml test`).
 
@@ -76,9 +76,25 @@ here because that is the failure mode being guarded against:
 - At label level `git_inspect` matches `diff` and wins on rule order whether or not the operand
   leaked, so the re-pinned control asserts on `command_region` directly.
 
+## CodeRabbit found two defects that this fix introduced
+
+Both reproduced before being fixed:
+
+- `make -j test` → `run_build`. GNU make reads a non-numeric `-j` argument as the **target**,
+  so consuming it unconditionally produced `make -j ""`. `-j` now takes an argument only when
+  that argument is a number.
+- `TITLE="fix pytest flake" git commit -m "x"` → `run_tests`. The tokenizer split a quoted
+  assignment containing spaces, so the quoted **text** landed in command position. This is the
+  bug class again, arriving through the tokenizer rather than the clause splitter — the fifth
+  distinct route to the same failure.
+
+Its other two findings were also correct: the unmapped counts above were computed from a
+rounded coverage figure (43 vs the true 45), and two of the new tests used `!=` assertions that
+would also pass if the case regressed to a *different* wrong label.
+
 ## What this does not establish
 
-- **Not a correctness measurement.** Coverage counts resolution. The remaining 2,582 unmapped
+- **Not a correctness measurement.** Coverage counts resolution. The remaining 2,580 unmapped
   calls were not hand-audited.
 - **Label-to-label changes are not measured here.** The +9 governance calls are a *net* of false
   positives removed and real moves recovered; this receipt cannot separate them.

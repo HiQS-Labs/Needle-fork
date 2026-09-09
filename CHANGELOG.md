@@ -61,7 +61,7 @@ calls, mapper the only variable. It scores **98.52%**, exactly the 09-07 figure.
 drift moved the gate **0.00 pp**; the entire fall is the rule change.
 
 **The lower number is mostly the fix working — ~97% of it.** (Corrected 2026-09-09 by
-GH-17: round 4 also dropped ~43 real commands, +0.06 pp recovered once fixed. The
+GH-17: round 4 also dropped 45 real commands, +0.06 pp recovered once fixed. The
 original claim here said "entirely", which the control did not support — it showed the
 fall was *caused by* the rule change, not that every dropped call deserved dropping.)
 Coverage counts resolution, not correctness.

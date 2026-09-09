@@ -270,7 +270,7 @@ ARG_CONSUMERS = {
     "which": "sys_inspect", "command": "sys_inspect", "type": "sys_inspect",
     "whereis": "sys_inspect",
 }
-_LEAD = re.compile(r"^\s*(?:[A-Za-z_][A-Za-z0-9_]*=\S*\s+)*([^\s;|&]+)")
+_LEAD = re.compile(r"""^\s*(?:[A-Za-z_][A-Za-z0-9_]*=(?:"[^"]*"|'[^']*'|\S)*\s+)*([^\s;|&]+)""")
 
 # ---------------------------------------------------------------------------
 # #2: a rule token in an ARGUMENT position is not an invocation.
@@ -435,7 +435,7 @@ _CONTENT_PRODUCERS = {"cat", "echo", "printf", "tee"}
 # apply_patch. `\d?` also matched `2>/dev/null`, fixed earlier.
 _WRITE_REDIRECT = re.compile(r"(?:^|\s)1?>>?\s*(?!/dev/)\S+")
 # Quote-aware tokenisation, so a quoted operand survives as ONE token.
-_TOKEN = re.compile(r"""'[^']*'|"[^"]*"|\S+""")
+_TOKEN = re.compile(r"""(?:[^\s'"]+|'[^']*'|"[^"]*")+""")
 _QUOTED = re.compile(r"'[^']*'|\"[^\"]*\"")
 _FILEISH = re.compile(r"/|\.[A-Za-z][A-Za-z0-9]{0,4}$")
 _ENV_ASSIGN = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=")
@@ -450,7 +450,7 @@ _END_OF_OPTIONS = "--"
 # flag wrongly kept only exposes a value the rules would have to match anyway.
 _SHORT_TAKES_ARG = {
     "git":    {"-C", "-c"},
-    "make":   {"-C", "-f", "-j"},
+    "make":   {"-C", "-f", "-j"},          # -j only when numeric, see _NUMERIC_ARG
     "gh":     {"-R"},
     "npm":    {"-C", "-w"},
     "pnpm":   {"-C", "-w"},
@@ -473,6 +473,9 @@ _LONG_TAKES_ARG = {
 # A branch NAME legitimately contains `/`. _FILEISH read it as an operand and
 # truncated `git branch feat/x` to `git branch`, which the rule no longer matches.
 _BRANCH_SUBCOMMANDS = {"branch", "checkout", "switch"}
+# Flags whose argument is OPTIONAL and numeric: `make -j 4 test` passes 4, but
+# `make -j test` runs the target `test`. Consuming unconditionally lost it.
+_NUMERIC_ARG = {"-j"}
 
 
 def _effective_clause(seg: str) -> str:
@@ -576,7 +579,7 @@ def command_region(seg: str) -> str:
         return " ".join(out)
     if lead not in SUBCOMMAND_PROGRAMS:
         return text(tokens[0], keep=True)
-    depth, out, seen, prev_flag = _SUBCOMMAND_DEPTH.get(lead, 3), [tokens[0]], 0, False
+    depth, out, seen, prev_flag = _SUBCOMMAND_DEPTH.get(lead, 3), [tokens[0]], 0, ""
     short_args = _SHORT_TAKES_ARG.get(lead, frozenset())
     long_args = _LONG_TAKES_ARG.get(lead, frozenset())
     for tok in tokens[1:]:
@@ -596,13 +599,22 @@ def command_region(seg: str) -> str:
             # subcommand (`git -p diff` -> unmapped); assuming no long flag did
             # left its path operand to hit _FILEISH and truncate the walk
             # (`cargo --manifest-path /p/Cargo.toml test`). Both are GH-17.
+            # prev_flag holds the FLAG, not a bool, so a conditional consumer
+            # like `-j` can inspect it when its argument arrives.
             if "=" in tok:
-                prev_flag = False
+                prev_flag = ""
             elif tok.startswith("--"):
-                prev_flag = flag in long_args
+                prev_flag = flag if flag in long_args else ""
             else:
-                prev_flag = flag in short_args
+                prev_flag = flag if flag in short_args else ""
             continue
+        if prev_flag:
+            if prev_flag in _NUMERIC_ARG and not tok.isdigit():
+                # An optional numeric argument that is not a number: this token
+                # is the subcommand, not the flag's value.
+                prev_flag = ""
+            else:
+                pass
         if prev_flag:
             # A flag's argument (`git -C /repo status`) is DATA, not command text:
             # emitted as an empty placeholder so the `-C <arg>` shape the git rules
@@ -611,7 +623,7 @@ def command_region(seg: str) -> str:
             # run_validate (agent2, AgentChorus #309930). It also must not consume
             # subcommand depth -- that truncated `make -C /repo test` before `test`.
             out.append('""')
-            prev_flag = False
+            prev_flag = ""
             continue
         if _FILEISH.search(tok):
             if out and out[-1] in _BRANCH_SUBCOMMANDS:
