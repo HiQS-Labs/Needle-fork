@@ -5,6 +5,34 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-09
 
+### Label vocabulary frozen as `v1.0.0`
+
+`LABEL_SET_VERSION` cut from `v1.0.0-draft` to **`v1.0.0`**; `oracle/labels-v1.json`
+regenerated through `build_schema`. 44 labels. Studio corpus at the freeze: 335
+sessions, 71,763 calls, **coverage 96.41%**, governance 5.91%, top-3 bar 45.16%,
+197 tests passing. Receipt: `TESTS-RESULTS/2026-09-09-taxonomy-v1.0.0-freeze/`.
+
+The version guard was verified to fire rather than assumed: a contract still
+stamped `v1.0.0-draft` is now refused by `serialize.load_schemas`.
+
+**What is frozen is the label NAMES.** The sorter that decides which label a
+command gets is not frozen and is still under repair (#17) — the two artifacts
+version independently. Freezing also **commits the project to supplementation**
+(#9): the contract says the support floor's action is `"supplement"`, never
+delete or merge, and `promote_capture` (8) and `publish_release` (2) are kept on
+that basis.
+
+The final pre-freeze review (`codex`) returned FAIL, and its own reasoning is why
+the freeze proceeded anyway: *"the freeze blocker here is sorter correctness, not
+rarity alone… the contract can freeze label names while still requiring sorter QA
+and supplementation."* Its blocker was fixed first (`7cd7150`).
+
+**96.41% counts resolution, not correctness.** 78.12% of bash commands match more
+than one rule and rule order picks the winner; nothing has been hand-audited.
+Seven review rounds have found seven disjoint defect sets, which is not evidence
+that the eighth does not exist.
+
+
 ### Positional label rules — role before operands, and the §2 gate re-opened
 
 A command's **operands** were being read as if they were its **invocation**, so text a

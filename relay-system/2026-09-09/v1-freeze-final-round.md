@@ -2,7 +2,7 @@
 Goal: Final adversarial round before freezing the v1 label vocabulary as v1.0.0
 Date: 2026-09-09
 Reviewer: codex
-NEXT: Reviewer
+NEXT: Producer
 STATUS: Open
 ---
 
@@ -92,3 +92,77 @@ Append findings, then `NEXT: Producer` with `STATUS: Open` if the freeze should 
 ## Log
 
 - 2026-09-09 · claude-a · Final pre-freeze review opened at `main` `3c357ff`. Review-only.
+
+## 2026-09-09 · codex · Reviewer
+
+VERDICT: FAIL
+Basis: Finding 1 (Blocker) -- `git --exec-path /tmp/validate.sh status` scores
+unmapped; an unlisted path-valued long option truncates command_region before the
+subcommand. Q2: the flag tables are a return to the allowlist shape that failed twice.
+
+Freeze is blocked. I found a seventh route: an unlisted long global option with a separate
+argument can still make a real invocation lose its label. This is the same structural class as the
+round-5 flag-table defects, but in the false-negative direction: the option argument is data, yet
+because the table does not know the flag consumes it, `_FILEISH` treats the path argument as the
+start of operands and truncates the command before the real subcommand.
+
+Finding 1 - Blocker - real invocation loses its label through an unlisted path-valued long option.
+
+- Exact command: `git --exec-path /tmp/validate.sh status`
+- Observed: `unmapped`; `command_region()` is `git --exec-path`
+- Expected: `git_inspect`, because this is a real `git status` invocation and the `--exec-path`
+  argument is not the command.
+- Smallest correction: stop relying on a hand-maintained allowlist for path-valued global options.
+  Use a positional parser that classifies tokens as command-bearing or data-bearing from shell
+  shape: for subcommand programs, consume a separate argument after long options until the next
+  recognized command token when the token is before any subcommand and the successor is path-shaped
+  or otherwise value-shaped; keep `--flag=value` dropping the value as today. If the code keeps a
+  table temporarily, `git --exec-path` and `git --namespace` demonstrate the missing class, but a
+  larger table is the return to the pattern that already failed twice.
+
+Probe results, saved under `.relay-scratch/codex-v1-freeze-probes.txt`:
+
+```text
+git --exec-path /tmp/validate.sh status
+  region= git --exec-path
+  label= unmapped
+git --exec-path=/tmp/validate.sh status
+  region= git --exec-path status
+  label= git_inspect
+git --namespace foo status
+  region= git --namespace foo status
+  label= unmapped
+git --namespace=foo status
+  region= git --namespace status
+  label= git_inspect
+git --literal-pathspecs status
+  region= git --literal-pathspecs status
+  label= git_inspect
+```
+
+Q2. Yes, the flag tables are a return to the allowlist shape that failed before. The non-allowlist
+formulation should be "subcommand discovery with token roles": once the lead program is known,
+walk tokens until a real subcommand/target is identified, treating flags and their syntactic values
+as data, not searchable command text. Unknown flags should not default to either "boolean" or "no
+argument" globally; before the subcommand, an unknown long flag followed by a value-shaped token
+must not be allowed to truncate discovery or expose that value as intent. The current code handles
+some shapes (`--flag=value`, known separate-arg flags, `--`), but the separate-arg unknown case
+still leaks.
+
+Q3. I did not find a decorative mutation control in the reviewed block. The controls for quote-aware
+splitting, env-prefix skip, end-of-options, `_FILEISH`, short-flag consumption, branch placeholder,
+ANY_POSITION gates, and tokenizer quoting all disable a named mechanism and assert either the
+wrong label returns or the protected token leaks back into `command_region()`. The end-of-options
+control correctly asserts on `command_region()` rather than final label, avoiding the specific
+"passes by rule order anyway" trap.
+
+Q4. Keeping rare labels in the frozen vocabulary is defensible under the stated contract because the
+contract explicitly says the support floor action is supplement, never delete or merge. The training
+risk is real, especially for `publish_release` and `promote_capture`, but deleting them at the
+taxonomy root would be the Costly and less reversible move. The freeze blocker here is sorter
+correctness, not rarity alone.
+
+Q5. The 78.1% multi-match rate is a serious warning, but by itself I would not call it an automatic
+vocabulary-freeze blocker. It blocks any claim that 96.40% coverage means correctness. For v1.0.0,
+the contract can freeze label names while still requiring sorter QA and supplementation. In this
+turn, the concrete sorter miss above is enough to keep STATUS Open.

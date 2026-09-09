@@ -1,5 +1,5 @@
 {
-  "label_set_version": "v1.0.0-draft",
+  "label_set_version": "v1.0.0",
   "source_of_truth": "utils/corpus/taxonomy.py",
   "output_contract": "The model predicts ONLY a label name. Labels take no arguments.",
   "support_floor": {

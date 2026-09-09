@@ -794,3 +794,52 @@ def test_a_quoted_assignment_with_spaces_stays_one_token():
     # class, arriving through the tokenizer.
     assert tx.label_bash('TITLE="fix pytest flake" git commit -m "x"')[0] == "commit_changes"
     assert "pytest" not in tx.command_region('TITLE="fix pytest flake" git commit -m "x"')
+
+
+# ---------------------------------------------------------------------------
+# GH-17 final round (codex). The 7th and 8th routes to the same bug class.
+# ---------------------------------------------------------------------------
+
+
+def test_an_unlisted_long_option_does_not_truncate_the_walk():
+    """codex: `git --exec-path <path> status` scored unmapped.
+
+    The long-flag ALLOWLIST could not know `--exec-path` takes an argument, so
+    _FILEISH read the path as the start of operands. A value is now recognised
+    by SHAPE, which needs no table -- the allowlist was a return to the pattern
+    that had already been escaped twice.
+    """
+    assert tx.label_bash("git --exec-path /tmp/validate.sh status")[0] == "git_inspect"
+    assert tx.label_bash("cargo --manifest-path /path/Cargo.toml test")[0] == "run_tests"
+    assert tx.label_bash("uv --directory /path run pytest")[0] == "run_tests"
+    # ...and the value never becomes readable as an invocation.
+    assert "validate.sh" not in tx.command_region("git --exec-path /tmp/validate.sh status")
+
+
+def test_an_unquoted_message_is_not_an_invocation():
+    """Found while probing codex's finding for the same shape elsewhere.
+
+    `git tag -m ruff v1` scored run_linter: the message word sat in command
+    position. Prose-carrying flags now consume their argument.
+    """
+    assert tx.label_bash("git tag -m ruff v1")[0] != "run_linter"
+    assert "ruff" not in tx.command_region("git tag -m ruff v1")
+    assert "pytest" not in tx.command_region("git commit -m pytest")
+
+
+def test_control_disabling_the_value_shape_rule_truncates_the_walk(monkeypatch):
+    monkeypatch.setattr(tx, "_VALUE_SHAPED", re.compile(r"(?!)"))   # matches nothing
+    assert tx.label_bash("git --exec-path /tmp/validate.sh status")[0] == "unmapped"
+
+
+def test_control_disabling_prose_flags_lets_a_message_score_a_label(monkeypatch):
+    monkeypatch.setattr(tx, "_PROSE_FLAGS", frozenset())
+    assert tx.label_bash("git tag -m ruff v1")[0] == "run_linter"
+
+
+def test_flags_between_a_program_and_its_subcommand_do_not_lose_the_label():
+    """CodeRabbit, PR #19: the shape rule stopped at seen==0, so a value-shaped
+    argument after an already-seen subcommand still truncated the walk."""
+    assert tx.label_bash("gh pr --repo owner/repo view")[0] == "review_pr"
+    assert tx.label_bash("gh --repo o/r pr create")[0] == "open_pr"
+    assert "owner/repo" not in tx.command_region("gh pr --repo owner/repo view")
