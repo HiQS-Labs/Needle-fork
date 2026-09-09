@@ -209,19 +209,22 @@ BASH_RULES = [
     ("merge_pr",         r"\bgh\s+pr\s+merge\b"),
     ("review_pr",        r"\bgh\s+pr\s+(view|diff|checks|list|status)\b"),
     ("update_pr",        r"\bgh\s+(pr\s+(edit|comment|review|ready)|issue\s+(comment|edit|close))\b"),
-    ("create_branch",    r"\bgit\s+(-C\s+\S+\s+)?(checkout\s+-b|switch\s+-c|branch\s+[^-])"),
-    ("commit_changes",   r"\bgit\s+(-C\s+\S+\s+)?(commit|add)\b"),
-    ("git_sync",         r"\bgit\s+(-C\s+\S+\s+)?(push|pull|fetch|merge(?!-tree|-base)|rebase|stash|clone|worktree|cherry-pick|reset)\b"),
-    ("git_inspect",      r"\bgit\s+(-C\s+\S+\s+)?(status|log|diff|show|remote|rev-parse|rev-list|describe|blame|check-ignore|ls-files|merge-tree|merge-base|config|branch\b)"),
+    ("create_branch",    r"\bgit\s+(?:-{1,2}[\w-]+(?:=\S+)?\s+|-C\s+\S+\s+|-c\s+\S+\s+)*(checkout\s+-b|switch\s+-c|branch\s+[^-])"),
+    ("commit_changes",   r"\bgit\s+(?:-{1,2}[\w-]+(?:=\S+)?\s+|-C\s+\S+\s+|-c\s+\S+\s+)*(commit|add)\b"),
+    ("git_sync",         r"\bgit\s+(?:-{1,2}[\w-]+(?:=\S+)?\s+|-C\s+\S+\s+|-c\s+\S+\s+)*(push|pull|fetch|merge(?!-tree|-base)|rebase|stash|clone|worktree|cherry-pick|reset|checkout|switch|restore)\b"),
+    ("git_inspect",      r"\bgit\s+(?:-{1,2}[\w-]+(?:=\S+)?\s+|-C\s+\S+\s+|-c\s+\S+\s+)*(status|log|diff|show|remote|rev-parse|rev-list|describe|blame|check-ignore|ls-files|merge-tree|merge-base|config|bisect|branch\b)"),
 
     # code / dev
-    ("run_tests",        r"\b(pytest|jest|vitest|go test|cargo test|npm (run )?test|make test|run-tests)\b"),
+    # `make test` must survive global flags the same way the git rules do:
+    # `make -C /repo test` was scoring run_build because the tokens are not adjacent.
+    ("run_tests",        r"\b(pytest|jest|vitest|go test|cargo test|npm (run )?test|run-tests)\b"
+                         r"|\bmake(?:\s+-\S+(?:\s+\S+)?)*\s+test\b"),
     ("run_linter",       r"\b(ruff|flake8|eslint|black|prettier|mypy|shellcheck|golangci-lint)\b"),
     ("run_build",        r"\b(make|cmake|cargo build|go build|npm run build|xcodebuild|clang|gcc|tsc)\b"),
     ("pkg_manage",       r"\b(pip3?|uv|poetry|pipx|conda)\s+(install|add|remove|uninstall|sync|list|show|freeze)\b"
                          r"|\b(npm|yarn|pnpm)\s+(install|ci|add|remove|uninstall|ls|list|outdated)\b"
                          r"|\b(brew|apt|apt-get|gem)\s+(install|upgrade|uninstall|remove|list|info)\b"
-                         r"|\brequirements(-\w+)?\.txt\b"),
+                         r"|\b(pip3?|uv|poetry)\s+install\s+-r\b"),
     ("run_script",       r"(<<\s*'?[A-Z_]+'?|\bpython3?\s+-[cm]\b|/bin/python\b"
                          r"|\b(python3?|node|npx|bash|sh|zsh|ruby|perl|swift|deno|tsx)\s+\S+"
                          r"|^\./\S+|^\$[A-Za-z_])"),
@@ -258,8 +261,262 @@ ARG_CONSUMERS = {
     "more": "read_file", "bat": "read_file", "awk": "read_file", "wc": "read_file",
     "find": "find_files", "fd": "find_files", "ls": "find_files", "tree": "find_files",
     "sed": "read_file",
+    # `which`/`command -v`/`type` report where a program LIVES; their arguments are
+    # program names being asked about, and they map to a real label, so they belong.
+    # `stat`/`realpath`/`shasum`/`basename`/`dirname` were also added here and that
+    # was wrong: ARG_CONSUMERS is checked BEFORE command_region, so the class-level
+    # control never exercised the positional default it claimed to test. Removed, so
+    # the control is real (agy, PR #16 review).
+    "which": "sys_inspect", "command": "sys_inspect", "type": "sys_inspect",
+    "whereis": "sys_inspect",
 }
 _LEAD = re.compile(r"^\s*(?:[A-Za-z_][A-Za-z0-9_]*=\S*\s+)*([^\s;|&]+)")
+
+# ---------------------------------------------------------------------------
+# #2: a rule token in an ARGUMENT position is not an invocation.
+#
+# The first two instances of this bug class were each fixed with a list of
+# specific programs. The class is broader than any list, because the defect is
+# not "these programs take data" -- it is that a bare-name rule was allowed to
+# match ANYWHERE in a segment. `chmod +x validate.sh` is not a governance run;
+# `echo pytest` is not a test run; `tar -czf b.tgz validate.sh` is neither.
+#
+# So the default is inverted: a bare-name rule matches only in COMMAND POSITION.
+# Everything after the command is data unless the program is known to take
+# subcommands. That makes the fix positional rather than a fourth enumeration --
+# a program nobody listed, like `stat` or `realpath`, is handled by the default.
+# ---------------------------------------------------------------------------
+
+# Wrappers whose intent is their CHILD. Unwrapped before anything else looks at
+# the segment, so the effective command is what gets labelled.
+_WRAPPERS = re.compile(
+    r"^\s*(?:"
+    # A flag may be long, short, or `=`-joined. `-\w+` alone left every `--long-flag`
+    # attached to the child, dropping the command to unmapped (agy, PR #16 review).
+    r"timeout\s+[\d.]+[smhd]?|nohup"
+    r"|nice(?:\s+-n\s+-?\d+|\s+-{1,2}[\w-]+(?:=\S+)?)*"
+    # `sudo -u <user>` takes a SEPARATE argument; a generic `flag + next token` rule
+    # would eat the command itself, exactly as it did for xargs.
+    r"|sudo(?:\s+-u\s+\S+|\s+-{1,2}[\w-]+(?:=\S+)?)*"
+    r"|watch(?:\s+-n\s+[\d.]+|\s+-{1,2}[\w-]+(?:=\S+)?)*"
+    r"|stdbuf(?:\s+-{1,2}[\w-]+(?:=\S+)?)*"
+    # xargs: only a NUMBER or a `{}` placeholder is consumed as a flag argument --
+    # anything else could be the command.
+    r"|xargs(?:\s+-\S+(?:\s+(?:\d+|\{\}))?)*"
+    r"|env(?:\s+-[iu]\s+\S+|\s+-{1,2}[\w-]+|\s+[A-Za-z_][A-Za-z0-9_]*=\S*)*"
+    r"|(?:uv|poetry|pdm|hatch|pipenv|rye)\s+run|git\s+bisect\s+run"
+    r"|(?:\S*/)?time(?:\s+-{1,2}[\w-]+(?:=\S+)?)*"
+    r"|do|then|else|until|while|!"
+    r")\s+")
+# `python -m pip install X` IS package management, and `python -m pytest` IS a test
+# run: `-m` names the real program. Without this the region stops at `pip` and the
+# rule needing `pip install` never sees the subcommand. Anything else run this way
+# is still a script, so the fallback keeps that.
+# The lead is often unresolvable: a shell variable holding an interpreter path
+# (`"$P" -m pytest`) is extremely common here, and requiring a literal `python`
+# dropped real test runs to unmapped. Key on the `-m` SHAPE instead.
+_DASH_M = re.compile(r"""^\s*(?:\S*python[\d.]*|["']?\$\{?\w+\}?["']?|\S*/\S+)\s+-m\s+""")
+# `git bisect run <probe>` is still a git operation even though its probe is not.
+_WRAPPER_FALLBACK = ((re.compile(r"^\s*git\s+bisect\b"), "git_inspect"),)
+
+# Programs whose next tokens are SUBCOMMANDS, not data. Everything not listed
+# here is assumed to take operands -- the safe default, and the one that makes
+# an unlisted program behave correctly without being added.
+SUBCOMMAND_PROGRAMS = {"git", "gh", "npm", "yarn", "pnpm", "pip", "pip3", "pipx",
+                       "uv", "poetry", "brew", "apt", "apt-get", "gem", "conda",
+                       "cargo", "go", "docker", "podman", "xyz", "aws", "gcloud",
+                       "az", "oci", "make", "kubectl", "systemctl",
+                       # Unlisted runners degrade to `unmapped`, never to a WRONG
+                       # label -- the safe direction, but these are common enough.
+                       "bundle", "just", "tox", "nox", "rake", "pipenv", "task"}
+# Container images are `name:tag`, which reads as a bare tool name; one token is
+# all the subcommand ever is.
+_SUBCOMMAND_DEPTH = {"docker": 1, "podman": 1, "make": 1}
+# For these the next token is the SCRIPT being run, so it is in command position:
+# `bash scripts/validate.sh` really is a governance run.
+EXECUTORS = {"bash", "sh", "zsh", "ksh", "dash", "source", ".",
+             "python", "python3", "node", "npx", "ruby", "perl", "swift",
+             "deno", "tsx", "osascript"}
+# Rules that read OPERANDS rather than only the command position: a directory move,
+# or a specific command sequence.
+#
+# Blanking quoted text for them was too blunt in BOTH directions (agent2, #309930):
+# it did nothing about UNQUOTED display data (`echo mv PROJECT/1-INBOX/a ...` still
+# scored promote_capture) and it destroyed the operands of a REAL move written with
+# quoted paths. The rule is not "quoted text is data"; it is:
+#
+#   establish the command's ROLE first, then read its operands with values intact.
+#
+# So each of these carries a gate naming the invocation it describes. The gate is
+# tested per clause, because a heredoc keeps `mkdir ... && git mv ...` in one segment.
+ANY_POSITION = {"promote_capture", "complete_doc", "park_roadmap_row"}
+
+
+def _is_move(clause: str) -> bool:
+    lead = leading_program(clause)
+    return lead == "mv" or (lead == "git" and _second_token(clause) == "mv")
+
+
+def _is_roadmap_tool(clause: str) -> bool:
+    return "releases_app.py" in command_region(clause)
+
+
+# Gate per operand-reading rule: does this clause actually INVOKE the thing?
+ANY_POSITION_GATE = {"promote_capture": _is_move, "complete_doc": _is_move,
+                     "park_roadmap_row": _is_roadmap_tool}
+
+
+def _operand_clauses(seg: str):
+    """Clauses of a segment, with quote CHARACTERS removed but values preserved.
+
+    A real move may quote its paths (`mv "PROJECT/1-INBOX/a.md" ...`); blanking the
+    content lost the very operands the rule exists to read.
+    """
+    for clause in re.split(r"&&|\|\||;", seg):
+        clause = clause.strip()
+        if clause:
+            yield clause, clause.replace('"', "").replace("'", "")
+_HEREDOC_BODY = re.compile(r"<<-?\s*'?[A-Za-z_]")
+_REDIRECT = re.compile(r"\s*\d?(?:>>|>|<)\s*\S+")
+# `cat > file <<EOF` WRITES a file -- the redirection is the whole action, and
+# stripping it leaves a bare `cat`, which reads as the opposite. Only for commands
+# that emit content and do nothing else: `pytest > out.txt` is still a test run.
+_CONTENT_PRODUCERS = {"cat", "echo", "printf", "tee"}
+# STDOUT only. `\d?` also matched `cat f 2>/dev/null`, turning 34 ordinary reads
+# into writes -- stderr redirection says nothing about where content goes.
+# Any `/dev/*` target is a DISCARD, not a write: `echo x > /dev/null` was scoring
+# apply_patch. `\d?` also matched `2>/dev/null`, fixed earlier.
+_WRITE_REDIRECT = re.compile(r"(?:^|\s)1?>>?\s*(?!/dev/)\S+")
+# Quote-aware tokenisation, so a quoted operand survives as ONE token.
+_TOKEN = re.compile(r"""'[^']*'|"[^"]*"|\S+""")
+_QUOTED = re.compile(r"'[^']*'|\"[^\"]*\"")
+_FILEISH = re.compile(r"/|\.[A-Za-z][A-Za-z0-9]{0,4}$")
+
+
+def _effective_clause(seg: str) -> str:
+    """Drop leading setup clauses (`cd X &&`) from a HEREDOC-joined segment.
+
+    Only heredoc segments: `split_segments` has already cut every other segment on
+    `&&`/`;`, so a separator still present in one of those is inside quotes, and
+    splitting on it again mislabels 123 local commands.
+    """
+    if not _HEREDOC.search(seg):
+        return seg
+    for clause in re.split(r"&&|;", seg):
+        clause = clause.strip()
+        if clause and not _PREAMBLE.match(clause) and not _DISPLAY.match(clause):
+            return _unwrap(clause)[0]
+    return seg
+
+
+def _unwrap(seg: str) -> tuple[str, str | None]:
+    """Strip wrapper prefixes until the effective command is exposed."""
+    fallback = None
+    for _ in range(6):                       # bounded: wrappers do not nest deeply
+        for rx, label in _WRAPPER_FALLBACK:
+            if rx.match(seg):
+                fallback = label
+        m = _DASH_M.match(seg)
+        if m:
+            seg, fallback = seg[m.end():], "run_script"
+            continue
+        m = _WRAPPERS.match(seg)
+        if not m:
+            break
+        seg = seg[m.end():]
+    return seg, fallback
+
+
+_INLINE_CODE_FLAGS = {"-c", "-e", "--command", "--eval", "-E"}
+
+
+def _tee_target(lead: str, seg: str) -> bool:
+    """`tee file` names its destination as an OPERAND, not through a redirection.
+
+    Without this `tee` sat in _CONTENT_PRODUCERS doing nothing at all.
+    """
+    if lead != "tee":
+        return False
+    return any(not t.startswith("-") and not t.startswith("/dev/")
+               for t in seg.split()[1:])
+
+
+def _is_quoted(tok: str) -> bool:
+    return len(tok) > 1 and tok[0] == tok[-1] and tok[0] in "\"'"
+
+
+def command_region(seg: str) -> str:
+    """The part of a segment a bare-name rule is allowed to match.
+
+    Tokenised QUOTE-AWARE, and a quoted token is emptied unless it sits in command
+    position. Blanking quotes BEFORE tokenising destroyed the operand outright, so
+    `bash "scripts/validate.sh"` lost its governance label and `"$P" -m pytest`
+    stopped being a test run (agy, PR #16 review).
+    """
+    seg = _REDIRECT.sub("", seg)
+    tokens = [t for t in _TOKEN.findall(seg) if t]
+    if not tokens:
+        return ""
+
+    def text(tok, keep=False):
+        if not _is_quoted(tok):
+            return tok
+        return tok[1:-1] if keep else '""'
+
+    lead = leading_program(seg)
+    if lead in EXECUTORS:
+        # lead plus the script it runs. A flag's ARGUMENT is not the script, so
+        # `bash -o errexit scripts/validate.sh` must not stop at `errexit`.
+        out, prev_flag, inline = [text(tokens[0], keep=True)], False, False
+        for tok in tokens[1:]:
+            if tok.startswith("-"):
+                out.append(tok)
+                # `-c`/`-e` introduce inline CODE, not a script path, so what
+                # follows is data: `python3 -c "print('ruff')"` is not a linter run.
+                inline = tok in _INLINE_CODE_FLAGS
+                prev_flag = not tok.startswith("--") and "=" not in tok
+                continue
+            out.append(text(tok, keep=not inline))
+            if not prev_flag:
+                break
+            prev_flag = False
+        return " ".join(out)
+    if lead not in SUBCOMMAND_PROGRAMS:
+        return text(tokens[0], keep=True)
+    depth, out, seen, prev_flag = _SUBCOMMAND_DEPTH.get(lead, 3), [tokens[0]], 0, False
+    for tok in tokens[1:]:
+        if tok == "--":
+            # END OF OPTIONS: everything after it is an operand by definition.
+            # Treating `--` as an ordinary flag set prev_flag and so skipped the
+            # _FILEISH break, leaving `git diff -- validate.sh` scoring run_validate
+            # -- the exact defect #2 exists to remove.
+            break
+        if tok.startswith("-"):
+            # `--flag=value` carries its own argument, and the value is where a path
+            # like `--output=/tmp/validate.sh` hides. Keep the flag, drop the value.
+            out.append(tok.split("=", 1)[0])
+            # Only a SHORT flag takes a separate argument (`-C /repo`, `-m msg`). A
+            # long flag is either `--flag=value` or boolean, so assuming it consumed
+            # the next token swallowed the subcommand: `git --no-pager diff`.
+            prev_flag = not tok.startswith("--") and "=" not in tok
+            continue
+        if prev_flag:
+            # A flag's argument (`git -C /repo status`) is DATA, not command text:
+            # emitted as an empty placeholder so the `-C <arg>` shape the git rules
+            # match on survives while the value cannot be read as an invocation.
+            # Keeping the value let `git -C /tmp/validate.sh status` score
+            # run_validate (agent2, AgentChorus #309930). It also must not consume
+            # subcommand depth -- that truncated `make -C /repo test` before `test`.
+            out.append('""')
+            prev_flag = False
+            continue
+        if _FILEISH.search(tok):
+            break                       # an operand: `make validate.sh`
+        out.append(text(tok))
+        seen += 1
+        if seen >= depth:
+            break
+    return " ".join(out)
 
 # Package managers take PACKAGE NAMES as arguments, so their arguments must not be
 # read as invocations -- `uv add ruff` is installing ruff, not running it, and was
@@ -290,7 +547,7 @@ def leading_program(seg: str) -> str:
 # Segments that are setup or display, never the intent of the call.
 _PREAMBLE = re.compile(
     r"^\s*(cd\b|export\b|source\b|\.\s|set\b|nohup\b|time\b|nice\b|sudo\b|timeout\s+\d+\b"
-    r"|for\b|while\b|do\b|done\b|if\b|then\b|fi\b|else\b|case\b|esac\b|function\b"
+    r"|for\b|while\b|until\b|do\b|done\b|if\b|then\b|fi\b|else\b|case\b|esac\b|function\b"
     r"|continue\b|break\b|return\b|exit\b|\[|\(|\\\\$|test\s"
     r"|[A-Za-z_][A-Za-z0-9_]*=)")
 _DISPLAY = re.compile(r"^\s*(echo|printf|head|tail|wc|sort|uniq|column|less|more|tee|jq|cut|tr|xargs\s+echo)\b")
@@ -335,21 +592,57 @@ def substantive_segments(cmd: str) -> list[str]:
 
 
 def label_segment(seg: str) -> str | None:
-    """Label one segment, or None if no rule matches."""
+    """Label one segment, or None if no rule matches.
+
+    Order matters: the wrapper is unwrapped first so every later test sees the
+    EFFECTIVE command, and path-shaped governance rules run before the name-based
+    ones so `mv PROJECT/1-INBOX/x PROJECT/2-WORKING/x` stays a promotion.
+    """
+    seg, fallback = _unwrap(seg)
+    # A heredoc suppresses segment splitting, so `cd X && git commit -F - <<EOF`
+    # arrives here whole and its leading token is `cd`. While rules matched
+    # anywhere that did not matter; now the leading token decides, so the setup
+    # clause has to come off or every heredoc commit reads as a script run.
+    full = seg                 # path-shaped rules must still see the whole segment
+    seg = _effective_clause(seg)
     lead = leading_program(seg)
     if lead in PKG_MANAGERS and _second_token(seg) not in PKG_DELEGATES:
         return "pkg_manage"
     if lead in NODE_PKG and _second_token(seg) in NODE_PKG_SUBCOMMANDS:
         return "pkg_manage"
+    if lead in _CONTENT_PRODUCERS and (_WRITE_REDIRECT.search(seg) or _tee_target(lead, seg)):
+        return "apply_patch"
     if lead in ARG_CONSUMERS:
         # `sed -i` rewrites a file; `sed -n 1,20p` reads one.
         if lead == "sed":
             return "apply_patch" if re.search(r"\s-i\b", seg) else "read_file"
         return ARG_CONSUMERS[lead]
+    region = command_region(seg)
+    # ONE ordered pass, so the original rule precedence is preserved exactly; only
+    # the HAYSTACK changes per rule. Splitting this into two passes silently
+    # promoted every heredoc above `commit_changes`, turning 44 real commits in the
+    # local corpus into `run_script` -- a regression no unit test caught, found only
+    # by diffing a re-extraction.
     for name, rx in BASH_RE:
-        if rx.search(seg):
+        if name in ANY_POSITION:
+            # Per CLAUSE of the whole segment, because a heredoc keeps
+            # `mkdir -p PROJECT/3-COMPLETED && git mv PROJECT/2-WORKING/x ...` in one
+            # piece. A clause counts only when it actually invokes the operation --
+            # otherwise `echo mv PROJECT/1-INBOX/a ...` is a promotion, quoted or not.
+            gate = ANY_POSITION_GATE[name]
+            if any(gate(clause) and rx.search(unquoted)
+                   for clause, unquoted in _operand_clauses(full)):
+                return name
+            continue
+        if rx.search(region):
             return name
-    return None
+    # A heredoc means script content is being fed in -- but only once nothing else
+    # matched. Testing it INSIDE the ordered pass made every rule after run_script
+    # unreachable, so `sqlite3 db <<EOF` scored run_script instead of db_query
+    # (agy, PR #16 review).
+    if _HEREDOC_BODY.search(full):
+        return "run_script"
+    return fallback
 
 
 def label_bash(cmd: str) -> tuple[str, str]:

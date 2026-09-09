@@ -3,6 +3,54 @@
 Newest-first, dated end-of-iteration record. One entry per substantive iteration: what changed,
 why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
+## 2026-09-09
+
+### Positional label rules — role before operands, and the §2 gate re-opened
+
+A command's **operands** were being read as if they were its **invocation**, so text a
+command merely *displayed* or *carried* could score a governance label: `echo mv
+PROJECT/1-INBOX/x.md ...` scored `promote_capture`, `chmod +x validate.sh` scored
+`run_validate`. The fix establishes the command's role first (`ANY_POSITION_GATE`,
+with per-clause `_is_move` / `_is_roadmap_tool` predicates) and only then reads its
+operands with values intact — an earlier attempt that blanked quoted text was wrong in
+*both* directions, missing unquoted display data and destroying the operands of a real
+`mv "PROJECT/1-INBOX/a.md" "..."`.
+
+**Mutation controls, not membership assertions.** The previous class control asserted
+that a program was absent from a table, which shows the table's contents, not that the
+guard is why a test passes — it was decorative. The controls now disable
+`command_region` and require the class tests to go red. That caught a
+mis-attribution on its first run: `touch requirements.txt` does **not** revert when
+the positional guard is disabled; it was fixed by removing a rule alternative. Two
+mechanisms had landed in one change and the wrong one had been credited. Both halves
+are now pinned separately.
+
+**Found by four independent reviews, each in code the previous had not seen** — a
+corpus re-extraction diff (3 regressions no unit test caught), a headless `agy`
+adversarial pass (6 categories), and two AgentChorus rounds with Codex Astra (5, then
+3). Four disjoint defect sets is not evidence the search is exhausted; the review loop
+was stopped by a bounded-pass rule, not by a clean round.
+
+**The §2 coverage gate is re-opened.** The 2026-09-07 Studio measurement (98.52%) was
+produced by the rules this change replaces, which move 322 labels. The acceptance
+boxes in `PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md` are unchecked and the
+2026-09-07 receipt gains a STALE pointer with its numbers left unedited. The general
+rule, now written down: *a measurement is scoped to the code that produced it* — an
+acceptance box is a claim about current code, not a record that a run once happened.
+Records belong in `TESTS-RESULTS/`; boxes revert.
+
+Merging this does **not** freeze the taxonomy. `LABEL_SET_VERSION` stays
+`v1.0.0-draft` and `utils/corpus/serialize.py` raises if a corpus artifact disagrees
+with `taxonomy.py`, so the freeze remains a separate, enforced step.
+
+Verification: `python3.11 -m pytest tests/ -q` → 253 passed, 6 skipped, 6 deselected;
+local corpus 2,111 commands, coverage 98.77% → 97.92%, 322 labels change, 3 governance
+losses (each verified a false positive), 0 gained; receipt in
+`TESTS-RESULTS/2026-09-09-taxonomy-positional-fix/`.
+
+Not yet done: the Studio corpus has **not** been re-extracted under the corrected
+rules (SMB share unmounted). Until it is, the §2 gate has no current result.
+
 ## 2026-09-07
 
 ### Phase 2 §3 — `query` serialization is one shared function; token budget forces `--max-len 2048`

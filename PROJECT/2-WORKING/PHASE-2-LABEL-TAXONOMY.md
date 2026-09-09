@@ -177,7 +177,13 @@ intents lowers the score a majority-class predictor gets, which is the honest ba
 
 ## Phase C — Re-extract on the Studio and freeze
 
-**Done.** The Studio's `~/.claude/projects` was reachable as an SMB share
+> **Re-opened 2026-09-09.** Every measurement in this section was produced by the
+> positional labelling rules that #16 replaces. That change moves **322 labels**, so
+> the §2 coverage gate below is **stale — not superseded by measurement**. No run has
+> yet scored the Studio corpus under the corrected rules. See
+> [Superseded measurements](#superseded-measurements).
+
+**Ran 2026-09-07, under rules since corrected.** The Studio's `~/.claude/projects` was reachable as an SMB share
 (`//noels-mac-studio.local/noelsaw`, mounted read-only), so the re-extraction ran
 from this machine rather than needing a handoff. Receipt:
 `TESTS-RESULTS/2026-09-07-taxonomy-v1-studio/`.
@@ -228,11 +234,39 @@ than action — left unmapped deliberately so the gate keeps its meaning.
 - [x] Teach `extract_claude_transcripts.py` to record `file_path` and to import
       `taxonomy.label_call` instead of its own `BASH_RULES` — done and verified locally
       (16 sessions, 1,439 pairs, coverage 99.03%, governance share 3.75%)
-- [x] Re-extract on the Mac Studio — done from this machine over SMB; coverage 98.52%
+- [ ] Re-extract on the Mac Studio — **re-opened.** The 2026-09-07 run (coverage
+      98.52%) measured rules #16 replaces; it must be re-run before the gate counts
 - [x] Apply the support floor (0.1% of calls) — 40 of 44 clear it; 3 real stragglers + `no_action`
 - [x] Decide `pkg_manage` — **kept**; the decision dissolved once the measurement was fixed (below)
 - [ ] Cut `label_set_version` from `v1.0.0-draft` to `v1.0.0` and re-publish the contract
-- [x] Report the Studio coverage number to issue #1 as the §2 gate result
+- [ ] Report the Studio coverage number to issue #1 as the §2 gate result —
+      **re-opened** with the box above; 98.52% is stale, not a current gate result
+
+### Superseded measurements
+
+**What happened.** Phase C closed on 2026-09-07 with the §2 coverage gate reported as
+met at 98.52%. #16 then corrected a defect in *positional* label assignment — a
+printed or quoted path was being read as an operand, so displayed text could score a
+governance label. The fix moves 322 labels on the local corpus. The Studio numbers
+were produced by the defective rules, which makes the checked gate above an
+assertion the branch's own diff invalidates.
+
+**Why the boxes are unchecked rather than re-measured in place.** The corrected
+number is unknown, not merely different: the SMB share is not mounted, so it cannot
+be measured on this machine right now. Leaving the boxes checked would ship a
+contradiction — `TESTS-RESULTS/2026-09-09-taxonomy-positional-fix/` already records
+these numbers as stale while this checklist claimed the gate was met.
+
+**What is *not* claimed.** The 98.52% is not known to be wrong, and 322 moved labels
+is not 322 corrections — 3 were governance losses, each verified a false positive.
+The claim is narrower and sufficient: the number was produced by rules that no longer
+exist, so it is not evidence about the rules that do.
+
+**The general rule this is an instance of.** *A measurement is scoped to the code
+that produced it.* When a change moves the mapper, every acceptance box downstream of
+that mapper reverts to unmet — the box is a claim about current code, not a record
+that a run once happened. Records live in `TESTS-RESULTS/`, which is why the
+2026-09-07 receipt keeps its numbers and gains a pointer instead of an edit.
 
 ### Reproducing the Studio extraction
 
