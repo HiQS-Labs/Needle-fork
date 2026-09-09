@@ -30,6 +30,15 @@ _BLOCK = re.compile(r"<tool_call>(.*?)</tool_call>", re.DOTALL)
 _OPEN = re.compile(r"<tool_call>")
 
 
+def _unique_object(pairs):
+    result = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate JSON key")
+        result[key] = value
+    return result
+
+
 class Verdict:
     __slots__ = ("pred", "status", "raw")
 
@@ -55,6 +64,10 @@ def _finish(calls, labels, raw):
     name = call.get("name")
     if not isinstance(name, str) or not name:
         return Verdict(None, MALFORMED, raw)
+    # This scorer is for the parameterless Oracle labels, not arbitrary SDK tools.
+    # Omitted arguments are permitted by the existing training/native formats.
+    if "arguments" in call and call["arguments"] != {}:
+        return Verdict(None, MALFORMED, raw)
     if name not in labels:
         return Verdict(name, UNDECLARED, raw)
     return Verdict(name, OK, raw)
@@ -64,7 +77,7 @@ def parse_native(envelope, labels):
     """Native SDK envelope -> Verdict."""
     if not isinstance(envelope, dict):
         return Verdict(None, MALFORMED, repr(envelope)[:400])
-    raw = json.dumps(envelope)[:400]
+    raw = json.dumps(envelope)
     calls = envelope.get("function_calls")
     if calls is None:
         calls = []
@@ -81,16 +94,23 @@ def parse_mlx_text(text, labels):
     the model tried to answer and ran out of budget. That is a defect to count, not a
     silent zero, and it is exactly what the old regex scored as a correct answer.
     """
-    raw = (text or "")[:400]
-    m = _BLOCK.search(text or "")
+    raw = text or ""
+    if not isinstance(raw, str):
+        return Verdict(None, MALFORMED, repr(raw))
+    blocks = list(_BLOCK.finditer(raw))
+    if len(_OPEN.findall(raw)) != raw.count("</tool_call>"):
+        return Verdict(None, MALFORMED, raw)
+    if len(blocks) > 1:
+        return Verdict(None, MULTIPLE, raw)
+    m = blocks[0] if blocks else None
     if not m:
         if _OPEN.search(text or ""):
             return Verdict(None, MALFORMED, raw)   # opened, never closed => truncated
         return Verdict(None, ABSTAIN, raw)
     body = m.group(1).strip()
     try:
-        calls = json.loads(body)
-    except json.JSONDecodeError:
+        calls = json.loads(body, object_pairs_hook=_unique_object)
+    except (ValueError, TypeError):
         return Verdict(None, MALFORMED, raw)
     if isinstance(calls, dict):
         calls = [calls]

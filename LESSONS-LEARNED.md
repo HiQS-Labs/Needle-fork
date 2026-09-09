@@ -353,3 +353,26 @@ the harness is honest.
   on a misread debug line (`[debug] top5:` is next-token logits, not tool retrieval) that would have
   produced meaningless numbers — caught only by decoding the token IDs. Outside review is leverage,
   not an oracle: verify its claims exactly as strictly as your own. (Related: **#10**.)
+
+**Addendum, 2026-09-09 — three more corrections, all from cross-model review (AgentChorus #810993).**
+After the lesson above was written, a three-seat review caught three further errors in my own
+follow-up work. Recording them because the *pattern* is sharper than any single defect:
+
+- **Twice I inferred a mechanism from a debug-output COUNT instead of its decoded CONTENT.**
+  `[debug] top5:` looked like tool retrieval; decoded, it is next-token logits. A +80-token delta
+  looked like extra injected inventory; decoded, it is five *longer* schemas — the engine is a pure
+  fixed-five injection, and my probe had confounded inventory composition with count by slicing
+  `schemas[:N]`. **Decode the bytes before naming the mechanism.**
+- **I ran unpaired two-proportion z-tests on a paired design**, and chose the baseline comparator
+  from the *evaluation* sample rather than training frequency — the same test-set-fitting error as
+  lesson #2 above, committed while that lesson sat in this file. Under exact paired McNemar one of
+  the three "significantly below baseline" claims evaporates (p=0.08).
+- **I asserted a reachability ceiling without testing the assumption under it.** "Gold is in the
+  retrieved five only ~9% of the time, so top-1 is capped near 9%" requires that the engine cannot
+  emit an undeclared label. It can: **24 of 40 predictions fell outside the injected five.**
+  Retrieval biases the output; it does not constrain it.
+
+**The durable rule:** an outside reviewer's *disagreement* is the product; their agreement is nearly
+free. All three catches came from the seat that argued with me, and two of them killed conclusions I
+had already published. Budget for being wrong in public, and make correction cheap — annotate in
+place, keep the original visible, and never let a stale claim sit unmarked while you write the next one.

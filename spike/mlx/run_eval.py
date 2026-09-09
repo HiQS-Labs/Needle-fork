@@ -32,7 +32,14 @@ def sha256(path, cap=1 << 22):
             if not b:
                 break
             h.update(b)
-    return h.hexdigest()[:16]
+    return h.hexdigest()
+
+
+def save_row(args, h, row, verdict):
+    record = {"sha1": h, "gold": row["answers"][0]["name"],
+              "pred": verdict.pred, "status": verdict.status, "raw": verdict.raw}
+    with open(args.row_receipt, "a") as fh:
+        fh.write(json.dumps(record) + "\n")
 
 
 def load_manifest(path):
@@ -66,6 +73,7 @@ def run_engine(args, rows, labels, tools):
             from oracle_scoring import Verdict, ERROR
             v = Verdict(None, ERROR, repr(exc)[:200])
         out.append((h, r, v))
+        save_row(args, h, r, v)
         if len(out) % 100 == 0:
             ok = sum(1 for _, rr, vv in out if vv.status == OK and vv.pred == rr["answers"][0]["name"])
             print(f"  {len(out)}/{len(rows)}  top1 {100*ok/len(out):.1f}%", flush=True)
@@ -120,6 +128,7 @@ def run_mlx(args, rows, labels, _tools):
                 break
         v = parse_mlx_text(tok.decode(gen), labels)
         out.append((h, r, v))
+        save_row(args, h, r, v)
         if len(out) % 20 == 0:
             ok = sum(1 for _, rr, vv in out if vv.status == OK and vv.pred == rr["answers"][0]["name"])
             print(f"  {len(out)}/{len(rows)}  top1 {100*ok/len(out):.1f}%", flush=True)
@@ -158,6 +167,10 @@ def main():
         labels = set(schema["labels"])
     tools = json.dumps(all_schemas, separators=(",", ":"), ensure_ascii=False)
     rows = load_manifest(a.manifest)
+    if not rows or len({h for h, _ in rows}) != len(rows):
+        ap.error("manifest must be nonempty with unique row identities")
+    if len({r.get('system') for _, r in rows}) != 1:
+        ap.error("the native runner requires one shared system prompt")
     if a.declare:
         # the MLX prompt is rendered from the row's own `tools`; rewrite it so both
         # runtimes are shown the same catalogue.
@@ -167,6 +180,29 @@ def main():
     # The suffix is NOT optional: without it an explicit --tag makes the negative control
     # overwrite the run it is meant to control, silently. That happened once already.
     tag = (a.tag or os.path.basename(art)) + ("-noreset" if a.no_reset else "")
+    if not tag or os.path.basename(tag) != tag or tag in (".", ".."):
+        ap.error("tag must be a single directory name")
+    # One directory per invocation; an existing tag is an error, never a retry slot.
+    a.outdir = os.path.join(a.outdir, a.runtime + "-" + tag)
+    os.makedirs(a.outdir, exist_ok=False)
+    a.row_receipt = os.path.join(a.outdir, "rows.jsonl")
+    with open(a.row_receipt, "x"):
+        pass
+    config = {k: v for k, v in vars(a).items() if k != "row_receipt"}
+    config["format_version"] = 2
+    config["completed"] = False
+    config["inputs"] = {k: {"path": os.path.abspath(p), "sha256": sha256(p)}
+                        for k, p in {"manifest": a.manifest, "labels": a.labels,
+                                     "artifact": art,
+                                     **({"checkpoint": a.checkpoint} if a.runtime == "mlx" else {}),
+                                     **({"declaration": a.declare} if a.declare else {})}.items()}
+    config["source_sha256"] = {os.path.basename(p): sha256(p) for p in
+                               (__file__, os.path.join(os.path.dirname(__file__), "oracle_scoring.py"))}
+    config["engine_binary_sha256"] = None  # Unknown until the actual loaded binary is attested.
+    config["session_provenance"] = None
+    config_path = os.path.join(a.outdir, "run.json")
+    with open(config_path, "x") as fh:
+        json.dump(config, fh, indent=2)
     print(f"  runtime   {a.runtime}   artifact {os.path.basename(art)} sha256:{sha256(art)}")
     print(f"  manifest  {os.path.basename(a.manifest)}  {len(rows)} rows"
           f"   reset={'OFF (negative control)' if a.no_reset else 'on'}   max_new={a.max_new_tokens}")
@@ -175,12 +211,7 @@ def main():
     res = (run_engine if a.runtime == "engine" else run_mlx)(a, rows, labels, tools)
     wall = time.time() - t0
 
-    os.makedirs(a.outdir, exist_ok=True)
-    per = f"{a.outdir}/{a.runtime}-{tag}-rows.jsonl"
-    with open(per, "w") as fh:
-        for h, r, v in res:
-            fh.write(json.dumps({"sha1": h, "gold": r["answers"][0]["name"],
-                                 "pred": v.pred, "status": v.status}) + "\n")
+    per = a.row_receipt
     n = len(res)
     counts = {}
     for _, _, v in res:
@@ -206,7 +237,14 @@ def main():
         "status_counts": counts, "wall_s": round(wall, 1),
         "s_per_row": round(wall / max(n, 1), 3), "per_row": per,
     }
-    json.dump(summary, open(f"{a.outdir}/{a.runtime}-{tag}.json", "w"), indent=2)
+    with open(os.path.join(a.outdir, "summary.json"), "x") as fh:
+        json.dump(summary, fh, indent=2)
+    config["completed"] = True
+    config["rows_sha256"] = sha256(per)
+    temporary = config_path + ".pending"
+    with open(temporary, "x") as fh:
+        json.dump(config, fh, indent=2)
+    os.replace(temporary, config_path)
     print(f"\n  TOP-1        {summary['top1_pct']:.2f}%   ({correct}/{n})")
     print(f"  answer rate  {summary['answer_rate_pct']:.2f}%")
     print(f"  statuses     {counts}")

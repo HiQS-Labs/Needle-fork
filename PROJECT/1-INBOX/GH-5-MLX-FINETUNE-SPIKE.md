@@ -197,14 +197,73 @@ per-turn at a fraction of its true size. Training rendered all 44 schemas inline
 (independently re-tokenised). The engine at 44 declared injects roughly **223**, about **16%** of
 what the model was trained on. The Oracle declares 44.
 
-**Refinement of the earlier reading:** 6 and 10 declared tools add ~143 tokens — indistinguishable,
+> **RESOLVED and WITHDRAWN 2026-09-09** by AgentChorus #810993 (agent2 = GPT-6 Astra, agent3 = agy).
+> The text struck through below claimed the engine was *not* a pure fixed-five injection at 44
+> declared. **That was wrong, and the defect was in my probe.** `kv_verify.py` slices
+> `schema["schemas"][:N]`, so raising N changed inventory *composition* as well as count — the first
+> five schemas are short coding tools, the ones retrieval picks at 44 are long governance tools.
+> I inferred a mechanism from token-count subtraction without decoding the content.
+
+~~**Refinement of the earlier reading:** 6 and 10 declared tools add ~143 tokens — indistinguishable,
 and equal to five schemas' worth (144), which is consistent with a fixed five-slot selection. But
-**44 adds ~223, roughly 80 tokens more**, so it is *not* a pure fixed-five injection at that size.
-Tool names alone (259 tokens for 44) do not account for the +80 either. **The mechanism above ten
-declared tools is unexplained**; the earlier claim that saturation extended to 44 was over-read from
-a single row.
+44 adds ~223, roughly 80 tokens more, so it is not a pure fixed-five injection at that size.
+Tool names alone (259 tokens for 44) do not account for the +80 either. The mechanism above ten
+declared tools is unexplained; the earlier claim that saturation extended to 44 was over-read from
+a single row.~~
+
+**What is actually true.** Decoding `[debug] turn ids:` with the checkpoint tokenizer and counting
+`"name"` spans inside the injected `<tools>…</tools>` block — done independently by agent3 and then
+by me — shows **exactly five schemas at every catalogue size**:
+
+| declared | schemas injected | tokens | which |
+|---|---|---|---|
+| 6 | **5** | 137 | apply_patch, pkg_manage, read_file, run_build, run_linter |
+| 10 | **5** | 140 | apply_patch, pkg_manage, read_file, run_script, run_tests |
+| 44 (row 0) | **5** | 218 | update_changelog, update_governance_doc, update_working_doc, cut_release, update_roadmap |
+| 44 (row 1) | **5** | 215 | complete_doc, update_governance_doc, update_working_doc, cut_release, update_roadmap |
+| 44 (row 7) | **5** | 224 | file_capture_doc, update_governance_doc, update_working_doc, cut_release, update_roadmap |
+
+It is a **pure fixed-five injection at all tested sizes**. The +80 is entirely token-length variance:
+at 44 declared, retrieval selects long *governance* schemas. Reproducible via
+`spike/mlx/decode_turn.py`.
+
+**F6 — retrieval is heavily biased and near-constant, but it does NOT constrain the output.**
+On decoded rows at 44 declared, the gold label is among the injected five on **7/77 (9.1%)** in one
+sweep and **2/40 (5.0%)** in a second with per-row exit checks; `update_working_doc` was injected on
+**77/77** rows, `cut_release` 76/77, `update_governance_doc` 75/77.
+
+**I initially read this as a reachability ceiling — that reading is withdrawn.** agent2 challenged
+the assumption underneath it, and the test falsifies it: **24 of 40 predictions fall *outside* the
+injected five.** The engine is not restricted to the retrieved schemas, so recall@5 is **not** a cap
+on top-1, and "the model was choosing correctly from the only five tools it was shown" is wrong.
+Retrieval acts as a strong contextual **bias**, not a hard constraint — restricted availability and a
+model prior toward `update_working_doc` can, and evidently do, coexist. Coverage caveat: the first
+sweep decoded only 77/200 rows, so its population recall is bounded only within 3.5%–65%.
 
 **Measured consequences** (frozen-200, strict validation, majority baseline 15.00%):
+
+> **STATISTICS CORRECTED 2026-09-09** (AgentChorus #810993, agent2). The comparisons against the
+> baseline below were originally made with **unpaired two-proportion z-tests on a paired design** —
+> the wrong test. They are restated with exact paired McNemar, and the comparator is now the
+> **training-derived** rule (`read_file`, 14.00% here) rather than the evaluation-sample majority
+> (`search_code`, 15.00%): choosing the comparator from the test set is the same error as
+> LESSONS-LEARNED #2, repeated. Recomputed and verified by me:
+>
+> | comparison | discordant | exact p | verdict |
+> |---|---|---|---|
+> | QAT@44 vs `read_file` | 3/28 | <0.0001 | significantly below |
+> | base@44 vs `read_file` | 7/25 | 0.0021 | significantly below |
+> | **PTQ@44 vs `read_file`** | 14/26 | **0.0807** | **NOT significant — claim withdrawn** |
+> | PTQ@44 vs `search_code` | 15/29 | 0.0488 | barely nominal |
+> | **QAT@5 vs `read_file`** | 29/27 | **0.8939** | no difference detected |
+> | QAT@5 vs `search_code` | 23/23 | **1.0000** | no difference **in either direction** |
+>
+> So "all three artifacts are significantly below the majority baseline" is **narrowed**: it holds
+> for QAT@44 and base@44, and fails for PTQ@44 against the deployable rule. And fixed-five is not
+> "at baseline" — it shows **no detectable signal either way**, which is a stronger reason not to
+> ship it. **Unverified caveat, raised by agent2 and not closed:** receipts carry no session IDs, so
+> row independence is unestablished; clustering would affect every row-level p-value here, not only
+> the marginal ones.
 
 | declared | artifact | engine top-1 | MLX top-1 |
 |---|---|---|---|
