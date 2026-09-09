@@ -11,8 +11,12 @@ SPIKE = Path(__file__).resolve().parents[1] / 'spike' / 'mlx'
 # These gates are spike-scoped: the modules live outside the packaged `needle*` tree.
 # `tests/` is the release train's gate (pyproject testpaths, release.yaml), so a missing
 # spike directory must skip, never fail the release.
-if not (SPIKE / 'audit_round.py').is_file():
-    pytest.skip('spike/mlx audit scripts absent; #14 gates are spike-scoped',
+# Skip only when the whole spike is absent -- a branch that does not carry it. If the
+# directory EXISTS but the module is gone, that is the feature being deleted out from
+# under its own tests, and it must fail loudly (agent2, #729301). A guard that goes green
+# when the thing it guards disappears is the defect this suite exists to catch.
+if not SPIKE.is_dir():
+    pytest.skip('spike/mlx absent on this branch; #14 gates are spike-scoped',
                 allow_module_level=True)
 sys.path.insert(0, str(SPIKE))
 import audit_round as audit
@@ -33,7 +37,8 @@ def frozen(tmp_path):
     lines = [json.dumps(r) for r in records]
     manifest.write_text('\n'.join(lines) + '\n')
     train = tmp_path / 'train.jsonl'
-    train.write_text('\n'.join(json.dumps({'answers': [{'name': 'b'}]}) for _ in range(3)))
+    train.write_text('\n'.join(json.dumps({'query': f'train-{i}', 'answers': [{'name': 'b'}]})
+                               for i in range(3)))
     rows = tmp_path / 'rows.jsonl'
     receipts = [{'sha1': hashlib.sha1(line.encode()).hexdigest(), 'gold': r['answers'][0]['name'],
                  'status': 'ok', 'pred': g,
@@ -264,3 +269,25 @@ def test_review_gates_are_named_and_cannot_be_earned_by_a_script(frozen):
     assert result['deterministic_status'] == 'PASS'
     assert result['status'] == 'INCOMPLETE'
     assert result['multiplicity']['n_comparisons'] == len(result['comparisons'])
+
+
+def test_ambiguous_sessions_are_not_silently_attributed(tmp_path):
+    """RED CONTROL for session_clustering: a query reachable from two sessions is unassignable.
+
+    The first version kept whichever session was read first and counted the rest as
+    "collisions", so an unassignable row was silently attributed to one of them and the
+    table still printed as though it covered the whole manifest.
+    """
+    import session_clustering as sc
+    shared = {'recent_user_request': 'same request', 'prior_actions': ['read_file']}
+    pairs = tmp_path / 'pairs.jsonl'
+    pairs.write_text('\n'.join(json.dumps(r) for r in [
+        {**shared, 'session': 'sess_a'},
+        {**shared, 'session': 'sess_b'},                       # same query, different session
+        {'recent_user_request': 'unique', 'prior_actions': ['read_file'], 'session': 'sess_c'},
+    ]) + '\n')
+    index = sc.query_to_sessions(pairs)
+    assert sorted(len(v) for v in index.values()) == [1, 2], \
+        'both candidate sessions must be retained, not first-writer'
+    ambiguous = [q for q, v in index.items() if len(v) > 1]
+    assert len(ambiguous) == 1 and index[ambiguous[0]] == {'sess_a', 'sess_b'}

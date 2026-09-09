@@ -128,11 +128,22 @@ def audit(config, root):
         train_q = {json.dumps(row['query'], sort_keys=True) for _, row in train_rows if 'query' in row}
         query = sum('query' in row and json.dumps(row['query'], sort_keys=True) in train_q
                     for _, row in source)
+        # Coverage, because a query test over rows that carry no query field returns a
+        # clean zero for want of evidence rather than for want of overlap (agent2, #729301).
+        train_q_rows = sum('query' in row for _, row in train_rows)
+        eval_q_rows = sum('query' in row for _, row in source)
         report['baseline_fit_leakage'] = {'exact_row_overlap': exact, 'query_overlap': query,
-                                          'evaluation_n': len(source), 'training_n': len(train_rows)}
+                                          'evaluation_n': len(source), 'training_n': len(train_rows),
+                                          'training_query_coverage': train_q_rows,
+                                          'evaluation_query_coverage': eval_q_rows}
         if exact or query:
             raise ValueError(f'baseline-fitting file overlaps the evaluation manifest '
                              f'({exact} identical rows, {query} identical queries)')
+        if train_q_rows < len(train_rows) or eval_q_rows < len(source):
+            note('G0_inputs', 'INCOMPLETE',
+                 f'query-identity leakage test is partial: {len(train_rows) - train_q_rows} '
+                 f'training and {len(source) - eval_q_rows} evaluation rows carry no query '
+                 f'field, so a zero query overlap is not evidence of disjointness')
     except (ValueError, KeyError, IndexError, TypeError) as exc:
         note('G0_inputs', 'FAIL', str(exc))
         return finish(report)
