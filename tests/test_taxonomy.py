@@ -520,3 +520,75 @@ def test_an_option_value_is_data_not_command_text(cmd, expected):
     """A flag's argument was kept verbatim in the region, so a path handed to `-C`
     was searchable by the governance rules and spoofed `run_validate`."""
     assert tx.label_bash(cmd)[0] == expected
+
+
+# --- MUTATION CONTROLS ----------------------------------------------------------
+# A table-membership assertion shows a program is unlisted; it does NOT show that the
+# positional guard is the reason a test passes. These disable the guard and require
+# the controls to go red, which is the only way to prove the guard is load-bearing
+# (agent2, AgentChorus #309930). Without them the suite could pass for the wrong
+# reason -- exactly how the first class-level control came to be decorative.
+
+def test_disabling_the_positional_restriction_makes_the_class_controls_fail(monkeypatch):
+    """Restore whole-segment matching: every operand must spoof its rule again."""
+    monkeypatch.setattr(tx, "command_region", lambda seg: seg)
+    spoofed = [
+        ("chmod +x validate.sh",            "run_validate"),
+        ("stat validate.sh",                "run_validate"),
+        ("tar -czf backup.tgz validate.sh", "run_validate"),
+        ("echo pytest",                     "run_tests"),
+    ]
+    for cmd, wrong in spoofed:
+        assert tx.label_bash(cmd)[0] == wrong, (
+            f"{cmd!r} did not revert to {wrong} with the guard disabled -- the "
+            "control is passing for some other reason and proves nothing")
+
+
+def test_the_requirements_txt_fix_is_a_RULE_change_not_the_positional_guard(monkeypatch):
+    """Attribution control, and it caught me mis-crediting a fix.
+
+    `touch requirements.txt` was in the positional mutation list above, but it does
+    NOT revert when the guard is disabled: it was fixed by deleting the bare
+    `requirements.txt` alternative from the pkg_manage rule, since a real install
+    already matches through its package manager. Two mechanisms landed in one PR and
+    I credited the wrong one. Pinning both halves so the attribution stays honest.
+    """
+    monkeypatch.setattr(tx, "command_region", lambda seg: seg)
+    assert tx.label_bash("touch requirements.txt")[0] == "fs_mutate", \
+        "with the positional guard disabled this must STILL be right -- a rule fix"
+    assert not any("requirements" in pattern for _, pattern in tx.BASH_RULES
+                   if _ == "pkg_manage"), "the operand-driven alternative must stay gone"
+    assert tx.label_bash("pip install -r requirements.txt")[0] == "pkg_manage", \
+        "a real install must still be package management"
+
+
+def test_disabling_the_invocation_gate_lets_display_text_spoof_governance(monkeypatch):
+    """Remove the role gate: printed text must be able to spoof a governance move."""
+    monkeypatch.setattr(tx, "ANY_POSITION_GATE",
+                        {name: (lambda clause: True) for name in tx.ANY_POSITION})
+    assert tx.label_bash("echo mv PROJECT/1-INBOX/a.md PROJECT/2-WORKING/a.md")[0] == "promote_capture"
+    assert tx.label_bash("echo releases_app.py roadmap add")[0] == "park_roadmap_row"
+
+
+def test_the_guards_are_what_make_the_real_cases_pass():
+    """Green side of the two mutations above, at the same revision."""
+    assert tx.label_bash("chmod +x validate.sh")[0] == "fs_mutate"
+    assert tx.label_bash("stat validate.sh")[0] == "unmapped"
+    assert tx.label_bash("echo mv PROJECT/1-INBOX/a.md PROJECT/2-WORKING/a.md")[0] == "unmapped"
+    # ...while the real invocations they guard still land.
+    assert tx.label_bash("mv PROJECT/1-INBOX/a.md PROJECT/2-WORKING/a.md")[0] == "promote_capture"
+    assert tx.label_bash("./validate.sh")[0] == "run_validate"
+
+
+@pytest.mark.parametrize("cmd,expected", [
+    ("echo mv PROJECT/1-INBOX/a.md PROJECT/2-WORKING/a.md",   "unmapped"),
+    ("echo releases_app.py roadmap add",                      "unmapped"),
+    ('mv "PROJECT/1-INBOX/a.md" "PROJECT/2-WORKING/a.md"',    "promote_capture"),
+    ('git mv "PROJECT/2-WORKING/a.md" "PROJECT/3-COMPLETED/a.md"', "complete_doc"),
+    ("python3 .xyz/utils/py/releases_app.py roadmap add",     "park_roadmap_row"),
+])
+def test_role_is_established_before_operands_are_read(cmd, expected):
+    """Blanket quote-blanking failed in BOTH directions: it left unquoted display data
+    spoofing governance, and destroyed the operands of a real move written with quoted
+    paths. The rule is role first, then operands with their values intact."""
+    assert tx.label_bash(cmd)[0] == expected

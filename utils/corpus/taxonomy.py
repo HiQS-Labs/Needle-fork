@@ -337,11 +337,45 @@ _SUBCOMMAND_DEPTH = {"docker": 1, "podman": 1, "make": 1}
 EXECUTORS = {"bash", "sh", "zsh", "ksh", "dash", "source", ".",
              "python", "python3", "node", "npx", "ruby", "perl", "swift",
              "deno", "tsx", "osascript"}
-# Rules that must keep reading OPERANDS rather than only the command position: a
-# directory move, or a specific command sequence. They are not immune to spoofing --
-# quoted text is blanked for them too, because a printed copy of the pattern is a
-# display, not the action.
+# Rules that read OPERANDS rather than only the command position: a directory move,
+# or a specific command sequence.
+#
+# Blanking quoted text for them was too blunt in BOTH directions (agent2, #309930):
+# it did nothing about UNQUOTED display data (`echo mv PROJECT/1-INBOX/a ...` still
+# scored promote_capture) and it destroyed the operands of a REAL move written with
+# quoted paths. The rule is not "quoted text is data"; it is:
+#
+#   establish the command's ROLE first, then read its operands with values intact.
+#
+# So each of these carries a gate naming the invocation it describes. The gate is
+# tested per clause, because a heredoc keeps `mkdir ... && git mv ...` in one segment.
 ANY_POSITION = {"promote_capture", "complete_doc", "park_roadmap_row"}
+
+
+def _is_move(clause: str) -> bool:
+    lead = leading_program(clause)
+    return lead == "mv" or (lead == "git" and _second_token(clause) == "mv")
+
+
+def _is_roadmap_tool(clause: str) -> bool:
+    return "releases_app.py" in command_region(clause)
+
+
+# Gate per operand-reading rule: does this clause actually INVOKE the thing?
+ANY_POSITION_GATE = {"promote_capture": _is_move, "complete_doc": _is_move,
+                     "park_roadmap_row": _is_roadmap_tool}
+
+
+def _operand_clauses(seg: str):
+    """Clauses of a segment, with quote CHARACTERS removed but values preserved.
+
+    A real move may quote its paths (`mv "PROJECT/1-INBOX/a.md" ...`); blanking the
+    content lost the very operands the rule exists to read.
+    """
+    for clause in re.split(r"&&|\|\||;", seg):
+        clause = clause.strip()
+        if clause:
+            yield clause, clause.replace('"', "").replace("'", "")
 _HEREDOC_BODY = re.compile(r"<<-?\s*'?[A-Za-z_]")
 _REDIRECT = re.compile(r"\s*\d?(?:>>|>|<)\s*\S+")
 # `cat > file <<EOF` WRITES a file -- the redirection is the whole action, and
@@ -591,15 +625,16 @@ def label_segment(seg: str) -> str | None:
     # by diffing a re-extraction.
     for name, rx in BASH_RE:
         if name in ANY_POSITION:
-            # The WHOLE segment, not the reduced clause: a heredoc keeps
+            # Per CLAUSE of the whole segment, because a heredoc keeps
             # `mkdir -p PROJECT/3-COMPLETED && git mv PROJECT/2-WORKING/x ...` in one
-            # piece, and reducing to the first clause hid the completion behind mkdir.
-            # But quoted text is data here too -- these rules read operands, never
-            # display strings (agent2, AgentChorus #309930).
-            hay = _QUOTED.sub('""', full)
-        else:
-            hay = region
-        if rx.search(hay):
+            # piece. A clause counts only when it actually invokes the operation --
+            # otherwise `echo mv PROJECT/1-INBOX/a ...` is a promotion, quoted or not.
+            gate = ANY_POSITION_GATE[name]
+            if any(gate(clause) and rx.search(unquoted)
+                   for clause, unquoted in _operand_clauses(full)):
+                return name
+            continue
+        if rx.search(region):
             return name
     # A heredoc means script content is being fed in -- but only once nothing else
     # matched. Testing it INSIDE the ordered pass made every rule after run_script
