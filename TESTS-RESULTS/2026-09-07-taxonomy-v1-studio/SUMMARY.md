@@ -4,6 +4,13 @@
 mounted read-only over SMB · **Label set:** `v1.0.0-draft` (44 labels)
 · **Issue:** [Needle-fork#1](https://github.com/HiQS-Labs/Needle-fork/issues/1) §1, §2
 
+> **Status 2026-09-09: STALE — measured under superseded rules.** #16 corrected
+> positional label assignment (322 labels move on the local corpus). The numbers
+> below stand as the record of what this run measured and are **not edited**; they
+> are no longer evidence about the current mapper. The §2 gate is re-opened in
+> `PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md` until the Studio corpus is
+> re-extracted. See `../2026-09-09-taxonomy-positional-fix/`.
+
 Supersedes the local-sample measurement in `../2026-09-07-taxonomy-v1/`, which was
 17 transcripts on the MacBook and could validate the mechanism but not size the
 label set. This is the real corpus.
