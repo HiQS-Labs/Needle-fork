@@ -14,7 +14,14 @@
 
 | What was just completed | What's next |
 |---|---|
-| Phase 2 §3 `query` serialization shipped as one shared function for trainer and Stop hook, with the train/serve invariant as a test; token budget measured (schemas alone = 1,383 tokens) so §4 trains at `--max-len 2048` (2026-09-07). | Cut `v1.0.0-draft` → `v1.0.0`; first `needle finetune` run on JAX/CPU at `--max-len 2048`; §3b/§3c synthesis for the abstain slice and three thin governance labels. |
+| Phase 2 §3 `query` serialization shipped as one shared function for trainer and Stop hook, with the train/serve invariant as a test; token budget measured (schemas alone = 1,383 tokens) so §4 trains at `--max-len 2048` (2026-09-07). | **[#2](https://github.com/HiQS-Labs/Needle-fork/issues/2) first — it blocks cutting `v1.0.0-draft` → `v1.0.0`.** Then [#13](https://github.com/HiQS-Labs/Needle-fork/issues/13)'s prediction-boundary/provenance preflight. §3b/§3c synthesis stays queued. |
+
+> **Corrected 2026-09-09.** This cell previously read *"first `needle finetune` run on JAX/CPU at
+> `--max-len 2048`"*. That was superseded on 2026-09-07 by
+> [#1's §4 decision](https://github.com/HiQS-Labs/Needle-fork/issues/1#issuecomment-5574864887):
+> measured at ~150 s/step and ~127 h/epoch, the CPU path does not finish, and §4 is satisfied by MLX
+> on the GPU (§4 and GH-5 are one lane). The pointer kept instructing that run after the measurement
+> that killed it. `--max-len 2048` itself stands — it prevents target truncation.
 
 ## Ledger
 
