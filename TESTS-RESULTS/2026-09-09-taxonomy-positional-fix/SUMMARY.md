@@ -1,8 +1,13 @@
 # Taxonomy #2 — argument positions are no longer read as invocations
 
 **Date:** 2026-09-09 · **Issue:** [#2](https://github.com/HiQS-Labs/Needle-fork/issues/2) · **Blocks:** `v1.0.0` cut
-**Supersedes the mapping numbers in:** `TESTS-RESULTS/2026-09-07-taxonomy-v1-studio/`
-**Revised after an adversarial review by agy** (relay-xyz, review-only) failed the first attempt.
+**Supersedes:** nothing in `TESTS-RESULTS/2026-09-07-taxonomy-v1-studio/`. That receipt measured the
+**Studio corpus**; this one measures **local transcripts only**. The Studio numbers are *stale* —
+this mapper changes them — but they are **not superseded by measurement**, because the re-extraction
+has not run. Do not read this receipt as replacing them. (An earlier draft claimed supersession while
+also calling them un-remeasured; agent2 caught the contradiction, AgentChorus #309930.)
+**Revised twice after adversarial review** — by agy (relay-xyz) and by agent2 — each of which failed
+the preceding head.
 
 ## What changed
 
@@ -31,27 +36,30 @@ content producer a write; a heredoc selects `run_script` only as a **fallback**.
 
 | Check | Result |
 | --- | --- |
-| `pytest -q -m "not slow"` | **236 passed**, 6 skipped, 6 deselected |
-| New regression tests | 62 |
+| `pytest -q -m "not slow"` | **244 passed**, 6 skipped, 6 deselected |
+| New regression tests | 70 |
 | Red before green | 25 witnessed failing against the pre-fix module; the 23 round-two cases all reproduced as defects before being fixed |
 | The 14 instances reported in #2 | all re-labelled |
 | agy's findings | 21 of 23 resolved; 2 are documented limitations below |
+| agent2's five further escapes | **5 of 5 resolved**, each reproduced first |
 
 ## Corpus impact — local transcripts
 
-Measured on **2,087 Bash commands**, labelled by both mappers.
+Measured on **2,098 Bash commands**, labelled by both mappers. (The source is live — this session
+appends to it — so the denominator drifts slightly between runs.)
 
 | Metric | Before | After |
 | --- | --- | --- |
-| Mapping coverage | 98.85% | **97.99%** |
-| Commands whose label changed | — | **315 (15.1%)** |
+| Mapping coverage | 98.81% | **97.95%** |
+| Commands whose label changed | — | **319 (15.2%)** |
 
 Largest movements: `run_script` −166, `apply_patch` +136, `fs_mutate` +29, `unmapped` +18.
 The dominant transition is `cat > file <<'EOF'` → `apply_patch`: writing a source file.
 
-**Governance labels lost: 2, both verified false positives** — a relay-harness *locator* that names
-relay scripts in a candidate-path loop, and a `gh issue create --title` whose text mentioned `pdda`.
-That second one is the bug class exactly. No true governance positive lost.
+**Governance labels lost: 3, each verified a false positive; 0 gained.** A relay-harness *locator*
+naming relay scripts in a candidate-path loop; a `gh issue create --title` whose text mentioned
+`pdda`; and a heredoc **writing a test file** whose body contains the promotion pattern — authoring a
+test about a doc move is not moving a doc. No true governance positive lost.
 
 **`run_tests` 22 → 14, adjudicated command by command.** The first attempt claimed the whole coverage
 drop was false-positive elimination; agy showed that was false, and it was. After the fixes, six of
@@ -82,5 +90,13 @@ only by diffing a re-extraction, and six more only by adversarial review:
    to remove, reintroduced by its own fix.
 5. The class-level control was decorative: the programs it named were enumerated in the same diff.
 6. Blanking quotes before tokenising destroyed quoted operands, dropping real test runs.
+7. A flag's ARGUMENT stayed in the region as searchable command text, so
+   `git -C /tmp/validate.sh status` scored `run_validate`.
+8. The operand-reading rules searched the raw segment, so `echo "mv PROJECT/1-INBOX/a …"` scored
+   `promote_capture`. **"Path-shaped rules cannot be spoofed by operands" was false**, and
+   `park_roadmap_row` is a command sequence rather than a path move at all.
+
+The governing principle, arrived at only after three rounds: **option values and quoted text are data
+everywhere** — in the command region, and in the rules that read operands.
 
 Rule *precedence* is load-bearing: the fix changes only the haystack each rule sees, never the order.

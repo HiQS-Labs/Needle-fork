@@ -487,3 +487,36 @@ def test_heredoc_is_a_fallback_not_a_preemption(cmd, expected):
 ])
 def test_global_options_do_not_hide_the_subcommand(cmd, expected):
     assert tx.label_bash(cmd)[0] == expected
+
+
+# --- #2 round 3: escapes found by agent2 (AgentChorus #309930) -------------------
+# Contrast pairs. Each REAL invocation must keep its label while an INERT copy of the
+# same trigger -- quoted, or sitting in an option value -- must not acquire it. A
+# suite that only asserts `unmapped` can pass by labelling nothing.
+
+@pytest.mark.parametrize("real,inert,label", [
+    # a genuine PDDA promotion vs. a printed copy of one
+    ("mv PROJECT/1-INBOX/a.md PROJECT/2-WORKING/a.md",
+     'echo "mv PROJECT/1-INBOX/a.md PROJECT/2-WORKING/a.md"', "promote_capture"),
+    ("git mv PROJECT/2-WORKING/a.md PROJECT/3-COMPLETED/a.md",
+     'echo "git mv PROJECT/2-WORKING/a.md PROJECT/3-COMPLETED/a.md"', "complete_doc"),
+    ("releases_app.py roadmap add",
+     'echo "releases_app.py roadmap add"', "park_roadmap_row"),
+    ("./validate.sh",
+     'python3 -c "print(\'./validate.sh\')"', "run_validate"),
+])
+def test_an_inert_copy_of_a_trigger_does_not_acquire_its_label(real, inert, label):
+    assert tx.label_bash(real)[0] == label, "the real invocation must still be caught"
+    assert tx.label_bash(inert)[0] != label, "a printed copy is a display, not the act"
+
+
+@pytest.mark.parametrize("cmd,expected", [
+    ("git -C /tmp/validate.sh status",   "git_inspect"),
+    ("make -C /tmp/validate.sh test",    "run_tests"),
+    ("git -C /repo status",              "git_inspect"),   # positive control
+    ("make -C /repo test",               "run_tests"),     # positive control
+])
+def test_an_option_value_is_data_not_command_text(cmd, expected):
+    """A flag's argument was kept verbatim in the region, so a path handed to `-C`
+    was searchable by the governance rules and spoofed `run_validate`."""
+    assert tx.label_bash(cmd)[0] == expected

@@ -337,7 +337,10 @@ _SUBCOMMAND_DEPTH = {"docker": 1, "podman": 1, "make": 1}
 EXECUTORS = {"bash", "sh", "zsh", "ksh", "dash", "source", ".",
              "python", "python3", "node", "npx", "ruby", "perl", "swift",
              "deno", "tsx", "osascript"}
-# Rules that must keep reading operands: they match a PATH SHAPE, not a name.
+# Rules that must keep reading OPERANDS rather than only the command position: a
+# directory move, or a specific command sequence. They are not immune to spoofing --
+# quoted text is blanked for them too, because a printed copy of the pattern is a
+# display, not the action.
 ANY_POSITION = {"promote_capture", "complete_doc", "park_roadmap_row"}
 _HEREDOC_BODY = re.compile(r"<<-?\s*'?[A-Za-z_]")
 _REDIRECT = re.compile(r"\s*\d?(?:>>|>|<)\s*\S+")
@@ -437,7 +440,7 @@ def command_region(seg: str) -> str:
                 # `-c`/`-e` introduce inline CODE, not a script path, so what
                 # follows is data: `python3 -c "print('ruff')"` is not a linter run.
                 inline = tok in _INLINE_CODE_FLAGS
-                prev_flag = "=" not in tok and tok != "--"
+                prev_flag = not tok.startswith("--") and "=" not in tok
                 continue
             out.append(text(tok, keep=not inline))
             if not prev_flag:
@@ -458,13 +461,19 @@ def command_region(seg: str) -> str:
             # `--flag=value` carries its own argument, and the value is where a path
             # like `--output=/tmp/validate.sh` hides. Keep the flag, drop the value.
             out.append(tok.split("=", 1)[0])
-            prev_flag = "=" not in tok
+            # Only a SHORT flag takes a separate argument (`-C /repo`, `-m msg`). A
+            # long flag is either `--flag=value` or boolean, so assuming it consumed
+            # the next token swallowed the subcommand: `git --no-pager diff`.
+            prev_flag = not tok.startswith("--") and "=" not in tok
             continue
         if prev_flag:
-            # A flag's argument (`git -C /repo status`): keep it, but it is not a
-            # subcommand, so it must not consume depth -- that truncated
-            # `make -C /repo test` before `test`.
-            out.append(text(tok))
+            # A flag's argument (`git -C /repo status`) is DATA, not command text:
+            # emitted as an empty placeholder so the `-C <arg>` shape the git rules
+            # match on survives while the value cannot be read as an invocation.
+            # Keeping the value let `git -C /tmp/validate.sh status` score
+            # run_validate (agent2, AgentChorus #309930). It also must not consume
+            # subcommand depth -- that truncated `make -C /repo test` before `test`.
+            out.append('""')
             prev_flag = False
             continue
         if _FILEISH.search(tok):
@@ -585,7 +594,9 @@ def label_segment(seg: str) -> str | None:
             # The WHOLE segment, not the reduced clause: a heredoc keeps
             # `mkdir -p PROJECT/3-COMPLETED && git mv PROJECT/2-WORKING/x ...` in one
             # piece, and reducing to the first clause hid the completion behind mkdir.
-            hay = full             # path-shaped: an operand cannot spoof a directory move
+            # But quoted text is data here too -- these rules read operands, never
+            # display strings (agent2, AgentChorus #309930).
+            hay = _QUOTED.sub('""', full)
         else:
             hay = region
         if rx.search(hay):
