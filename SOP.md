@@ -237,3 +237,28 @@ local call — `AGENTS.md` §8 still applies.
 - **Recording a decision in exactly one place.** A decision that lives only in a doc is invisible to
   whoever is editing the code, and a decision that lives only in a code comment is invisible to
   whoever is reading the plan. §4 step 5 requires both.
+
+## 6. Repeatable evidence gates for each experimental round
+
+Use the [round contract and commands](doc/experiment-rounds.md) for testing, analysis,
+and next-step generation in every phase. Freeze the question, inputs, expected count,
+comparisons, falsifier, thresholds, and resource cap before measurement. Retain complete
+raw evidence and immutable run identities; derive published counts from the offline
+`spike/mlx/audit_round.py` report rather than terminal excerpts or remembered summaries.
+
+PASS, FAIL, and INCOMPLETE describe individual evidence checks, not whether a model is
+useful. Both FAIL and INCOMPLETE block dependent claims, but a FAIL is a contradiction
+and outranks an INCOMPLETE when choosing what to repair first. Gates a script can decide
+are reported separately from gates only a person can close; the overall disposition
+cannot read PASS while a review gate is open. A comparator must never be fitted on the
+rows it is scored against, and the audit measures that disjointness rather than trusting
+a file's name. Current offline checks establish
+identity, available raw-output scoring, and paired arithmetic; served-token semantics,
+sampling independence, causal interpretation, and product decisions still require an
+explicit evidence-linked review. Do not turn those unknowns green by assertion.
+
+Choose one bounded next action from the first unresolved prerequisite or the cheapest
+experiment that can change the decision; record its falsifier and stop cap. Two review
+revision rounds maximum, then a named blocker, explicit stop, or maintainer adjudication
+under §4. Preserve dissent and superseded claims. Debugging follows reproduce → trace →
+falsify → cross-reference; every implemented gate must have a witnessed negative control.

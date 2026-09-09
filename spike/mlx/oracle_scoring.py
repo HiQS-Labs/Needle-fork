@@ -76,7 +76,7 @@ def _finish(calls, labels, raw):
 def parse_native(envelope, labels):
     """Native SDK envelope -> Verdict."""
     if not isinstance(envelope, dict):
-        return Verdict(None, MALFORMED, repr(envelope)[:400])
+        return Verdict(None, MALFORMED, repr(envelope))
     raw = json.dumps(envelope)
     calls = envelope.get("function_calls")
     if calls is None:

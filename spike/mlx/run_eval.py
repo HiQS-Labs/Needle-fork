@@ -71,7 +71,7 @@ def run_engine(args, rows, labels, tools):
             v = parse_native(env, labels)
         except Exception as exc:                                  # noqa: BLE001
             from oracle_scoring import Verdict, ERROR
-            v = Verdict(None, ERROR, repr(exc)[:200])
+            v = Verdict(None, ERROR, repr(exc))
         out.append((h, r, v))
         save_row(args, h, r, v)
         if len(out) % 100 == 0:
@@ -159,6 +159,8 @@ def main():
     all_schemas = schema["schemas"]
     if a.declare:
         keep = json.load(open(a.declare))
+        if not isinstance(keep, list) or not keep or len(set(keep)) != len(keep):
+            ap.error("declaration must be a nonempty list of unique labels")
         by = {t["name"]: t for t in all_schemas}
         all_schemas = [by[n] for n in keep]
         labels = set(keep)
@@ -191,6 +193,7 @@ def main():
     config = {k: v for k, v in vars(a).items() if k != "row_receipt"}
     config["format_version"] = 2
     config["completed"] = False
+    config["declared_names"] = sorted(labels)
     config["inputs"] = {k: {"path": os.path.abspath(p), "sha256": sha256(p)}
                         for k, p in {"manifest": a.manifest, "labels": a.labels,
                                      "artifact": art,
@@ -198,6 +201,11 @@ def main():
                                      **({"declaration": a.declare} if a.declare else {})}.items()}
     config["source_sha256"] = {os.path.basename(p): sha256(p) for p in
                                (__file__, os.path.join(os.path.dirname(__file__), "oracle_scoring.py"))}
+    config["environment"] = {"python": sys.version, "platform": sys.platform,
+                              "executable": sys.executable}
+    tokenizer_path = os.path.join(os.path.dirname(__file__), "../../needle/model/tokenizer.model")
+    config["tokenizer_file_sha256"] = sha256(tokenizer_path) if os.path.isfile(tokenizer_path) else None
+    config["tokenizer_note"] = "Local file identity only; native tokenizer identity is not attested."
     config["engine_binary_sha256"] = None  # Unknown until the actual loaded binary is attested.
     config["session_provenance"] = None
     config_path = os.path.join(a.outdir, "run.json")
