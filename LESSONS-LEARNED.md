@@ -249,6 +249,23 @@ If a number needs a specific framing to look good, that framing is the finding.
 
 ## 11. The eval number is not the deployed number — score the artifact you ship
 
+> **CORRECTED 2026-09-09 (D10, [#12](https://github.com/HiQS-Labs/Needle-fork/issues/12)).** The
+> headline of this lesson survives — it is *more* true than when written — but **the evidence below
+> is wrong and the causal claim is withdrawn.** The 8–10% was precision-when-answering from a
+> harness that discarded every second row, scored on a sample with zero abstention rows. Post-training
+> quantisation does **not** destroy the fine-tune: measured properly, the 2k PTQ artifact works
+> (8.00% top-1 at 44 declared, 8.50% at 5). The deployed collapse was the engine's ≥6-tool
+> declaration contract, which degrades the *base* model too.
+>
+> The bullet below asserting "QAT is not an optimisation; it is the deployment contract" is
+> withdrawn as stated: QAT training turned out to be neither the problem nor the fix. It is the best
+> artifact once the contract is sound, and the worst when measured under the broken one.
+>
+> The one claim here still standing: tuned + PTQ generating `<think> } } } }` **on MLX with no
+> engine** remains unexplained and unreproduced. See D7's annotation in the spike doc.
+>
+> The durable version of this lesson is **#13**, which is what the evidence actually supports.
+
 The 2k adapter scored **24.1%** top-1 when ranked at fp32 on MLX and **8–10%** through
 `needle build` → `.cact` → native engine, with degenerate reasoning (`LAST: read_file -> }] }] }]`).
 Four isolating experiments falsified the plausible suspects one by one — byte-identical tools
@@ -288,3 +305,51 @@ evidence. `TESTS-RESULTS/2026-09-07-mlx-spike/p3-qat-parity.json`.
 **Lesson:** when a parity gate fails by a little, the two honest moves are "find the bug" or "prove
 the residual is inherent, with a mechanism and a number". "It's probably fine" is neither. D4 and D8
 both restated a criterion; both did it with the evidence unchanged and the mechanism named.
+
+---
+
+## 13. Validate the measurement before you optimise against it — and make the control fail on purpose
+
+Added 2026-09-09. This is the durable replacement for the withdrawn causal claim in **#11**; the
+full trail is D10 in the spike doc and [#12](https://github.com/HiQS-Labs/Needle-fork/issues/12).
+
+An entire chain of work — D7's diagnosis, D8's parity gate, the MLX QAT port, a 4-hour 10k retrain,
+and two GitHub issues — was built on a deployed number produced by a harness with **three** defects,
+none in the model:
+
+1. **A reused engine handle.** The engine is conversational; `complete()` continues the prior turn
+   and never calls the `needle_reset()` that exists in the library. A reused instance answered every
+   *other* row — a perfect `Y n Y n` alternation.
+2. **Unpaired samples.** `load_rows(n=60)` and `load_rows(n=200)` share a seed but reservoir-sample
+   *different sets*. The headline "21.67% MLX vs 3.00% engine" compared **zero overlapping rows**.
+3. **A scorer that credited failure.** A regex searching output for `"name"` accepted truncated JSON
+   (`<tool_call>[{"name":"run_script"` scored as a correct answer), and "precision when answering"
+   was reported on a sample containing **zero abstention rows**, so it conditioned away half the
+   failures by construction.
+
+The control that would have caught all of it — score the **base, un-fine-tuned** model through the
+same path — is a two-minute run. It was not done until after the retrain. It immediately showed the
+untuned base *outscoring* the tuned artifact, which is impossible if the fine-tune is working and
+the harness is honest.
+
+**Lessons:**
+
+- **Step 1 of the debug mantra is "reproduce reliably", and a number from an unvalidated harness is
+  not a reproduction.** Before optimising against any metric, run the one control whose expected
+  result you already know. If a fine-tune cannot beat its own base model, stop and suspect the ruler.
+- **A negative control must be *run* and *seen to fail*, not merely designed.** `--no-reset` earns
+  its place because it visibly halves the answer rate; six scorer cases earn theirs because they
+  return the wrong answer under the old regex. A control that has never failed is decoration.
+  (Related: **#7** — a check that passes on empty input is not a check.)
+- **Name the metric precisely enough that it cannot flatter.** "Precision when answering" hid the
+  failures; top-1 over all rows could not. The moment a denominator excludes a failure mode, it will.
+- **Harness bugs outnumbered model bugs three to nil here** — and two more were caught mid-session
+  (a negative control that overwrote the run it controlled because a `--tag` suppressed its filename
+  suffix; a shell chain that reported exit 0 while all four commands failed). Budget review effort
+  for the measurement code at least equal to the model code, and prefer per-row receipts over
+  aggregates so a wrong number can be traced instead of re-argued.
+- **Cross-model review found the sample defect that self-review missed.** Two advisors reviewed the
+  same write-up; the disjoint-sample finding came from outside. It also proposed an experiment built
+  on a misread debug line (`[debug] top5:` is next-token logits, not tool retrieval) that would have
+  produced meaningless numbers — caught only by decoding the token IDs. Outside review is leverage,
+  not an oracle: verify its claims exactly as strictly as your own. (Related: **#10**.)

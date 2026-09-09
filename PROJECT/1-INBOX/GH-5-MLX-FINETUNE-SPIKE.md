@@ -149,6 +149,134 @@ Recorded here **and** at the place each one bites, because this spike runs on on
 while Phase 2 runs on another and a decision that lives in only one of them gets re-litigated
 or, worse, silently contradicted.
 
+### D10 — The deployed gap was the tool-declaration contract and a broken harness, not quantisation (2026-09-09)
+
+**Supersedes D7 and D9.** Both were built on measurements from a defective evaluation harness.
+Everything below is from a rebuilt harness with negative controls that fire, on a frozen manifest
+shared by every arm. Full trail: [#12](https://github.com/HiQS-Labs/Needle-fork/issues/12).
+
+**Two harness defects invalidated every prior deployed number.**
+
+1. `eval_cact.py` reused one engine across rows. The engine is conversational — each `complete()`
+   continues the prior turn — so a reused instance answered every *other* row: a perfect `Y n Y n`
+   alternation. `needle_reset()` exists in the library; `complete()` never called it. The
+   `--no-reset` control reproduces it exactly (answer rate 100% → 50%). Note the honest bound:
+   this suppressed **answer rate, not accuracy** (3/200 either way), so it inflated nothing —
+   it hid how bad things were behind a "precision when answering" metric computed on a sample with
+   **zero abstention rows**.
+2. Sample construction was unpaired. `load_rows(n=60)` and `load_rows(n=200)` share a seed but
+   reservoir-sample **different sets** — zero overlapping rows. The "21.67% MLX vs 3.00% engine"
+   headline in D9 compared disjoint samples. Manifests are now `sha1(line)`-ordered and nested.
+
+**The real defect: the engine does not serve the prompt the model was trained on.** Sweeping
+declared tool count against the engine's own KV accounting, one row held constant:
+
+| declared tools | 1 | 3 | 5 | 6 | 10 | 44 |
+|---|---|---|---|---|---|---|
+| KV prefix | 73 | 131 | 183 | **0** | **0** | **0** |
+| turn tokens | 211 | 211 | 211 | 352 | 352 | 433 |
+
+At ≤5 tools the schemas are cached in the prefix and grow linearly. At ≥6 the prefix collapses to
+zero and a bounded subset moves per-turn — 6 and 10 declared tools yield *identical* 352-token
+turns, the signature of a fixed-capacity selection. Training rendered all 44 schemas inline
+(~1,383 tokens); the engine at 44 declared carries 433. The Oracle declares 44.
+
+**Measured consequences** (frozen-200, strict validation, majority baseline 15.00%):
+
+| declared | artifact | engine top-1 | MLX top-1 |
+|---|---|---|---|
+| 44 | 10k QAT | **1.50%** | **31.50%** |
+| 44 | 2k PTQ | 8.00% | — |
+| 44 | base | 5.00% | — |
+| 5 (frozen from training counts) | 10k QAT | **15.00%** (within-sub 24.79%) | 23.50% (38.84%) |
+| 5 | 2k PTQ | 8.50% (14.05%) | 19.00% (31.40%) |
+| 5 | base | 5.00% (8.26%) | 2.00% (3.31%) |
+
+Paired McNemar, 44 declared: MLX-only correct 61, engine-only 1, **χ² = 56.1, p < 1e-12**. The
+engine put **73% of its predictions on one label** (`update_working_doc`) using 8 distinct labels
+where gold spans 30, while MLX tracked the gold distribution.
+
+**Findings, in order of confidence:**
+
+- **The 44-tool declaration is the dominant defect.** Changing only the declaration moves the
+  engine 1.50% → 15.00%.
+- **QAT training was never harmful.** Under 44 tools the artifacts ranked 2k PTQ > base > QAT, which
+  D9 read as QAT being worse. Under five tools the ordering **flips** and QAT is best in both
+  runtimes. The ordering was an artefact of the broken contract.
+- **A residual MLX-vs-engine gap survives at five tools for both fine-tunes** — 2k PTQ χ² = 9.76,
+  QAT χ² = 8.26, both p < 0.05; base is not significant (χ² = 2.50) but is not a clean control,
+  since MLX-base emitted 66 malformed outputs — it was never trained to produce the format.
+  **Mechanism unknown. This is the open thread.**
+- **Enum grounding does not block Option 2**: 3/3 labels emitted absent from the prompt text.
+  Feasibility only — n=5, and the emitted labels were wrong.
+
+**Not established:** the mechanism behind the residual gap; any accuracy figure for the enum
+approach; and whether fixed-five at exactly the baseline is acceptable when it drops 39 of 44
+labels — a product-scope call, not a measurement one.
+
+**Also found:** **9,270 of 25,684 holdout rows are exact duplicates (36%)**, which distorts any
+sampling from it. Deserves its own issue against the corpus build.
+
+**The process lesson, recorded because it cost the most:** the mantra's step 1 is establishing that
+the measurement is trustworthy, and it is the step this spike skipped. D7 → D8 → the QAT port → a
+4-hour retrain were all built on a number no one had validated, and the base-model control that
+would have exposed it in minutes was not run until after the retrain finished.
+
+### ~~D9 — QAT does not close the deployment gap; D7's remedy is falsified~~ (2026-09-08) — **SUPERSEDED by D10**
+
+> **SUPERSEDED 2026-09-09. Retained verbatim for audit; do not act on it.**
+> Withdrawn: (a) the "21.67% MLX vs 3.00% engine" comparison — disjoint samples, zero overlapping
+> rows; (b) "the QAT artifact is materially worse" — an artefact of the 44-tool declaration, and
+> reversed under a sound contract; (c) "100% well-formed" — a name-extraction rate from a regex
+> that also accepted truncated JSON; (d) the closing claim that the gap was unreachable without
+> engine source — it was measurable through the engine's own KV accounting. What survives: the
+> observation that QAT did not improve the deployed number, which is true but for the wrong reason.
+> See **D10** above and [#12](https://github.com/HiQS-Labs/Needle-fork/issues/12).
+
+### D9 (original text) — QAT does not close the deployment gap; D7's remedy is falsified (2026-09-08)
+
+The 10k QAT run finished clean (563 steps, loss 0.0793, val 0.0762,
+`data/spike-mlx/logs/p3-10k-qat-receipt.json`) and `needle build` picked up its declared
+scheme (`mixed[embedding=4,mhc=4,default=2]A8`) with no override needed — the PR #8 guard and
+D8's parity gate both did their job. But the **deployed artifact scores worse than the thing QAT
+was built to replace**: `eval_cact.py` (native engine, same 200 seed-0 rows) gives **4.00% top-1**
+(answer rate 50%, precision 8.0% when answering) — below the 12.50% static-majority bar and below
+D7's own broken PTQ number (8–10%). Receipt: `data/spike-mlx/logs/eval-cact-10k-qat.json`.
+
+Isolated one variable at a time, same discipline as D7:
+- Raw output is not degenerate the way D7's PTQ case was (`<think> } } } }`) — it's
+  structurally valid JSON with real label names, but the `reasoning` field shows repetition
+  loops (`find_files -> find_files -> find_files -> ...`) and wrong picks.
+- `spike/mlx/eval_oracle.py --qat` (teacher-forced MLX ranking on the **same adapter**, weight
+  *and* activation quantisation simulated exactly as training saw it) scores **19.00% top-1**
+  (mean-normalised 13.00%, top-3 31.00%) — close to the earlier fp32 bar (22%), not collapsed.
+  Receipt: `data/spike-mlx/logs/eval-oracle-10k-qat-mlx.json`. **This rules out a training defect.**
+- The weight-packing math was checked line-for-line and is bit-identical between train-time
+  simulation and export-time packing: `quantize.py::cq_quantize` (JAX reference, ported
+  op-for-op into `quant_mlx.py`) and `export.py::_cq_pack`/`_nearest_idx` use the same codebook,
+  the same Hadamard rotation, the same fp16 norm rounding (`quantize.py:144` casts the norm to
+  fp16 too — matches export, not a discrepancy), and the same searchsorted tie-break rule. **This
+  rules out a weight-export bug.**
+- What's left is the native engine itself: a closed, compiled binary (`ctypes`-loaded
+  `libneedle*.so/dylib`, no source in this repo). Its real A8/KV runtime numerics were never
+  checked against the Python simulation QAT trained against — D8's parity gate only compared
+  JAX vs MLX forward passes, never against the native engine. D7's own control ("base model
+  through the engine is sane") shows the engine's generation isn't broken in general — the
+  defect appears specifically for **fine-tuned weights + quantisation + the native engine**,
+  for both plain PTQ (D7) and now QAT (today).
+
+**D7's diagnosis was half right: the observation (PTQ destroys deployment quality) holds. The
+prescribed remedy (port QAT) does not fix it** — QAT hardens weights against the *offline Python
+simulation* of quantisation, which is evidently not the same operator the native engine actually
+runs, or the gap is autoregressive error-compounding on a narrow fine-tuned distribution that
+teacher-forced ranking structurally cannot see. Distinguishing those two needs either the engine's
+source (not available) or a patched export path that emits an unquantised control artifact
+through the real engine — real engineering, not a side-check, and not attempted yet.
+
+**Status: unresolved, not shippable as-is.** No fp32-trained OR QAT-trained adapter has cleared
+the deployed-artifact bar through the native engine. Flagging for a decision on next steps rather
+than continuing to dig solo, given the time already spent.
+
 ### D8 — QAT parity gate restated: rel ≤ 2e-3 and argmax ≥ 0.98 (2026-09-08)
 
 The QAT port (`spike/mlx/quant_mlx.py`, gated by `parity_qat.py` against JAX `quant=True`) lands
@@ -163,7 +291,27 @@ activation-path defect. As with D4, the criterion is restated and the evidence i
 perturbation class STE training regularises against, and it is a different universe from D7's
 PTQ collapse. Receipt: `TESTS-RESULTS/2026-09-07-mlx-spike/p3-qat-parity.json`.
 
-### D7 — PTQ destroys the fine-tune; the QAT port is the critical path (2026-09-08)
+### ~~D7 — PTQ destroys the fine-tune; the QAT port is the critical path~~ (2026-09-08) — **SUPERSEDED in part by D10**
+
+> **SUPERSEDED 2026-09-09. Retained verbatim for audit.**
+> Withdrawn: (a) the **8–10%** figure — that was *precision-when-answering* from a harness whose
+> reused engine discarded every second row, on a sample containing zero abstention rows; the 2k PTQ
+> artifact scores 8.00% top-1 (44 declared) / 8.50% (5 declared) when measured properly, and it
+> functions rather than being "destroyed"; (b) **"no fp32-trained adapter can ship"** — the premise
+> was the bad deployed number, which had a different and larger cause; (c) the conclusion that PTQ
+> was the cause of the deployed collapse — the 44-tool declaration contract was, and it degrades the
+> *base* model too.
+>
+> **What still stands and is NOT withdrawn:** the separate MLX-side observation that tuned weights +
+> PTQ generated *on MLX with no engine involved* produced `<think> } } } }` while base + PTQ stayed
+> sane. Nothing found since explains that, and D10's findings do not touch it. It has not been
+> reproduced under the rebuilt harness either. **Treat it as an open, unexplained datum** — flagged
+> by the GPT-6 Astra review on [#12](https://github.com/HiQS-Labs/Needle-fork/issues/12) as the
+> reconciliation this correction still owes.
+>
+> D8's parity gate is unaffected and stands.
+
+### D7 (original text) — PTQ destroys the fine-tune; the QAT port is the critical path (2026-09-08)
 
 Measured while building the §6 hook: the 2k adapter scores **24.1%** top-1 when ranked fp32 on
 MLX and **8–10%** through `needle build` → `.cact` → native engine. Isolated by four experiments:
