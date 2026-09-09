@@ -4,6 +4,7 @@ Both defects found while building this were visible only in the matched EVIDENCE
 never in the label counts -- a wrong label and a right label are the same integer.
 So these tests assert on what a command resolves to and why, not on totals.
 """
+import re
 import json
 import os
 import subprocess
@@ -592,3 +593,204 @@ def test_role_is_established_before_operands_are_read(cmd, expected):
     spoofing governance, and destroyed the operands of a real move written with quoted
     paths. The rule is role first, then operands with their values intact."""
     assert tx.label_bash(cmd)[0] == expected
+
+
+# ---------------------------------------------------------------------------
+# GH-17: agy's round-5 adversarial review. Every case below was REPRODUCED as a
+# defect against b33b92a before this block existed (21/21 of agy's claims
+# confirmed, 0 refuted). Grouped by the mechanism that produced them.
+# ---------------------------------------------------------------------------
+
+
+# 1. Quoted text forges a clause boundary -- the 4th instance of the bug class.
+#    `_operand_clauses` split on ;/&&/|| with a plain regex, BEFORE quotes were
+#    considered, so a commit message could manufacture a clause whose leading
+#    program was `mv`.
+def test_quoted_text_cannot_forge_a_governance_clause():
+    assert tx.label_bash(
+        'git commit -m "docs: add note; mv PROJECT/1-INBOX/a.md PROJECT/2-WORKING/a.md"'
+    )[0] == "commit_changes"
+
+
+def test_quoted_git_mv_inside_echo_is_still_display():
+    assert tx.label_bash(
+        'echo "test; git mv PROJECT/2-WORKING/a.md PROJECT/3-COMPLETED/a.md"'
+    )[0] == "unmapped"
+
+
+def test_quoted_move_inside_inline_python_is_not_a_promotion():
+    assert tx.label_bash(
+        'python3 -c "x = 1; mv PROJECT/1-INBOX/a.md PROJECT/2-WORKING/a.md"'
+    )[0] == "run_script"
+
+
+# ...and the same splitter destroyed a REAL move whose path contained a `;`.
+def test_a_semicolon_inside_a_quoted_path_does_not_split_the_move():
+    assert tx.label_bash(
+        'mv "PROJECT/1-INBOX/note;1.md" "PROJECT/2-WORKING/note;1.md"'
+    )[0] == "promote_capture"
+
+
+# 2. Inline interpreter code is DATA, quoted or not. `text(tok, keep=False)`
+#    returned an unquoted token intact, so `keep=False` was silently ignored.
+def test_inline_code_operands_are_never_invocations():
+    for cmd in ('python3 -c "import sys" validate.sh',
+                'python3 -c print(ruff)',
+                'python3 -c import(pytest)'):
+        assert tx.label_bash(cmd)[0] == "run_script", cmd
+
+
+# 3. Environment-variable prefixes. `leading_program` skips `KEY=val`;
+#    `command_region` indexed tokens[0] unconditionally and read the assignment
+#    as the program, dropping real invocations to `unmapped`.
+def test_env_prefixes_do_not_hide_the_program():
+    cases = [("CI=1 ./validate.sh", "run_validate"),
+             ("PYTHONPATH=. pytest", "run_tests"),
+             ("DEBUG=1 ruff check .", "run_linter"),
+             ("FOO=bar bash scripts/validate.sh", "run_validate"),
+             ("FOO=1 make test", "run_tests")]
+    for cmd, want in cases:
+        assert tx.label_bash(cmd)[0] == want, cmd
+
+
+def test_env_prefixed_roadmap_tool_still_gates():
+    assert tx.label_bash(
+        "PYTHONPATH=. ./releases_app.py roadmap add"
+    )[0] == "park_roadmap_row"
+
+
+# 4. Boolean short flags. Every short flag was assumed to take an argument, so
+#    a boolean one ate the subcommand.
+def test_boolean_short_flags_do_not_swallow_the_subcommand():
+    for cmd, want in [("git -p diff", "git_inspect"),
+                      ("git -v status", "git_inspect"),
+                      ("make -s test", "run_tests")]:
+        assert tx.label_bash(cmd)[0] == want, cmd
+
+
+def test_short_flags_that_DO_take_an_argument_still_consume_it():
+    # The negative side of the same rule: -C must still eat its path, or the
+    # path becomes readable as an invocation again (the #309930 defect).
+    assert tx.label_bash("git -C /tmp/validate.sh status")[0] == "git_inspect"
+    assert tx.label_bash("make -C /repo test")[0] == "run_tests"
+
+
+# 5. Long flags whose argument is a path: _FILEISH broke the walk before the
+#    subcommand was reached.
+def test_long_flag_path_arguments_do_not_truncate_the_walk():
+    for cmd, want in [("cargo --manifest-path /path/Cargo.toml test", "run_tests"),
+                      ("uv --directory /path run pytest", "run_tests")]:
+        assert tx.label_bash(cmd)[0] == want, cmd
+
+
+# 6. A branch NAME may contain a slash. _FILEISH treated it as an operand and
+#    truncated `git branch feat/x` to `git branch`, which no longer matches.
+def test_branch_names_with_slashes_still_create_a_branch():
+    assert tx.label_bash("git branch feat/new-login")[0] == "create_branch"
+
+
+def test_a_branch_name_is_still_not_readable_as_an_invocation():
+    # It must be consumed as DATA, not kept as matchable text.
+    assert "validate.sh" not in tx.command_region("git branch feat/validate.sh")
+
+
+# 7. _is_move took token 2 literally, so any git global flag broke the gate and
+#    demoted a real governance move to fs_mutate.
+def test_git_global_flags_do_not_break_the_move_gate():
+    assert tx.label_bash(
+        "git -C /repo mv PROJECT/1-INBOX/a.md PROJECT/2-WORKING/a.md"
+    )[0] == "promote_capture"
+    assert tx.label_bash(
+        "git -C /repo mv PROJECT/2-WORKING/a.md PROJECT/3-COMPLETED/a.md"
+    )[0] == "complete_doc"
+
+
+# ---------------------------------------------------------------------------
+# GH-17 mutation controls. agy's round-5 finding: the existing controls pinned
+# `command_region` and `ANY_POSITION_GATE` as WHOLE switches, so every mechanism
+# INSIDE command_region could be corrupted with the suite staying green. Each
+# control below disables exactly one mechanism and requires the defect to return.
+# ---------------------------------------------------------------------------
+
+
+def test_control_disabling_quote_aware_splitting_restores_governance_spoofing(monkeypatch):
+    """The 4th instance of the bug class returns if the splitter stops respecting quotes."""
+    monkeypatch.setattr(tx, "_split_outside_quotes",
+                        lambda seg: re.split(r"&&|\|\||;", seg))
+    assert tx.label_bash(
+        'git commit -m "docs: add note; mv PROJECT/1-INBOX/a.md PROJECT/2-WORKING/a.md"'
+    )[0] == "promote_capture"          # RED: the defect is back
+
+
+def test_control_disabling_the_env_prefix_skip_drops_real_commands(monkeypatch):
+    monkeypatch.setattr(tx, "_ENV_ASSIGN", re.compile(r"(?!)"))   # matches nothing
+    for cmd in ("CI=1 ./validate.sh", "PYTHONPATH=. pytest"):
+        assert tx.label_bash(cmd)[0] == "unmapped", cmd
+
+
+def test_end_of_options_operands_are_not_invocations():
+    # A pathspec need not look file-ish, so _FILEISH cannot cover this case --
+    # only the `--` break can.
+    assert tx.label_bash("git diff -- pytest")[0] == "git_inspect"
+
+
+def test_control_disabling_end_of_options_lets_operands_into_the_command_region(monkeypatch):
+    # Asserted on command_region, not on the final label: at label level
+    # `git_inspect` matches `diff` and wins on rule order whether or not the
+    # operand leaked, so a label assertion would pass with the mechanism removed
+    # -- a decorative control, which is agy's GH-17 objection turned on itself.
+    # `pytest` is deliberately NOT file-ish, so _FILEISH cannot cover this.
+    assert "pytest" not in tx.command_region("git diff -- pytest")
+    monkeypatch.setattr(tx, "_END_OF_OPTIONS", "\0")              # never matches
+    assert "pytest" in tx.command_region("git diff -- pytest")     # RED: it leaks
+
+
+def test_control_disabling_fileish_lets_operands_be_read_as_invocations(monkeypatch):
+    monkeypatch.setattr(tx, "_FILEISH", re.compile(r"(?!)"))
+    assert tx.label_bash("make validate.sh")[0] == "run_validate"
+
+
+def test_control_claiming_every_short_flag_takes_an_argument_swallows_subcommands(monkeypatch):
+    """The pre-GH-17 behaviour, restored: boolean flags eat the subcommand."""
+    class _All:
+        def get(self, _k, _d=None):
+            class _S:
+                def __contains__(self, _x): return True
+            return _S()
+    monkeypatch.setattr(tx, "_SHORT_TAKES_ARG", _All())
+    assert tx.label_bash("git -p diff")[0] == "unmapped"
+
+
+def test_control_disabling_the_branch_name_placeholder_demotes_create_branch(monkeypatch):
+    monkeypatch.setattr(tx, "_BRANCH_SUBCOMMANDS", frozenset())
+    assert tx.label_bash("git branch feat/new-login")[0] == "git_inspect"
+
+
+def test_control_invocation_gate_covers_all_three_ANY_POSITION_labels(monkeypatch):
+    """agy: the old gate control omitted complete_doc, the third member."""
+    assert tx.ANY_POSITION == {"promote_capture", "complete_doc", "park_roadmap_row"}
+    monkeypatch.setattr(tx, "ANY_POSITION_GATE",
+                        {k: (lambda _c: True) for k in tx.ANY_POSITION})
+    spoofs = [("echo mv PROJECT/1-INBOX/a.md PROJECT/2-WORKING/a.md", "promote_capture"),
+              ("echo mv PROJECT/2-WORKING/a.md PROJECT/3-COMPLETED/a.md", "complete_doc"),
+              ("echo releases_app.py roadmap add", "park_roadmap_row")]
+    for cmd, spoofed in spoofs:
+        assert tx.label_bash(cmd)[0] == spoofed, cmd
+
+
+# CodeRabbit, PR #18. Two defects introduced BY the GH-17 fix, both reproduced
+# before being fixed.
+def test_make_j_without_a_number_still_runs_the_target():
+    # GNU make reads `make -j test` as target `test`. Consuming it as -j's
+    # argument produced `make -j ""` -> run_build.
+    assert tx.label_bash("make -j test")[0] == "run_tests"
+    assert tx.label_bash("make -j 4 test")[0] == "run_tests"   # numeric arg still eaten
+    assert tx.label_bash("make -j4 test")[0] == "run_tests"
+
+
+def test_a_quoted_assignment_with_spaces_stays_one_token():
+    # `TITLE="fix pytest flake" git commit` scored run_tests: _TOKEN split the
+    # assignment, so the quoted TEXT landed in command position -- the same bug
+    # class, arriving through the tokenizer.
+    assert tx.label_bash('TITLE="fix pytest flake" git commit -m "x"')[0] == "commit_changes"
+    assert "pytest" not in tx.command_region('TITLE="fix pytest flake" git commit -m "x"')
