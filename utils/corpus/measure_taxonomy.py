@@ -15,6 +15,7 @@ local-only spot check and do not commit that output.
     python3 utils/corpus/measure_taxonomy.py --out TESTS-RESULTS/<campaign>/raw-metrics.json
 """
 from __future__ import annotations
+import re
 import argparse, collections, glob, json, math, os, platform, subprocess, sys, time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
@@ -55,6 +56,13 @@ def ambiguity_rate(commands: list[str]) -> dict:
             "compound_pct": round(100 * compound / n, 2)}
 
 
+def _sanitise_source(path: str) -> str:
+    """`~/.claude/projects`-style shape, with no local mount path."""
+    p = path.replace(os.path.expanduser("~"), "~")
+    m = re.search(r"(\.claude/projects.*)$", p)
+    return "~/" + m.group(1) if m else os.path.basename(p.rstrip("/"))
+
+
 def probe_machine() -> dict:
     def sh(*cmd):
         try:
@@ -67,7 +75,9 @@ def probe_machine() -> dict:
     # the record because the ANE is the target runtime.
     ane = next((n for k, n in (("M4 Max", 16), ("M4 Pro", 16), ("M4", 16),
                                ("M3", 16), ("M2", 16), ("M1", 16)) if k in chip), None)
-    return {"machine": sh("scutil", "--get", "ComputerName") or platform.node(),
+    # The operator's computer name is identifying and adds nothing a model or
+    # chip does not. Receipts are committed to a PUBLIC repo (CodeRabbit, PR #19).
+    return {"machine": sh("sysctl", "-n", "hw.model") or platform.machine(),
             "chip": chip,
             "cores": {"total": int(sh("sysctl", "-n", "hw.ncpu") or 0),
                       "performance": int(sh("sysctl", "-n", "hw.perflevel0.logicalcpu") or 0),
@@ -155,7 +165,9 @@ def main() -> int:
             "target": "taxonomy-v1-measurement",
             "benchmark": "label_call over local Claude Code transcripts",
             # Repo is public: record the source shape, not the operator's home path.
-            "source": args.source.replace(os.path.expanduser("~"), "~"),
+            # Only the shape of the source, never the mount path: a
+            # `/Volumes/...` prefix names the operator's local volume.
+            "source": _sanitise_source(args.source),
             "sessions": len(sessions),
             "tool_calls": total,
             "label_set_version": tx.LABEL_SET_VERSION,

@@ -203,12 +203,12 @@ BASH_RULES = [
     ("publish_release",  r"\b(gh\s+release\s+create|git\s+tag\s+-a)\b"),
 
     # git / PR -- specific before generic
-    ("file_issue",       r"\bgh\s+issue\s+create\b"),
-    ("read_issue",       r"\bgh\s+issue\s+(view|list)\b"),
-    ("open_pr",          r"\bgh\s+pr\s+create\b"),
-    ("merge_pr",         r"\bgh\s+pr\s+merge\b"),
-    ("review_pr",        r"\bgh\s+pr\s+(view|diff|checks|list|status)\b"),
-    ("update_pr",        r"\bgh\s+(pr\s+(edit|comment|review|ready)|issue\s+(comment|edit|close))\b"),
+    ("file_issue",       r"\bgh\s+(?:-{1,2}[\w-]+(?:=\S+)?\s+)*issue\s+(?:-{1,2}[\w-]+(?:=\S+)?\s+)*create\b"),
+    ("read_issue",       r"\bgh\s+(?:-{1,2}[\w-]+(?:=\S+)?\s+)*issue\s+(?:-{1,2}[\w-]+(?:=\S+)?\s+)*(view|list)\b"),
+    ("open_pr",          r"\bgh\s+(?:-{1,2}[\w-]+(?:=\S+)?\s+)*pr\s+(?:-{1,2}[\w-]+(?:=\S+)?\s+)*create\b"),
+    ("merge_pr",         r"\bgh\s+(?:-{1,2}[\w-]+(?:=\S+)?\s+)*pr\s+(?:-{1,2}[\w-]+(?:=\S+)?\s+)*merge\b"),
+    ("review_pr",        r"\bgh\s+(?:-{1,2}[\w-]+(?:=\S+)?\s+)*pr\s+(?:-{1,2}[\w-]+(?:=\S+)?\s+)*(view|diff|checks|list|status)\b"),
+    ("update_pr",        r"\bgh\s+(?:-{1,2}[\w-]+(?:=\S+)?\s+)*(pr\s+(?:-{1,2}[\w-]+(?:=\S+)?\s+)*(edit|comment|review|ready)|issue\s+(?:-{1,2}[\w-]+(?:=\S+)?\s+)*(comment|edit|close))\b"),
     ("create_branch",    r"\bgit\s+(?:-{1,2}[\w-]+(?:=\S+)?\s+|-C\s+\S+\s+|-c\s+\S+\s+)*(checkout\s+-b|switch\s+-c|branch\s+[^-])"),
     ("commit_changes",   r"\bgit\s+(?:-{1,2}[\w-]+(?:=\S+)?\s+|-C\s+\S+\s+|-c\s+\S+\s+)*(commit|add)\b"),
     ("git_sync",         r"\bgit\s+(?:-{1,2}[\w-]+(?:=\S+)?\s+|-C\s+\S+\s+|-c\s+\S+\s+)*(push|pull|fetch|merge(?!-tree|-base)|rebase|stash|clone|worktree|cherry-pick|reset|checkout|switch|restore)\b"),
@@ -627,7 +627,7 @@ def command_region(seg: str) -> str:
             out.append('""')
             prev_flag = ""
             continue
-        if was_flag and seen == 0 and _VALUE_SHAPED.search(tok):
+        if was_flag and seen < depth and _VALUE_SHAPED.search(tok):
             # An unlisted option's value: DATA. DROPPED rather than blanked --
             # `git --exec-path <path> status` must read as `git --exec-path
             # status`, which the rules' flag prefix already matches, and they

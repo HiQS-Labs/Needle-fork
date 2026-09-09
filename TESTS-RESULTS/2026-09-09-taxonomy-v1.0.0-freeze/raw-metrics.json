@@ -1,6 +1,6 @@
 {
-  "timestamp": "2026-09-09T22:34:02Z",
-  "machine": "noel\u2019s MacBook Pro 14\"",
+  "timestamp": "2026-09-09T22:51:58Z",
+  "machine": "Mac16,8",
   "chip": "Apple M4 Pro",
   "cores": {
     "total": 12,
@@ -11,14 +11,14 @@
   "memory_gb": 25.8,
   "os_version": "15.6",
   "python": "3.11.15",
-  "git_commit": "7cd7150",
+  "git_commit": "8d650c5",
   "branch": "fix/17-shape-rule-and-prose-flags",
   "target": "taxonomy-v1-measurement",
   "benchmark": "label_call over local Claude Code transcripts",
-  "source": "/Volumes/Macintosh HD-1~/.claude/projects",
+  "source": "~/.claude/projects",
   "sessions": 335,
   "tool_calls": 71763,
-  "label_set_version": "v1.0.0-draft",
+  "label_set_version": "v1.0.0",
   "label_count": 44,
   "mapping_coverage": 0.9641,
   "governance_share": 0.0591,
@@ -29,12 +29,12 @@
     "multi_rule_pct": 78.12,
     "compound_pct": 95.38
   },
-  "wall_clock_seconds": 159.275,
+  "wall_clock_seconds": 136.734,
   "timing_breakdown": {
-    "read_and_label_seconds": 131.179
+    "read_and_label_seconds": 108.329
   },
   "throughput": {
-    "calls_per_second": 547.1
+    "calls_per_second": 662.5
   },
   "labels_below_min_support": [
     "no_action",
@@ -50,10 +50,10 @@
     "search_code": 8739,
     "apply_patch": 8279,
     "git_inspect": 3726,
-    "git_sync": 3540,
+    "git_sync": 3539,
     "find_files": 2963,
     "unmapped": 2577,
-    "commit_changes": 1844,
+    "commit_changes": 1845,
     "review_pr": 1561,
     "sys_inspect": 1256,
     "update_working_doc": 1163,

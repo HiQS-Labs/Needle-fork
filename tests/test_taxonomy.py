@@ -835,3 +835,11 @@ def test_control_disabling_the_value_shape_rule_truncates_the_walk(monkeypatch):
 def test_control_disabling_prose_flags_lets_a_message_score_a_label(monkeypatch):
     monkeypatch.setattr(tx, "_PROSE_FLAGS", frozenset())
     assert tx.label_bash("git tag -m ruff v1")[0] == "run_linter"
+
+
+def test_flags_between_a_program_and_its_subcommand_do_not_lose_the_label():
+    """CodeRabbit, PR #19: the shape rule stopped at seen==0, so a value-shaped
+    argument after an already-seen subcommand still truncated the walk."""
+    assert tx.label_bash("gh pr --repo owner/repo view")[0] == "review_pr"
+    assert tx.label_bash("gh --repo o/r pr create")[0] == "open_pr"
+    assert "owner/repo" not in tx.command_region("gh pr --repo owner/repo view")
