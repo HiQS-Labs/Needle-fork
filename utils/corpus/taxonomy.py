@@ -460,16 +460,16 @@ _SHORT_TAKES_ARG = {
     "uv":     {"-C"},
     "cargo":  {"-Z"},
 }
-# Long flags whose argument is a SEPARATE path token. Without these the path
-# hits _FILEISH and truncates the walk before the subcommand is reached.
-_LONG_TAKES_ARG = {
-    "cargo": {"--manifest-path"},
-    "uv":    {"--directory", "--project"},
-    "make":  {"--directory", "--file"},
-    "git":   {"--git-dir", "--work-tree"},
-    "npm":   {"--prefix"},
-    "pnpm":  {"--dir", "--filter"},
-}
+# A token directly after a flag, before any subcommand is found, is that flag's
+# VALUE when it LOOKS like one -- a path, or `key=value`. Recognising the shape
+# needs no table, so an unlisted option cannot truncate the walk:
+# `git --exec-path /tmp/validate.sh status` used to score unmapped (codex).
+# Blanking rather than breaking is the safe direction either way: the value can
+# never be read as an invocation, and the walk continues to the real subcommand.
+_VALUE_SHAPED = re.compile(r"/|=|\.[A-Za-z][A-Za-z0-9]{0,4}$")
+# Flags whose argument is PROSE. Unquoted, it was read as command text:
+# `git tag -m ruff v1` scored run_linter -- the bug class, via a message.
+_PROSE_FLAGS = {"-m", "--message", "-t", "--title", "--body", "-F", "--file"}
 # A branch NAME legitimately contains `/`. _FILEISH read it as an operand and
 # truncated `git branch feat/x` to `git branch`, which the rule no longer matches.
 _BRANCH_SUBCOMMANDS = {"branch", "checkout", "switch"}
@@ -579,9 +579,8 @@ def command_region(seg: str) -> str:
         return " ".join(out)
     if lead not in SUBCOMMAND_PROGRAMS:
         return text(tokens[0], keep=True)
-    depth, out, seen, prev_flag = _SUBCOMMAND_DEPTH.get(lead, 3), [tokens[0]], 0, ""
+    depth, out, seen, prev_flag, was_flag = _SUBCOMMAND_DEPTH.get(lead, 3), [tokens[0]], 0, "", False
     short_args = _SHORT_TAKES_ARG.get(lead, frozenset())
-    long_args = _LONG_TAKES_ARG.get(lead, frozenset())
     for tok in tokens[1:]:
         if tok == _END_OF_OPTIONS:
             # END OF OPTIONS: everything after it is an operand by definition.
@@ -603,10 +602,13 @@ def command_region(seg: str) -> str:
             # like `-j` can inspect it when its argument arrives.
             if "=" in tok:
                 prev_flag = ""
+            elif flag in _PROSE_FLAGS:
+                prev_flag = flag
             elif tok.startswith("--"):
-                prev_flag = flag if flag in long_args else ""
+                prev_flag = ""          # decided by SHAPE at the next token
             else:
                 prev_flag = flag if flag in short_args else ""
+            was_flag = True
             continue
         if prev_flag:
             if prev_flag in _NUMERIC_ARG and not tok.isdigit():
@@ -625,6 +627,14 @@ def command_region(seg: str) -> str:
             out.append('""')
             prev_flag = ""
             continue
+        if was_flag and seen == 0 and _VALUE_SHAPED.search(tok):
+            # An unlisted option's value: DATA. DROPPED rather than blanked --
+            # `git --exec-path <path> status` must read as `git --exec-path
+            # status`, which the rules' flag prefix already matches, and they
+            # have no alternative for a bare `""` placeholder here.
+            was_flag = False
+            continue
+        was_flag = False
         if _FILEISH.search(tok):
             if out and out[-1] in _BRANCH_SUBCOMMANDS:
                 # A branch NAME may contain `/`. Emitted as a placeholder so the
