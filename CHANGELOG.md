@@ -60,7 +60,11 @@ mapper was re-run over today's corpus as a control** — identical 335 sessions 
 calls, mapper the only variable. It scores **98.52%**, exactly the 09-07 figure. Corpus
 drift moved the gate **0.00 pp**; the entire fall is the rule change.
 
-**The lower number is the fix working.** Coverage counts resolution, not correctness.
+**The lower number is mostly the fix working — ~97% of it.** (Corrected 2026-09-09 by
+GH-17: round 4 also dropped ~43 real commands, +0.06 pp recovered once fixed. The
+original claim here said "entirely", which the control did not support — it showed the
+fall was *caused by* the rule change, not that every dropped call deserved dropping.)
+Coverage counts resolution, not correctness.
 Commands mislabelled from displayed text (`echo mv PROJECT/...` → `promote_capture`)
 used to count as covered — covered by a wrong label — and now fall to `unmapped`. On the
 identical corpus the fix removes **513 false governance calls** (6.61% → 5.90%), the
