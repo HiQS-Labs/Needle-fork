@@ -25,7 +25,12 @@ branch: main
 
 | What was just completed | What's next |
 |---|---|
-| §3's `query` serialization shipped as **one shared function** (`utils/corpus/serialize.py`) used by both the corpus builder and the end-of-turn Stop hook; the train/serve invariant is a test. Token budget measured: 44 full schemas = **1,383 tokens**, so training runs at `--max-len 2048`, not the default 1024 (Phase D). | Cut `v1.0.0-draft` → `v1.0.0`; run `needle finetune` on `data/corpus/oracle-train.jsonl` at `--max-len 2048` (§4); §3b/§3c synthesis for the three thin governance labels and the `no_action` abstain slice. |
+| §3's `query` serialization shipped as **one shared function** (`utils/corpus/serialize.py`) used by both the corpus builder and the end-of-turn Stop hook; the train/serve invariant is a test. Token budget measured: 44 full schemas = **1,383 tokens**, so training runs at `--max-len 2048`, not the default 1024 (Phase D). | **[#2](https://github.com/HiQS-Labs/Needle-fork/issues/2) blocks the `v1.0.0` cut** — its mapper supplies both training targets and `RECENT ACTIONS` features, so fixing it precedes any comparison built on this corpus. §4 is the MLX lane, not a JAX/CPU run. §3b/§3c synthesis stays queued. |
+
+> **Corrected 2026-09-09.** This cell previously instructed *"Cut `v1.0.0-draft` → `v1.0.0`; run
+> `needle finetune` … (§4)"*. Both halves were superseded: the `v1.0.0` cut is blocked by #2 (stated
+> in that issue and in this doc's own checklist below), and §4's CPU run was replaced by the MLX lane
+> on 2026-09-07 ([#1 §4 decision](https://github.com/HiQS-Labs/Needle-fork/issues/1#issuecomment-5574864887)).
 
 ## Table of contents
 
