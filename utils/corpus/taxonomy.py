@@ -217,7 +217,7 @@ BASH_RULES = [
     # code / dev
     # `make test` must survive global flags the same way the git rules do:
     # `make -C /repo test` was scoring run_build because the tokens are not adjacent.
-    ("run_tests",        r"\b(pytest|jest|vitest|go test|cargo test|npm (run )?test|run-tests)\b"
+    ("run_tests",        r"\b(pytest|jest|vitest|go test|cargo(?:\s+(?:-{1,2}[\w-]+(?:=\S+)?|\"\"))*\s+test|npm (run )?test|run-tests)\b"
                          r"|\bmake(?:\s+-\S+(?:\s+\S+)?)*\s+test\b"),
     ("run_linter",       r"\b(ruff|flake8|eslint|black|prettier|mypy|shellcheck|golangci-lint)\b"),
     ("run_build",        r"\b(make|cmake|cargo build|go build|npm run build|xcodebuild|clang|gcc|tsc)\b"),
@@ -354,7 +354,14 @@ ANY_POSITION = {"promote_capture", "complete_doc", "park_roadmap_row"}
 
 def _is_move(clause: str) -> bool:
     lead = leading_program(clause)
-    return lead == "mv" or (lead == "git" and _second_token(clause) == "mv")
+    if lead == "mv":
+        return True
+    if lead != "git":
+        return False
+    # `_second_token` took token 2 literally, so ANY global flag broke the gate
+    # and demoted a real governance move to fs_mutate (`git -C /repo mv ...`).
+    # command_region already resolves the subcommand past flags and their args.
+    return "mv" in command_region(clause).split()[1:]
 
 
 def _is_roadmap_tool(clause: str) -> bool:
@@ -366,13 +373,53 @@ ANY_POSITION_GATE = {"promote_capture": _is_move, "complete_doc": _is_move,
                      "park_roadmap_row": _is_roadmap_tool}
 
 
+_CLAUSE_SEP = re.compile(r"&&|\|\||;")
+
+
+def _split_outside_quotes(seg: str) -> list[str]:
+    """Split on `&&`/`||`/`;` that are NOT inside a quoted string.
+
+    A plain `re.split` here was the 4th instance of the operand/invocation bug
+    class (GH-17): a separator inside a quoted string forged a clause whose
+    leading program was `mv`, so a COMMIT MESSAGE scored `promote_capture`.
+    It also cut a real move whose path contained a `;`.
+    """
+    parts, buf, i, quote = [], [], 0, None
+    while i < len(seg):
+        ch = seg[i]
+        if quote:
+            buf.append(ch)
+            if ch == "\\" and i + 1 < len(seg):      # keep an escaped char whole
+                buf.append(seg[i + 1])
+                i += 2
+                continue
+            if ch == quote:
+                quote = None
+            i += 1
+            continue
+        if ch in "\"'":
+            quote, i = ch, i + 1
+            buf.append(ch)
+            continue
+        m = _CLAUSE_SEP.match(seg, i)
+        if m:
+            parts.append("".join(buf))
+            buf, i = [], m.end()
+            continue
+        buf.append(ch)
+        i += 1
+    parts.append("".join(buf))
+    return parts
+
+
 def _operand_clauses(seg: str):
     """Clauses of a segment, with quote CHARACTERS removed but values preserved.
 
     A real move may quote its paths (`mv "PROJECT/1-INBOX/a.md" ...`); blanking the
-    content lost the very operands the rule exists to read.
+    content lost the very operands the rule exists to read. Splitting is
+    quote-aware -- see `_split_outside_quotes`.
     """
-    for clause in re.split(r"&&|\|\||;", seg):
+    for clause in _split_outside_quotes(seg):
         clause = clause.strip()
         if clause:
             yield clause, clause.replace('"', "").replace("'", "")
@@ -391,6 +438,41 @@ _WRITE_REDIRECT = re.compile(r"(?:^|\s)1?>>?\s*(?!/dev/)\S+")
 _TOKEN = re.compile(r"""'[^']*'|"[^"]*"|\S+""")
 _QUOTED = re.compile(r"'[^']*'|\"[^\"]*\"")
 _FILEISH = re.compile(r"/|\.[A-Za-z][A-Za-z0-9]{0,4}$")
+_ENV_ASSIGN = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=")
+# Named so a mutation control can DISABLE it. A control that only asserts a
+# table's contents shows the table, not that the guard is why a test passes
+# (agy, GH-17) -- every internal mechanism here must be switchable off.
+_END_OF_OPTIONS = "--"
+# Short flags that take a SEPARATE argument, per program. Assuming EVERY short
+# flag did so swallowed the subcommand: `git -p diff` -> unmapped (GH-17).
+# The default is BOOLEAN -- the conservative direction, since a boolean flag
+# wrongly consuming its successor hides a real command, while an arg-taking
+# flag wrongly kept only exposes a value the rules would have to match anyway.
+_SHORT_TAKES_ARG = {
+    "git":    {"-C", "-c"},
+    "make":   {"-C", "-f", "-j"},
+    "gh":     {"-R"},
+    "npm":    {"-C", "-w"},
+    "pnpm":   {"-C", "-w"},
+    "yarn":   {"-C"},
+    "docker": {"-f"},
+    "podman": {"-f"},
+    "uv":     {"-C"},
+    "cargo":  {"-Z"},
+}
+# Long flags whose argument is a SEPARATE path token. Without these the path
+# hits _FILEISH and truncates the walk before the subcommand is reached.
+_LONG_TAKES_ARG = {
+    "cargo": {"--manifest-path"},
+    "uv":    {"--directory", "--project"},
+    "make":  {"--directory", "--file"},
+    "git":   {"--git-dir", "--work-tree"},
+    "npm":   {"--prefix"},
+    "pnpm":  {"--dir", "--filter"},
+}
+# A branch NAME legitimately contains `/`. _FILEISH read it as an operand and
+# truncated `git branch feat/x` to `git branch`, which the rule no longer matches.
+_BRANCH_SUBCOMMANDS = {"branch", "checkout", "switch"}
 
 
 def _effective_clause(seg: str) -> str:
@@ -455,6 +537,11 @@ def command_region(seg: str) -> str:
     """
     seg = _REDIRECT.sub("", seg)
     tokens = [t for t in _TOKEN.findall(seg) if t]
+    # `leading_program` skips `KEY=val` prefixes; this must agree with it, or
+    # tokens[0] is the ASSIGNMENT and every such call falls to unmapped --
+    # `CI=1 ./validate.sh`, `PYTHONPATH=. pytest` (GH-17).
+    while tokens and _ENV_ASSIGN.match(tokens[0]):
+        tokens.pop(0)
     if not tokens:
         return ""
 
@@ -476,7 +563,13 @@ def command_region(seg: str) -> str:
                 inline = tok in _INLINE_CODE_FLAGS
                 prev_flag = not tok.startswith("--") and "=" not in tok
                 continue
-            out.append(text(tok, keep=not inline))
+            if inline:
+                # `-c`/`-e` bodies are CODE. text(tok, keep=False) returned an
+                # UNQUOTED token intact, so `python3 -c print(ruff)` scored
+                # run_linter. Nothing after inline code is an invocation.
+                out.append('""')
+                break
+            out.append(text(tok, keep=True))
             if not prev_flag:
                 break
             prev_flag = False
@@ -484,8 +577,10 @@ def command_region(seg: str) -> str:
     if lead not in SUBCOMMAND_PROGRAMS:
         return text(tokens[0], keep=True)
     depth, out, seen, prev_flag = _SUBCOMMAND_DEPTH.get(lead, 3), [tokens[0]], 0, False
+    short_args = _SHORT_TAKES_ARG.get(lead, frozenset())
+    long_args = _LONG_TAKES_ARG.get(lead, frozenset())
     for tok in tokens[1:]:
-        if tok == "--":
+        if tok == _END_OF_OPTIONS:
             # END OF OPTIONS: everything after it is an operand by definition.
             # Treating `--` as an ordinary flag set prev_flag and so skipped the
             # _FILEISH break, leaving `git diff -- validate.sh` scoring run_validate
@@ -494,11 +589,19 @@ def command_region(seg: str) -> str:
         if tok.startswith("-"):
             # `--flag=value` carries its own argument, and the value is where a path
             # like `--output=/tmp/validate.sh` hides. Keep the flag, drop the value.
-            out.append(tok.split("=", 1)[0])
-            # Only a SHORT flag takes a separate argument (`-C /repo`, `-m msg`). A
-            # long flag is either `--flag=value` or boolean, so assuming it consumed
-            # the next token swallowed the subcommand: `git --no-pager diff`.
-            prev_flag = not tok.startswith("--") and "=" not in tok
+            flag = tok.split("=", 1)[0]
+            out.append(flag)
+            # Whether a flag takes a SEPARATE argument is a property of the flag,
+            # not of its dash count. Assuming every short flag did swallowed the
+            # subcommand (`git -p diff` -> unmapped); assuming no long flag did
+            # left its path operand to hit _FILEISH and truncate the walk
+            # (`cargo --manifest-path /p/Cargo.toml test`). Both are GH-17.
+            if "=" in tok:
+                prev_flag = False
+            elif tok.startswith("--"):
+                prev_flag = flag in long_args
+            else:
+                prev_flag = flag in short_args
             continue
         if prev_flag:
             # A flag's argument (`git -C /repo status`) is DATA, not command text:
@@ -511,6 +614,11 @@ def command_region(seg: str) -> str:
             prev_flag = False
             continue
         if _FILEISH.search(tok):
+            if out and out[-1] in _BRANCH_SUBCOMMANDS:
+                # A branch NAME may contain `/`. Emitted as a placeholder so the
+                # `branch <name>` SHAPE the rule matches survives while the name
+                # itself stays unreadable as an invocation (GH-17).
+                out.append('""')
             break                       # an operand: `make validate.sh`
         out.append(text(tok))
         seen += 1
@@ -537,6 +645,20 @@ NODE_PKG_SUBCOMMANDS = {"install", "i", "ci", "add", "remove", "uninstall", "rm"
 def _second_token(seg: str) -> str:
     parts = seg.split()
     return parts[1].strip("\"'") if len(parts) > 1 else ""
+
+
+def _subcommand(seg: str) -> str:
+    """The first real subcommand, past global flags and their arguments.
+
+    `_second_token` reads token 2 literally, so any flag hid the subcommand:
+    `uv --directory /p run pytest` looked like package management rather than a
+    delegated test run (GH-17). command_region has already resolved the flags.
+    """
+    for tok in command_region(seg).split()[1:]:
+        if tok.startswith("-") or tok == '""':
+            continue
+        return tok.strip("\"'")
+    return ""
 
 
 def leading_program(seg: str) -> str:
@@ -606,9 +728,9 @@ def label_segment(seg: str) -> str | None:
     full = seg                 # path-shaped rules must still see the whole segment
     seg = _effective_clause(seg)
     lead = leading_program(seg)
-    if lead in PKG_MANAGERS and _second_token(seg) not in PKG_DELEGATES:
+    if lead in PKG_MANAGERS and _subcommand(seg) not in PKG_DELEGATES:
         return "pkg_manage"
-    if lead in NODE_PKG and _second_token(seg) in NODE_PKG_SUBCOMMANDS:
+    if lead in NODE_PKG and _subcommand(seg) in NODE_PKG_SUBCOMMANDS:
         return "pkg_manage"
     if lead in _CONTENT_PRODUCERS and (_WRITE_REDIRECT.search(seg) or _tee_target(lead, seg)):
         return "apply_patch"
