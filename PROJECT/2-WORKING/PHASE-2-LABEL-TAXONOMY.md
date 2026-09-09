@@ -240,7 +240,10 @@ than action — left unmapped deliberately so the gate keeps its meaning.
       (`5ed316d`): 335 sessions, 71,547 calls, coverage **96.33%**; corpus 71,186 pairs
 - [x] Apply the support floor (0.1% of calls) — 40 of 44 clear it; 3 real stragglers + `no_action`
 - [x] Decide `pkg_manage` — **kept**; the decision dissolved once the measurement was fixed (below)
-- [ ] Cut `label_set_version` from `v1.0.0-draft` to `v1.0.0` and re-publish the contract
+- [x] Cut `label_set_version` from `v1.0.0-draft` to `v1.0.0` and re-publish the contract —
+      **done 2026-09-09**; 44 labels, coverage 96.41%, receipt
+      `TESTS-RESULTS/2026-09-09-taxonomy-v1.0.0-freeze/`. Names frozen; the **sorter** is not
+      (#17), and the freeze commits the project to §3b/§3c supplementation (#9)
 - [x] Report the Studio coverage number to issue #1 as the §2 gate result — **96.33%**,
       with the pre-fix mapper control that attributes the fall to the rule change
 

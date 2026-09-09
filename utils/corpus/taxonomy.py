@@ -35,7 +35,7 @@ DETECTABILITY IS RECORDED, NOT ASSUMED
 from __future__ import annotations
 import re
 
-LABEL_SET_VERSION = "v1.0.0-draft"
+LABEL_SET_VERSION = "v1.0.0"
 
 # --- DECISION RECORD: the support floor is a SUPPLEMENTATION gate --------------
 # Adjudicated 2026-09-07 against GUIDING-PRINCIPLES.md, AGENTS.md and SOP.md.
