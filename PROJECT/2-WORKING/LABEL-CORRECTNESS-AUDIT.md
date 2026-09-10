@@ -29,7 +29,7 @@ phases: 1
 
 | What was just completed | What's next |
 |---|---|
-| The source-gated correction audit is complete: 400 rows, two blind auditors, 72 adjudications, and 80.25% agreement on the deliberately session-spread sample. Nineteen rows pass the conservative correction filter. | Collect enough new source sessions to raise evaluation eligibility from 17 to 30, then freeze and audit the 1,000-row evaluation set before training. |
+| The source-gated correction audit is complete. A snapshot-based refresh now isolates 2,913 evaluation candidates across 32 sessions, clearing the 30-session floor, but the frozen allocator can select only 541/1,000 rows under its label quotas and 40-row session cap. | Collect independent, label-diverse evaluation sessions until the unchanged sampler allocates all 1,000 rows, then freeze and audit that set before training. |
 
 ## Goal
 
@@ -42,9 +42,11 @@ The frozen `v1.0.0` vocabulary remains unchanged. The existing 399-row audit and
 classification are reproducible as aggregate evidence. #25 recon falsified the assumption that all
 26 correction judgments can be rendered back into exact training contexts from the saved audit.
 Source identity and the private correction manifest are now frozen, and a new source-gated audit
-provides 19 matched correction rows. The evaluation side still fails its predeclared 30-session
-floor, so the matched corrected-target treatment cannot start. Taxonomy and mapper changes remain
-outside that comparison.
+provides 19 matched correction rows. A refreshed immutable source snapshot clears the evaluation
+side's predeclared 30-session floor at 32 sessions, but the unchanged allocation contract can select
+only 541 of the required 1,000 rows under its label quotas and 40-row session cap. The matched
+corrected-target treatment therefore cannot start. Taxonomy and mapper changes remain outside that
+comparison.
 
 ## Ground truth at takeover
 
@@ -95,6 +97,12 @@ estimate establishes the cause of the error.
   are emitted by the scorer.
 - [x] Sampling gate: allocation equals the requested target or refuses; a non-empty output directory
   refuses; IDs are assigned after shuffling and derived from row content rather than stratum order.
+- [x] Readiness gate: a manifest-restricted `--check-only` run reports candidate exclusions,
+  reviewable rows and labels, eligible sessions, raw capped capacity, and exact label-constrained
+  capacity as aggregate JSON. Capacity is computed independently of the minimum-session rule so it
+  remains present when that rule fails. The command exits 2 and writes no sample while the draw is
+  incomplete. If the pool is too small to define label quotas, the same JSON reports inventory and
+  raw capacity, leaves label-constrained capacity null, and records the allocation refusal reason.
 - [x] Red controls: malformed synthetic submissions were observed passing the previous scorer; the
   focused tests now require the intended rejection message and absence of output.
 - [x] Merge gate: `pytest -q -m "not slow"` passes on the final branch and the regenerated aggregate
@@ -142,9 +150,11 @@ multi-action selection, a taxonomy boundary, or an uncertain reference.
 
 ## One next action after this milestone
 
-Collect 13 more independent evaluation sessions, then rebuild the frozen source manifest and require
-the 30-session gate to pass before drawing or reviewing the 1,000-row evaluation set. Do not start
-training while that gate reports `INCOMPLETE`.
+Collect independent, label-diverse evaluation sessions, then rebuild the immutable source snapshot
+and manifest and rerun the unchanged allocator. The next milestone is an exact 1,000-row allocation,
+not a fixed session count. The current raw session-cap shortfall implies a mathematical lower bound
+of ten additional sessions if every one contributes the full 40 usable rows; label mix can require
+more. Do not draw, review, or train while the allocator reports `INCOMPLETE`.
 
 ## Issue #25 — corrected feedback experiment plan
 
@@ -291,6 +301,26 @@ eligible for the matched correction treatment. Cause assignments remain single-r
 and the cause reviewer used GPT-6 Astra Medium in a separate context from the two auditors. A fresh
 GPT-5.6 Luna High context adjudicated the disagreements. See
 `TESTS-RESULTS/2026-09-10-issue-25-audit-freeze/`.
+
+**Verified evaluation-readiness checkpoint (2026-09-10).** A refresh copied both live transcript
+sources into an immutable private snapshot after a direct live-source run correctly refused on hash
+drift. The rebuilt source gate isolates 2,913 evaluation candidates across 32 sessions and 41
+labels, with zero comparable session, event, q1, or content overlap against the correction and prior
+evidence boundaries. The session floor now passes. Under the frozen seed, label allocation, floor,
+and 40-row session cap, the sampler excludes 100 unauditable events, leaving 2,813 reviewable rows
+across 38 labels. Raw per-session capacity is then 604 rows, and the exact allocator can satisfy its
+label quotas for only 541 rows. It refused the requested 1,000-row draw with exit 2 and wrote no
+output. Ten additional full-capacity sessions are only a lower bound from the 396-row raw-capacity
+shortfall; their label distribution can raise the actual requirement. See
+`TESTS-RESULTS/2026-09-10-issue-25-evaluation-readiness/`.
+
+**Verified readiness-tool checkpoint (2026-09-10).** The sampler now emits the readiness checkpoint
+above directly from its exact post-filter pool with `--check-only`. Its synthetic red control starts
+with five manifest events but only four reviewable rows and proves that a deliberately broken
+session-cap calculation fails. Separate red controls prove capacity survives a session-floor failure
+and that allocation failure still emits structured inventory. The real command reproduces 2,913
+manifest rows, 100 exclusions, 2,813 reviewable rows, 38 labels, 32 sessions, 604 raw capped rows,
+and 541 label-constrained rows; it exits 2 and writes no sample.
 
 **Non-goals.** This issue does not repair shell parsing, revise the 44 labels, add preference/DPO
 training, merge MLX into main, qualify the native engine, deploy a hook, or interpret the old 26-row

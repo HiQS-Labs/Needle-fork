@@ -17,6 +17,11 @@ BLIND PROTOCOL
     `sample.jsonl` carries the call text WITHOUT the sorter's label, so an auditor
     assigns a label without anchoring on the answer. The sorter's labels are held
     back in `sorter.jsonl` and joined only at scoring time.
+
+READINESS
+    `--check-only` validates a manifest-restricted source and emits aggregate JSON
+    from the same post-filter pool and exact allocator used by the real draw. It
+    never writes sample rows and keeps exit 2 for an incomplete gate.
 """
 from __future__ import annotations
 import argparse, collections, hashlib, json, math, os, random, sys
@@ -31,6 +36,18 @@ from transcript_events import (IDENTITY_FORMAT_VERSION, read_transcript,
 EXPERIMENT_MANIFEST_VERSION = 1
 SAMPLING_DESIGN = "stratified-srswor-v1"
 TARGETED_DESIGN = "session-constrained-targeted-v1"
+READINESS_REPORT_VERSION = "audit-readiness-v1"
+
+
+class DrawCapacityError(ValueError):
+    """The requested label quotas cannot fit under the session cap."""
+
+    def __init__(self, capacity: int, target: int):
+        self.capacity = capacity
+        self.target = target
+        super().__init__(
+            f"label quotas and session cap permit only {capacity} rows, "
+            f"below requested {target}")
 
 
 def render(tool: str, inp: dict) -> str:
@@ -187,8 +204,7 @@ def _targeted_draw(pool: dict, plan: dict, seed: int, min_sessions: int,
 
     flow, flow_cost = _min_cost_flow(graph, source, sink, target)
     if flow != target:
-        raise ValueError(
-            f"label quotas and session cap permit only {flow} rows, below requested {target}")
+        raise DrawCapacityError(flow, target)
     used_sessions = -flow_cost
     if used_sessions < min_sessions:
         raise ValueError(
@@ -205,6 +221,56 @@ def _targeted_draw(pool: dict, plan: dict, seed: int, min_sessions: int,
     if len(selected) != target:
         raise ValueError(f"flow selected {len(selected)} rows, expected {target}")
     return selected
+
+
+def readiness_inventory(pool: dict, target: int, min_sessions: int,
+                        max_per_session: int) -> dict:
+    """Return aggregate inventory metrics from the exact post-filter pool."""
+    session_counts = collections.Counter(
+        row["session"] for rows in pool.values() for row in rows)
+    cap = max_per_session or target
+    return {
+        "status": "INCOMPLETE",
+        "target_rows": target,
+        "reviewable_rows": sum(map(len, pool.values())),
+        "reviewable_labels_present": len(pool),
+        "eligible_sessions": len(session_counts),
+        "min_sessions": min_sessions,
+        "max_per_session": max_per_session,
+        "raw_session_cap_capacity": sum(
+            min(count, cap) for count in session_counts.values()),
+        "label_constrained_capacity": None,
+    }
+
+
+def targeted_readiness(pool: dict, plan: dict, seed: int, min_sessions: int,
+                       max_per_session: int) -> dict:
+    """Return aggregate feasibility metrics from the exact post-filter pool."""
+    target = sum(plan.values())
+    report = readiness_inventory(
+        pool, target, min_sessions, max_per_session)
+    try:
+        selected = _targeted_draw(
+            pool, plan, seed, 0, max_per_session)
+    except DrawCapacityError as exc:
+        report["label_constrained_capacity"] = exc.capacity
+        report["reason"] = str(exc)
+    except ValueError as exc:
+        report["reason"] = str(exc)
+    else:
+        report["label_constrained_capacity"] = target
+        try:
+            selected = _targeted_draw(
+                pool, plan, seed, min_sessions, max_per_session)
+        except ValueError as exc:
+            report["reason"] = str(exc)
+        else:
+            report.update({
+                "status": "READY",
+                "selected_sessions": len({row["session"] for _, row in selected}),
+                "reason": None,
+            })
+    return report
 
 
 def _finish_draw(selected: list[tuple[str, dict]], seed: int
@@ -392,23 +458,30 @@ def main(argv=None) -> int:
     ap.add_argument("--seed", type=int, default=20260909)
     ap.add_argument("--min-sessions", type=int, default=0)
     ap.add_argument("--max-per-session", type=int, default=0)
+    ap.add_argument(
+        "--check-only", action="store_true",
+        help="validate a manifest-restricted draw and print aggregate JSON without writing it")
     args = ap.parse_args(argv)
 
-    data_root = os.path.realpath("data")
-    output_dir = os.path.realpath(args.out_dir)
-    try:
-        inside_data = os.path.commonpath([data_root, output_dir]) == data_root
-    except ValueError:
-        inside_data = False
-    if not inside_data or output_dir == data_root:
-        print("refusing: the sample contains real prompt text and must stay under data/",
-              file=sys.stderr)
+    if args.check_only and not args.eligible_manifest:
+        print("refusing: --check-only requires --eligible-manifest", file=sys.stderr)
         return 2
-    occupied = sorted(os.listdir(args.out_dir)) if os.path.isdir(args.out_dir) else []
-    if occupied:
-        print(f"refusing to overwrite an existing audit ({', '.join(occupied)}); "
-              "choose a new --out-dir", file=sys.stderr)
-        return 2
+    if not args.check_only:
+        data_root = os.path.realpath("data")
+        output_dir = os.path.realpath(args.out_dir)
+        try:
+            inside_data = os.path.commonpath([data_root, output_dir]) == data_root
+        except ValueError:
+            inside_data = False
+        if not inside_data or output_dir == data_root:
+            print("refusing: the sample contains real prompt text and must stay under data/",
+                  file=sys.stderr)
+            return 2
+        occupied = sorted(os.listdir(args.out_dir)) if os.path.isdir(args.out_dir) else []
+        if occupied:
+            print(f"refusing to overwrite an existing audit ({', '.join(occupied)}); "
+                  "choose a new --out-dir", file=sys.stderr)
+            return 2
 
     pool = collections.defaultdict(list)
     manifest_sha256 = None
@@ -459,8 +532,38 @@ def main(argv=None) -> int:
     try:
         plan = allocate(counts, args.target, args.floor)
     except ValueError as exc:
+        if args.check_only:
+            report = {
+                "report_format": READINESS_REPORT_VERSION,
+                "eligible_manifest_sha256": manifest_sha256,
+                "manifest_side": args.manifest_side,
+                "manifest_rows": manifest_selection["manifest_rows"],
+                "excluded_unrenderable": manifest_selection["excluded_unrenderable"],
+                "seed": args.seed,
+                "floor": args.floor,
+                **readiness_inventory(
+                    pool, args.target, args.min_sessions, args.max_per_session),
+                "reason": str(exc),
+            }
+            print(json.dumps(report, sort_keys=True))
+            return 2
         print(f"refusing: {exc}", file=sys.stderr)
         return 2
+
+    if args.check_only:
+        report = {
+            "report_format": READINESS_REPORT_VERSION,
+            "eligible_manifest_sha256": manifest_sha256,
+            "manifest_side": args.manifest_side,
+            "manifest_rows": manifest_selection["manifest_rows"],
+            "excluded_unrenderable": manifest_selection["excluded_unrenderable"],
+            "seed": args.seed,
+            "floor": args.floor,
+            **targeted_readiness(
+                pool, plan, args.seed, args.min_sessions, args.max_per_session),
+        }
+        print(json.dumps(report, sort_keys=True))
+        return 0 if report["status"] == "READY" else 2
 
     try:
         sample, truth = draw(
