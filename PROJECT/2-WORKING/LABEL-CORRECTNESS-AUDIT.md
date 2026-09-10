@@ -200,20 +200,24 @@ model result.
    audit, and model-selection evidence. Publish aggregate counts/hashes only.
    -> Expect zero shared sessions and zero exact q1/content overlap; otherwise stop.
 4. Use change in sealed-holdout top-1 accuracy (`Arm B - Arm A`) as the only primary effect. The
-   primary null is equal discordant-pair probabilities; test it with a two-sided exact McNemar test
-   at `alpha = 0.05`. Promotion requires all of: at least `+5.00 pp`, `p < 0.05`, and a session-level
-   bootstrap 95% interval whose lower endpoint is above zero. Evaluate exactly 1,000 reviewed rows
+   primary inferential rule is a two-sided 95% percentile interval (`alpha = 0.05`) from 10,000
+   whole-session resamples at seed `2501`; each resample includes all frozen rows from every selected
+   session and computes the row-weighted accuracy change. Promotion requires both a point change of
+   at least `+5.00 pp` and a lower interval endpoint above zero. Evaluate exactly 1,000 reviewed rows
    spanning at least 30 sessions, with no session supplying more than 40 rows; a smaller eligible or
-   completed sample is `INCOMPLETE`. The 1,000-row cap exceeds the roughly 623 independent pairs
-   needed for 80% power at a five-point effect and 20% discordance, while the session interval makes
-   the remaining clustering uncertainty visible rather than claiming independent rows.
+   completed sample is `INCOMPLETE`. These counts are eligibility floors, not a prospective power
+   claim: the previously calculated 295–623 independent-row requirement does not apply once outcomes
+   cluster by session. Report row-level exact McNemar arithmetic only as a descriptive sensitivity,
+   never as the promotion test.
 
    The governance and rare-label subsets are blocking secondary safety gates. Governance membership
    is the frozen taxonomy's governance tier. A rare label has less than 1% support in the frozen base
-   training manifest. Each aggregate subset must contain at least 50 gold rows; less is `INCOMPLETE`.
-   Promotion fails if either subset's observed top-1 change is below `-5.00 pp`. Top-3, per-label
-   recall, and reviewed-versus-old target margins are descriptive secondary results and do not
-   replace the primary rule.
+   training manifest. Each aggregate subset must contain at least 50 gold rows across at least 20
+   contributing sessions; less is `INCOMPLETE`. For each subset, resample its contributing sessions
+   10,000 times at seed `2501` and compute a one-sided 95% lower confidence bound for its
+   row-weighted top-1 change. Promotion requires both lower bounds to be strictly above `-5.00 pp`.
+   Top-3, per-label recall, and reviewed-versus-old target margins are descriptive secondary results
+   and do not replace the primary rule.
 5. Blind-label both frozen samples with two auditors and adjudicate only disagreements. The
    correction set may enter training after its references pass the same completeness/confidence
    gates as #20. The evaluation reference remains sealed until both artifacts and run receipts are

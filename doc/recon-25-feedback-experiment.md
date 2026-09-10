@@ -74,7 +74,7 @@ changes.
 
 | Unknown | Why it matters | What settles it |
 | --- | --- | --- |
-| At least 1,000 reviewable rows across 30 eligible fresh sessions | Row count alone overstates power under session clustering | Freeze the inventory and report session sizes; fewer rows/sessions makes the experiment `INCOMPLETE` under the plan's fixed five-point primary rule |
+| At least 1,000 reviewable rows across 30 eligible fresh sessions, plus protected-subset support | Row count alone cannot establish power under session clustering | Freeze the inventory and report session sizes; fewer rows/sessions makes the experiment `INCOMPLETE`, and the final session-resampled interval rather than an independent-row calculation gates the fixed five-point claim |
 | Stable namespace values across machines | Relative paths can collide between different sources | Require an explicit non-secret source namespace in each manifest and test cross-namespace noncollision |
 | Exact recoverability of the 13 ambiguous legacy audit rows | Guessing would fabricate q1 context | No current evidence can settle it; exclude them unless an older immutable source snapshot reproduces the full audit |
 | Best correction exposure | Too little has no effect; too much can overfit | One predeclared matched-control treatment, followed by fresh evaluation; no tuning against the holdout |
