@@ -19,7 +19,8 @@ also blind to the sorter.
 
 The historical plan requested 400 rows but its allocation realized 399. The corrected estimate and
 variance use the 399 observed rows and their recorded per-stratum allocation. The new allocator
-either reaches the requested target exactly or refuses.
+either reaches the requested target exactly or refuses. Because the frozen plan predates the format
+stamp, reproduction requires the explicit `--allow-legacy-plan` switch; new unversioned plans fail.
 
 Two numbers serve different purposes:
 
@@ -118,6 +119,7 @@ python3.11 utils/corpus/score_audit.py \
   --dir data/audit \
   --auditors claude,agy \
   --adjudicator codex \
+  --allow-legacy-plan \
   --out TESTS-RESULTS/2026-09-09-label-correctness-audit/raw-metrics.json \
   --adjudicated-out TESTS-RESULTS/2026-09-09-label-correctness-audit/adjudicated.json
 ```

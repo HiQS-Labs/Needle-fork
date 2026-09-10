@@ -65,6 +65,8 @@ def load_jsonl(path: str, label_key: str | None = None,
                 if label not in tx.LABELS_V1:
                     raise AuditError(f"{path}:{lineno}: unknown label {label!r}")
             confidence = row.get("confidence")
+            if "confidence" in required and confidence is None:
+                raise AuditError(f"{path}:{lineno}: missing non-null confidence")
             if confidence is not None and confidence not in {"high", "low"}:
                 raise AuditError(f"{path}:{lineno}: invalid confidence {confidence!r}")
             rows[rid] = row
@@ -81,7 +83,7 @@ def require_same_ids(role: str, rows: dict, expected: set[str]) -> None:
             f"{len(expected - actual)} missing, {len(actual - expected)} extra")
 
 
-def load_plan(path: str) -> dict:
+def load_plan(path: str, allow_legacy: bool = False) -> dict:
     try:
         with open(path) as fh:
             plan = json.load(fh)
@@ -89,6 +91,14 @@ def load_plan(path: str) -> dict:
         raise AuditError(f"cannot read {path}: {exc}") from exc
     if not isinstance(plan, dict):
         raise AuditError(f"{path}: plan must be an object")
+    format_version = plan.get("audit_format_version")
+    if format_version != 2:
+        if not (allow_legacy and format_version is None):
+            raise AuditError(
+                f"{path}: audit format is {format_version!r}, expected 2")
+        plan["_loaded_format"] = "legacy-unversioned (explicitly allowed)"
+    else:
+        plan["_loaded_format"] = "2"
     if plan.get("label_set_version") != tx.LABEL_SET_VERSION:
         raise AuditError(
             f"{path}: label set is {plan.get('label_set_version')!r}, "
@@ -233,8 +243,15 @@ def subset_summary(sorter: dict, gold: dict, ids: set[str]) -> dict:
     return {
         "n": n,
         "correct": k,
-        "agreement": round(k / n, 4),
+        "agreement": round(k / n, 4) if n else None,
     }
+
+
+def optional_stratified_estimate(per_label: dict, population: dict,
+                                 labels: set[str]) -> dict | None:
+    """Return no estimate when the requested subset has no population strata."""
+    labels = set(labels) & set(population)
+    return stratified_estimate(per_label, population, labels) if labels else None
 
 
 def write_json(path: str, value: dict) -> None:
@@ -254,18 +271,20 @@ def main(argv=None) -> int:
     ap.add_argument("--auditors", default="claude,agy")
     ap.add_argument("--adjudicator",
                     help="JSONL basename or path containing exactly the disagreement IDs")
+    ap.add_argument("--allow-legacy-plan", action="store_true",
+                    help="explicitly accept the frozen pre-v2 plan with no format version")
     ap.add_argument("--out", help="write validated raw auditor aggregates here")
     ap.add_argument("--adjudicated-out", help="write the deterministic adjudicated aggregate here")
     args = ap.parse_args(argv)
 
     try:
-        if (args.out and args.adjudicated_out
-                and os.path.realpath(args.out) == os.path.realpath(args.adjudicated_out)):
-            raise AuditError("--out and --adjudicated-out must be different files")
-        plan = load_plan(os.path.join(args.dir, "plan.json"))
-        sample = load_jsonl(os.path.join(args.dir, "sample.jsonl"),
+        plan_path = os.path.join(args.dir, "plan.json")
+        sample_path = os.path.join(args.dir, "sample.jsonl")
+        sorter_path = os.path.join(args.dir, "sorter.jsonl")
+        plan = load_plan(plan_path, allow_legacy=args.allow_legacy_plan)
+        sample = load_jsonl(sample_path,
                             required=("tool", "text"))
-        sorter = load_jsonl(os.path.join(args.dir, "sorter.jsonl"), "sorter_label",
+        sorter = load_jsonl(sorter_path, "sorter_label",
                             required=("sorter_label", "session"))
         sample_ids = set(sample)
         require_same_ids("sorter", sorter, sample_ids)
@@ -279,14 +298,48 @@ def main(argv=None) -> int:
         if not names or len(names) != len(set(names)):
             raise AuditError("--auditors must name one or more distinct files")
         auditors = {}
-        for name in names:
-            path = name if os.path.sep in name else os.path.join(args.dir, f"{name}.jsonl")
+        auditor_paths = {
+            name: name if os.path.sep in name else os.path.join(args.dir, f"{name}.jsonl")
+            for name in names
+        }
+        resolved_auditors = {}
+        for name, path in auditor_paths.items():
+            resolved = os.path.realpath(path)
+            if resolved in resolved_auditors:
+                raise AuditError(
+                    f"auditors {resolved_auditors[resolved]!r} and {name!r} "
+                    "resolve to the same file")
+            resolved_auditors[resolved] = name
             auditors[name] = load_jsonl(path, "label", required=("label", "confidence"))
             require_same_ids(f"auditor {name}", auditors[name], sample_ids)
+
+        adjudicator_path = None
+        if args.adjudicator:
+            adjudicator_path = (
+                args.adjudicator if os.path.sep in args.adjudicator
+                else os.path.join(args.dir, f"{args.adjudicator}.jsonl"))
+        input_paths = {
+            os.path.realpath(path)
+            for path in (plan_path, sample_path, sorter_path, *auditor_paths.values())
+        }
+        if adjudicator_path:
+            resolved_adjudicator = os.path.realpath(adjudicator_path)
+            if resolved_adjudicator in resolved_auditors:
+                raise AuditError("adjudicator and auditor must resolve to different files")
+            input_paths.add(resolved_adjudicator)
+        output_paths = [
+            os.path.realpath(path)
+            for path in (args.out, args.adjudicated_out) if path
+        ]
+        if len(output_paths) != len(set(output_paths)):
+            raise AuditError("--out and --adjudicated-out must be different files")
+        if any(path in input_paths for path in output_paths):
+            raise AuditError("output files must not overwrite audit inputs")
 
         report = {
             "measurement_contract": {
                 "sampling": "predicted-label stratified, unequal allocation",
+                "plan_format": plan["_loaded_format"],
                 "sample_statistics": "unweighted agreement on the audited rows",
                 "population_statistics": "weighted by plan.population; sampling error only",
             },
@@ -314,9 +367,7 @@ def main(argv=None) -> int:
         if args.adjudicator:
             if len(auditors) != 2:
                 raise AuditError("adjudication requires exactly two auditors")
-            path = (args.adjudicator if os.path.sep in args.adjudicator
-                    else os.path.join(args.dir, f"{args.adjudicator}.jsonl"))
-            judge = load_jsonl(path, "label", required=("label", "confidence"),
+            judge = load_jsonl(adjudicator_path, "label", required=("label", "confidence"),
                                allow_empty=True)
             gold, disagreement_n = adjudicate(
                 sorter, auditors[names[0]], auditors[names[1]], judge)
@@ -324,7 +375,7 @@ def main(argv=None) -> int:
             all_ids = set(sorter)
             governance_labels = {
                 label for label in plan["population"]
-                if tx.LABELS_V1[label]["group"] in {"pdda", "prs", "xyz"}
+                if tx.LABELS_V1[label]["tier"] == tx.GOVERNANCE
             }
             governance_ids = {
                 rid for rid, row in sorter.items()
@@ -338,12 +389,12 @@ def main(argv=None) -> int:
                 "non_governance": subset_summary(sorter, gold, all_ids - governance_ids),
                 "population_weighted": {
                     "all": stratified_estimate(scored["per_label"], plan["population"]),
-                    "governance": stratified_estimate(
+                    "governance": optional_stratified_estimate(
                         scored["per_label"], plan["population"], governance_labels),
-                    "non_governance": stratified_estimate(
+                    "non_governance": optional_stratified_estimate(
                         scored["per_label"], plan["population"],
                         set(plan["population"]) - governance_labels),
-                    "assigned_only": stratified_estimate(
+                    "assigned_only": optional_stratified_estimate(
                         scored["per_label"], plan["population"], mapped_labels),
                 },
                 "per_label": scored["per_label"],

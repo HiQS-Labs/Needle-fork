@@ -14,7 +14,7 @@
 
 | What was just completed | What's next |
 |---|---|
-| The 44-label vocabulary is frozen as `v1.0.0`; the corrected mapper's Studio coverage is 96.41%, and the first 399-row blind correctness audit is complete. | **[#20](https://github.com/HiQS-Labs/Needle-fork/issues/20): finish the deterministic scorer/receipt correction.** Then classify the existing errors by population-weighted contribution before choosing any mapper, taxonomy, or training change. |
+| The 44-label vocabulary is frozen as `v1.0.0`, and #20's deterministic scorer and corrected 77.84% population estimate are ready for merge. | **Classify the existing adjudicated errors by verified cause and population-weighted contribution** before choosing any mapper, taxonomy, or training change. |
 
 > **Corrected 2026-09-09.** This cell previously read *"first `needle finetune` run on JAX/CPU at
 > `--max-len 2048`"*. That was superseded on 2026-09-07 by
@@ -31,7 +31,7 @@
 
 ### In progress
 
-- [Label correctness audit — make the §2 gate trustworthy](PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md) — correct the unequal-strata estimate and make the scorer fail closed. ([#20](https://github.com/HiQS-Labs/Needle-fork/issues/20))
+- [Label correctness audit — make the §2 gate trustworthy](PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md) — scorer correction complete; next classify adjudicated errors by verified cause and population-weighted contribution. ([#20](https://github.com/HiQS-Labs/Needle-fork/issues/20))
 
 ### Completed
 

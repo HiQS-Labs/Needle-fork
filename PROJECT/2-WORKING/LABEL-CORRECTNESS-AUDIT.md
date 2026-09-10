@@ -78,6 +78,8 @@ estimate establishes the cause of the error.
 
 - [x] Exact row-set gate: duplicate, missing, extra, unknown-label, invalid-confidence, and
   allocation-mismatched inputs fail closed before any report is written.
+- [x] Format gate: new plans require audit format v2. The frozen unversioned plan requires the
+  explicit `--allow-legacy-plan` compatibility switch, which is recorded in the receipt.
 - [x] Adjudication gate: the scorer requires exactly the two auditors' disagreement IDs and builds
   the final reference deterministically.
 - [x] Estimand gate: unweighted sample agreement and population-weighted estimates are named and

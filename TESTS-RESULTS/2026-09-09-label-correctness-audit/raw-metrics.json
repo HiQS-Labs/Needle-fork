@@ -1,6 +1,7 @@
 {
   "measurement_contract": {
     "sampling": "predicted-label stratified, unequal allocation",
+    "plan_format": "legacy-unversioned (explicitly allowed)",
     "sample_statistics": "unweighted agreement on the audited rows",
     "population_statistics": "weighted by plan.population; sampling error only"
   },

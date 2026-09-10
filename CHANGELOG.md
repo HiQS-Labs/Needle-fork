@@ -19,6 +19,8 @@ reports weighted estimates and full confusion pairs; and records the interval's 
 `sample_for_audit.py` now reaches the requested target exactly or refuses, rejects reused non-empty
 output directories, and assigns opaque IDs after the draw. Focused tests include red controls
 against the previous permissive behavior, and the aggregate receipt was regenerated.
+New plans require audit format v2; the frozen unversioned plan is accepted only through an explicit
+`--allow-legacy-plan` compatibility switch recorded in the receipt.
 
 The corrected weighting changes the next decision: `run_script` contributes about 10.86 percentage
 points of estimated corpus error versus at most 3.46 points for `unmapped`. Issue #20's original
