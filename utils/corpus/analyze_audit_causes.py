@@ -93,7 +93,8 @@ def analyze(directory: str, auditors: tuple[str, str], adjudicator: str,
     causes = audit.load_jsonl(
         causes_path,
         required=("sorter_label", "reference_label", "cause", "confidence",
-                  "observed_mechanism", "falsifier"))
+                  "observed_mechanism", "falsifier"),
+        allow_empty=not expected)
     actual = set(causes)
     if actual != expected:
         raise audit.AuditError(
@@ -167,7 +168,9 @@ def analyze(directory: str, auditors: tuple[str, str], adjudicator: str,
             name: {
                 "rows": values["rows"],
                 "population_error_contribution": round(values["weighted"], 6),
-                "share_of_estimated_error": round(values["weighted"] / classified_error, 6),
+                "share_of_estimated_error": (
+                    round(values["weighted"] / classified_error, 6)
+                    if classified_error else None),
             }
             for name, values in sorted(
                 groups.items(), key=lambda item: (-item[1]["weighted"], item[0]))
@@ -193,7 +196,9 @@ def analyze(directory: str, auditors: tuple[str, str], adjudicator: str,
             "selection": "high-confidence cause plus high-confidence adjudicated reference in shell_visibility, inline_semantics, or rule_defect",
             "rows": feedback_rows,
             "population_error_contribution": round(feedback_weight, 6),
-            "share_of_estimated_error": round(feedback_weight / classified_error, 6),
+            "share_of_estimated_error": (
+                round(feedback_weight / classified_error, 6)
+                if classified_error else None),
             "training_use": "reference label is the positive; frozen sorter label is the hard negative",
             "limitation": "This is a development seed, not a holdout, and its weighted contribution is not the expected gain from training.",
         },

@@ -359,3 +359,21 @@ def test_multi_action_cause_requires_visible_competing_labels(tmp_path):
     with pytest.raises(scorer.AuditError, match="requires the reference"):
         cause_analyzer.analyze(
             str(tmp_path), ("alice", "bob"), "judge", str(causes))
+
+
+def test_cause_analyzer_accepts_a_zero_error_audit(tmp_path):
+    _cause_fixture(tmp_path)
+    path = tmp_path / "alice.jsonl"
+    rows = [json.loads(line) for line in path.read_text().splitlines()]
+    next(row for row in rows if row["id"] == "x2").update(
+        label="read_file", confidence="high")
+    _write_jsonl(path, rows)
+    (tmp_path / "judge.jsonl").write_text("")
+    causes = tmp_path / "causes.jsonl"
+    causes.write_text("")
+
+    report = cause_analyzer.analyze(
+        str(tmp_path), ("alice", "bob"), "judge", str(causes))
+    assert report["errors"] == {"rows": 0, "population_error_estimate": 0.0}
+    assert report["by_cause"] == {}
+    assert report["reviewed_correction_seed"]["share_of_estimated_error"] is None
