@@ -36,8 +36,13 @@ gitignored `data/`. The tracked receipt contains aggregate counts and hashes onl
 ## Validation
 
 - Public receipt values match the immutable private source manifest and aggregate receipt.
-- The frozen sampler reproduced the 541-row ceiling, returned exit 2, and wrote no output.
-- Full non-slow suite: `342 passed, 6 skipped, 6 deselected`.
+- The frozen sampler's `--check-only` report reproduced the 541-row ceiling, returned exit 2, and
+  wrote no sample output. `readiness.json` is its aggregate stdout record.
+- The readiness tests failed under deliberate mutations that ignored the session cap, suppressed
+  exact capacity when only the session floor failed, and suppressed structured output when label
+  allocation failed; all passed after restoration.
+- Focused audit and identity suite: `65 passed`.
+- Full non-slow suite: `346 passed, 6 skipped, 6 deselected`.
 - PDDA: all deterministic checks passed; the optional LLM readiness review was not configured.
 - Public-artifact scan: all files are nonempty; no local paths, private-key markers, or common
   literal credential assignments were found.

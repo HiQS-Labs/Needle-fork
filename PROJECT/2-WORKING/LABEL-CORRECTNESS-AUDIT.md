@@ -97,6 +97,12 @@ estimate establishes the cause of the error.
   are emitted by the scorer.
 - [x] Sampling gate: allocation equals the requested target or refuses; a non-empty output directory
   refuses; IDs are assigned after shuffling and derived from row content rather than stratum order.
+- [x] Readiness gate: a manifest-restricted `--check-only` run reports candidate exclusions,
+  reviewable rows and labels, eligible sessions, raw capped capacity, and exact label-constrained
+  capacity as aggregate JSON. Capacity is computed independently of the minimum-session rule so it
+  remains present when that rule fails. The command exits 2 and writes no sample while the draw is
+  incomplete. If the pool is too small to define label quotas, the same JSON reports inventory and
+  raw capacity, leaves label-constrained capacity null, and records the allocation refusal reason.
 - [x] Red controls: malformed synthetic submissions were observed passing the previous scorer; the
   focused tests now require the intended rejection message and absence of output.
 - [x] Merge gate: `pytest -q -m "not slow"` passes on the final branch and the regenerated aggregate
@@ -307,6 +313,14 @@ label quotas for only 541 rows. It refused the requested 1,000-row draw with exi
 output. Ten additional full-capacity sessions are only a lower bound from the 396-row raw-capacity
 shortfall; their label distribution can raise the actual requirement. See
 `TESTS-RESULTS/2026-09-10-issue-25-evaluation-readiness/`.
+
+**Verified readiness-tool checkpoint (2026-09-10).** The sampler now emits the readiness checkpoint
+above directly from its exact post-filter pool with `--check-only`. Its synthetic red control starts
+with five manifest events but only four reviewable rows and proves that a deliberately broken
+session-cap calculation fails. Separate red controls prove capacity survives a session-floor failure
+and that allocation failure still emits structured inventory. The real command reproduces 2,913
+manifest rows, 100 exclusions, 2,813 reviewable rows, 38 labels, 32 sessions, 604 raw capped rows,
+and 541 label-constrained rows; it exits 2 and writes no sample.
 
 **Non-goals.** This issue does not repair shell parsing, revise the 44 labels, add preference/DPO
 training, merge MLX into main, qualify the native engine, deploy a hook, or interpret the old 26-row

@@ -19,6 +19,11 @@ cap permits at most 604 rows, and the exact label-quota allocator can select onl
 1,000. The next action is therefore to collect independent, label-diverse sessions until the same
 allocator succeeds. Ten additional full-capacity sessions is only a mathematical lower bound from
 the raw capacity shortfall; the label mix can require more. No audit draw or training run started.
+`sample_for_audit.py --check-only` now emits these post-filter metrics as aggregate JSON while
+preserving exit 2 for an incomplete gate and writing no sample files. It computes label-constrained
+capacity independently of the minimum-session rule, so that metric remains present when the session
+floor is the reason a draw refuses. A pool too small to construct label quotas also emits structured
+`INCOMPLETE` JSON with its inventory, raw capped capacity, and refusal reason.
 
 ### The label errors now have measured causes and a bounded feedback seed
 
