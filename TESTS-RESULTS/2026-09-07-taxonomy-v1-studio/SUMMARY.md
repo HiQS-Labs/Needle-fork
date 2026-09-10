@@ -61,7 +61,7 @@ number would look like a win while having learned less than one scoring 50% here
 labeler were suppressing it — `uv add ruff` scored as `run_linter` (a package *name*
 read as an invocation) and dependency inspection (`pip list`, `brew list`, `npm ls`)
 had been tightened out into `unmapped`. Fixed, it measures **111**. See the decision
-record in `PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md` and `SOP.md` §4 for the
+record in `PROJECT/3-COMPLETED/PHASE-2-LABEL-TAXONOMY.md` and `SOP.md` §4 for the
 procedure that caught it.
 
 So #1 §1's "roughly 20-30" understates what the corpus actually contains: 39 labels

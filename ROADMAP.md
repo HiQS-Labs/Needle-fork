@@ -14,7 +14,7 @@
 
 | What was just completed | What's next |
 |---|---|
-| Phase 2 §3 `query` serialization shipped as one shared function for trainer and Stop hook, with the train/serve invariant as a test; token budget measured (schemas alone = 1,383 tokens) so §4 trains at `--max-len 2048` (2026-09-07). | **[#2](https://github.com/HiQS-Labs/Needle-fork/issues/2) first — it blocks cutting `v1.0.0-draft` → `v1.0.0`.** Then [#13](https://github.com/HiQS-Labs/Needle-fork/issues/13)'s prediction-boundary/provenance preflight. §3b/§3c synthesis stays queued. |
+| The 44-label vocabulary is frozen as `v1.0.0`, and #20's deterministic scorer and corrected 77.84% population estimate are ready for merge. | **Classify the existing adjudicated errors by verified cause and population-weighted contribution** before choosing any mapper, taxonomy, or training change. |
 
 > **Corrected 2026-09-09.** This cell previously read *"first `needle finetune` run on JAX/CPU at
 > `--max-len 2048`"*. That was superseded on 2026-09-07 by
@@ -31,11 +31,11 @@
 
 ### In progress
 
-- [Phase 2 §1 — Freeze the v1 Oracle label taxonomy](PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md) — v1 published as `oracle/labels-v1.json`; Studio corpus re-extracted (74,909 pairs, coverage 98.52%). ([#1](https://github.com/HiQS-Labs/Needle-fork/issues/1))
+- [Label correctness audit — make the §2 gate trustworthy](PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md) — scorer correction complete; next classify adjudicated errors by verified cause and population-weighted contribution. ([#20](https://github.com/HiQS-Labs/Needle-fork/issues/20))
 
 ### Completed
 
-- No completed docs.
+- [Phase 2 §1 — Freeze the v1 Oracle label taxonomy](PROJECT/3-COMPLETED/PHASE-2-LABEL-TAXONOMY.md) — v1 published as `oracle/labels-v1.json`; current Studio corpus has 71,763 calls at 96.41% mapping coverage. ([#1](https://github.com/HiQS-Labs/Needle-fork/issues/1))
 
 ### Deferred
 

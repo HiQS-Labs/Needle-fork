@@ -5,7 +5,7 @@ WHY THIS EXISTS
     Every number measured about the sorter counts RESOLUTION -- did a call get *a*
     label. Nothing has measured whether the label is RIGHT (issue #1 §2 defines
     dataset validity as coverage, which cannot tell a right label from a wrong one).
-    See PROJECT/1-INBOX/LABEL-CORRECTNESS-AUDIT.md and LESSONS-LEARNED.md §15.
+    See PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md and LESSONS-LEARNED.md §15.
 
 PRIVACY -- READ BEFORE CHANGING
     The sample contains REAL COMMAND TEXT from the operator's private transcripts,
@@ -19,7 +19,7 @@ BLIND PROTOCOL
     back in `sorter.jsonl` and joined only at scoring time.
 """
 from __future__ import annotations
-import argparse, collections, json, math, os, random, sys
+import argparse, collections, hashlib, json, math, os, random, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import taxonomy as tx
@@ -42,20 +42,61 @@ def allocate(counts: dict, target: int, floor: int) -> dict:
     labels the Oracle exists for and the thinnest in the corpus. sqrt keeps the
     large strata represented without letting `read_file` eat the sample.
     """
+    if not counts or any(v <= 0 for v in counts.values()):
+        raise ValueError("population strata must be non-empty positive counts")
+    if target <= 0 or floor <= 0:
+        raise ValueError("target and floor must be positive")
+    if target > sum(counts.values()):
+        raise ValueError("target exceeds the renderable population")
+
     take = {k: min(v, floor) for k, v in counts.items()}
+    minimum = sum(take.values())
+    if target < minimum:
+        raise ValueError(f"target {target} is below the {minimum}-row stratum floor")
     rest = target - sum(take.values())
-    if rest > 0:
+    while rest:
         room = {k: counts[k] - take[k] for k in counts if counts[k] > take[k]}
-        if room:
-            w = {k: math.sqrt(counts[k]) for k in room}
-            tot = sum(w.values())
-            for k in sorted(room, key=lambda k: -w[k]):
-                add = min(room[k], int(round(rest * w[k] / tot)))
-                take[k] += add
+        if not room:
+            raise ValueError("allocation exhausted the population before reaching target")
+        weights = {k: math.sqrt(counts[k]) for k in room}
+        total_weight = sum(weights.values())
+        quotas = {k: rest * weights[k] / total_weight for k in room}
+        grants = {k: min(room[k], int(quotas[k])) for k in room}
+        granted = sum(grants.values())
+        if not granted:
+            # Largest-remainder tie break is deterministic by label.
+            k = max(room, key=lambda x: (quotas[x], weights[x], x))
+            grants[k] = 1
+            granted = 1
+        for k, amount in grants.items():
+            take[k] += amount
+        rest -= granted
     return {k: v for k, v in take.items() if v}
 
 
-def main() -> int:
+def draw(pool: dict, plan: dict, seed: int) -> tuple[list[dict], list[dict]]:
+    """Select rows deterministically, then assign IDs that reveal no stratum order."""
+    rng = random.Random(seed)
+    selected = []
+    for label in sorted(plan):
+        for row in rng.sample(pool[label], plan[label]):
+            selected.append((label, row))
+    rng.shuffle(selected)
+
+    sample, truth, ids = [], [], set()
+    for ordinal, (label, row) in enumerate(selected):
+        material = json.dumps([seed, ordinal, row["session"], row["tool"], row["text"]],
+                              ensure_ascii=False, separators=(",", ":"))
+        rid = "a" + hashlib.sha256(material.encode()).hexdigest()[:16]
+        if rid in ids:
+            raise ValueError("blind row ID collision")
+        ids.add(rid)
+        sample.append({"id": rid, "tool": row["tool"], "text": row["text"]})
+        truth.append({"id": rid, "sorter_label": label, "session": row["session"]})
+    return sample, truth
+
+
+def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--source", default=os.path.expanduser("~/.claude/projects"))
     ap.add_argument("--out-dir", default="data/audit")
@@ -63,11 +104,22 @@ def main() -> int:
     ap.add_argument("--floor", type=int, default=8,
                     help="minimum rows per label present in the corpus")
     ap.add_argument("--seed", type=int, default=20260909)
-    args = ap.parse_args()
+    args = ap.parse_args(argv)
 
-    if not args.out_dir.startswith("data/"):
+    data_root = os.path.realpath("data")
+    output_dir = os.path.realpath(args.out_dir)
+    try:
+        inside_data = os.path.commonpath([data_root, output_dir]) == data_root
+    except ValueError:
+        inside_data = False
+    if not inside_data or output_dir == data_root:
         print("refusing: the sample contains real prompt text and must stay under data/",
               file=sys.stderr)
+        return 2
+    occupied = sorted(os.listdir(args.out_dir)) if os.path.isdir(args.out_dir) else []
+    if occupied:
+        print(f"refusing to overwrite an existing audit ({', '.join(occupied)}); "
+              "choose a new --out-dir", file=sys.stderr)
         return 2
 
     pool = collections.defaultdict(list)
@@ -78,26 +130,23 @@ def main() -> int:
             pool[label].append({"session": path, "tool": tool, "text": text})
 
     counts = {k: len(v) for k, v in pool.items()}
-    plan = allocate(counts, args.target, args.floor)
+    try:
+        plan = allocate(counts, args.target, args.floor)
+    except ValueError as exc:
+        print(f"refusing: {exc}", file=sys.stderr)
+        return 2
 
-    rng = random.Random(args.seed)
     os.makedirs(args.out_dir, exist_ok=True)
-    sample, truth, n = [], [], 0
-    for label in sorted(plan):
-        for row in rng.sample(pool[label], plan[label]):
-            rid = f"a{n:04d}"
-            sample.append({"id": rid, "tool": row["tool"], "text": row["text"]})
-            truth.append({"id": rid, "sorter_label": label, "session": row["session"]})
-            n += 1
-
-    rng.shuffle(sample)          # so stratum order cannot hint at the label
+    sample, truth = draw(pool, plan, args.seed)
+    n = len(sample)
     for name, rows in (("sample.jsonl", sample), ("sorter.jsonl", truth)):
         with open(os.path.join(args.out_dir, name), "w") as fh:
             for r in rows:
                 fh.write(json.dumps(r) + "\n")
 
     with open(os.path.join(args.out_dir, "plan.json"), "w") as fh:
-        json.dump({"seed": args.seed, "target": args.target, "floor": args.floor,
+        json.dump({"audit_format_version": 2,
+                   "seed": args.seed, "target": args.target, "floor": args.floor,
                    "label_set_version": tx.LABEL_SET_VERSION,
                    "population": counts, "allocation": plan, "drawn": n}, fh, indent=2)
 

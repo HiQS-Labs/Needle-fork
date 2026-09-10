@@ -5,6 +5,29 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-09
 
+### The label-correctness audit now measures the corpus it claims to measure
+
+The frozen 399-row audit was internally complete, but its 84.71% headline pooled unequal
+predicted-label strata and its Wilson interval described the sampled rows, not the corpus. The
+unchanged adjudicated judgments produce a **77.84% population-weighted estimate** with a
+stratified finite-population 95% sampling interval of **72.30–83.38%**. Governance predicted
+strata estimate 94.32%; non-governance strata estimate 76.78%.
+
+`score_audit.py` now rejects duplicate, missing, extra, unknown-label, invalid-confidence, and
+allocation-mismatched inputs before writing output; performs the two-auditor adjudication path;
+reports weighted estimates and full confusion pairs; and records the interval's limits.
+`sample_for_audit.py` now reaches the requested target exactly or refuses, rejects reused non-empty
+output directories, and assigns opaque IDs after the draw. Focused tests include red controls
+against the previous permissive behavior, and the aggregate receipt was regenerated.
+New plans require audit format v2; the frozen unversioned plan is accepted only through an explicit
+`--allow-legacy-plan` compatibility switch recorded in the receipt.
+
+The corrected weighting changes the next decision: `run_script` contributes about 10.86 percentage
+points of estimated corpus error versus at most 3.46 points for `unmapped`. Issue #20's original
+unmapped-first P1→P4 sequence and its ≤85%-proves-rule-order decision are superseded. The one next
+action is to classify the existing adjudicated errors by observed cause and population-weighted
+contribution before changing the mapper, vocabulary, or training path.
+
 ### Label vocabulary frozen as `v1.0.0`
 
 `LABEL_SET_VERSION` cut from `v1.0.0-draft` to **`v1.0.0`**; `oracle/labels-v1.json`
@@ -61,7 +84,7 @@ was stopped by a bounded-pass rule, not by a clean round.
 
 **The §2 coverage gate is re-opened.** The 2026-09-07 Studio measurement (98.52%) was
 produced by the rules this change replaces, which move 322 labels. The acceptance
-boxes in `PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md` are unchecked and the
+boxes in `PROJECT/3-COMPLETED/PHASE-2-LABEL-TAXONOMY.md` are unchecked and the
 2026-09-07 receipt gains a STALE pointer with its numbers left unedited. The general
 rule, now written down: *a measurement is scoped to the code that produced it* — an
 acceptance box is a claim about current code, not a record that a run once happened.
@@ -220,7 +243,7 @@ environment" and "run something ad hoc" are two concepts. Reversibility is asymm
 
 Codified in four places so it is found later — `utils/corpus/taxonomy.py` (at the
 constant itself), `oracle/labels-v1.json` (`support_floor`, so consumers inherit it),
-`PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md`, and here — and guarded by a test that
+`PROJECT/3-COMPLETED/PHASE-2-LABEL-TAXONOMY.md`, and here — and guarded by a test that
 was verified to fail when the rule is reversed.
 
 `SOP.md` gains **§4, "Adjudicating a contested decision"**, generalising the procedure:
@@ -235,7 +258,7 @@ five points, but one model that agrees with the framing it was handed is corrobo
 not verification, and is recorded as such.
 
 Not yet done: `v1.0.0-draft` has not been cut to `v1.0.0`. Tracked in
-`PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md`.
+`PROJECT/3-COMPLETED/PHASE-2-LABEL-TAXONOMY.md`.
 
 Verification: `python3.11 -m pytest tests/test_taxonomy.py -q` → 46 passed;
 `utils/corpus/extract_claude_transcripts.py` over the Studio corpus → 74,909 pairs,

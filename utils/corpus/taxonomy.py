@@ -40,7 +40,7 @@ LABEL_SET_VERSION = "v1.0.0"
 # --- DECISION RECORD: the support floor is a SUPPLEMENTATION gate --------------
 # Adjudicated 2026-09-07 against GUIDING-PRINCIPLES.md, AGENTS.md and SOP.md.
 # Recorded here because this is where someone is tempted to act on it. The same
-# record is in PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md, CHANGELOG.md, and
+# record is in PROJECT/3-COMPLETED/PHASE-2-LABEL-TAXONOMY.md, CHANGELOG.md, and
 # oracle/labels-v1.json; SOP.md §4 has the process that produced it.
 #
 # A label below SUPPORT_FLOOR_RATE is FLAGGED FOR SUPPLEMENTATION (issue #1 §3b
