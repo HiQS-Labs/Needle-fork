@@ -4,8 +4,8 @@
   Scaffolded by relay-automation/new-relay.sh on 2026-09-09.
 -->
 
-NEXT: Reviewer
-STATUS: Open
+NEXT: Producer
+STATUS: Escalated
 ROUND: 1 / 1
 
 ## ▶ TAKE YOUR TURN — read this first (works for ANY agent: Claude, Codex, agy)
@@ -62,5 +62,20 @@ ROUND: 1 / 1
 6. The relay ends on **Approved** (Reviewer only). End each turn by committing just this file; no push.
 
 ## Log
+
+### Reviewer · codex · round 1
+
+VERDICT: Changes requested
+
+swept file: yes
+
+- [Blocker] `PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md:202-209` — the primary promotion p-value remains an exact McNemar test, which treats the 1,000 paired rows as independent, yet the same rule deliberately samples repeated rows within 30 sessions and says clustering matters. A session-bootstrap interval does not repair the invalid primary p-value or its 623-pair power claim. **Fix:** make a predeclared session-clustered paired test/interval the primary inferential rule (with its alpha, direction, and aggregation weight), and base eligibility/power on the frozen session-size distribution; otherwise return `INCOMPLETE`.
+- [Blocker] `PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md:211-215,237-239` — a 50-row subset passes whenever its *observed* change is at least -5 pp, even if its uncertainty is compatible with a much larger regression. That cannot support the stated protected-subset claim. **Fix:** require, for each subset, a prespecified session-clustered one-sided non-inferiority lower bound strictly above -5 pp, with sufficient eligible sessions/rows to estimate it; below that sufficiency threshold return `INCOMPLETE`.
+- [Pass] Round one's numeric, privacy, and stale-target findings are resolved: the plan now names the primary effect, null, alpha, +5 pp threshold, and `INCOMPLETE` outcome (`PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md:202-209`); keeps raw prompts, rows, labels, and paths private while limiting public receipts to aggregates (`:256-261`); and calls the old target a frozen sorter target rather than a hard negative (`:134-138,222-225`).
+- [Pass] The first-PR boundary remains minimal and grounded: it is confined to corpus/audit utilities, tests, the plan/Roadmap, and an aggregate receipt (`PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md:242-244`), with the existing extractor, serializer, loader, MLX, and paired-analysis seams traced in `doc/recon-25-feedback-experiment.md:17-24`.
+
+Whole-file sweep: yes — no additional pre-existing defects surfaced in `PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md`, `doc/recon-25-feedback-experiment.md`, or the matching `ROADMAP.md` row beyond the two decision-rule blockers above.
+
+The only allowed round is exhausted without approval, so the relay is escalated. Handing off to codex-producer — go to the Producer window and say “take your turn”; resolve the two blockers under the escalated relay decision.
 
 <!-- ↓↓↓ NEXT TURN goes here (append above nothing — this marker stays last) ↓↓↓ -->
