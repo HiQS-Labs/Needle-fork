@@ -8,9 +8,14 @@ predeclared 30-session floor.** No training was started.
 
 ## Evidence classification
 
-- **Verified by this run:** the mounted Studio source yielded 65,585 namespaced q1 pairs across 316
-  currently available sessions. Deterministic legacy-membership recovery selected 43,461 correction
-  candidates from 257 of the canonical training corpus's 296 sessions.
+- **Verified by this run:** the frozen Studio source snapshot yielded 65,643 namespaced q1 pairs
+  across 318 currently available sessions. Deterministic `(legacy session, step)` recovery retained
+  20,711 exact full-row correction candidates across 257 of the canonical training corpus's 296
+  sessions. It reported and excluded 22,104 keys whose current mapper rendering differs and 5,929
+  canonical rows unavailable in the snapshot; newly appended actions cannot enter by session alone.
+- **Verified by aggregate comparison:** none of the 42,815 recovered canonical keys changed its saved
+  user request. The drift is in derived prior-action labels, target labels, or both, so the full-row
+  equality check is the required gate even though the vocabulary still says `v1.0.0`.
 - **Verified by this run:** the MacBook source yielded 2,806 evaluation candidates across 17 usable
   sessions. These are unreviewed candidates, not reference labels or an evaluation result.
 - **Verified by this run:** session, source-event, exact q1, and full-context overlap are all zero
@@ -42,10 +47,14 @@ hash without carrying prompts, commands, rows, credentials, or local paths.
 
 ## Validation
 
-- `318 passed, 6 skipped, 6 deselected` in the full non-slow release suite.
+- `321 passed, 6 skipped, 6 deselected` in the final full non-slow release suite.
 - A deliberate mutation that disabled overlap rejection made the overlap test fail.
 - A deliberate mutation that restored absolute-path session identity made the mount-prefix test
   fail.
+- Deliberately disabling source-context equality made both request and prior-action mutation tests
+  fail.
+- Deliberately allowing omitted fitting/audit/model-selection boundaries made the required-boundary
+  test fail.
 - A second full private-data run produced byte-identical manifest and receipt files.
 - Repository PDDA checks passed before implementation; final full-suite results are recorded in the
   PR.

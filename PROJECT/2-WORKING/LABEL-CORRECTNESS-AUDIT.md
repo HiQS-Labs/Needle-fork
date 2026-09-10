@@ -250,11 +250,13 @@ campaign after that gate lands. See `doc/recon-25-feedback-experiment.md`.
 **Verified implementation checkpoint (2026-09-09).** The first-PR gate now emits stable namespaced
 session/event identities, verifies every selected event against the hashed source transcript, retains
 identity through audit v3, reconstructs legacy canonical-train membership, and rejects overlap with
-both namespaced and legacy exclusions. A real private run recovered 43,461 correction candidates
-across 257 canonical training sessions and found zero exact q1/content overlap for 2,806 MacBook
-candidates against all 74,428 frozen canonical Studio pairs. The MacBook candidates span only 17
-eligible sessions, so the experiment is `INCOMPLETE` against the 30-session floor and no training
-started. See `TESTS-RESULTS/2026-09-09-issue-25-source-gate/`.
+both namespaced and legacy exclusions. A real private run recovered 20,711 exact canonical training
+rows across 257 sessions. It excluded 22,104 matched `(session, step)` rows whose current mapper
+rendering differs from the frozen row and 5,929 canonical rows unavailable in the current snapshot.
+The same run found zero exact q1/content overlap for 2,806 MacBook candidates against all 74,428
+frozen canonical Studio pairs. The MacBook candidates span only 17 eligible sessions, so the
+experiment is `INCOMPLETE` against the 30-session floor and no training started. See
+`TESTS-RESULTS/2026-09-09-issue-25-source-gate/`.
 
 **Non-goals.** This issue does not repair shell parsing, revise the 44 labels, add preference/DPO
 training, merge MLX into main, qualify the native engine, deploy a hook, or interpret the old 26-row

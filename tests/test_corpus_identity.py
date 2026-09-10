@@ -77,12 +77,18 @@ def _prepare_pair_inputs(tmp_path):
     return source, correction, evaluation, pairs
 
 
-def _manifest_args(source, correction, evaluation, out, receipt=None):
+def _manifest_args(source, correction, evaluation, out, receipt=None,
+                   boundary_exclusion=None):
+    boundary_exclusion = correction if boundary_exclusion is None else boundary_exclusion
     args = [
         "--correction", str(correction),
         "--evaluation", str(evaluation),
         "--source-root", f"fixture={source}",
         "--out", str(out),
+        "--exclude-legacy", f"baseline={boundary_exclusion}",
+        "--boundary", "fitting=baseline",
+        "--boundary", "prior-audit=baseline",
+        "--boundary", "model-selection=baseline",
     ]
     if receipt is not None:
         args.extend(("--receipt", str(receipt)))
@@ -193,13 +199,13 @@ def test_manifest_selects_legacy_training_membership_and_checks_exclusion(
     legacy_session = hashlib.sha256(
         (legacy_prefix + "/" + pairs[0]["source_relpath"]).encode()).hexdigest()[:16]
     membership = tmp_path / "legacy-pairs.jsonl"
-    _write_jsonl(membership, [
-        {"session": legacy_session, "split": "train"},
-        {"session": "f" * 16, "split": "holdout"},
-    ])
+    canonical_train = {**pairs[0], "session": legacy_session, "split": "train"}
+    canonical_holdout = {**pairs[1], "session": "f" * 16, "split": "holdout"}
+    _write_jsonl(membership, [canonical_train, canonical_holdout])
     out = Path("data/selected.json")
     receipt_path = Path("selected-receipt.json")
-    args = _manifest_args(source, full, evaluation, out, receipt_path)
+    args = _manifest_args(
+        source, full, evaluation, out, receipt_path, boundary_exclusion=correction)
     args.extend((
         "--correction-membership-pairs", str(membership),
         "--correction-legacy-source-prefix", legacy_prefix,
@@ -208,6 +214,31 @@ def test_manifest_selects_legacy_training_membership_and_checks_exclusion(
     receipt = json.loads(receipt_path.read_text())
     assert receipt["sides"]["correction"]["rows"] == 1
     assert receipt["sides"]["correction"]["selection"]["recovered_sessions"] == 1
+
+    appended = {**pairs[0], "step": pairs[0]["step"] + 10,
+                "source_event_id": "e" * 64}
+    _write_jsonl(full, [*pairs, appended])
+    appended_out = Path("data/selected-with-appended.json")
+    args = _manifest_args(
+        source, full, evaluation, appended_out, boundary_exclusion=correction)
+    args.extend((
+        "--correction-membership-pairs", str(membership),
+        "--correction-legacy-source-prefix", legacy_prefix,
+    ))
+    assert manifest_builder.main(args) == 0
+    assert json.loads(appended_out.read_text())["sides"]["correction"]["summary"]["rows"] == 1
+
+    drifted = {**pairs[0], "recent_user_request": "changed canonical context"}
+    _write_jsonl(full, [drifted, pairs[1]])
+    drifted_out = Path("data/selected-with-drift.json")
+    args = _manifest_args(
+        source, full, evaluation, drifted_out, boundary_exclusion=correction)
+    args.extend((
+        "--correction-membership-pairs", str(membership),
+        "--correction-legacy-source-prefix", legacy_prefix,
+    ))
+    assert manifest_builder.main(args) == 2
+    assert not drifted_out.exists()
 
     blocked = Path("data/blocked-by-exclusion.json")
     args = _manifest_args(source, correction, evaluation, blocked)
@@ -249,6 +280,36 @@ def test_manifest_refuses_empty_overlap_overwrite_and_source_drift(tmp_path, mon
     assert manifest_builder.main(_manifest_args(
         source, correction, evaluation, drift)) == 2
     assert not drift.exists()
+
+
+def test_manifest_refuses_missing_required_boundaries(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    source, correction, evaluation, _ = _prepare_pair_inputs(tmp_path)
+    out = Path("data/missing-boundaries.json")
+    args = [
+        "--correction", str(correction),
+        "--evaluation", str(evaluation),
+        "--source-root", f"fixture={source}",
+        "--out", str(out),
+    ]
+    assert manifest_builder.main(args) == 2
+    assert not out.exists()
+
+
+@pytest.mark.parametrize("field,bad", [
+    ("recent_user_request", "substituted request"),
+    ("prior_actions", ["run_script"]),
+])
+def test_manifest_refuses_q1_context_not_reconstructed_from_source(
+        tmp_path, monkeypatch, field, bad):
+    monkeypatch.chdir(tmp_path)
+    source, correction, evaluation, pairs = _prepare_pair_inputs(tmp_path)
+    pairs[0][field] = bad
+    _write_jsonl(correction, [pairs[0]])
+    out = Path(f"data/context-{field}.json")
+    assert manifest_builder.main(_manifest_args(
+        source, correction, evaluation, out)) == 2
+    assert not out.exists()
 
 
 @pytest.mark.parametrize("field,bad", [

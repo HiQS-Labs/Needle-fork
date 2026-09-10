@@ -25,6 +25,7 @@ from transcript_events import (IDENTITY_FORMAT_VERSION, read_transcript,
 
 
 MANIFEST_FORMAT_VERSION = 1
+REQUIRED_BOUNDARIES = {"fitting", "prior-audit", "model-selection"}
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 _SECRET_RE = re.compile(
     r"(?:sk-[A-Za-z0-9_-]{16,}|gh[pousr]_[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}|"
@@ -113,8 +114,10 @@ def _resolved_source_path(root: str, relpath: str) -> str:
 
 
 class SourceVerifier:
-    def __init__(self, roots: dict[str, str]):
+    def __init__(self, roots: dict[str, str], context_steps: int, user_chars: int):
         self.roots = roots
+        self.context_steps = context_steps
+        self.user_chars = user_chars
         self.cache = {}
         self.event_locations = {}
         self.session_locations = {}
@@ -137,7 +140,12 @@ class SourceVerifier:
                 f"{namespace}:{relpath}")
         self.session_locations[meta.session_id] = key
         events = {}
+        history = []
+        recent_user = ""
         for step in steps:
+            if step.kind == "user":
+                recent_user = step.text[:self.user_chars]
+                continue
             if step.kind != "action":
                 continue
             if step.source_event_id in events:
@@ -149,7 +157,18 @@ class SourceVerifier:
                     f"ambiguous source event across {other[0]}:{other[1]} and "
                     f"{namespace}:{relpath}")
             self.event_locations[step.source_event_id] = key
-            events[step.source_event_id] = step
+            context = None
+            label, _ = tx.label_call(step.tool, step.tool_input or {})
+            if history:
+                context = {
+                    "recent_user_request": recent_user,
+                    "prior_actions": history[-self.context_steps:],
+                    "step": len(history),
+                    "tool_name": step.tool,
+                    "label": label,
+                }
+            events[step.source_event_id] = (step, context)
+            history.append(label)
         self.cache[key] = (meta, events)
         return self.cache[key]
 
@@ -157,7 +176,8 @@ class SourceVerifier:
         required = (
             "identity_format", "source_namespace", "source_relpath", "session",
             "transcript_sha256", "source_event_id", "source_event_ordinal", "tool_name",
-            "label", "label_set_version", "query_format_version", "prior_actions",
+            "label", "label_set_version", "query_format_version", "context_steps",
+            "user_chars", "prior_actions", "step",
         )
         missing = [key for key in required if key not in pair]
         if missing:
@@ -168,6 +188,10 @@ class SourceVerifier:
             raise ManifestError("label_set_version drift")
         if pair["query_format_version"] != ser.QUERY_FORMAT_VERSION:
             raise ManifestError("query_format_version drift")
+        if pair["context_steps"] != self.context_steps:
+            raise ManifestError("context_steps drift")
+        if pair["user_chars"] != self.user_chars:
+            raise ManifestError("user_chars drift")
         if pair["label"] not in tx.LABELS_V1:
             raise ManifestError(f"unknown label {pair['label']!r}")
         for field in ("session", "transcript_sha256", "source_event_id"):
@@ -195,9 +219,12 @@ class SourceVerifier:
         if pair["session"] != meta.session_id:
             raise ManifestError(
                 f"session identity drift for {namespace}:{pair['source_relpath']}")
-        event = events.get(pair["source_event_id"])
-        if event is None:
+        event_record = events.get(pair["source_event_id"])
+        if event_record is None:
             raise ManifestError(f"source event is missing: {pair['source_event_id']}")
+        event, expected_context = event_record
+        if expected_context is None:
+            raise ManifestError(f"source event has no preceding q1 context: {pair['source_event_id']}")
         if pair["source_event_ordinal"] != event.action_ordinal:
             raise ManifestError(f"source event ordinal drift: {pair['source_event_id']}")
         if pair["tool_name"] != event.tool:
@@ -205,6 +232,10 @@ class SourceVerifier:
         observed_label, _ = tx.label_call(event.tool, event.tool_input or {})
         if pair["label"] != observed_label:
             raise ManifestError(f"source event label drift: {pair['source_event_id']}")
+        for field in ("recent_user_request", "prior_actions", "step", "tool_name", "label"):
+            if pair.get(field) != expected_context[field]:
+                raise ManifestError(
+                    f"source q1 context drift in {field}: {pair['source_event_id']}")
 
 
 def _duplicate_summary(values: list[str]) -> dict[str, int]:
@@ -335,7 +366,8 @@ def _build_legacy_exclusion(name: str, path: str, schemas: list[dict],
 
 
 def _legacy_membership(
-        args, pairs: list[dict]) -> tuple[Optional[list[dict]], Optional[dict]]:
+        args, pairs: list[dict], schemas: list[dict]
+        ) -> tuple[Optional[list[dict]], Optional[dict]]:
     values = (args.correction_membership_pairs, args.correction_legacy_source_prefix)
     if not any(values):
         return None, None
@@ -347,28 +379,55 @@ def _legacy_membership(
     if not prefix.startswith("/"):
         raise ManifestError("--correction-legacy-source-prefix must be absolute")
     membership_rows = _load_pairs(args.correction_membership_pairs)
-    allowed = {
-        row.get("session") for row in membership_rows
-        if row.get("split") == args.correction_membership_split
-        and isinstance(row.get("session"), str) and row["session"]
-    }
+    allowed = {}
+    for lineno, row in enumerate(membership_rows, 1):
+        if row.get("split") != args.correction_membership_split:
+            continue
+        session, step = row.get("session"), row.get("step")
+        if not isinstance(session, str) or not session or not isinstance(step, int):
+            raise ManifestError(
+                f"correction membership row {lineno} lacks session/step identity")
+        key = (session, step)
+        if key in allowed:
+            raise ManifestError(f"duplicate correction membership key {session}:{step}")
+        allowed[key] = row
     if not allowed:
         raise ManifestError("correction membership selection has no allowed sessions")
     selected, recovered = [], set()
+    found_keys = drifted = 0
     for pair in pairs:
         relpath = pair.get("source_relpath")
         if not isinstance(relpath, str) or not relpath:
             raise ManifestError("correction pair lacks source_relpath for legacy membership")
         legacy_path = prefix + "/" + relpath
         legacy_session = hashlib.sha256(legacy_path.encode()).hexdigest()[:16]
-        if legacy_session in allowed:
+        key = (legacy_session, pair.get("step"))
+        canonical = allowed.get(key)
+        if canonical is not None:
+            found_keys += 1
+            try:
+                current_row = ser.to_finetune_row(
+                    pair, schemas, args.context_steps, args.user_chars)
+                canonical_row = ser.to_finetune_row(
+                    canonical, schemas, args.context_steps, args.user_chars)
+            except (KeyError, TypeError, ValueError) as exc:
+                raise ManifestError(
+                    f"cannot compare canonical membership row {legacy_session}:{pair.get('step')}: "
+                    f"{exc}") from exc
+            if _sha256(current_row) != _sha256(canonical_row):
+                drifted += 1
+                continue
             selected.append(pair)
             recovered.add(legacy_session)
     selection = {
-        "method": "legacy absolute-path session hash matched from source_relpath",
+        "method": "legacy (absolute-path session hash, step); exact full-row matches only",
         "membership_input_sha256": _file_sha256(args.correction_membership_pairs),
         "membership_split": args.correction_membership_split,
-        "membership_sessions": len(allowed),
+        "membership_rows": len(allowed),
+        "membership_sessions": len({session for session, _ in allowed}),
+        "membership_keys_found_in_current_source": found_keys,
+        "membership_rows_excluded_full_row_drift": drifted,
+        "membership_rows_unavailable_in_current_source": len(allowed) - found_keys,
         "recovered_sessions": len(recovered),
         "selected_rows": len(selected),
     }
@@ -390,6 +449,27 @@ def _parse_named_paths(values: list[str], flag: str) -> list[tuple[str, str]]:
         seen.add(name)
         parsed.append((name, path))
     return parsed
+
+
+def _parse_boundaries(values: list[str], exclusions: dict[str, dict]) -> dict[str, str]:
+    boundaries = {}
+    for value in values:
+        if "=" not in value:
+            raise ManifestError("--boundary must be CATEGORY=EXCLUSION_NAME")
+        category, exclusion = value.split("=", 1)
+        if category not in REQUIRED_BOUNDARIES:
+            raise ManifestError(f"unknown boundary category {category!r}")
+        if category in boundaries:
+            raise ManifestError(f"duplicate boundary category {category!r}")
+        if exclusion not in exclusions:
+            raise ManifestError(
+                f"boundary {category!r} names unknown exclusion {exclusion!r}")
+        boundaries[category] = exclusion
+    missing = REQUIRED_BOUNDARIES - set(boundaries)
+    if missing:
+        raise ManifestError(
+            f"missing required boundaries: {', '.join(sorted(missing))}")
+    return dict(sorted(boundaries.items()))
 
 
 def _ensure_private_output(path: str) -> str:
@@ -426,9 +506,9 @@ def _write_new(path: str, text: str) -> None:
 def build(args) -> tuple[dict, dict]:
     roots = _parse_source_roots(args.source_root)
     schemas = ser.load_schemas(args.schemas)
-    verifier = SourceVerifier(roots)
+    verifier = SourceVerifier(roots, args.context_steps, args.user_chars)
     correction_pairs = _load_pairs(args.correction)
-    selected_pairs, selection = _legacy_membership(args, correction_pairs)
+    selected_pairs, selection = _legacy_membership(args, correction_pairs, schemas)
     correction = _build_side(
         "correction", args.correction, schemas, verifier,
         args.context_steps, args.user_chars,
@@ -448,6 +528,7 @@ def build(args) -> tuple[dict, dict]:
             raise ManifestError(f"duplicate exclusion name {name!r}")
         exclusions[name] = _build_legacy_exclusion(
             name, path, schemas, args.context_steps, args.user_chars)
+    boundaries = _parse_boundaries(args.boundary, exclusions)
     separation = {
         "correction_vs_evaluation": _overlap(correction, evaluation),
         "evaluation_vs_exclusions": {
@@ -476,6 +557,7 @@ def build(args) -> tuple[dict, dict]:
         "schemas_sha256": _file_sha256(args.schemas),
         "sides": {"correction": correction, "evaluation": evaluation},
         "exclusions": exclusions,
+        "required_boundaries": boundaries,
         "separation": separation,
     }
     manifest["manifest_sha256"] = _sha256(manifest)
@@ -498,6 +580,7 @@ def build(args) -> tuple[dict, dict]:
             name: {"input_sha256": side["input_sha256"], **side["summary"]}
             for name, side in exclusions.items()
         },
+        "required_boundaries": boundaries,
         "separation": separation,
         "privacy": "aggregate hashes and counts only; no prompts, commands, rows, or local paths",
     }
@@ -520,6 +603,9 @@ def main(argv=None) -> int:
                     help="NAME=PAIR_JSONL boundary that evaluation must not overlap; repeatable")
     ap.add_argument("--exclude-legacy", action="append", default=[],
                     help="NAME=legacy PAIR_JSONL; checks q1/content without source-event claims")
+    ap.add_argument("--boundary", action="append", default=[],
+                    help="required CATEGORY=EXCLUSION_NAME mapping for fitting, prior-audit, "
+                         "and model-selection")
     ap.add_argument("--out", required=True, help="private manifest path under data/")
     ap.add_argument("--receipt", help="optional aggregate-only public receipt")
     ap.add_argument("--schemas", default=ser.SCHEMAS_PATH)

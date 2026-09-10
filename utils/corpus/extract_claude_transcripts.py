@@ -199,6 +199,8 @@ def main() -> int:
                                 "source_event_ordinal": step.action_ordinal,
                                 "label_set_version": tx.LABEL_SET_VERSION,
                                 "query_format_version": ser.QUERY_FORMAT_VERSION,
+                                "context_steps": args.context_steps,
+                                "user_chars": args.user_chars,
                             })
                         out.write(json.dumps(pair) + "\n")
                         n_pairs += 1
