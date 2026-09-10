@@ -227,6 +227,115 @@ def test_manifest_is_reproducible_private_and_aggregate_only(tmp_path, monkeypat
     assert "pytest" not in receipt_text
 
 
+def test_audit_sampler_reconstructs_only_manifest_events_and_enforces_sessions(
+        tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    source, correction, evaluation, _ = _prepare_pair_inputs(tmp_path)
+    manifest = Path("data/manifest.json")
+    assert manifest_builder.main(_manifest_args(
+        source, correction, evaluation, manifest)) == 0
+
+    common = [
+        "--eligible-manifest", str(manifest),
+        "--manifest-side", "correction",
+        "--source-root", f"fixture={source}",
+        "--target", "1",
+        "--floor", "1",
+        "--min-sessions", "1",
+        "--max-per-session", "1",
+        "--seed", "2501",
+    ]
+    assert sampler.main([*common, "--out-dir", "data/audit-one"]) == 0
+    assert sampler.main([*common, "--out-dir", "data/audit-two"]) == 0
+    for filename in ("sample.jsonl", "sorter.jsonl", "plan.json"):
+        assert (Path("data/audit-one") / filename).read_bytes() == (
+            Path("data/audit-two") / filename).read_bytes()
+    plan = json.loads(Path("data/audit-one/plan.json").read_text())
+    assert plan["eligible_manifest_sha256"] == json.loads(
+        manifest.read_text())["manifest_sha256"]
+    assert plan["source_namespaces"] == ["fixture"]
+    assert plan["drawn_sessions"] == 1
+    truth = json.loads(Path("data/audit-one/sorter.jsonl").read_text())
+    eligible = json.loads(correction.read_text())
+    assert truth["source_event_id"] == eligible["source_event_id"]
+
+    blocked = Path("data/audit-short")
+    assert sampler.main([
+        *common, "--min-sessions", "2", "--out-dir", str(blocked),
+    ]) == 2
+    assert not blocked.exists()
+
+    tampered = json.loads(manifest.read_text())
+    tampered["sides"]["correction"]["rows"][0]["label"] = "run_script"
+    tampered_path = Path("data/tampered-manifest.json")
+    tampered_path.write_text(json.dumps(tampered))
+    tampered_out = Path("data/audit-tampered")
+    assert sampler.main([
+        *common[:1], str(tampered_path), *common[2:],
+        "--out-dir", str(tampered_out),
+    ]) == 2
+    assert not tampered_out.exists()
+
+
+def test_manifest_audit_records_verified_events_that_have_no_auditable_text(
+        tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    source = tmp_path / "source"
+    _transcript(source / "one.jsonl", "session-one", "fix alpha", "one")
+    _transcript(source / "two.jsonl", "session-two", "fix beta", "two")
+    _write_jsonl(source / "three.jsonl", [
+        {
+            "sessionId": "session-three",
+            "uuid": "user-three",
+            "message": {"role": "user", "content": "delegate work"},
+        },
+        {
+            "sessionId": "session-three",
+            "uuid": "read-three",
+            "message": {"role": "assistant", "content": [{
+                "type": "tool_use", "id": "tool-read-three", "name": "Read",
+                "input": {"file_path": "src/three.py"},
+            }]},
+        },
+        {
+            "sessionId": "session-three",
+            "uuid": "task-three",
+            "message": {"role": "assistant", "content": [{
+                "type": "tool_use", "id": "tool-task-three", "name": "Task",
+                "input": {"description": "review"},
+            }]},
+        },
+    ])
+    corpus = tmp_path / "corpus"
+    assert _run_extractor(source, corpus).returncode == 0
+    pairs = [json.loads(line) for line in (corpus / "pairs.jsonl").read_text().splitlines()]
+    unrenderable = next(row for row in pairs if row["tool_name"] == "Task")
+    auditable = next(row for row in pairs if row["source_namespace"] == "fixture" and
+                     row["tool_name"] == "Bash")
+    other = next(row for row in pairs if row["session"] not in {
+        unrenderable["session"], auditable["session"]})
+    correction = tmp_path / "correction.jsonl"
+    evaluation = tmp_path / "evaluation.jsonl"
+    _write_jsonl(correction, [auditable, unrenderable])
+    _write_jsonl(evaluation, [other])
+    manifest = Path("data/manifest-unrenderable.json")
+    assert manifest_builder.main(_manifest_args(
+        source, correction, evaluation, manifest)) == 0
+
+    out = Path("data/audit-renderable")
+    assert sampler.main([
+        "--eligible-manifest", str(manifest),
+        "--manifest-side", "correction",
+        "--source-root", f"fixture={source}",
+        "--out-dir", str(out),
+        "--target", "1", "--floor", "1", "--seed", "2501",
+        "--min-sessions", "1", "--max-per-session", "1",
+    ]) == 0
+    plan = json.loads((out / "plan.json").read_text())
+    assert plan["manifest_rows"] == 2
+    assert plan["excluded_unrenderable"] == 1
+
+
 def test_manifest_selects_legacy_training_membership_and_checks_exclusion(
         tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)

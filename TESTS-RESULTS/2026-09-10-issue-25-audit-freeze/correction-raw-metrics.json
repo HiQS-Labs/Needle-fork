@@ -1,0 +1,880 @@
+{
+  "measurement_contract": {
+    "sampling": "session-constrained-targeted-v1",
+    "plan_format": "3",
+    "sample_statistics": "unweighted agreement on the audited rows",
+    "population_statistics": "not estimated: the session-constrained targeted draw has unequal inclusion probabilities"
+  },
+  "auditors": {
+    "terra": {
+      "n": 400,
+      "agree": 296,
+      "sample_agreement": 0.74,
+      "low_confidence_rows": 63,
+      "per_label": {
+        "apply_patch": {
+          "n": 16,
+          "agree": 10,
+          "precision": 0.625
+        },
+        "cloud_cli": {
+          "n": 8,
+          "agree": 8,
+          "precision": 1.0
+        },
+        "commit_changes": {
+          "n": 11,
+          "agree": 9,
+          "precision": 0.8182
+        },
+        "complete_doc": {
+          "n": 8,
+          "agree": 8,
+          "precision": 1.0
+        },
+        "create_branch": {
+          "n": 8,
+          "agree": 5,
+          "precision": 0.625
+        },
+        "cut_release": {
+          "n": 8,
+          "agree": 8,
+          "precision": 1.0
+        },
+        "db_query": {
+          "n": 9,
+          "agree": 9,
+          "precision": 1.0
+        },
+        "file_capture_doc": {
+          "n": 10,
+          "agree": 10,
+          "precision": 1.0
+        },
+        "file_issue": {
+          "n": 9,
+          "agree": 9,
+          "precision": 1.0
+        },
+        "find_files": {
+          "n": 12,
+          "agree": 9,
+          "precision": 0.75
+        },
+        "fs_mutate": {
+          "n": 9,
+          "agree": 4,
+          "precision": 0.4444
+        },
+        "gh_cli": {
+          "n": 10,
+          "agree": 8,
+          "precision": 0.8
+        },
+        "git_inspect": {
+          "n": 13,
+          "agree": 9,
+          "precision": 0.6923
+        },
+        "git_sync": {
+          "n": 11,
+          "agree": 5,
+          "precision": 0.4545
+        },
+        "merge_pr": {
+          "n": 9,
+          "agree": 9,
+          "precision": 1.0
+        },
+        "net": {
+          "n": 9,
+          "agree": 7,
+          "precision": 0.7778
+        },
+        "open_pr": {
+          "n": 8,
+          "agree": 8,
+          "precision": 1.0
+        },
+        "park_roadmap_row": {
+          "n": 8,
+          "agree": 0,
+          "precision": 0.0
+        },
+        "pkg_manage": {
+          "n": 8,
+          "agree": 4,
+          "precision": 0.5
+        },
+        "promote_capture": {
+          "n": 5,
+          "agree": 5,
+          "precision": 1.0
+        },
+        "read_file": {
+          "n": 29,
+          "agree": 27,
+          "precision": 0.931
+        },
+        "read_issue": {
+          "n": 10,
+          "agree": 10,
+          "precision": 1.0
+        },
+        "review_pr": {
+          "n": 10,
+          "agree": 10,
+          "precision": 1.0
+        },
+        "run_build": {
+          "n": 8,
+          "agree": 4,
+          "precision": 0.5
+        },
+        "run_linter": {
+          "n": 9,
+          "agree": 5,
+          "precision": 0.5556
+        },
+        "run_pdda_check": {
+          "n": 10,
+          "agree": 8,
+          "precision": 0.8
+        },
+        "run_script": {
+          "n": 17,
+          "agree": 3,
+          "precision": 0.1765
+        },
+        "run_tests": {
+          "n": 10,
+          "agree": 10,
+          "precision": 1.0
+        },
+        "run_validate": {
+          "n": 9,
+          "agree": 7,
+          "precision": 0.7778
+        },
+        "search_code": {
+          "n": 17,
+          "agree": 16,
+          "precision": 0.9412
+        },
+        "session_control": {
+          "n": 9,
+          "agree": 9,
+          "precision": 1.0
+        },
+        "start_relay": {
+          "n": 9,
+          "agree": 8,
+          "precision": 0.8889
+        },
+        "sys_inspect": {
+          "n": 9,
+          "agree": 5,
+          "precision": 0.5556
+        },
+        "unmapped": {
+          "n": 9,
+          "agree": 0,
+          "precision": 0.0
+        },
+        "update_changelog": {
+          "n": 9,
+          "agree": 9,
+          "precision": 1.0
+        },
+        "update_governance_doc": {
+          "n": 9,
+          "agree": 9,
+          "precision": 1.0
+        },
+        "update_pr": {
+          "n": 9,
+          "agree": 2,
+          "precision": 0.2222
+        },
+        "update_roadmap": {
+          "n": 9,
+          "agree": 0,
+          "precision": 0.0
+        },
+        "update_working_doc": {
+          "n": 10,
+          "agree": 10,
+          "precision": 1.0
+        }
+      },
+      "population_weighted": null
+    },
+    "astra": {
+      "n": 400,
+      "agree": 323,
+      "sample_agreement": 0.8075,
+      "low_confidence_rows": 54,
+      "per_label": {
+        "apply_patch": {
+          "n": 16,
+          "agree": 16,
+          "precision": 1.0
+        },
+        "cloud_cli": {
+          "n": 8,
+          "agree": 8,
+          "precision": 1.0
+        },
+        "commit_changes": {
+          "n": 11,
+          "agree": 9,
+          "precision": 0.8182
+        },
+        "complete_doc": {
+          "n": 8,
+          "agree": 3,
+          "precision": 0.375
+        },
+        "create_branch": {
+          "n": 8,
+          "agree": 5,
+          "precision": 0.625
+        },
+        "cut_release": {
+          "n": 8,
+          "agree": 8,
+          "precision": 1.0
+        },
+        "db_query": {
+          "n": 9,
+          "agree": 9,
+          "precision": 1.0
+        },
+        "file_capture_doc": {
+          "n": 10,
+          "agree": 8,
+          "precision": 0.8
+        },
+        "file_issue": {
+          "n": 9,
+          "agree": 9,
+          "precision": 1.0
+        },
+        "find_files": {
+          "n": 12,
+          "agree": 6,
+          "precision": 0.5
+        },
+        "fs_mutate": {
+          "n": 9,
+          "agree": 5,
+          "precision": 0.5556
+        },
+        "gh_cli": {
+          "n": 10,
+          "agree": 7,
+          "precision": 0.7
+        },
+        "git_inspect": {
+          "n": 13,
+          "agree": 11,
+          "precision": 0.8462
+        },
+        "git_sync": {
+          "n": 11,
+          "agree": 8,
+          "precision": 0.7273
+        },
+        "merge_pr": {
+          "n": 9,
+          "agree": 9,
+          "precision": 1.0
+        },
+        "net": {
+          "n": 9,
+          "agree": 7,
+          "precision": 0.7778
+        },
+        "open_pr": {
+          "n": 8,
+          "agree": 8,
+          "precision": 1.0
+        },
+        "park_roadmap_row": {
+          "n": 8,
+          "agree": 4,
+          "precision": 0.5
+        },
+        "pkg_manage": {
+          "n": 8,
+          "agree": 5,
+          "precision": 0.625
+        },
+        "promote_capture": {
+          "n": 5,
+          "agree": 5,
+          "precision": 1.0
+        },
+        "read_file": {
+          "n": 29,
+          "agree": 28,
+          "precision": 0.9655
+        },
+        "read_issue": {
+          "n": 10,
+          "agree": 10,
+          "precision": 1.0
+        },
+        "review_pr": {
+          "n": 10,
+          "agree": 10,
+          "precision": 1.0
+        },
+        "run_build": {
+          "n": 8,
+          "agree": 8,
+          "precision": 1.0
+        },
+        "run_linter": {
+          "n": 9,
+          "agree": 6,
+          "precision": 0.6667
+        },
+        "run_pdda_check": {
+          "n": 10,
+          "agree": 8,
+          "precision": 0.8
+        },
+        "run_script": {
+          "n": 17,
+          "agree": 4,
+          "precision": 0.2353
+        },
+        "run_tests": {
+          "n": 10,
+          "agree": 10,
+          "precision": 1.0
+        },
+        "run_validate": {
+          "n": 9,
+          "agree": 7,
+          "precision": 0.7778
+        },
+        "search_code": {
+          "n": 17,
+          "agree": 17,
+          "precision": 1.0
+        },
+        "session_control": {
+          "n": 9,
+          "agree": 9,
+          "precision": 1.0
+        },
+        "start_relay": {
+          "n": 9,
+          "agree": 8,
+          "precision": 0.8889
+        },
+        "sys_inspect": {
+          "n": 9,
+          "agree": 5,
+          "precision": 0.5556
+        },
+        "unmapped": {
+          "n": 9,
+          "agree": 4,
+          "precision": 0.4444
+        },
+        "update_changelog": {
+          "n": 9,
+          "agree": 9,
+          "precision": 1.0
+        },
+        "update_governance_doc": {
+          "n": 9,
+          "agree": 9,
+          "precision": 1.0
+        },
+        "update_pr": {
+          "n": 9,
+          "agree": 2,
+          "precision": 0.2222
+        },
+        "update_roadmap": {
+          "n": 9,
+          "agree": 9,
+          "precision": 1.0
+        },
+        "update_working_doc": {
+          "n": 10,
+          "agree": 10,
+          "precision": 1.0
+        }
+      },
+      "population_weighted": null
+    }
+  },
+  "disagreement": {
+    "n": 400,
+    "agree": 328,
+    "sample_agreement": 0.82,
+    "population_weighted": null
+  },
+  "confusion": {
+    "terra": [
+      {
+        "sorter": "update_roadmap",
+        "reference": "apply_patch",
+        "n": 9
+      },
+      {
+        "sorter": "update_pr",
+        "reference": "gh_cli",
+        "n": 7
+      },
+      {
+        "sorter": "park_roadmap_row",
+        "reference": "update_roadmap",
+        "n": 5
+      },
+      {
+        "sorter": "run_script",
+        "reference": "read_file",
+        "n": 5
+      },
+      {
+        "sorter": "apply_patch",
+        "reference": "fs_mutate",
+        "n": 4
+      },
+      {
+        "sorter": "git_inspect",
+        "reference": "search_code",
+        "n": 4
+      },
+      {
+        "sorter": "run_build",
+        "reference": "run_linter",
+        "n": 4
+      },
+      {
+        "sorter": "run_linter",
+        "reference": "run_tests",
+        "n": 4
+      },
+      {
+        "sorter": "run_script",
+        "reference": "search_code",
+        "n": 4
+      },
+      {
+        "sorter": "git_sync",
+        "reference": "review_pr",
+        "n": 3
+      },
+      {
+        "sorter": "pkg_manage",
+        "reference": "sys_inspect",
+        "n": 3
+      },
+      {
+        "sorter": "run_script",
+        "reference": "find_files",
+        "n": 3
+      },
+      {
+        "sorter": "apply_patch",
+        "reference": "park_roadmap_row",
+        "n": 2
+      },
+      {
+        "sorter": "find_files",
+        "reference": "search_code",
+        "n": 2
+      },
+      {
+        "sorter": "fs_mutate",
+        "reference": "net",
+        "n": 2
+      },
+      {
+        "sorter": "net",
+        "reference": "session_control",
+        "n": 2
+      },
+      {
+        "sorter": "park_roadmap_row",
+        "reference": "run_script",
+        "n": 2
+      },
+      {
+        "sorter": "read_file",
+        "reference": "search_code",
+        "n": 2
+      },
+      {
+        "sorter": "run_validate",
+        "reference": "commit_changes",
+        "n": 2
+      },
+      {
+        "sorter": "sys_inspect",
+        "reference": "search_code",
+        "n": 2
+      },
+      {
+        "sorter": "unmapped",
+        "reference": "find_files",
+        "n": 2
+      },
+      {
+        "sorter": "unmapped",
+        "reference": "fs_mutate",
+        "n": 2
+      },
+      {
+        "sorter": "unmapped",
+        "reference": "read_file",
+        "n": 2
+      },
+      {
+        "sorter": "unmapped",
+        "reference": "run_tests",
+        "n": 2
+      },
+      {
+        "sorter": "commit_changes",
+        "reference": "file_issue",
+        "n": 1
+      },
+      {
+        "sorter": "commit_changes",
+        "reference": "git_sync",
+        "n": 1
+      },
+      {
+        "sorter": "create_branch",
+        "reference": "commit_changes",
+        "n": 1
+      },
+      {
+        "sorter": "create_branch",
+        "reference": "git_sync",
+        "n": 1
+      },
+      {
+        "sorter": "create_branch",
+        "reference": "update_roadmap",
+        "n": 1
+      },
+      {
+        "sorter": "find_files",
+        "reference": "run_validate",
+        "n": 1
+      },
+      {
+        "sorter": "fs_mutate",
+        "reference": "git_inspect",
+        "n": 1
+      },
+      {
+        "sorter": "fs_mutate",
+        "reference": "run_tests",
+        "n": 1
+      },
+      {
+        "sorter": "fs_mutate",
+        "reference": "search_code",
+        "n": 1
+      },
+      {
+        "sorter": "gh_cli",
+        "reference": "net",
+        "n": 1
+      },
+      {
+        "sorter": "gh_cli",
+        "reference": "update_pr",
+        "n": 1
+      },
+      {
+        "sorter": "git_sync",
+        "reference": "fs_mutate",
+        "n": 1
+      },
+      {
+        "sorter": "git_sync",
+        "reference": "git_inspect",
+        "n": 1
+      },
+      {
+        "sorter": "git_sync",
+        "reference": "search_code",
+        "n": 1
+      },
+      {
+        "sorter": "park_roadmap_row",
+        "reference": "read_file",
+        "n": 1
+      },
+      {
+        "sorter": "pkg_manage",
+        "reference": "net",
+        "n": 1
+      },
+      {
+        "sorter": "run_pdda_check",
+        "reference": "read_file",
+        "n": 1
+      },
+      {
+        "sorter": "run_pdda_check",
+        "reference": "update_roadmap",
+        "n": 1
+      },
+      {
+        "sorter": "run_script",
+        "reference": "git_inspect",
+        "n": 1
+      },
+      {
+        "sorter": "run_script",
+        "reference": "sys_inspect",
+        "n": 1
+      },
+      {
+        "sorter": "search_code",
+        "reference": "read_file",
+        "n": 1
+      },
+      {
+        "sorter": "start_relay",
+        "reference": "run_tests",
+        "n": 1
+      },
+      {
+        "sorter": "sys_inspect",
+        "reference": "gh_cli",
+        "n": 1
+      },
+      {
+        "sorter": "sys_inspect",
+        "reference": "no_action",
+        "n": 1
+      },
+      {
+        "sorter": "unmapped",
+        "reference": "sys_inspect",
+        "n": 1
+      }
+    ],
+    "astra": [
+      {
+        "sorter": "update_pr",
+        "reference": "gh_cli",
+        "n": 7
+      },
+      {
+        "sorter": "run_script",
+        "reference": "search_code",
+        "n": 6
+      },
+      {
+        "sorter": "complete_doc",
+        "reference": "apply_patch",
+        "n": 5
+      },
+      {
+        "sorter": "park_roadmap_row",
+        "reference": "run_script",
+        "n": 4
+      },
+      {
+        "sorter": "run_script",
+        "reference": "read_file",
+        "n": 4
+      },
+      {
+        "sorter": "find_files",
+        "reference": "read_file",
+        "n": 3
+      },
+      {
+        "sorter": "find_files",
+        "reference": "search_code",
+        "n": 3
+      },
+      {
+        "sorter": "pkg_manage",
+        "reference": "sys_inspect",
+        "n": 3
+      },
+      {
+        "sorter": "run_linter",
+        "reference": "run_tests",
+        "n": 3
+      },
+      {
+        "sorter": "file_capture_doc",
+        "reference": "apply_patch",
+        "n": 2
+      },
+      {
+        "sorter": "gh_cli",
+        "reference": "read_issue",
+        "n": 2
+      },
+      {
+        "sorter": "net",
+        "reference": "run_script",
+        "n": 2
+      },
+      {
+        "sorter": "run_validate",
+        "reference": "commit_changes",
+        "n": 2
+      },
+      {
+        "sorter": "sys_inspect",
+        "reference": "search_code",
+        "n": 2
+      },
+      {
+        "sorter": "unmapped",
+        "reference": "find_files",
+        "n": 2
+      },
+      {
+        "sorter": "unmapped",
+        "reference": "run_tests",
+        "n": 2
+      },
+      {
+        "sorter": "commit_changes",
+        "reference": "file_issue",
+        "n": 1
+      },
+      {
+        "sorter": "commit_changes",
+        "reference": "git_sync",
+        "n": 1
+      },
+      {
+        "sorter": "create_branch",
+        "reference": "commit_changes",
+        "n": 1
+      },
+      {
+        "sorter": "create_branch",
+        "reference": "cut_release",
+        "n": 1
+      },
+      {
+        "sorter": "create_branch",
+        "reference": "git_sync",
+        "n": 1
+      },
+      {
+        "sorter": "fs_mutate",
+        "reference": "gh_cli",
+        "n": 1
+      },
+      {
+        "sorter": "fs_mutate",
+        "reference": "net",
+        "n": 1
+      },
+      {
+        "sorter": "fs_mutate",
+        "reference": "run_script",
+        "n": 1
+      },
+      {
+        "sorter": "fs_mutate",
+        "reference": "run_tests",
+        "n": 1
+      },
+      {
+        "sorter": "gh_cli",
+        "reference": "update_pr",
+        "n": 1
+      },
+      {
+        "sorter": "git_inspect",
+        "reference": "find_files",
+        "n": 1
+      },
+      {
+        "sorter": "git_inspect",
+        "reference": "search_code",
+        "n": 1
+      },
+      {
+        "sorter": "git_sync",
+        "reference": "fs_mutate",
+        "n": 1
+      },
+      {
+        "sorter": "git_sync",
+        "reference": "git_inspect",
+        "n": 1
+      },
+      {
+        "sorter": "git_sync",
+        "reference": "search_code",
+        "n": 1
+      },
+      {
+        "sorter": "read_file",
+        "reference": "search_code",
+        "n": 1
+      },
+      {
+        "sorter": "run_pdda_check",
+        "reference": "search_code",
+        "n": 1
+      },
+      {
+        "sorter": "run_pdda_check",
+        "reference": "update_roadmap",
+        "n": 1
+      },
+      {
+        "sorter": "run_script",
+        "reference": "git_inspect",
+        "n": 1
+      },
+      {
+        "sorter": "run_script",
+        "reference": "run_tests",
+        "n": 1
+      },
+      {
+        "sorter": "run_script",
+        "reference": "sys_inspect",
+        "n": 1
+      },
+      {
+        "sorter": "start_relay",
+        "reference": "run_tests",
+        "n": 1
+      },
+      {
+        "sorter": "sys_inspect",
+        "reference": "gh_cli",
+        "n": 1
+      },
+      {
+        "sorter": "sys_inspect",
+        "reference": "no_action",
+        "n": 1
+      },
+      {
+        "sorter": "unmapped",
+        "reference": "pkg_manage",
+        "n": 1
+      }
+    ]
+  }
+}

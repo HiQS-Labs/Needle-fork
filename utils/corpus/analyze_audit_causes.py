@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """Validate and aggregate row-level causes for a scored label audit.
 
-Raw commands and row-level cause judgments stay under ignored ``data/``.  The
-public output contains aggregates only.  Every error gets its predicted-label
-sampling weight, so a large stratum is not made artificially unimportant by
-the audit's deliberately rebalanced sample.
+Raw commands and row-level cause judgments stay under ignored ``data/``. The
+public output contains aggregates only. A stratified random sample uses its
+declared weights; a constrained targeted sample reports unweighted counts.
 """
 from __future__ import annotations
 
@@ -65,15 +64,7 @@ def analyze(directory: str, auditors: tuple[str, str], adjudicator: str,
     plan = audit.load_plan(os.path.join(directory, "plan.json"), allow_legacy_plan)
     sample = audit.load_jsonl(
         os.path.join(directory, "sample.jsonl"), required=("tool", "text"))
-    sorter = audit.load_jsonl(
-        os.path.join(directory, "sorter.jsonl"), "sorter_label",
-        required=("sorter_label", "session"))
-    audit.require_same_ids("sorter", sorter, set(sample))
-    if len(sorter) != plan["drawn"]:
-        raise audit.AuditError("sorter row count differs from plan.drawn")
-    observed = collections.Counter(row["sorter_label"] for row in sorter.values())
-    if dict(observed) != plan["allocation"]:
-        raise audit.AuditError("sorter strata do not match plan.allocation")
+    sorter = audit.load_and_validate_sorter(directory, plan, set(sample))
 
     first = audit.load_jsonl(
         _path(directory, auditors[0]), "label", required=("label", "confidence"))
@@ -101,6 +92,7 @@ def analyze(directory: str, auditors: tuple[str, str], adjudicator: str,
             "cause id set differs from adjudicated errors: "
             f"{len(expected - actual)} missing, {len(actual - expected)} extra")
 
+    is_srs = plan["_sampling_design"] == audit.SAMPLING_DESIGN
     population_n = sum(plan["population"].values())
     grouped = collections.defaultdict(lambda: {"rows": 0, "weighted": 0.0})
     sensitive = collections.defaultdict(lambda: {"rows": 0, "weighted": 0.0})
@@ -136,7 +128,9 @@ def analyze(directory: str, auditors: tuple[str, str], adjudicator: str,
                 raise audit.AuditError(
                     f"{rid}: multi_action_policy requires the reference and another segment label")
 
-        unit = plan["population"][predicted] / plan["allocation"][predicted] / population_n
+        unit = (plan["population"][predicted] /
+                plan["allocation"][predicted] / population_n
+                if is_srs else 1 / len(sorter))
         grouped[cause]["rows"] += 1
         grouped[cause]["weighted"] += unit
         sensitivity_cause = cause if row["confidence"] == "high" else "unresolved"
@@ -156,19 +150,25 @@ def analyze(directory: str, auditors: tuple[str, str], adjudicator: str,
             feedback_weight += unit
 
     scored, _ = audit.score_reference(sorter, reference)
-    estimated_error = 1 - audit.stratified_estimate(
+    estimated_error = (1 - audit.stratified_estimate(
         scored["per_label"], plan["population"])["estimate"]
+        if is_srs else len(expected) / len(sorter))
     classified_error = sum(v["weighted"] for v in grouped.values())
     if abs(estimated_error - classified_error) > 1e-6:
         raise audit.AuditError(
             "classified weights do not reproduce the adjudicated estimated error")
 
+    contribution_key = ("population_error_contribution" if is_srs
+                        else "sample_error_contribution")
+    share_key = ("share_of_estimated_error" if is_srs
+                 else "share_of_sample_errors")
+
     def render(groups):
         return {
             name: {
                 "rows": values["rows"],
-                "population_error_contribution": round(values["weighted"], 6),
-                "share_of_estimated_error": (
+                contribution_key: round(values["weighted"], 6),
+                share_key: (
                     round(values["weighted"] / classified_error, 6)
                     if classified_error else None),
             }
@@ -178,15 +178,22 @@ def analyze(directory: str, auditors: tuple[str, str], adjudicator: str,
 
     return {
         "measurement_contract": {
-            "source": "frozen #20 adjudicated errors",
+            "source": "frozen adjudicated audit errors",
             "plan_format": plan["_loaded_format"],
+            "sampling": plan["_sampling_design"],
             "classification": "one reviewer-assigned primary observed cause per error row",
             "privacy": "aggregate only; raw commands and row judgments remain under data/",
-            "limitations": "Cause assignment is reviewer judgment; weights estimate prevalence in the saved frame, not causal effect of a fix.",
+            "limitations": (
+                "Cause assignment is reviewer judgment; weights estimate prevalence in the "
+                "saved frame, not causal effect of a fix." if is_srs else
+                "Cause assignment is reviewer judgment. The targeted draw supports sample "
+                "counts only, not a population estimate or confidence interval."),
         },
         "errors": {
             "rows": len(expected),
-            "population_error_estimate": round(classified_error, 6),
+            "sample_error_rate": round(len(expected) / len(sorter), 6),
+            "population_error_estimate": (
+                round(classified_error, 6) if is_srs else None),
         },
         "cause_definitions": CAUSES,
         "trace": dict(trace_summary),
@@ -195,12 +202,16 @@ def analyze(directory: str, auditors: tuple[str, str], adjudicator: str,
         "reviewed_correction_seed": {
             "selection": "high-confidence cause plus high-confidence adjudicated reference in shell_visibility, inline_semantics, or rule_defect",
             "rows": feedback_rows,
-            "population_error_contribution": round(feedback_weight, 6),
-            "share_of_estimated_error": (
+            contribution_key: round(feedback_weight, 6),
+            share_key: (
                 round(feedback_weight / classified_error, 6)
                 if classified_error else None),
-            "training_use": "reference label is the positive; frozen sorter label is the hard negative",
-            "limitation": "This is a development seed, not a holdout, and its weighted contribution is not the expected gain from training.",
+            "training_use": "reference label is the matched treatment target; frozen sorter label is the matched control target",
+            "limitation": (
+                "This is a development seed, not a holdout, and its weighted "
+                "contribution is not the expected gain from training." if is_srs else
+                "This is a development seed, not a holdout. Its share of this targeted "
+                "sample is not a population estimate or the expected gain from training."),
         },
         "by_predicted_stratum": {
             label: render(values) for label, values in sorted(by_stratum.items())
@@ -232,9 +243,14 @@ def main(argv=None) -> int:
         report = analyze(
             args.dir, names, args.adjudicator, args.causes, args.allow_legacy_plan)
         audit.write_json(args.out, report)
-        print(
-            f"classified {report['errors']['rows']} errors; "
-            f"weighted population error {100 * report['errors']['population_error_estimate']:.2f}%")
+        message = f"classified {report['errors']['rows']} errors"
+        population_error = report["errors"]["population_error_estimate"]
+        if population_error is not None:
+            message += f"; weighted population error {100 * population_error:.2f}%"
+        else:
+            message += (f"; targeted-sample error "
+                        f"{100 * report['errors']['sample_error_rate']:.2f}%")
+        print(message)
         return 0
     except (audit.AuditError, OSError, json.JSONDecodeError) as exc:
         print(f"audit cause analysis failed: {exc}", file=sys.stderr)

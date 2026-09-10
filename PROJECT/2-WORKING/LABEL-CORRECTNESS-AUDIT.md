@@ -29,7 +29,7 @@ phases: 1
 
 | What was just completed | What's next |
 |---|---|
-| #24 is merged; #25 recon found that the legacy 26 correction judgments do not retain enough identity to produce 26 exact q1 training rows. | Add stable source-event identity and freeze new, disjoint training-correction and evaluation manifests before any model run. |
+| The source-gated correction audit is complete: 400 rows, two blind auditors, 72 adjudications, and 80.25% agreement on the deliberately session-spread sample. Nineteen rows pass the conservative correction filter. | Collect enough new source sessions to raise evaluation eligibility from 17 to 30, then freeze and audit the 1,000-row evaluation set before training. |
 
 ## Goal
 
@@ -41,8 +41,10 @@ from coverage, before using those labels for another training decision.
 The frozen `v1.0.0` vocabulary remains unchanged. The existing 399-row audit and its error-cause
 classification are reproducible as aggregate evidence. #25 recon falsified the assumption that all
 26 correction judgments can be rendered back into exact training contexts from the saved audit.
-The next milestone repairs source identity, freezes new private manifests, and only then tests a
-matched corrected-target treatment. Taxonomy and mapper changes remain outside that comparison.
+Source identity and the private correction manifest are now frozen, and a new source-gated audit
+provides 19 matched correction rows. The evaluation side still fails its predeclared 30-session
+floor, so the matched corrected-target treatment cannot start. Taxonomy and mapper changes remain
+outside that comparison.
 
 ## Ground truth at takeover
 
@@ -87,7 +89,8 @@ estimate establishes the cause of the error.
 - [x] Adjudication gate: the scorer requires exactly the two auditors' disagreement IDs and builds
   the final reference deterministically.
 - [x] Estimand gate: unweighted sample agreement and population-weighted estimates are named and
-  reported separately; pooled Wilson intervals are not presented as corpus uncertainty.
+  reported separately; session-constrained targeted draws emit no population estimate or confidence
+  interval because their inclusion probabilities are unequal.
 - [x] Receipt gate: full confusion pairs, weighted error contributions, interval method, and limits
   are emitted by the scorer.
 - [x] Sampling gate: allocation equals the requested target or refuses; a non-empty output directory
@@ -139,9 +142,9 @@ multi-action selection, a taxonomy boundary, or an uncertain reference.
 
 ## One next action after this milestone
 
-Implement the source-event and separation gate defined by #25. Do not start training until it emits
-nonempty private manifests, stable event/session IDs, full input hashes, and zero cross-boundary
-session and q1/content overlap.
+Collect 13 more independent evaluation sessions, then rebuild the frozen source manifest and require
+the 30-session gate to pass before drawing or reviewing the 1,000-row evaluation set. Do not start
+training while that gate reports `INCOMPLETE`.
 
 ## Issue #25 — corrected feedback experiment plan
 
@@ -257,6 +260,37 @@ The same run found zero exact q1/content overlap for 2,806 MacBook candidates ag
 frozen canonical Studio pairs. The MacBook candidates span only 17 eligible sessions, so the
 experiment is `INCOMPLETE` against the 30-session floor and no training started. See
 `TESTS-RESULTS/2026-09-09-issue-25-source-gate/`.
+
+**Audit draw contract (frozen before auditor answers, 2026-09-10).** Both draws consume the private
+source-gate manifest and reconstruct every selected event from its hashed transcript. The correction
+draw is exactly 400 rows, seed `2501`, predicted-label stratified with the existing square-root
+allocation and floor 8, at least 30 sessions, and at most 20 rows per session. An exact flow solver
+meets the label quotas and maximizes session spread under that cap. Because this constrained design
+does not give every row a known equal inclusion probability within its stratum, it supports sample
+statistics only. The evaluation draw remains exactly 1,000 rows, seed `2501`, the same allocation
+and floor, at least 30 sessions, and at most 40 rows per session. Source events without command/path
+text are verified and counted but are not shown to auditors; silently treating an empty string as
+reviewable would manufacture evidence.
+
+**Verified audit-freeze checkpoint (2026-09-10).** The correction population contains 20,181
+reviewable events after 530 verified events with no auditable text are excluded. The frozen draw has
+400 rows across 254 sessions and 39 predicted-label strata; no session contributes more than 17 rows,
+and a byte-for-byte replay matches. The evaluation draw refuses before writing because its 2,806
+manifest candidates yield 2,709 reviewable calls across only 17 sessions. No training artifacts
+exist.
+
+**Verified correction-audit checkpoint (2026-09-10).** Two blind auditors completed the exact
+400-row draw and agreed on 328 rows; a third blind reviewer adjudicated exactly 72 disagreements.
+The adjudicated reference agrees with the frozen mapper on 321/400 sampled rows, or **80.25% on
+this targeted sample**. It is not a population estimate and has no population confidence interval.
+All 79 errors have complete, trace-grounded cause judgments. Twenty-five multi-action claims pass
+the deterministic requirement that the reference and another action both appear in the mapper's
+segment trace. Nineteen rows have both a high-confidence reference and a
+high-confidence shell-visibility, inline-semantics, or direct-rule-defect cause; only those rows are
+eligible for the matched correction treatment. Cause assignments remain single-reviewer judgments,
+and the cause reviewer used GPT-6 Astra Medium in a separate context from the two auditors. A fresh
+GPT-5.6 Luna High context adjudicated the disagreements. See
+`TESTS-RESULTS/2026-09-10-issue-25-audit-freeze/`.
 
 **Non-goals.** This issue does not repair shell parsing, revise the 44 labels, add preference/DPO
 training, merge MLX into main, qualify the native engine, deploy a hook, or interpret the old 26-row

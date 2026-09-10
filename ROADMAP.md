@@ -14,7 +14,7 @@
 
 | What was just completed | What's next |
 |---|---|
-| #20/#23's corrected audit is merged; #25 recon found the legacy correction rows lack stable source-event identity for a lossless training join. | **Land the source-identity and disjoint-manifest gate**, then run the matched corrected-target experiment. |
+| The 400-row targeted correction audit is complete: 80.25% sample agreement and 19 conservative correction rows; no population estimate is claimed. | **Collect 13 more eligible evaluation sessions**, freeze the 1,000-row evaluation audit, then run its two independent reviews before training. |
 
 > **Corrected 2026-09-09.** This cell previously read *"first `needle finetune` run on JAX/CPU at
 > `--max-len 2048`"*. That was superseded on 2026-09-07 by
@@ -31,7 +31,7 @@
 
 ### In progress
 
-- [Label correctness audit — make the §2 gate trustworthy](PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md) — scorer correction merged; #25 first adds stable source identity and disjoint manifests, then compares matched old-target and reviewed-target arms. ([#20](https://github.com/HiQS-Labs/Needle-fork/issues/20), [#23](https://github.com/HiQS-Labs/Needle-fork/issues/23), [#25](https://github.com/HiQS-Labs/Needle-fork/issues/25))
+- [Label correctness audit — make the §2 gate trustworthy](PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md) — source identity and disjoint manifests are merged; #25 now waits for 30 fresh evaluation sessions before the matched old-target/reviewed-target comparison. ([#20](https://github.com/HiQS-Labs/Needle-fork/issues/20), [#23](https://github.com/HiQS-Labs/Needle-fork/issues/23), [#25](https://github.com/HiQS-Labs/Needle-fork/issues/25))
 
 ### Completed
 
