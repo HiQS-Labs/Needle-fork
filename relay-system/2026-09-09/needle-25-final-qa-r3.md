@@ -4,8 +4,8 @@
   Scaffolded by relay-automation/new-relay.sh on 2026-09-09.
 -->
 
-NEXT: Reviewer
-STATUS: Open
+NEXT: Producer
+STATUS: Approved
 ROUND: 1 / 1
 
 ## ▶ TAKE YOUR TURN — read this first (works for ANY agent: Claude, Codex, agy)
@@ -60,5 +60,18 @@ ROUND: 1 / 1
 6. The relay ends on **Approved** (Reviewer only). End each turn by committing just this file; no push.
 
 ## Log
+
+### Reviewer · codex · round 1
+
+swept file: yes
+
+- [Pass] The two prior manifest blockers are fail-closed: canonical correction membership now requires both the frozen membership input and legacy prefix, selects only exact `(session, step, full serialized row)` matches, and records unavailable/drifted rows; all three historical boundary categories must name supplied exclusions before overlap checks run (`utils/corpus/build_experiment_manifest.py:368-430`, `utils/corpus/build_experiment_manifest.py:452-470`, `utils/corpus/build_experiment_manifest.py:504-547`). The focused red controls cover omitted membership/boundaries, appended/drifted rows, and absent outputs (`tests/test_corpus_identity.py:260-361`).
+- [Pass] The source verifier rebuilds q1 context from the hashed transcript and requires the request, prior actions, step, tool, and label to match; ID-less subagent actions now scope identity to the path-separated namespaced session, with a dedicated two-subagent regression (`utils/corpus/build_experiment_manifest.py:145-171`, `utils/corpus/build_experiment_manifest.py:215-235`, `utils/corpus/transcript_events.py:94-145`, `tests/test_corpus_identity.py:161-178`).
+- [Pass] The tracked aggregate receipt names fitting, prior-audit, and model-selection boundaries and reports zero correction/evaluation and evaluation/exclusion q1/content overlaps; its evaluation inventory is 2,806 rows from 17 sessions, so the documented 30-session floor remains unmet and the `INCOMPLETE` conclusion is appropriate (`TESTS-RESULTS/2026-09-09-issue-25-source-gate/receipt.json:135-160`, `TESTS-RESULTS/2026-09-09-issue-25-source-gate/receipt.json:287-300`, `PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md:206-208`).
+- [Pass] I swept the complete changed identity, extractor, sampler, scorer, manifest, test, plan, and public-receipt files. I found no additional pre-existing correctness, privacy, or legacy-compatibility defects; the explicit legacy path remains separate from opt-in namespaced extraction (`utils/corpus/extract_claude_transcripts.py:123-145`, `utils/corpus/sample_for_audit.py:123-151`, `utils/corpus/score_audit.py:260-309`). No tests were run in this reviewer-only turn.
+
+**Verdict:** Approved
+
+relay closed (Approved), no further turn needed.
 
 <!-- ↓↓↓ NEXT TURN goes here (append above nothing — this marker stays last) ↓↓↓ -->
