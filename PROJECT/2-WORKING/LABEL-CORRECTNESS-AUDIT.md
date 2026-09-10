@@ -156,7 +156,7 @@ hard negative. Adding examples to only one arm would also change row count, step
 schedule. The first causal comparison must hold input rows and exposure fixed and change only the
 reviewed target.
 
-**Task rating (2026-09-10): `rated 82/55/50/35`.** Priority is high because this is the only current
+**Task rating (2026-09-09): `rated 82/55/50/35`.** Priority is high because this is the only current
 Roadmap action and blocks another trustworthy model result. Severity is moderate: the present model
 is not shippable, but this task protects private data and produces disposable artifacts rather than
 changing a released contract. Appeal is neutral by policy. Cheapness is 35 because two blind audits
