@@ -1,105 +1,123 @@
-# Label correctness — the first measurement, 84.7%
+# Label correctness — corrected stratified estimate
 
 **Date:** 2026-09-09 · **Mapper:** `main` @ `13a156b` · **Label set:** `v1.0.0` (44 labels)
-· **Sample:** 399 rows, 40 strata, seed 20260909 · **Machine:** Mac16,8, Python 3.11.15
-· **Refs:** [#1](https://github.com/HiQS-Labs/Needle-fork/issues/1) §2 · `LESSONS-LEARNED.md` §15
+· **Sample:** 399 rows, 40 predicted-label strata, seed 20260909 · **Machine:** Mac16,8,
+Python 3.11.15 · **Refs:** [#20](https://github.com/HiQS-Labs/Needle-fork/issues/20),
+[#1](https://github.com/HiQS-Labs/Needle-fork/issues/1) §2
 
-Every previous number about the sorter counted **resolution** — did a call get *a* label
-(coverage 96.41%). This is the first measurement of whether the label is **right**.
+> **Correction:** the first receipt called 338/399 = 84.7% the overall precision and attached a
+> pooled Wilson interval. The sample deliberately over-represents small strata, so 84.7% describes
+> the audited sample, not the corpus. The row judgments are unchanged. The population-weighted
+> estimate is **77.84%** with a **72.30–83.38% sampling-error interval**.
 
-## Protocol
+## Protocol and estimands
 
-Stratified sample (floor 8/label + √count remainder) so the governance labels the Oracle exists
-for get real coverage. **Blind**: both auditors saw only the call text, never the sorter's answer.
-Two independent auditors (Claude, agy) labelled all 399; `codex` adjudicated the 82 disagreements
-without seeing the sorter's label either.
+The sampler allocated a floor of eight rows per predicted label, then distributed the remainder
+approximately in proportion to √(stratum size). Two auditors labelled all 399 rows without seeing
+the sorter's answer. They agreed on 317; a third auditor adjudicated exactly the 82 disagreements,
+also blind to the sorter.
 
-Gold = the auditors' shared label where they agreed (317 rows), codex's adjudication where they
-did not (82 rows).
+The historical plan requested 400 rows but its allocation realized 399. The corrected estimate and
+variance use the 399 observed rows and their recorded per-stratum allocation. The new allocator
+either reaches the requested target exactly or refuses.
 
-## Result
+Two numbers serve different purposes:
 
-| | n | precision | 95% CI |
-|---|---|---|---|
-| **Overall (adjudicated)** | 399 | **84.7%** | 80.9–87.9% |
-| **Governance strata** | 113 | **95.6%** | 90.1–98.1% |
-| Everything else | 286 | 80.4% | 75.4–84.6% |
+- **Sample agreement** is the unweighted score on the deliberately rebalanced 399 rows. No pooled
+  confidence interval is attached to it.
+- **Population agreement estimate** weights each predicted-label stratum by its saved population
+  share. Its interval uses the stratified simple-random-sampling-without-replacement variance
+  estimate and covers sampling error only.
 
-Raw auditor passes before adjudication: Claude **78.9%** (74.7–82.7), agy **83.7%** (79.8–87.0).
-**Inter-rater agreement was 79.4%** (75.2–83.1) — *lower* than agy's agreement with the sorter.
-That bounds how precisely the sorter can be scored at all, and is itself the finding.
+## Corrected result
 
-codex sided with Claude on 36 ties, with agy on 37, and chose a **third** label on 9. An even
-split is what genuine ambiguity looks like; a lopsided one would have meant a bad auditor.
+| Estimand | Sample agreement | Population-weighted estimate | 95% sampling CI |
+| --- | ---: | ---: | ---: |
+| All renderable calls | 338/399 = **84.71%** | **77.84%** | 72.30–83.38% |
+| Governance predicted strata | 108/113 = **95.58%** | **94.32%** | 89.08–99.57% |
+| Non-governance predicted strata | 230/286 = **80.42%** | **76.78%** | 70.89–82.67% |
+| Assigned labels (`unmapped` excluded) | — | **80.63%** | 74.89–86.37% |
 
-## Where it fails — concentrated, not spread
+The population interval is a normal approximation to the standard stratified SRSWOR variance
+estimator. It
+does **not** cover reference-label error, shared auditor mistakes, or generalization beyond this
+operator and corpus. Small strata observed as all right or all wrong contribute zero estimated
+within-stratum variance, so the interval should not be read as exact.
 
-| label | precision | 95% CI |
-|---|---|---|
-| `unmapped` | **0/11 = 0%** | 0–26% |
-| `run_script` | 5/15 = 33.3% | 15–58% |
-| `sys_inspect` | 4/10 = 40.0% | 17–69% |
-| `pkg_manage` | 4/9 = 44.4% | 19–73% |
-| `run_build` | 4/9 = 44.4% | 19–73% |
+Raw auditor agreement also changes materially under population weights:
 
-**`unmapped` scored 0 of 11.** Every call the sorter declined to label had a real label available.
-Coverage counts abstention as honest; this says most of it was not. That is the false-negative
-side, and coverage is structurally blind to it.
+| Reference | Sample agreement | Population-weighted agreement |
+| --- | ---: | ---: |
+| Claude | 315/399 = 78.95% | 76.71% |
+| agy | 334/399 = 83.71% | 76.44% |
+| Claude ↔ agy | 317/399 = 79.45% | 75.51% |
 
-The rest are the **generic buckets** — `run_script`, `sys_inspect`, `run_build` — absorbing more
-specific intents.
+Inter-rater agreement is evidence that the reference is noisy. It is not a mathematical ceiling on
+sorter accuracy and is not part of the sampling-error interval.
 
-## The good news, and it is the part that matters most
+## Where estimated corpus error concentrates
 
-**Governance precision is 95.6%.** Those 13 labels are what this Oracle exists to predict, and
-they are the *strongest* stratum, not the weakest — the opposite of what seven rounds of
-adversarial review on governance spoofing would have led anyone to predict.
+Per-label point estimates remain noisy because most strata have 8–15 audited rows. Weighting by
+population changes the priority implied by raw stratum precision:
 
-## A claim of mine that the adjudicator rejected
+| Predicted stratum | Audited precision | Estimated contribution to corpus error |
+| --- | ---: | ---: |
+| `run_script` | 5/15 = 33.3% | **10.86 pp** |
+| `unmapped` | 0/11 = 0% | **3.46 pp** |
+| `apply_patch` | 12/14 = 85.7% | **1.70 pp** |
+| `read_file` | 14/15 = 93.3% | **1.18 pp** |
+| `sys_inspect` | 4/10 = 40.0% | **1.10 pp** |
+| `find_files` | 9/12 = 75.0% | **1.09 pp** |
 
-I observed that on the 240 rows where both auditors were confident *and* agreed, the sorter scored
-**96.2%**, versus 52.8% on the remaining 159 — and argued the taxonomy was ambiguous rather than
-the sorter broken. codex graded that a **[Blocker]**:
+This reverses the proposed `unmapped`-first priority: `run_script` has the largest estimated impact.
+It does not establish why those rows are wrong. Definition ambiguity, auditor interpretation,
+command mix, and mapper defects remain competing explanations until the source rows are classified.
 
-> "The 'sorter is good because it scores 96.2% on confident agreements, therefore the taxonomy is
-> ambiguous' argument is **circular** if the confident-agree subset is treated as ground truth
-> without checking whether confidence tracks easy/rule-shaped rows. It is evidence the sorter
-> handles easy cases, not proof that lower overall score is caused by taxonomy ambiguity."
+Governance's 95.58% sample precision means rows *assigned* governance labels were usually accepted
+by the adjudicated reference. It does not measure governance recall or contradict the adversarial
+spoofing defects found and fixed earlier.
 
-**It is right.** Many "clear" rows are clear because they are decidable from a filename
-(`Edit CHANGELOG.md` → `update_changelog`), which the sorter can hardly get wrong. The split is
-real; the *causal* reading of it was not established.
+## Corrected interpretation of confidence and adjudication
 
-Partial counter-evidence, recorded as partial: murkiness is **concentrated by label**, not spread
-by difficulty — `cut_release` and `session_control` were contested on 9 of 9 rows each, `gh_cli`
-and `update_pr` on 9 of 10, and twelve labels carry 62% of all contested rows. That is a property
-of those definitions. It weakens the circularity objection without settling it; settling it needs
-a difficulty measure independent of auditor confidence.
+The sorter agrees on 231/240 = 96.25% of the rows where both auditors were confident and agreed.
+Against the same adjudicated reference, it agrees on 107/159 = **67.30%** of the remaining rows. The
+previous 52.8% figure used Claude alone for the latter subset and mixed reference standards.
 
-## Taxonomy findings from the adjudicator
+The adjudicator chose Claude's answer 36 times, agy's 37 times, and a third label 9 times. That split
+does not by itself distinguish genuine ambiguity from auditor error. Agreement rows were not
+independently adjudicated, so shared errors remain unmeasured.
 
-- **[Should] A real v1.0.0 gap: commenting on or updating a GitHub *issue*.** `update_pr` says PR,
-  `read_issue` is read-only, `gh_cli` is a fallback. Recommended: add `update_issue` in v1.0.1.
-- **[Should] `find_files`/`read_file`, `apply_patch`/`fs_mutate`, `search_code`/`sys_inspect`** are
-  boundary ambiguities needing written **precedence rules** for mixed commands, not new labels.
-- **[Should] `search_code`/`unmapped`** was mostly *auditor* error, not a taxonomy defect.
-- codex's overall recommendation: **keep the 44 labels**, add precedence guidance, add one label.
+## Deterministic gates added after the first receipt
 
-## What this does not establish
+`score_audit.py` now refuses duplicate, missing, extra, unknown-label, invalid-confidence, or
+plan/allocation-mismatched rows; requires the adjudicator to cover exactly the disagreements; builds
+the adjudicated result itself; emits full confusion tables and weighted error contributions; and
+writes reports atomically. The sampler now reaches the requested allocation exactly, refuses a
+non-empty output directory, and assigns stable content-derived IDs only after shuffling so IDs do
+not reveal the predicted stratum.
 
-- **One corpus, one operator.** 399 rows from one developer's sessions.
-- **Auditor error is unmeasured in absolute terms.** 79.4% inter-rater agreement is a *ceiling
-  artifact*: the sorter cannot be scored more finely than the auditors agree.
-- **Not model accuracy.** This measures the labels the model would be trained on, not the model.
-- **Claude is not an independent auditor.** I wrote the sorter; my pass is expected to be biased
-  *toward* it. That my score (78.9%) came in *below* agy's (83.7%) is unexplained and worth noting
-  rather than explaining away.
-- The 10.7% of calls with no renderable text (`delegate_agent`, `track_todo`, `ask_user`,
-  `no_action`) are outside the frame — they come from a direct tool-name mapping.
+The original 399-row files pass every scorer gate and reproduce all row counts. Focused tests include
+witnessed malformed-input failures, unequal-stratum weighting, exact allocation, complete confusion
+output, stale-output refusal, deterministic adjudication, and opaque IDs.
+
+## Decision
+
+The earlier threshold rule—“≤85% proves the rule-order design must be replaced”—is withdrawn. The
+score establishes an error rate, not its cause. The issue #20 P1→P4 sequence is also superseded:
+neither `unmapped`-first work, precedence changes, nor a new taxonomy version follows from the
+corrected aggregate alone.
+
+The next bounded action is to classify the existing adjudicated errors by verified cause and rank
+them by population-weighted contribution, without changing rules or label names. Any later fix is
+evaluated on fresh held-out rows because these 399 rows have now informed development.
 
 ## Reproduce
 
 ```sh
-python3.11 utils/corpus/sample_for_audit.py --source "<transcripts>"   # writes data/audit/ (gitignored)
-python3.11 utils/corpus/score_audit.py --auditors claude,agy --out <receipt>
+python3.11 utils/corpus/score_audit.py \
+  --dir data/audit \
+  --auditors claude,agy \
+  --adjudicator codex \
+  --out TESTS-RESULTS/2026-09-09-label-correctness-audit/raw-metrics.json \
+  --adjudicated-out TESTS-RESULTS/2026-09-09-label-correctness-audit/adjudicated.json
 ```

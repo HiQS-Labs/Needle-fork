@@ -31,7 +31,7 @@ TAXONOMY LIVES IN taxonomy.py, NOT HERE
 
     Both are fixed in `taxonomy.py`, which is now the single source of truth shared by
     this extractor, the trainer, the evaluator and the end-of-turn hook. Do not
-    re-introduce rules here. See PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md.
+    re-introduce rules here. See PROJECT/3-COMPLETED/PHASE-2-LABEL-TAXONOMY.md.
 """
 from __future__ import annotations
 import argparse, collections, glob, hashlib, json, os, sys

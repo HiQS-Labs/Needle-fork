@@ -433,7 +433,7 @@ mislabelled `promote_capture` counts as *covered*. So §2's gate is blind to the
 consumed seven review rounds.
 
 The blindness was even *noticed* and then filed as something else.
-`PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md:70-71` says: *"the published top-3 baselines… and any
+`PROJECT/3-COMPLETED/PHASE-2-LABEL-TAXONOMY.md:70-71` says: *"the published top-3 baselines… and any
 per-label accuracy computed on those labels measure the regex list, not the model."* That is the
 whole problem, correctly stated, in Phase A — and it was treated as a reason the **baselines** were
 wrong rather than as a quantity to **measure**. The fix was "repair the rules," never "find out how

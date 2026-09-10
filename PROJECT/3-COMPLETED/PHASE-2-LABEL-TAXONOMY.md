@@ -1,8 +1,8 @@
 ---
 title: "Phase 2 §1 — Freeze the v1 Oracle label taxonomy"
-status: In progress
+status: Completed
 created: 2026-09-07
-updated: 2026-09-07
+updated: 2026-09-09
 owner: noelsaw1
 goal: >
   Freeze the v1 label taxonomy for the Needle SDLC Oracle and publish it from this
@@ -25,12 +25,12 @@ branch: main
 
 | What was just completed | What's next |
 |---|---|
-| §3's `query` serialization shipped as **one shared function** (`utils/corpus/serialize.py`) used by both the corpus builder and the end-of-turn Stop hook; the train/serve invariant is a test. Token budget measured: 44 full schemas = **1,383 tokens**, so training runs at `--max-len 2048`, not the default 1024 (Phase D). | **[#2](https://github.com/HiQS-Labs/Needle-fork/issues/2) blocks the `v1.0.0` cut** — its mapper supplies both training targets and `RECENT ACTIONS` features, so fixing it precedes any comparison built on this corpus. §4 is the MLX lane, not a JAX/CPU run. §3b/§3c synthesis stays queued. |
+| The 44 label names were frozen as `v1.0.0`; the corrected mapper was re-run on the Studio corpus, and query serialization is shared by training and the Stop hook. | **[#20](https://github.com/HiQS-Labs/Needle-fork/issues/20): establish a trustworthy label-correctness estimate before choosing any mapper, taxonomy, or training change.** |
 
-> **Corrected 2026-09-09.** This cell previously instructed *"Cut `v1.0.0-draft` → `v1.0.0`; run
-> `needle finetune` … (§4)"*. Both halves were superseded: the `v1.0.0` cut is blocked by #2 (stated
-> in that issue and in this doc's own checklist below), and §4's CPU run was replaced by the MLX lane
-> on 2026-09-07 ([#1 §4 decision](https://github.com/HiQS-Labs/Needle-fork/issues/1#issuecomment-5574864887)).
+> **Corrected 2026-09-09.** An earlier status cell continued to call closed #2 a blocker after the
+> `v1.0.0` cut had completed. The checklist and receipts below are the historical evidence; #20 owns
+> the current label-correctness gate. §4's CPU run remains replaced by the MLX lane
+> ([#1 §4 decision](https://github.com/HiQS-Labs/Needle-fork/issues/1#issuecomment-5574864887)).
 
 ## Table of contents
 
@@ -462,3 +462,13 @@ refuses the build if any exceeds the cap. Without the tokenizer it skips **loudl
 
 - **`"answers": []` abstain slice.** `no_action` has zero support in traces by construction (it is never a tool call). `doc/finetuning.md` rule 2 says without ~1 in 8 refusals the tuned model calls a tool on everything. Source: `needle generate-data` per §3b — not fabricated from traces.
 - §3b/§3c synthesis for `park_roadmap_row`, `promote_capture`, `publish_release`.
+
+## Lessons Learned (For Future Agents)
+
+- Coverage proves that a rule returned a label; it does not prove that the label is correct.
+- Establish a command's role before interpreting its operands, especially for display and search
+  commands that carry governance-looking text as data.
+- A receipt applies to the code and corpus that produced it. Re-run a gate after either changes.
+- Sparse but distinct labels require supplementation evidence before any merge or deletion decision.
+- Training and serving must share one serializer, and the token-budget check must render the exact
+  model input rather than estimate it from components.
