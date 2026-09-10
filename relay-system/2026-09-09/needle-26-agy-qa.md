@@ -40,10 +40,10 @@ ROUND: 1 / 1
    was merely waiting looked stalled. A turn that ends without this line is not finished.
 
 ## Setup
-- Artifact under review: the complete `origin/main...HEAD` diff for
-  `HiQS-Labs/Needle-fork` PR #26 and every full file changed by that diff. Read the issue #25 plan,
-  recon, aggregate receipt, implementation, tests, and prior relay records. This is a read-only QA
-  turn; do not edit source files.
+- Artifact under review: PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md
+- Review scope: the complete `origin/main...HEAD` diff for `HiQS-Labs/Needle-fork` PR #26 and every
+  full file changed by that diff. Read the issue #25 plan, recon, aggregate receipt, implementation,
+  tests, and prior relay records. This is a read-only QA turn; do not edit source files.
 - Reviewer: agy   ·   Producer: codex-producer
 - Started: 2026-09-09
 - Definition of Done: Answer each question with concrete `file:line` evidence and flag any defect,
