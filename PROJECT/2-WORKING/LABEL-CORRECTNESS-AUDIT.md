@@ -132,8 +132,10 @@ Shell visibility and inline semantics together account for 56.05% of estimated e
 labels are reviewer judgments; their weights measure prevalence, not recoverable gain.
 
 A conservative feedback seed contains 26 rows with high-confidence cause and reference judgments.
-Use the reviewed label as the positive and the old sorter label as the hard negative. Exclude rows
-whose target depends on multi-action selection, a taxonomy boundary, or an uncertain reference.
+Those judgments remain evidence for selecting new training-only correction cases, but they are not
+reconstructable as a 26-row training overlay. In the matched comparison, Arm A uses each new row's
+frozen sorter target and Arm B uses its reviewed target. Exclude rows whose target depends on
+multi-action selection, a taxonomy boundary, or an uncertain reference.
 
 ## One next action after this milestone
 
@@ -143,14 +145,14 @@ session and q1/content overlap.
 
 ## Issue #25 — corrected feedback experiment plan
 
-**Observed problem.** The 26-row feedback proposal was written before checking whether an audited
+**Verified locally.** The 26-row feedback proposal was written before checking whether an audited
 raw call could be joined back to the request/action history the model actually sees. Thirteen rows
 match several events in their recorded session; one unique match is the first action and has no q1
 history. Replaying the draw against today's Mac Studio source produces 64,335 calls rather than the
 frozen 64,050 and different artifacts, so replay does not recover the lost occurrence identity.
 Only one of the 12 unique q1 contexts is present in the canonical Studio training corpus.
 
-The second correction is about the objective. `finetune.py` and the MLX port supervise target tokens
+**Verified from code.** `finetune.py` and the MLX port supervise target tokens
 with language-model cross-entropy. They do not consume a 44-way class vector, row weight, or named
 hard negative. Adding examples to only one arm would also change row count, steps, and the cosine
 schedule. The first causal comparison must hold input rows and exposure fixed and change only the
@@ -169,12 +171,15 @@ campaign because it consumes hours and review effort, although its adapters are 
 rollback is to discard the treatment artifacts and retain the unchanged baseline. No model
 architecture, `.cact` format, taxonomy, mapper, native engine, or default dependency changes.
 
-**Dependencies and assumptions.** The Mac Studio frozen corpus is the baseline source; its three
-core files are byte-identical to this machine's `corpus-studio` copies. An explicit source namespace
-must distinguish Studio and MBP sessions. CLIO can reconstruct requests and decisions, but cannot
-replace Claude transcripts because it has no tool-action target. The experiment requires enough new
-sessions and reviewed rows to meet a predeclared minimum effect; otherwise its correct outcome is
-INCOMPLETE.
+**Verified dependencies.** The Mac Studio frozen corpus is the baseline source; its three core files
+are byte-identical to this machine's `corpus-studio` copies. CLIO records prompts and decisions but
+does not supply the Claude tool-action target needed by the q1 serializer.
+
+**Hypotheses to test.** An explicit source namespace plus transcript-internal event identity will
+survive copies and mount-prefix changes. Correcting targets on matched training contexts will improve
+fresh-session top-1 accuracy by at least five percentage points without crossing either protected
+subset bound. If the source gate fails or the sample is too small, the outcome is `INCOMPLETE`, not a
+model result.
 
 ### One ordered execution sequence
 
@@ -189,15 +194,26 @@ INCOMPLETE.
    overlap. Report within-side duplicates without silently deleting natural repetition.
    -> Expect synthetic overlap, empty input, and mount-prefix mutations to go red; unchanged replay
    must be byte-identical.
-3. Freeze two pools before labeling: correction candidates drawn only from recoverable canonical
-   Studio **training** sessions, and evaluation candidates from sessions excluded from all fitting,
-   prior audit, and model-selection evidence. Publish aggregate counts/hashes only.
+3. Freeze the eligible inventories, then choose no evaluation rows until the following decision rule
+   is stored in the manifest. Correction candidates come only from recoverable canonical Studio
+   **training** sessions; evaluation candidates come from sessions excluded from all fitting, prior
+   audit, and model-selection evidence. Publish aggregate counts/hashes only.
    -> Expect zero shared sessions and zero exact q1/content overlap; otherwise stop.
-4. Predeclare the primary effect and power cap before choosing the evaluation sample. A two-sided
-   exact paired test needs roughly 295–623 rows to detect a five-point gain at 80% power when 10–20%
-   of paired outcomes disagree; a three-point gain needs roughly 895–1,758. Require at least 1,000
-   reviewed rows across at least 30 sessions or explicitly narrow the claim to a pilot. Retain a
-   session-resampling sensitivity analysis and do not call it proof of independent sessions.
+4. Use change in sealed-holdout top-1 accuracy (`Arm B - Arm A`) as the only primary effect. The
+   primary null is equal discordant-pair probabilities; test it with a two-sided exact McNemar test
+   at `alpha = 0.05`. Promotion requires all of: at least `+5.00 pp`, `p < 0.05`, and a session-level
+   bootstrap 95% interval whose lower endpoint is above zero. Evaluate exactly 1,000 reviewed rows
+   spanning at least 30 sessions, with no session supplying more than 40 rows; a smaller eligible or
+   completed sample is `INCOMPLETE`. The 1,000-row cap exceeds the roughly 623 independent pairs
+   needed for 80% power at a five-point effect and 20% discordance, while the session interval makes
+   the remaining clustering uncertainty visible rather than claiming independent rows.
+
+   The governance and rare-label subsets are blocking secondary safety gates. Governance membership
+   is the frozen taxonomy's governance tier. A rare label has less than 1% support in the frozen base
+   training manifest. Each aggregate subset must contain at least 50 gold rows; less is `INCOMPLETE`.
+   Promotion fails if either subset's observed top-1 change is below `-5.00 pp`. Top-3, per-label
+   recall, and reviewed-versus-old target margins are descriptive secondary results and do not
+   replace the primary rule.
 5. Blind-label both frozen samples with two auditors and adjudicate only disagreements. The
    correction set may enter training after its references pass the same completeness/confidence
    gates as #20. The evaluation reference remains sealed until both artifacts and run receipts are
@@ -218,9 +234,10 @@ INCOMPLETE.
    scoring. Report paired top-1/top-3, both/A-only/B-only/neither, exact McNemar arithmetic,
    session-resampling sensitivity, label support/recall, governance and rare-label bounds, and the
    reviewed-label-versus-old-label sequence margin.
-   -> The corrected-target hypothesis is falsified by no primary improvement, a predeclared
-   regression-bound breach, or a gain confined to fitting/development rows. Discard the treatment in
-   those cases; preference loss requires a separate Costly decision.
+   -> The corrected-target hypothesis is falsified unless every primary promotion condition passes,
+   or when either protected subset crosses `-5.00 pp`. Discard the treatment in those cases. A pass
+   promotes the recipe only to serving qualification; it does not ship a runtime model. Preference
+   loss requires a separate Costly decision.
 
 **Smallest affected surface.** The first PR changes only existing corpus/audit utilities, their
 tests, this plan, Roadmap pointer, and an aggregate receipt. The MLX branch and run are a dependent
@@ -233,11 +250,12 @@ weighted contribution as achievable gain.
 **Definition of done.** Stable event/session identities survive mount-prefix relocation; private
 manifests are nonempty, immutable, and disjoint; red controls prove the gates fail; arm inputs differ
 only in reviewed targets; both MLX artifacts and receipts load; the sealed paired evaluation produces
-a ship/discard decision at the predeclared threshold; public artifacts contain no raw prompts,
-commands, credentials, or local paths.
+a promote/discard/`INCOMPLETE` decision from the numeric rules above; public artifacts contain no raw
+prompts, commands, credentials, or local paths.
 
 ## Privacy and retained evidence
 
-Row-level audit files remain under gitignored `data/`. Public receipts contain aggregates and label
-pairs. The operator separately authorized existing prompt transcripts to remain public and reported
-that prompts do not contain credentials; a credential-pattern scan found no recognized secrets.
+Raw transcripts, prompts, rendered rows, row-level labels, and local paths remain under gitignored
+`data/` or outside the repository. Public receipts contain aggregate counts, hashes, metrics, and
+label-pair counts only after a credential-pattern and local-path scan. The operator's general
+permission to discuss prompts publicly does not make the corpus itself a tracked artifact.
