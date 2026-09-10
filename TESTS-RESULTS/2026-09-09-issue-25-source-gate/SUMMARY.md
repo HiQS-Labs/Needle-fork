@@ -47,7 +47,7 @@ hash without carrying prompts, commands, rows, credentials, or local paths.
 
 ## Validation
 
-- `321 passed, 6 skipped, 6 deselected` in the final full non-slow release suite.
+- `323 passed, 6 skipped, 6 deselected` in the final full non-slow release suite.
 - A deliberate mutation that disabled overlap rejection made the overlap test fail.
 - A deliberate mutation that restored absolute-path session identity made the mount-prefix test
   fail.
@@ -55,6 +55,9 @@ hash without carrying prompts, commands, rows, credentials, or local paths.
   fail.
 - Deliberately allowing omitted fitting/audit/model-selection boundaries made the required-boundary
   test fail.
+- Deliberately allowing omitted canonical membership made its fail-closed test fail.
+- Restoring the shared-parent fallback for ID-less subagent events made the subagent identity test
+  fail.
 - A second full private-data run produced byte-identical manifest and receipt files.
 - Repository PDDA checks passed before implementation; final full-suite results are recorded in the
   PR.

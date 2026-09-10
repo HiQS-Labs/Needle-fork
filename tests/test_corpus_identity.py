@@ -78,8 +78,24 @@ def _prepare_pair_inputs(tmp_path):
 
 
 def _manifest_args(source, correction, evaluation, out, receipt=None,
-                   boundary_exclusion=None):
+                   boundary_exclusion=None, membership_source=None):
     boundary_exclusion = correction if boundary_exclusion is None else boundary_exclusion
+    membership_source = correction if membership_source is None else membership_source
+    legacy_prefix = "/legacy-source"
+    membership_path = Path(str(membership_source) + ".membership.jsonl")
+    if not membership_path.exists():
+        membership_rows = []
+        for line in Path(membership_source).read_text().splitlines():
+            if not line.strip():
+                continue
+            row = json.loads(line)
+            legacy_path = legacy_prefix + "/" + row["source_relpath"]
+            membership_rows.append({
+                **row,
+                "session": hashlib.sha256(legacy_path.encode()).hexdigest()[:16],
+                "split": "train",
+            })
+        _write_jsonl(membership_path, membership_rows)
     args = [
         "--correction", str(correction),
         "--evaluation", str(evaluation),
@@ -89,6 +105,8 @@ def _manifest_args(source, correction, evaluation, out, receipt=None,
         "--boundary", "fitting=baseline",
         "--boundary", "prior-audit=baseline",
         "--boundary", "model-selection=baseline",
+        "--correction-membership-pairs", str(membership_path),
+        "--correction-legacy-source-prefix", legacy_prefix,
     ]
     if receipt is not None:
         args.extend(("--receipt", str(receipt)))
@@ -138,6 +156,26 @@ def test_namespaced_extractor_emits_identity_and_refuses_duplicate_session(tmp_p
     assert len(pair["session"]) == 64
     assert len(pair["source_event_id"]) == 64
     assert len(pair["transcript_sha256"]) == 64
+
+
+def test_idless_subagent_events_use_the_path_separated_session_identity(tmp_path):
+    source = tmp_path / "source"
+    rows = [
+        {"sessionId": "shared-parent", "message": {"role": "user", "content": "request"}},
+        {"sessionId": "shared-parent", "message": {"role": "assistant", "content": [{
+            "type": "tool_use", "name": "Read", "input": {"file_path": "x.py"},
+        }]}},
+    ]
+    first = source / "parent" / "session.jsonl"
+    second = source / "parent" / "subagents" / "agent.jsonl"
+    _write_jsonl(first, rows)
+    _write_jsonl(second, rows)
+    meta_a, steps_a = events.read_transcript(first, source, "fixture")
+    meta_b, steps_b = events.read_transcript(second, source, "fixture")
+    event_a = next(step.source_event_id for step in steps_a if step.kind == "action")
+    event_b = next(step.source_event_id for step in steps_b if step.kind == "action")
+    assert meta_a.session_id != meta_b.session_id
+    assert event_a != event_b
 
 
 def test_audit_draw_retains_event_identity_only_in_held_back_truth():
@@ -286,12 +324,39 @@ def test_manifest_refuses_missing_required_boundaries(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     source, correction, evaluation, _ = _prepare_pair_inputs(tmp_path)
     out = Path("data/missing-boundaries.json")
-    args = [
-        "--correction", str(correction),
-        "--evaluation", str(evaluation),
-        "--source-root", f"fixture={source}",
-        "--out", str(out),
-    ]
+    complete = _manifest_args(source, correction, evaluation, out)
+    args = []
+    skip = False
+    for value in complete:
+        if skip:
+            skip = False
+            continue
+        if value == "--boundary":
+            skip = True
+            continue
+        args.append(value)
+    assert manifest_builder.main(args) == 2
+    assert not out.exists()
+
+
+def test_manifest_refuses_missing_canonical_membership(tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    source, correction, evaluation, _ = _prepare_pair_inputs(tmp_path)
+    out = Path("data/missing-membership.json")
+    complete = _manifest_args(source, correction, evaluation, out)
+    args = []
+    skip = False
+    membership_flags = {
+        "--correction-membership-pairs", "--correction-legacy-source-prefix",
+    }
+    for value in complete:
+        if skip:
+            skip = False
+            continue
+        if value in membership_flags:
+            skip = True
+            continue
+        args.append(value)
     assert manifest_builder.main(args) == 2
     assert not out.exists()
 

@@ -367,14 +367,12 @@ def _build_legacy_exclusion(name: str, path: str, schemas: list[dict],
 
 def _legacy_membership(
         args, pairs: list[dict], schemas: list[dict]
-        ) -> tuple[Optional[list[dict]], Optional[dict]]:
+        ) -> tuple[list[dict], dict]:
     values = (args.correction_membership_pairs, args.correction_legacy_source_prefix)
-    if not any(values):
-        return None, None
     if not all(values):
         raise ManifestError(
             "--correction-membership-pairs and --correction-legacy-source-prefix "
-            "must be used together")
+            "are both required")
     prefix = args.correction_legacy_source_prefix.rstrip("/")
     if not prefix.startswith("/"):
         raise ManifestError("--correction-legacy-source-prefix must be absolute")
@@ -512,7 +510,7 @@ def build(args) -> tuple[dict, dict]:
     correction = _build_side(
         "correction", args.correction, schemas, verifier,
         args.context_steps, args.user_chars,
-        pairs=selected_pairs if selected_pairs is not None else correction_pairs,
+        pairs=selected_pairs,
         selection=selection)
     evaluation = _build_side(
         "evaluation", args.evaluation, schemas, verifier,

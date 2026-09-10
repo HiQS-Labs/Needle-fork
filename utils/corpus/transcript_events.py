@@ -135,7 +135,10 @@ def read_transcript(path: str, source_root: str, source_namespace: str
             # Native tool-use IDs survive a mount/copy and expose an exact duplicate
             # transcript even when it appears at a second relative path. Fall back to
             # the namespaced session identity when no native record identity exists.
-            event_scope = transcript_session_id or session_id
+            has_native_id = ((isinstance(tool_use_id, str) and bool(tool_use_id)) or
+                             (isinstance(record_uuid, str) and bool(record_uuid)))
+            event_scope = ((transcript_session_id or session_id)
+                           if has_native_id else session_id)
             source_event_id = _digest([
                 IDENTITY_FORMAT_VERSION, "event", namespace, event_scope,
                 event_key, action_ordinal,
