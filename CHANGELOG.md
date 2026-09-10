@@ -5,6 +5,21 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-10
 
+### Evaluation readiness now fails on capacity, not session count
+
+An immutable refresh of the MacBook and Studio transcript sources isolates 2,913 evaluation
+candidates across 32 sessions, clearing the frozen 30-session floor. The live-source attempt first
+failed closed on transcript hash drift; rebuilding from a private snapshot made the source manifest
+stable and preserved zero comparable overlap with correction, prior-audit, and legacy-training
+boundaries.
+
+The unchanged evaluation sampler still refuses before writing output. It excludes 100 events with
+no auditable command or path text, leaving 2,813 reviewable rows across 38 labels. Its 40-row session
+cap permits at most 604 rows, and the exact label-quota allocator can select only 541 of the required
+1,000. The next action is therefore to collect independent, label-diverse sessions until the same
+allocator succeeds. Ten additional full-capacity sessions is only a mathematical lower bound from
+the raw capacity shortfall; the label mix can require more. No audit draw or training run started.
+
 ### The label errors now have measured causes and a bounded feedback seed
 
 All 61 adjudicated sorter disagreements from #20 were traced through the segmenter and rule matcher,

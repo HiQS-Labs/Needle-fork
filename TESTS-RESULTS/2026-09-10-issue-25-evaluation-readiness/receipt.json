@@ -1,0 +1,70 @@
+{
+  "receipt_format": "feedback-evaluation-readiness-v1",
+  "status": "INCOMPLETE",
+  "source_snapshot": {
+    "studio_transcripts": 337,
+    "macbook_transcripts": 18,
+    "reason": "A direct live-source run refused on transcript hash drift; the manifest and draw were rebuilt from an immutable private snapshot."
+  },
+  "source_gate": {
+    "manifest_sha256": "978d5df89b28d16c2f2082640545ab22d1651b8f44d31f4a561c89c158998479",
+    "correction_rows": 20711,
+    "evaluation_candidates": 2913,
+    "evaluation_sessions": 32,
+    "evaluation_candidate_labels_present": 41,
+    "separation": {
+      "correction_vs_evaluation": {
+        "session": 0,
+        "source_event_id": 0,
+        "q1_sha256": 0,
+        "content_sha256": 0
+      },
+      "evaluation_vs_prior_studio_current": {
+        "session": 0,
+        "source_event_id": 0,
+        "q1_sha256": 0,
+        "content_sha256": 0
+      },
+      "evaluation_vs_canonical_legacy": {
+        "session": null,
+        "source_event_id": null,
+        "q1_sha256": 0,
+        "content_sha256": 0
+      }
+    }
+  },
+  "draw_contract": {
+    "target_rows": 1000,
+    "min_sessions": 30,
+    "max_per_session": 40,
+    "predicted_label_floor": 8,
+    "seed": 2501,
+    "allocation": "predicted-label strata; floor 8 then square-root proportional remainder",
+    "allocator": "exact label quotas under session cap; maximize distinct sessions"
+  },
+  "draw_result": {
+    "session_floor": "PASS",
+    "excluded_unrenderable": 100,
+    "reviewable_rows": 2813,
+    "reviewable_labels_present": 38,
+    "raw_session_cap_capacity": 604,
+    "raw_session_cap_shortfall": 396,
+    "label_constrained_capacity": 541,
+    "requested_rows": 1000,
+    "exit_code": 2,
+    "output_written": false
+  },
+  "next_action": {
+    "action": "Collect independent, label-diverse evaluation sessions and rerun the unchanged source and allocation gates from a new immutable snapshot.",
+    "additional_full_capacity_sessions_lower_bound": 10,
+    "limitation": "The lower bound assumes 40 usable rows from every new session and ignores label-distribution constraints; the actual requirement can be higher."
+  },
+  "validation": {
+    "private_manifest_consistency": "passed",
+    "sampler_fail_closed": "exit 2; label-constrained capacity 541; no output written",
+    "full_non_slow": "342 passed, 6 skipped, 6 deselected",
+    "pdda": "all deterministic checks passed; optional LLM readiness review not configured",
+    "public_scan": "nonempty artifacts; no local paths, private-key markers, or common literal credential assignments found"
+  },
+  "privacy": "aggregate hashes and counts only; no prompts, commands, row identities, or local paths"
+}

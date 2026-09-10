@@ -1,6 +1,12 @@
 # Issue #25 correction audit and evaluation freeze
 
-**Status: `INCOMPLETE`.** The targeted correction audit is complete and yields 19 conservative matched-target corrections. The evaluation audit remains blocked by its frozen 30-session floor, so no training can start.
+> **Evaluation-readiness status superseded on 2026-09-10.** The correction result below remains
+> current. A later immutable source refresh clears the 30-session floor but fails the frozen
+> allocation-capacity gate; see `../2026-09-10-issue-25-evaluation-readiness/`.
+
+**Status at this checkpoint: `INCOMPLETE`.** The targeted correction audit is complete and yields
+19 conservative matched-target corrections. The evaluation audit then remained blocked by its
+frozen 30-session floor, so no training could start.
 
 ## Verified result
 
