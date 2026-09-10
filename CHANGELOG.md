@@ -3,6 +3,24 @@
 Newest-first, dated end-of-iteration record. One entry per substantive iteration: what changed,
 why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
+## 2026-09-10
+
+### The label errors now have measured causes and a bounded feedback seed
+
+All 61 adjudicated sorter disagreements from #20 were traced through the segmenter and rule matcher,
+assigned a falsifiable primary cause, and weighted through the frozen sampling plan. Shell visibility
+contributes an estimated 6.99 percentage points of corpus error, inline-program semantics 5.43,
+multi-action one-label selection 4.46, taxonomy boundaries 2.66, direct rule defects 2.52, and
+reference uncertainty 0.10. Treating all low-confidence cause judgments as unresolved leaves the
+same top three causes.
+
+`analyze_audit_causes.py` rejects missing, extra, stale-label, unknown-cause, empty-evidence, and
+invalid multi-action classifications before writing an aggregate receipt. Its conservative feedback
+seed contains 26 high-confidence reviewed corrections representing 12.31 percentage points of the
+estimated error. They are development examples, not a holdout or a promise of equivalent model gain.
+The next action is one unchanged-versus-corrected training comparison on fresh session-separated
+evaluation rows; the frozen taxonomy and mapper stay unchanged for the comparison.
+
 ## 2026-09-09
 
 ### The label-correctness audit now measures the corpus it claims to measure

@@ -3,7 +3,8 @@
 **Date:** 2026-09-09 · **Mapper:** `main` @ `13a156b` · **Label set:** `v1.0.0` (44 labels)
 · **Sample:** 399 rows, 40 predicted-label strata, seed 20260909 · **Machine:** Mac16,8,
 Python 3.11.15 · **Refs:** [#20](https://github.com/HiQS-Labs/Needle-fork/issues/20),
-[#1](https://github.com/HiQS-Labs/Needle-fork/issues/1) §2
+[#1](https://github.com/HiQS-Labs/Needle-fork/issues/1) §2,
+[#23](https://github.com/HiQS-Labs/Needle-fork/issues/23)
 
 > **Correction:** the first receipt called 338/399 = 84.7% the overall precision and attached a
 > pooled Wilson interval. The sample deliberately over-represents small strata, so 84.7% describes
@@ -101,6 +102,47 @@ The original 399-row files pass every scorer gate and reproduce all row counts. 
 witnessed malformed-input failures, unequal-stratum weighting, exact allocation, complete confusion
 output, stale-output refusal, deterministic adjudication, and opaque IDs.
 
+## Cause review
+
+The 61 adjudicated sorter disagreements were traced through the current segmenter and rule matcher,
+then assigned one primary observed cause. The row-level judgments and command text remain under
+ignored `data/`; `cause-metrics.json` contains aggregates only.
+
+| Primary cause | Error rows | Contribution to population error | Share of estimated error |
+| --- | ---: | ---: | ---: |
+| Shell visibility (wrappers, loops, environment prefixes, heredoc shapes) | 21 | **6.99 pp** | 31.55% |
+| Intent inside Python/heredoc program text | 5 | **5.43 pp** | 24.50% |
+| Several real actions forced into one label | 14 | **4.46 pp** | 20.12% |
+| Missing or overlapping label definition | 9 | **2.66 pp** | 12.01% |
+| Direct rule or alias defect | 10 | **2.52 pp** | 11.36% |
+| Adjudicated reference not uniquely supported | 2 | **0.10 pp** | 0.46% |
+
+These are reviewer-assigned cause judgments, not experimental causal effects. The weights estimate
+how much each observed class contributes to the saved frame's 22.16% error; they do not predict how
+much a particular fix will recover. Treating all low-confidence cause judgments as unresolved still
+leaves the same top three causes and moves 2.76 percentage points (12.47% of estimated error) into
+the unresolved bucket.
+
+The trace falsifies two prior framings. `unmapped` can contribute at most 3.46 percentage points,
+so it is not the largest place to start. Fixed one-label selection accounts for 20.12% of estimated
+error, so rule ordering alone does not explain most of the measured problem. Shell visibility plus
+inline-program semantics account for 56.05% of estimated error and are the dominant observed limit
+of the current command-pattern mapper.
+
+## Feedback implication
+
+The existing data can seed improvement. A conservative deterministic filter finds **26 rows** where
+both the cause and adjudicated reference are high-confidence and the cause is shell visibility,
+inline semantics, or a direct rule defect. They represent 12.31 percentage points, or 55.55%, of
+the estimated error. For training, the adjudicated label is the positive and the old sorter label is
+the hard negative. This set is development data, not a test set, and its weighted contribution is
+not the gain training will achieve.
+
+Ordinary 44-way supervised training already pushes down every non-target label. The lean experiment
+therefore corrects and reweights these examples before considering a separate preference-training
+system. Multi-action, taxonomy-boundary, and uncertain-reference rows are excluded until a written
+one-label rule makes their target stable. Any result must be scored on fresh, session-separated rows.
+
 ## Decision
 
 The earlier threshold rule—“≤85% proves the rule-order design must be replaced”—is withdrawn. The
@@ -108,9 +150,10 @@ score establishes an error rate, not its cause. The issue #20 P1→P4 sequence i
 neither `unmapped`-first work, precedence changes, nor a new taxonomy version follows from the
 corrected aggregate alone.
 
-The next bounded action is to classify the existing adjudicated errors by verified cause and rank
-them by population-weighted contribution, without changing rules or label names. Any later fix is
-evaluated on fresh held-out rows because these 399 rows have now informed development.
+The next bounded action is a two-arm feedback experiment: unchanged training versus the same
+training with the 26 reviewed correction seeds applied through a private training-only overlay.
+The mapper and `v1.0.0` vocabulary remain unchanged for that comparison. The current 399 rows must
+not be used for evaluation; the gate is a fresh session-separated holdout.
 
 ## Reproduce
 
@@ -122,4 +165,12 @@ python3.11 utils/corpus/score_audit.py \
   --allow-legacy-plan \
   --out TESTS-RESULTS/2026-09-09-label-correctness-audit/raw-metrics.json \
   --adjudicated-out TESTS-RESULTS/2026-09-09-label-correctness-audit/adjudicated.json
+
+python3.11 utils/corpus/analyze_audit_causes.py \
+  --dir data/audit \
+  --auditors claude,agy \
+  --adjudicator codex \
+  --causes data/audit/error-causes.jsonl \
+  --allow-legacy-plan \
+  --out TESTS-RESULTS/2026-09-09-label-correctness-audit/cause-metrics.json
 ```

@@ -1,0 +1,310 @@
+{
+  "measurement_contract": {
+    "source": "frozen #20 adjudicated errors",
+    "plan_format": "legacy-unversioned (explicitly allowed)",
+    "classification": "one reviewer-assigned primary observed cause per error row",
+    "privacy": "aggregate only; raw commands and row judgments remain under data/",
+    "limitations": "Cause assignment is reviewer judgment; weights estimate prevalence in the saved frame, not causal effect of a fix."
+  },
+  "errors": {
+    "rows": 61,
+    "population_error_estimate": 0.221598
+  },
+  "cause_definitions": {
+    "multi_action_policy": {
+      "description": "Several recognized actions share one tool call; the fixed one-label policy selected a different action than the reference.",
+      "falsifier": "The reference action is not independently visible among the sorter's segment labels, or only one action is present."
+    },
+    "shell_visibility": {
+      "description": "A wrapper, control-flow construct, environment prefix, or heredoc shape hides the reference action from the current parser.",
+      "falsifier": "The current parser exposes the reference action directly without interpreting hidden shell structure."
+    },
+    "inline_semantics": {
+      "description": "The specific action is performed inside inline program text while the mapper can observe only the interpreter invocation.",
+      "falsifier": "The reference action is visible outside the inline program body."
+    },
+    "rule_defect": {
+      "description": "A direct command has an existing label, but a missing, broad, or incorrect rule maps it elsewhere.",
+      "falsifier": "Applying the existing label definitions still leaves more than one defensible answer."
+    },
+    "taxonomy_boundary": {
+      "description": "The current label definitions overlap or omit the observed action, so they do not specify one stable answer.",
+      "falsifier": "The frozen definitions already choose one label unambiguously for the row."
+    },
+    "reference_uncertain": {
+      "description": "The adjudicated label is not better supported than another action in the same row under the current instructions.",
+      "falsifier": "A written, predeclared rule makes the adjudicated label the unique answer for this row."
+    }
+  },
+  "trace": {
+    "reference_visible": 18,
+    "multiple_segment_labels": 30
+  },
+  "by_cause": {
+    "shell_visibility": {
+      "rows": 21,
+      "population_error_contribution": 0.069917,
+      "share_of_estimated_error": 0.315511
+    },
+    "inline_semantics": {
+      "rows": 5,
+      "population_error_contribution": 0.054291,
+      "share_of_estimated_error": 0.244997
+    },
+    "multi_action_policy": {
+      "rows": 14,
+      "population_error_contribution": 0.044575,
+      "share_of_estimated_error": 0.201153
+    },
+    "taxonomy_boundary": {
+      "rows": 9,
+      "population_error_contribution": 0.026618,
+      "share_of_estimated_error": 0.120117
+    },
+    "rule_defect": {
+      "rows": 10,
+      "population_error_contribution": 0.025184,
+      "share_of_estimated_error": 0.113649
+    },
+    "reference_uncertain": {
+      "rows": 2,
+      "population_error_contribution": 0.001013,
+      "share_of_estimated_error": 0.004573
+    }
+  },
+  "low_confidence_as_unresolved": {
+    "shell_visibility": {
+      "rows": 21,
+      "population_error_contribution": 0.069917,
+      "share_of_estimated_error": 0.315511
+    },
+    "inline_semantics": {
+      "rows": 5,
+      "population_error_contribution": 0.054291,
+      "share_of_estimated_error": 0.244997
+    },
+    "multi_action_policy": {
+      "rows": 14,
+      "population_error_contribution": 0.044575,
+      "share_of_estimated_error": 0.201153
+    },
+    "unresolved": {
+      "rows": 11,
+      "population_error_contribution": 0.027631,
+      "share_of_estimated_error": 0.12469
+    },
+    "rule_defect": {
+      "rows": 10,
+      "population_error_contribution": 0.025184,
+      "share_of_estimated_error": 0.113649
+    }
+  },
+  "reviewed_correction_seed": {
+    "selection": "high-confidence cause plus high-confidence adjudicated reference in shell_visibility, inline_semantics, or rule_defect",
+    "rows": 26,
+    "population_error_contribution": 0.123106,
+    "share_of_estimated_error": 0.555537,
+    "training_use": "reference label is the positive; frozen sorter label is the hard negative",
+    "limitation": "This is a development seed, not a holdout, and its weighted contribution is not the expected gain from training."
+  },
+  "by_predicted_stratum": {
+    "apply_patch": {
+      "taxonomy_boundary": {
+        "rows": 2,
+        "population_error_contribution": 0.01696,
+        "share_of_estimated_error": 0.076535
+      }
+    },
+    "commit_changes": {
+      "multi_action_policy": {
+        "rows": 1,
+        "population_error_contribution": 0.002359,
+        "share_of_estimated_error": 0.010645
+      }
+    },
+    "db_query": {
+      "shell_visibility": {
+        "rows": 2,
+        "population_error_contribution": 0.00094,
+        "share_of_estimated_error": 0.004243
+      }
+    },
+    "find_files": {
+      "rule_defect": {
+        "rows": 2,
+        "population_error_contribution": 0.007299,
+        "share_of_estimated_error": 0.032938
+      },
+      "multi_action_policy": {
+        "rows": 1,
+        "population_error_contribution": 0.003649,
+        "share_of_estimated_error": 0.016469
+      }
+    },
+    "fs_mutate": {
+      "shell_visibility": {
+        "rows": 1,
+        "population_error_contribution": 0.001187,
+        "share_of_estimated_error": 0.005355
+      }
+    },
+    "gh_cli": {
+      "rule_defect": {
+        "rows": 2,
+        "population_error_contribution": 0.002208,
+        "share_of_estimated_error": 0.009962
+      }
+    },
+    "git_inspect": {
+      "shell_visibility": {
+        "rows": 1,
+        "population_error_contribution": 0.004372,
+        "share_of_estimated_error": 0.019728
+      }
+    },
+    "git_sync": {
+      "rule_defect": {
+        "rows": 2,
+        "population_error_contribution": 0.008707,
+        "share_of_estimated_error": 0.039291
+      }
+    },
+    "net": {
+      "multi_action_policy": {
+        "rows": 2,
+        "population_error_contribution": 0.001266,
+        "share_of_estimated_error": 0.005715
+      },
+      "shell_visibility": {
+        "rows": 1,
+        "population_error_contribution": 0.000633,
+        "share_of_estimated_error": 0.002857
+      }
+    },
+    "pkg_manage": {
+      "taxonomy_boundary": {
+        "rows": 3,
+        "population_error_contribution": 0.000458,
+        "share_of_estimated_error": 0.002067
+      },
+      "multi_action_policy": {
+        "rows": 2,
+        "population_error_contribution": 0.000305,
+        "share_of_estimated_error": 0.001378
+      }
+    },
+    "publish_release": {
+      "reference_uncertain": {
+        "rows": 1,
+        "population_error_contribution": 1.6e-05,
+        "share_of_estimated_error": 7e-05
+      }
+    },
+    "read_file": {
+      "shell_visibility": {
+        "rows": 1,
+        "population_error_contribution": 0.01175,
+        "share_of_estimated_error": 0.053025
+      }
+    },
+    "run_build": {
+      "shell_visibility": {
+        "rows": 3,
+        "population_error_contribution": 0.000526,
+        "share_of_estimated_error": 0.002372
+      },
+      "multi_action_policy": {
+        "rows": 1,
+        "population_error_contribution": 0.000175,
+        "share_of_estimated_error": 0.000791
+      },
+      "rule_defect": {
+        "rows": 1,
+        "population_error_contribution": 0.000175,
+        "share_of_estimated_error": 0.000791
+      }
+    },
+    "run_pdda_check": {
+      "multi_action_policy": {
+        "rows": 1,
+        "population_error_contribution": 0.000998,
+        "share_of_estimated_error": 0.004502
+      },
+      "reference_uncertain": {
+        "rows": 1,
+        "population_error_contribution": 0.000998,
+        "share_of_estimated_error": 0.004502
+      }
+    },
+    "run_script": {
+      "inline_semantics": {
+        "rows": 5,
+        "population_error_contribution": 0.054291,
+        "share_of_estimated_error": 0.244997
+      },
+      "multi_action_policy": {
+        "rows": 3,
+        "population_error_contribution": 0.032575,
+        "share_of_estimated_error": 0.146998
+      },
+      "shell_visibility": {
+        "rows": 2,
+        "population_error_contribution": 0.021716,
+        "share_of_estimated_error": 0.097999
+      }
+    },
+    "run_validate": {
+      "multi_action_policy": {
+        "rows": 2,
+        "population_error_contribution": 0.001421,
+        "share_of_estimated_error": 0.006411
+      }
+    },
+    "sys_inspect": {
+      "rule_defect": {
+        "rows": 2,
+        "population_error_contribution": 0.003653,
+        "share_of_estimated_error": 0.016487
+      },
+      "shell_visibility": {
+        "rows": 2,
+        "population_error_contribution": 0.003653,
+        "share_of_estimated_error": 0.016487
+      },
+      "multi_action_policy": {
+        "rows": 1,
+        "population_error_contribution": 0.001827,
+        "share_of_estimated_error": 0.008243
+      },
+      "taxonomy_boundary": {
+        "rows": 1,
+        "population_error_contribution": 0.001827,
+        "share_of_estimated_error": 0.008243
+      }
+    },
+    "unmapped": {
+      "shell_visibility": {
+        "rows": 8,
+        "population_error_contribution": 0.025139,
+        "share_of_estimated_error": 0.113446
+      },
+      "taxonomy_boundary": {
+        "rows": 2,
+        "population_error_contribution": 0.006285,
+        "share_of_estimated_error": 0.028362
+      },
+      "rule_defect": {
+        "rows": 1,
+        "population_error_contribution": 0.003142,
+        "share_of_estimated_error": 0.014181
+      }
+    },
+    "update_pr": {
+      "taxonomy_boundary": {
+        "rows": 1,
+        "population_error_contribution": 0.001088,
+        "share_of_estimated_error": 0.004911
+      }
+    }
+  }
+}

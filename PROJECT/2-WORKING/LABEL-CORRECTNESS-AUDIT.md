@@ -2,13 +2,14 @@
 title: "Label correctness audit — make the §2 gate trustworthy"
 status: In progress
 created: 2026-09-09
-updated: 2026-09-09
+updated: 2026-09-10
 owner: noelsaw1
 goal: >
   Establish a repeatable estimate of whether the semantic mapper assigns the right
   label before using those labels for another training decision.
 related:
   - https://github.com/HiQS-Labs/Needle-fork/issues/20
+  - https://github.com/HiQS-Labs/Needle-fork/issues/23
   - https://github.com/HiQS-Labs/Needle-fork/issues/1
 context_tags: [label-correctness, audit, measurement, oracle]
 effort: 3
@@ -27,7 +28,7 @@ phases: 1
 
 | What was just completed | What's next |
 |---|---|
-| The scorer, sampler, tests, aggregate receipt, and repository-wide merge gate are complete. | Publish the review branch and replace issue #20's superseded sequence with this result. |
+| #20's scorer correction is merged, and #23 traces all 61 adjudicated errors into weighted cause groups. | Run one two-arm feedback experiment using only the 26 high-confidence reviewed correction seeds and a fresh session-separated holdout. |
 
 ## Goal
 
@@ -36,9 +37,9 @@ from coverage, before using those labels for another training decision.
 
 ## Current milestone
 
-The frozen `v1.0.0` vocabulary remains unchanged. The current task is to make the existing 399-row
-audit reproducible and statistically consistent. Taxonomy changes, new sampling, and training are
-outside this milestone.
+The frozen `v1.0.0` vocabulary remains unchanged. The existing 399-row audit and its error-cause
+classification are reproducible. The next milestone tests whether a small reviewed correction
+overlay improves a fresh holdout; taxonomy and mapper changes remain outside that comparison.
 
 ## Ground truth at takeover
 
@@ -107,11 +108,36 @@ requested model. Treating it as single-model advice, agy independently selected 
 measurement correction before the P1→P4 campaign. The code and tests above, rather than that
 opinion, are the acceptance evidence.
 
+## Error-cause review
+
+The deterministic #23 analyzer requires exactly the 61 adjudicated error IDs, checks every recorded
+label pair against the frozen reference, reruns the current taxonomy on every error, and refuses
+unknown causes or assertions without an observed mechanism and falsifier. It reproduces the 22.16%
+estimated population error before aggregating causes.
+
+| Observed cause | Population-error contribution |
+| --- | ---: |
+| Shell visibility | **6.99 pp** |
+| Inline-program semantics | **5.43 pp** |
+| Multi-action one-label selection | **4.46 pp** |
+| Taxonomy boundary | **2.66 pp** |
+| Direct rule defect | **2.52 pp** |
+| Reference uncertainty | **0.10 pp** |
+
+Shell visibility and inline semantics together account for 56.05% of estimated error. This rejects
+`unmapped`-first work and the claim that rule ordering alone is the dominant root cause. Cause
+labels are reviewer judgments; their weights measure prevalence, not recoverable gain.
+
+A conservative feedback seed contains 26 rows with high-confidence cause and reference judgments.
+Use the reviewed label as the positive and the old sorter label as the hard negative. Exclude rows
+whose target depends on multi-action selection, a taxonomy boundary, or an uncertain reference.
+
 ## One next action after this milestone
 
-Classify the existing adjudicated errors by observed cause and rank the causes by population-weighted
-contribution. Do not edit the mapper or vocabulary during classification. A later change must use a
-fresh held-out audit because these 399 rows now informed development.
+Run an unchanged-training versus corrected-feedback comparison using a private overlay for those 26
+seeds. Ordinary 44-way supervised loss already supplies negative pressure, so start by correcting
+and reweighting examples rather than adding a preference-training subsystem. Evaluate only on a
+fresh, session-separated holdout; the 399 audit rows have informed development.
 
 ## Privacy and retained evidence
 
