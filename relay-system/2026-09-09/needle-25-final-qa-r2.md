@@ -4,8 +4,8 @@
   Scaffolded by relay-automation/new-relay.sh on 2026-09-09.
 -->
 
-NEXT: Reviewer
-STATUS: Open
+NEXT: Producer
+STATUS: Escalated
 ROUND: 1 / 1
 
 ## ▶ TAKE YOUR TURN — read this first (works for ANY agent: Claude, Codex, agy)
@@ -62,5 +62,19 @@ ROUND: 1 / 1
 6. The relay ends on **Approved** (Reviewer only). End each turn by committing just this file; no push.
 
 ## Log
+
+### Reviewer · codex · round 1
+
+swept file: yes
+
+- [Blocker] Canonical-train recovery is still optional: `_legacy_membership` returns `(None, None)` when both correction-membership options are omitted (`utils/corpus/build_experiment_manifest.py:368-374`), and `build` then freezes all caller-supplied correction pairs (`utils/corpus/build_experiment_manifest.py:510-516`). That permits an `ok` manifest whose correction rows have never passed the required legacy `(session, step, exact full-row)` canonical-training gate, contrary to the approved correction-candidate rule (`PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md:197-201`). Require the two membership inputs for this source-gate command and add a red control proving their omission leaves both outputs absent.
+- [Should] The no-native-ID fallback does not implement its stated subagent isolation. Although `session_id` includes the relative path for reused parent `sessionId` values (`utils/corpus/transcript_events.py:94-98`), an action with neither tool-use ID nor record UUID still scopes its event ID to the shared raw `transcript_session_id` (`utils/corpus/transcript_events.py:130-141`). Two distinct subagent transcripts with that shared ID and an ID-less action at the same ordinal collide and are rejected as a duplicate. For the fallback branch, include the namespaced `session_id` (and retain native-ID copy detection where native identity exists); add a two-subagent missing-native-ID regression test.
+- [Pass] Round-one q1-context and exclusion-boundary failures are now fail-closed: the verifier rebuilds and compares `recent_user_request`, `prior_actions`, and `step` from the source event (`utils/corpus/build_experiment_manifest.py:145-159, 214-231`), and every required boundary category must resolve to a supplied exclusion (`utils/corpus/build_experiment_manifest.py:454-472`). The corresponding red controls are present at `tests/test_corpus_identity.py:285-312`.
+- [Pass] The tracked receipt still supports `INCOMPLETE`, not a training result: it records 17 evaluation sessions (`TESTS-RESULTS/2026-09-09-issue-25-source-gate/receipt.json:287-299`), below the 30-session floor (`PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md:206-208`), while its declared correction/evaluation and evaluation/exclusion q1/content overlaps are zero (`TESTS-RESULTS/2026-09-09-issue-25-source-gate/receipt.json:141-160`).
+- [Unverified — no citation] I swept the changed identity, extractor, sampler, scorer integration, manifest builder, focused tests, and aggregate receipt; beyond the findings above, I found no additional pre-existing correctness defects. No test was run in this reviewer-only relay turn.
+
+**Verdict:** Changes requested
+
+handing off to codex-producer — go to the Producer window and say 'take your turn'.
 
 <!-- ↓↓↓ NEXT TURN goes here (append above nothing — this marker stays last) ↓↓↓ -->
