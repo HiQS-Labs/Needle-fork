@@ -23,7 +23,8 @@ import argparse, collections, hashlib, json, math, os, random, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import taxonomy as tx
-from measure_taxonomy import iter_calls
+from measure_taxonomy import iter_call_records, iter_calls
+from transcript_events import IDENTITY_FORMAT_VERSION, validate_namespace
 
 
 def render(tool: str, inp: dict) -> str:
@@ -85,20 +86,30 @@ def draw(pool: dict, plan: dict, seed: int) -> tuple[list[dict], list[dict]]:
 
     sample, truth, ids = [], [], set()
     for ordinal, (label, row) in enumerate(selected):
-        material = json.dumps([seed, ordinal, row["session"], row["tool"], row["text"]],
-                              ensure_ascii=False, separators=(",", ":"))
+        stable_event = row.get("source_event_id")
+        identity = (["event", stable_event] if stable_event else
+                    ["legacy", row["session"], row["tool"], row["text"]])
+        material = json.dumps([seed, ordinal, identity], ensure_ascii=False,
+                              separators=(",", ":"))
         rid = "a" + hashlib.sha256(material.encode()).hexdigest()[:16]
         if rid in ids:
             raise ValueError("blind row ID collision")
         ids.add(rid)
         sample.append({"id": rid, "tool": row["tool"], "text": row["text"]})
-        truth.append({"id": rid, "sorter_label": label, "session": row["session"]})
+        truth_row = {"id": rid, "sorter_label": label, "session": row["session"]}
+        for key in ("identity_format", "source_namespace", "source_relpath",
+                    "transcript_sha256", "source_event_id", "source_event_ordinal"):
+            if key in row:
+                truth_row[key] = row[key]
+        truth.append(truth_row)
     return sample, truth
 
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--source", default=os.path.expanduser("~/.claude/projects"))
+    ap.add_argument("--source-namespace",
+                    help="opt into v3 audit rows with mount-invariant source identity")
     ap.add_argument("--out-dir", default="data/audit")
     ap.add_argument("--target", type=int, default=400)
     ap.add_argument("--floor", type=int, default=8,
@@ -123,11 +134,34 @@ def main(argv=None) -> int:
         return 2
 
     pool = collections.defaultdict(list)
-    for path, tool, inp in iter_calls(args.source):
-        label, _ = tx.label_call(tool, inp)
-        text = render(tool, inp)
-        if text:
-            pool[label].append({"session": path, "tool": tool, "text": text})
+    try:
+        if args.source_namespace:
+            validate_namespace(args.source_namespace)
+            records = iter_call_records(args.source, args.source_namespace)
+            for record in records:
+                label, _ = tx.label_call(record["tool"], record["input"])
+                text = render(record["tool"], record["input"])
+                if text:
+                    pool[label].append({
+                        "session": record["session"],
+                        "tool": record["tool"],
+                        "text": text,
+                        "identity_format": IDENTITY_FORMAT_VERSION,
+                        "source_namespace": record["source_namespace"],
+                        "source_relpath": record["source_relpath"],
+                        "transcript_sha256": record["transcript_sha256"],
+                        "source_event_id": record["source_event_id"],
+                        "source_event_ordinal": record["source_event_ordinal"],
+                    })
+        else:
+            for path, tool, inp in iter_calls(args.source):
+                label, _ = tx.label_call(tool, inp)
+                text = render(tool, inp)
+                if text:
+                    pool[label].append({"session": path, "tool": tool, "text": text})
+    except (OSError, ValueError) as exc:
+        print(f"refusing: cannot identify source calls: {exc}", file=sys.stderr)
+        return 2
 
     counts = {k: len(v) for k, v in pool.items()}
     try:
@@ -145,10 +179,14 @@ def main(argv=None) -> int:
                 fh.write(json.dumps(r) + "\n")
 
     with open(os.path.join(args.out_dir, "plan.json"), "w") as fh:
-        json.dump({"audit_format_version": 2,
+        plan_doc = {"audit_format_version": 3 if args.source_namespace else 2,
                    "seed": args.seed, "target": args.target, "floor": args.floor,
                    "label_set_version": tx.LABEL_SET_VERSION,
-                   "population": counts, "allocation": plan, "drawn": n}, fh, indent=2)
+                   "population": counts, "allocation": plan, "drawn": n}
+        if args.source_namespace:
+            plan_doc.update({"identity_format": IDENTITY_FORMAT_VERSION,
+                             "source_namespace": args.source_namespace})
+        json.dump(plan_doc, fh, indent=2)
 
     print(f"population   {sum(counts.values()):,} calls across {len(counts)} labels")
     print(f"drawn        {n} rows across {len(plan)} strata (seed {args.seed})")

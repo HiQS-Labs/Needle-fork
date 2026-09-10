@@ -12,6 +12,7 @@ import sample_for_audit as sampler  # noqa: E402
 import analyze_audit_causes as cause_analyzer  # noqa: E402
 import score_audit as scorer  # noqa: E402
 import taxonomy as tx  # noqa: E402
+from transcript_events import IDENTITY_FORMAT_VERSION  # noqa: E402
 
 
 REPO = os.path.join(os.path.dirname(__file__), "..")
@@ -139,13 +140,45 @@ def test_scorer_requires_v2_or_an_explicit_legacy_override(tmp_path):
 
     result = _score(tmp_path)
     assert result.returncode != 0
-    assert "audit format is none, expected 2" in result.stderr.lower()
+    assert "audit format is none, expected 2 or 3" in result.stderr.lower()
     assert not (tmp_path / "raw.json").exists()
 
     result = _score(tmp_path, ["--allow-legacy-plan"])
     assert result.returncode == 0, result.stderr
     report = json.loads((tmp_path / "raw.json").read_text())
     assert report["measurement_contract"]["plan_format"].startswith("legacy-unversioned")
+
+
+def test_scorer_accepts_v3_only_with_complete_unique_source_identity(tmp_path):
+    _audit_fixture(tmp_path)
+    plan_path = tmp_path / "plan.json"
+    plan = json.loads(plan_path.read_text())
+    plan.update({
+        "audit_format_version": 3,
+        "identity_format": IDENTITY_FORMAT_VERSION,
+        "source_namespace": "fixture",
+    })
+    plan_path.write_text(json.dumps(plan))
+    sorter_path = tmp_path / "sorter.jsonl"
+    rows = [json.loads(line) for line in sorter_path.read_text().splitlines()]
+    for ordinal, row in enumerate(rows):
+        row.update({
+            "identity_format": IDENTITY_FORMAT_VERSION,
+            "source_namespace": "fixture",
+            "source_relpath": f"p/{ordinal}.jsonl",
+            "session": f"{ordinal + 101:064x}",
+            "transcript_sha256": f"{ordinal + 1:064x}",
+            "source_event_id": f"{ordinal + 11:064x}",
+            "source_event_ordinal": ordinal,
+        })
+    _write_jsonl(sorter_path, rows)
+    assert _score(tmp_path).returncode == 0
+
+    rows[-1]["source_event_id"] = rows[0]["source_event_id"]
+    _write_jsonl(sorter_path, rows)
+    result = _score(tmp_path)
+    assert result.returncode != 0
+    assert "duplicate source_event_id" in result.stderr
 
 
 def test_scorer_refuses_duplicate_auditor_paths(tmp_path):
