@@ -61,10 +61,16 @@
   },
   "validation": {
     "private_manifest_consistency": "passed",
-    "sampler_fail_closed": "exit 2; label-constrained capacity 541; no output written",
-    "full_non_slow": "342 passed, 6 skipped, 6 deselected",
+    "readiness_report": "audit-readiness-v1 reproduced the post-filter counts and capacities",
+    "sampler_fail_closed": "exit 2; label-constrained capacity 541; no sample output written",
+    "mutation_control": "ignoring the session cap, suppressing capacity on session-floor failure, and suppressing structured output on allocation failure each made a focused readiness test fail; restoration passed",
+    "focused_audit_and_identity": "65 passed",
+    "full_non_slow": "346 passed, 6 skipped, 6 deselected",
     "pdda": "all deterministic checks passed; optional LLM readiness review not configured",
     "public_scan": "nonempty artifacts; no local paths, private-key markers, or common literal credential assignments found"
+  },
+  "public_artifact_sha256": {
+    "readiness.json": "a4fec623c0b55e8d222feaf4f84c8c23fddc379f18507a97b6daaac4210890b1"
   },
   "privacy": "aggregate hashes and counts only; no prompts, commands, row identities, or local paths"
 }

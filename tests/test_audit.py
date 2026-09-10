@@ -452,6 +452,145 @@ def test_session_constrained_draw_finds_terras_feasible_counterexample():
     assert {row["session"] for row in truth} == {"s1", "s2", "s3"}
 
 
+def test_check_only_reports_capacity_from_reviewable_pool_without_writing(
+        tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    pool = {
+        "A": [
+            {"session": "s1", "tool": "Bash", "text": "a1"},
+            {"session": "s1", "tool": "Bash", "text": "a2"},
+        ],
+        "B": [
+            {"session": "s1", "tool": "Bash", "text": "b1"},
+            {"session": "s2", "tool": "Bash", "text": "b2"},
+        ],
+    }
+    monkeypatch.setattr(
+        sampler, "_load_manifest_pool",
+        lambda *_: (pool, "f" * 64, {
+            "manifest_rows": 5, "excluded_unrenderable": 1,
+        }))
+
+    assert sampler.main([
+        "--eligible-manifest", "private.json",
+        "--manifest-side", "evaluation",
+        "--source-root", "fixture=.",
+        "--target", "4", "--floor", "1", "--seed", "2501",
+        "--min-sessions", "2", "--max-per-session", "1",
+        "--out-dir", "outside-data-is-ignored-in-check-mode",
+        "--check-only",
+    ]) == 2
+    report = json.loads(capsys.readouterr().out)
+    assert report == {
+        "report_format": sampler.READINESS_REPORT_VERSION,
+        "status": "INCOMPLETE",
+        "eligible_manifest_sha256": "f" * 64,
+        "manifest_side": "evaluation",
+        "manifest_rows": 5,
+        "excluded_unrenderable": 1,
+        "seed": 2501,
+        "floor": 1,
+        "target_rows": 4,
+        "reviewable_rows": 4,
+        "reviewable_labels_present": 2,
+        "eligible_sessions": 2,
+        "min_sessions": 2,
+        "max_per_session": 1,
+        "raw_session_cap_capacity": 2,
+        "label_constrained_capacity": 2,
+        "reason": "label quotas and session cap permit only 2 rows, below requested 4",
+    }
+    assert not os.path.exists("outside-data-is-ignored-in-check-mode")
+
+
+def test_check_only_reports_inventory_when_label_allocation_refuses(
+        tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    pool = {
+        "A": [{"session": "s1", "tool": "Bash", "text": "a1"}],
+    }
+    monkeypatch.setattr(
+        sampler, "_load_manifest_pool",
+        lambda *_: (pool, "f" * 64, {
+            "manifest_rows": 2, "excluded_unrenderable": 1,
+        }))
+
+    assert sampler.main([
+        "--eligible-manifest", "private.json",
+        "--manifest-side", "evaluation",
+        "--source-root", "fixture=.",
+        "--target", "2", "--floor", "1", "--seed", "2501",
+        "--min-sessions", "1", "--max-per-session", "1",
+        "--check-only",
+    ]) == 2
+    report = json.loads(capsys.readouterr().out)
+    assert report["status"] == "INCOMPLETE"
+    assert report["manifest_rows"] == 2
+    assert report["excluded_unrenderable"] == 1
+    assert report["reviewable_rows"] == 1
+    assert report["raw_session_cap_capacity"] == 1
+    assert report["label_constrained_capacity"] is None
+    assert report["reason"] == "target exceeds the renderable population"
+
+
+def test_check_only_returns_zero_when_the_exact_draw_is_ready(
+        tmp_path, monkeypatch, capsys):
+    monkeypatch.chdir(tmp_path)
+    pool = {
+        "A": [
+            {"session": "s1", "tool": "Bash", "text": "a1"},
+            {"session": "s2", "tool": "Bash", "text": "a2"},
+        ],
+        "B": [
+            {"session": "s3", "tool": "Bash", "text": "b1"},
+            {"session": "s4", "tool": "Bash", "text": "b2"},
+        ],
+    }
+    monkeypatch.setattr(
+        sampler, "_load_manifest_pool",
+        lambda *_: (pool, "f" * 64, {
+            "manifest_rows": 4, "excluded_unrenderable": 0,
+        }))
+
+    assert sampler.main([
+        "--eligible-manifest", "private.json",
+        "--manifest-side", "evaluation",
+        "--source-root", "fixture=.",
+        "--target", "4", "--floor", "1", "--seed", "2501",
+        "--min-sessions", "4", "--max-per-session", "1",
+        "--check-only",
+    ]) == 0
+    report = json.loads(capsys.readouterr().out)
+    assert report["status"] == "READY"
+    assert report["raw_session_cap_capacity"] == 4
+    assert report["label_constrained_capacity"] == 4
+    assert report["selected_sessions"] == 4
+    assert report["reason"] is None
+    assert not os.path.exists("data/audit")
+
+
+def test_readiness_reports_capacity_when_only_session_floor_fails():
+    pool = {
+        "A": [
+            {"session": "s1", "tool": "Bash", "text": "a1"},
+            {"session": "s1", "tool": "Bash", "text": "a2"},
+        ],
+        "B": [
+            {"session": "s2", "tool": "Bash", "text": "b1"},
+            {"session": "s2", "tool": "Bash", "text": "b2"},
+        ],
+    }
+
+    report = sampler.targeted_readiness(
+        pool, {"A": 2, "B": 2}, seed=2501,
+        min_sessions=3, max_per_session=2)
+
+    assert report["status"] == "INCOMPLETE"
+    assert report["label_constrained_capacity"] == 4
+    assert report["reason"] == (
+        "eligible inventory has 2 sessions, below required 3")
+
+
 def test_v3_scorer_refuses_a_plan_without_the_srs_design_contract(tmp_path):
     _audit_fixture(tmp_path)
     plan_path = tmp_path / "plan.json"
