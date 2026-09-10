@@ -41,7 +41,7 @@ ROUND: 1 / 1
 
 ## Setup
 - Artifacts under review: `PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md`,
-  `doc/recon-25-feedback-experiment.md`, and the matching `ROADMAP.md` row at commit `6113968`.
+  `doc/recon-25-feedback-experiment.md`, and the matching `ROADMAP.md` row at commit `66a2df9`.
 - Reviewer: codex   ·   Producer: codex-producer
 - Started: 2026-09-09
 - Definition of Done: Independently audit the plan against `AGENTS.md`, `GUIDING-PRINCIPLES.md`,
