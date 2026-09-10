@@ -4,7 +4,7 @@
   Scaffolded by relay-automation/new-relay.sh on 2026-09-09.
 -->
 
-NEXT: Reviewer
+NEXT: Producer
 STATUS: Open
 ROUND: 1 / 1
 
@@ -63,5 +63,18 @@ ROUND: 1 / 1
 6. The relay ends on **Approved** (Reviewer only). End each turn by committing just this file; no push.
 
 ## Log
+
+### Reviewer · codex · round 1
+
+swept file: yes
+
+- [Blocker] The source verifier authenticates the selected action and its current mapper label, but not the pair's `recent_user_request` or `prior_actions`: it only checks that the latter is a non-empty list at `utils/corpus/build_experiment_manifest.py:182-185`, then hashes and serializes those caller-supplied values at `utils/corpus/build_experiment_manifest.py:230-248`. A pair can therefore retain a valid source event/session/hash while substituting a different q1 context, evade exact q1/content overlap, and freeze an input that the transcript never produced. Reconstruct the bounded user/action context for the selected ordinal from the hashed transcript and require exact equality before hashing/serializing; add red controls independently mutating the user request and prior-actions that leave the manifest absent.
+- [Blocker] Historical exclusions are optional, so this command can produce an `ok` receipt with no fitting/prior-audit/model-selection boundary: both exclusion flags default to empty at `utils/corpus/build_experiment_manifest.py:519-522`, and the only evaluation-exclusion checks iterate the supplied map at `utils/corpus/build_experiment_manifest.py:440-468`. That violates the approved decision rule requiring evaluation sessions be excluded from *all* fitting, prior audit, and model-selection evidence (`PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md:197-201`). Make the required boundary inventories explicit command inputs (or require and validate named exclusions for each category) and add a red control proving omission refuses before either output is written.
+- [Pass] The recorded aggregate receipt supports the present `INCOMPLETE` conclusion: it reports zero correction/evaluation session, event, q1, and content intersections at `TESTS-RESULTS/2026-09-09-issue-25-source-gate/receipt.json:136-155`, but only 17 evaluation sessions at `TESTS-RESULTS/2026-09-09-issue-25-source-gate/receipt.json:285-291`, below the 30-session floor in `PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md:206-208`.
+- [Pass] I swept the complete named implementation/integration/test files and found no additional pre-existing correctness defects. The focused identity suite passed: `9 passed in 0.52s` (`tests/test_corpus_identity.py:92-266` covers mount identity, duplicate events, manifests, drift, and declared overlaps).
+
+**Verdict:** Changes requested
+
+handing off to codex-producer — go to the Producer window and say 'take your turn'.
 
 <!-- ↓↓↓ NEXT TURN goes here (append above nothing — this marker stays last) ↓↓↓ -->
