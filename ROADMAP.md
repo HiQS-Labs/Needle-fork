@@ -14,7 +14,7 @@
 
 | What was just completed | What's next |
 |---|---|
-| The 44-label vocabulary is frozen as `v1.0.0`, and #20's deterministic scorer and corrected 77.84% population estimate are ready for merge. | **Classify the existing adjudicated errors by verified cause and population-weighted contribution** before choosing any mapper, taxonomy, or training change. |
+| #20's corrected 77.84% estimate is merged; #23 traces the largest error causes to shell visibility (6.99 pp) and inline-program semantics (5.43 pp). | **Run one two-arm feedback experiment** using 26 high-confidence reviewed corrections and a fresh session-separated holdout. |
 
 > **Corrected 2026-09-09.** This cell previously read *"first `needle finetune` run on JAX/CPU at
 > `--max-len 2048`"*. That was superseded on 2026-09-07 by
@@ -31,7 +31,7 @@
 
 ### In progress
 
-- [Label correctness audit — make the §2 gate trustworthy](PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md) — scorer correction complete; next classify adjudicated errors by verified cause and population-weighted contribution. ([#20](https://github.com/HiQS-Labs/Needle-fork/issues/20))
+- [Label correctness audit — make the §2 gate trustworthy](PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md) — scorer correction merged; error causes classified; next compare unchanged training with a 26-row reviewed correction overlay on fresh sessions. ([#20](https://github.com/HiQS-Labs/Needle-fork/issues/20), [#23](https://github.com/HiQS-Labs/Needle-fork/issues/23))
 
 ### Completed
 

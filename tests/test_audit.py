@@ -9,6 +9,7 @@ import pytest
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "utils", "corpus"))
 
 import sample_for_audit as sampler  # noqa: E402
+import analyze_audit_causes as cause_analyzer  # noqa: E402
 import score_audit as scorer  # noqa: E402
 import taxonomy as tx  # noqa: E402
 
@@ -285,3 +286,94 @@ def test_confusion_output_is_complete_not_top_25_only():
     expected = len({("read_file", labels[i]) for i in range(count)
                     if labels[i] != "read_file"})
     assert len(confusion) == expected
+
+
+def _cause_row(**changes):
+    row = {
+        "id": "x2",
+        "sorter_label": "read_file",
+        "reference_label": "run_tests",
+        "cause": "taxonomy_boundary",
+        "confidence": "high",
+        "observed_mechanism": "The frozen definitions do not settle this synthetic boundary.",
+        "falsifier": "A predeclared definition selects one label uniquely.",
+    }
+    row.update(changes)
+    return row
+
+
+def _cause_fixture(tmp_path):
+    _audit_fixture(tmp_path)
+    path = tmp_path / "sample.jsonl"
+    rows = [json.loads(line) for line in path.read_text().splitlines()]
+    next(row for row in rows if row["id"] == "x2")["text"] = "cat two"
+    _write_jsonl(path, rows)
+
+
+def test_cause_analyzer_reproduces_weighted_error_and_sensitivity(tmp_path):
+    _cause_fixture(tmp_path)
+    causes = tmp_path / "causes.jsonl"
+    _write_jsonl(causes, [_cause_row(cause="rule_defect", confidence="low")])
+    report = cause_analyzer.analyze(
+        str(tmp_path), ("alice", "bob"), "judge", str(causes))
+    assert report["errors"] == {"rows": 1, "population_error_estimate": 0.45}
+    assert report["by_cause"]["rule_defect"]["rows"] == 1
+    assert report["low_confidence_as_unresolved"]["unresolved"][
+        "population_error_contribution"] == 0.45
+    assert report["reviewed_correction_seed"]["rows"] == 0
+
+    _write_jsonl(causes, [_cause_row(cause="rule_defect", confidence="high")])
+    report = cause_analyzer.analyze(
+        str(tmp_path), ("alice", "bob"), "judge", str(causes))
+    assert report["reviewed_correction_seed"]["rows"] == 1
+    assert report["reviewed_correction_seed"]["population_error_contribution"] == 0.45
+
+
+@pytest.mark.parametrize("defect", ["missing", "extra", "pair", "cause", "observation", "falsifier"])
+def test_cause_analyzer_rejects_incomplete_or_unverifiable_rows(tmp_path, defect):
+    _cause_fixture(tmp_path)
+    rows = [_cause_row()]
+    if defect == "missing":
+        rows = []
+    elif defect == "extra":
+        rows.append(_cause_row(id="x1", sorter_label="read_file", reference_label="read_file"))
+    elif defect == "pair":
+        rows[0]["reference_label"] = "read_file"
+    elif defect == "cause":
+        rows[0]["cause"] = "guess"
+    elif defect == "observation":
+        rows[0]["observed_mechanism"] = ""
+    else:
+        rows[0]["falsifier"] = ""
+    causes = tmp_path / "causes.jsonl"
+    _write_jsonl(causes, rows)
+    with pytest.raises(scorer.AuditError):
+        cause_analyzer.analyze(
+            str(tmp_path), ("alice", "bob"), "judge", str(causes))
+
+
+def test_multi_action_cause_requires_visible_competing_labels(tmp_path):
+    _cause_fixture(tmp_path)
+    causes = tmp_path / "causes.jsonl"
+    _write_jsonl(causes, [_cause_row(cause="multi_action_policy")])
+    with pytest.raises(scorer.AuditError, match="requires the reference"):
+        cause_analyzer.analyze(
+            str(tmp_path), ("alice", "bob"), "judge", str(causes))
+
+
+def test_cause_analyzer_accepts_a_zero_error_audit(tmp_path):
+    _cause_fixture(tmp_path)
+    path = tmp_path / "alice.jsonl"
+    rows = [json.loads(line) for line in path.read_text().splitlines()]
+    next(row for row in rows if row["id"] == "x2").update(
+        label="read_file", confidence="high")
+    _write_jsonl(path, rows)
+    (tmp_path / "judge.jsonl").write_text("")
+    causes = tmp_path / "causes.jsonl"
+    causes.write_text("")
+
+    report = cause_analyzer.analyze(
+        str(tmp_path), ("alice", "bob"), "judge", str(causes))
+    assert report["errors"] == {"rows": 0, "population_error_estimate": 0.0}
+    assert report["by_cause"] == {}
+    assert report["reviewed_correction_seed"]["share_of_estimated_error"] is None
