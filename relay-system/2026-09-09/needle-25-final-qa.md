@@ -40,8 +40,9 @@ ROUND: 1 / 1
    was merely waiting looked stalled. A turn that ends without this line is not finished.
 
 ## Setup
-- Artifact under review: the complete `origin/main...b7dcee3` issue #25 branch diff and every full
-  changed source/test file, especially `utils/corpus/transcript_events.py`,
+- Artifact under review: PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md
+- Review scope: the complete `origin/main...b7dcee3` issue #25 branch diff and every full changed
+  source/test file, especially `utils/corpus/transcript_events.py`,
   `utils/corpus/build_experiment_manifest.py`, the extractor/sampler/scorer integrations, and
   `tests/test_corpus_identity.py`.
 - Reviewer: codex   ·   Producer: codex-producer
