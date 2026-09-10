@@ -12,10 +12,15 @@ import collections
 import json
 import math
 import os
+import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import taxonomy as tx  # noqa: E402
+from transcript_events import IDENTITY_FORMAT_VERSION, validate_namespace  # noqa: E402
+
+
+_SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
 
 
 class AuditError(ValueError):
@@ -92,13 +97,22 @@ def load_plan(path: str, allow_legacy: bool = False) -> dict:
     if not isinstance(plan, dict):
         raise AuditError(f"{path}: plan must be an object")
     format_version = plan.get("audit_format_version")
-    if format_version != 2:
+    if format_version not in {2, 3}:
         if not (allow_legacy and format_version is None):
             raise AuditError(
-                f"{path}: audit format is {format_version!r}, expected 2")
+                f"{path}: audit format is {format_version!r}, expected 2 or 3")
         plan["_loaded_format"] = "legacy-unversioned (explicitly allowed)"
     else:
-        plan["_loaded_format"] = "2"
+        plan["_loaded_format"] = str(format_version)
+    if format_version == 3:
+        if plan.get("identity_format") != IDENTITY_FORMAT_VERSION:
+            raise AuditError(
+                f"{path}: identity format is {plan.get('identity_format')!r}, "
+                f"expected {IDENTITY_FORMAT_VERSION!r}")
+        try:
+            validate_namespace(plan.get("source_namespace"))
+        except ValueError as exc:
+            raise AuditError(f"{path}: invalid source namespace: {exc}") from exc
     if plan.get("label_set_version") != tx.LABEL_SET_VERSION:
         raise AuditError(
             f"{path}: label set is {plan.get('label_set_version')!r}, "
@@ -284,10 +298,31 @@ def main(argv=None) -> int:
         plan = load_plan(plan_path, allow_legacy=args.allow_legacy_plan)
         sample = load_jsonl(sample_path,
                             required=("tool", "text"))
+        sorter_required = ["sorter_label", "session"]
+        if plan.get("audit_format_version") == 3:
+            sorter_required.extend((
+                "identity_format", "source_namespace", "source_relpath",
+                "transcript_sha256", "source_event_id", "source_event_ordinal"))
         sorter = load_jsonl(sorter_path, "sorter_label",
-                            required=("sorter_label", "session"))
+                            required=tuple(sorter_required))
         sample_ids = set(sample)
         require_same_ids("sorter", sorter, sample_ids)
+        if plan.get("audit_format_version") == 3:
+            event_ids = [row["source_event_id"] for row in sorter.values()]
+            if len(event_ids) != len(set(event_ids)):
+                raise AuditError("sorter contains duplicate source_event_id values")
+            for rid, row in sorter.items():
+                if row["identity_format"] != IDENTITY_FORMAT_VERSION:
+                    raise AuditError(f"sorter row {rid} has wrong identity_format")
+                if row["source_namespace"] != plan["source_namespace"]:
+                    raise AuditError(f"sorter row {rid} has wrong source_namespace")
+                for field in ("session", "transcript_sha256", "source_event_id"):
+                    if (not isinstance(row[field], str) or
+                            not _SHA256_RE.fullmatch(row[field])):
+                        raise AuditError(f"sorter row {rid} has invalid {field}")
+                ordinal = row["source_event_ordinal"]
+                if isinstance(ordinal, bool) or not isinstance(ordinal, int) or ordinal < 0:
+                    raise AuditError(f"sorter row {rid} has invalid source_event_ordinal")
         if len(sorter) != plan["drawn"]:
             raise AuditError("sorter row count differs from plan.drawn")
         observed = collections.Counter(row["sorter_label"] for row in sorter.values())

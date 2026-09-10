@@ -38,6 +38,13 @@ import argparse, collections, glob, hashlib, json, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import taxonomy as tx  # noqa: E402
+import serialize as ser  # noqa: E402
+from transcript_events import (IDENTITY_FORMAT_VERSION, iter_transcript_paths,
+                               read_transcript, validate_namespace)  # noqa: E402
+
+
+class ExtractionError(ValueError):
+    """A namespaced extraction cannot produce a complete, trustworthy corpus."""
 
 
 def iter_steps(path: str):
@@ -81,6 +88,9 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--source", default=os.path.expanduser("~/.claude/projects"))
+    ap.add_argument(
+        "--source-namespace",
+        help="opt into mount-invariant session/event IDs using this non-secret source name")
     ap.add_argument("--out-dir", default="data/corpus")
     ap.add_argument("--context-steps", type=int, default=12,
                     help="preceding actions kept per pair (default 12)")
@@ -92,53 +102,114 @@ def main() -> int:
                          "by pair, because consecutive pairs share context")
     args = ap.parse_args()
 
-    files = sorted(glob.glob(os.path.join(args.source, "**", "*.jsonl"), recursive=True))
+    if args.source_namespace:
+        try:
+            validate_namespace(args.source_namespace)
+        except ValueError as exc:
+            print(f"invalid --source-namespace: {exc}", file=sys.stderr)
+            return 2
+
+    files = (list(iter_transcript_paths(args.source)) if args.source_namespace else
+             sorted(glob.glob(os.path.join(args.source, "**", "*.jsonl"), recursive=True)))
     if not files:
         print(f"No transcripts under {args.source}", file=sys.stderr)
         return 1
 
     os.makedirs(args.out_dir, exist_ok=True)
     pairs_path = os.path.join(args.out_dir, "pairs.jsonl")
+    pairs_tmp = pairs_path + ".tmp"
+
+    def discard_partial() -> None:
+        try:
+            os.unlink(pairs_tmp)
+        except FileNotFoundError:
+            pass
 
     counts = collections.Counter()
     n_pairs = n_sessions = n_skipped = 0
     split_counts = collections.Counter()
+    seen_sessions: set[str] = set()
+    seen_events: set[str] = set()
 
-    with open(pairs_path, "w") as out:
-        for fp in files:
-            # Session id is a hash: project paths leak repo and client names.
-            sid = hashlib.sha256(fp.encode()).hexdigest()[:16]
-            steps = list(iter_steps(fp))
-            actions = [s for s in steps if s[0] == "action"]
-            if len(actions) < args.min_session_actions:
-                n_skipped += 1
-                continue
-            n_sessions += 1
-            # Deterministic, session-level split.
-            split = "holdout" if int(sid[:8], 16) % 100 < args.holdout_pct else "train"
-            split_counts[split] += 1
-
-            history: list[str] = []
-            recent_user = ""
-            for step in steps:
-                if step[0] == "user":
-                    recent_user = step[1][: args.user_chars]
+    try:
+        with open(pairs_tmp, "w") as out:
+            for fp in files:
+                meta = None
+                if args.source_namespace:
+                    try:
+                        meta, records = read_transcript(
+                            fp, args.source, args.source_namespace)
+                    except (OSError, ValueError) as exc:
+                        raise ExtractionError(
+                            f"cannot identify transcript {fp}: {exc}") from exc
+                    sid = meta.session_id
+                    if sid in seen_sessions:
+                        raise ExtractionError(f"duplicate source session identity: {sid}")
+                    seen_sessions.add(sid)
+                    steps = records
+                    actions = [s for s in steps if s.kind == "action"]
+                else:
+                    # Legacy behavior: retain the absolute-path hash unless identity is opted in.
+                    sid = hashlib.sha256(fp.encode()).hexdigest()[:16]
+                    steps = list(iter_steps(fp))
+                    actions = [s for s in steps if s[0] == "action"]
+                if len(actions) < args.min_session_actions:
+                    n_skipped += 1
                     continue
-                _, tool, tool_input = step
-                label, _evidence = tx.label_call(tool, tool_input)
-                if history:  # a pair needs at least one step of context
-                    out.write(json.dumps({
-                        "session": sid,
-                        "step": len(history),
-                        "split": split,
-                        "recent_user_request": recent_user,
-                        "prior_actions": history[-args.context_steps:],
-                        "label": label,
-                        "tool_name": tool,
-                    }) + "\n")
-                    n_pairs += 1
-                    counts[label] += 1
-                history.append(label)
+                n_sessions += 1
+                # Deterministic, session-level split.
+                split = "holdout" if int(sid[:8], 16) % 100 < args.holdout_pct else "train"
+                split_counts[split] += 1
+
+                history: list[str] = []
+                recent_user = ""
+                for step in steps:
+                    if args.source_namespace:
+                        if step.kind == "user":
+                            recent_user = step.text[: args.user_chars]
+                            continue
+                        tool, tool_input = step.tool, step.tool_input or {}
+                        if step.source_event_id in seen_events:
+                            raise ExtractionError(
+                                f"duplicate source event identity: {step.source_event_id}")
+                        seen_events.add(step.source_event_id)
+                    else:
+                        if step[0] == "user":
+                            recent_user = step[1][: args.user_chars]
+                            continue
+                        _, tool, tool_input = step
+                    label, _evidence = tx.label_call(tool, tool_input)
+                    if history:  # a pair needs at least one step of context
+                        pair = {
+                            "session": sid,
+                            "step": len(history),
+                            "split": split,
+                            "recent_user_request": recent_user,
+                            "prior_actions": history[-args.context_steps:],
+                            "label": label,
+                            "tool_name": tool,
+                        }
+                        if meta is not None:
+                            pair.update({
+                                "identity_format": IDENTITY_FORMAT_VERSION,
+                                "source_namespace": meta.source_namespace,
+                                "source_relpath": meta.source_relpath,
+                                "transcript_sha256": meta.transcript_sha256,
+                                "source_event_id": step.source_event_id,
+                                "source_event_ordinal": step.action_ordinal,
+                                "label_set_version": tx.LABEL_SET_VERSION,
+                                "query_format_version": ser.QUERY_FORMAT_VERSION,
+                                "context_steps": args.context_steps,
+                                "user_chars": args.user_chars,
+                            })
+                        out.write(json.dumps(pair) + "\n")
+                        n_pairs += 1
+                        counts[label] += 1
+                    history.append(label)
+    except ExtractionError as exc:
+        discard_partial()
+        print(str(exc), file=sys.stderr)
+        return 2
 
     def baseline(counter: collections.Counter, k: int) -> float:
         tot = sum(counter.values()) or 1
@@ -149,7 +220,9 @@ def main() -> int:
     # success against zero rows. Fail here instead.
     if n_pairs == 0:
         print("extracted 0 pairs -- refusing to write an empty corpus", file=sys.stderr)
+        discard_partial()
         return 1
+    os.replace(pairs_tmp, pairs_path)
 
     coverage = tx.coverage(counts.elements())
     gov_groups = {"pdda", "prs", "xyz"}
@@ -173,6 +246,12 @@ def main() -> int:
         "baseline_top3_pct": round(baseline(counts, 3), 2),
         "distribution": dict(counts.most_common()),
     }
+    if args.source_namespace:
+        stats.update({
+            "identity_format": IDENTITY_FORMAT_VERSION,
+            "source_namespace": args.source_namespace,
+            "source_events": len(seen_events),
+        })
     with open(os.path.join(args.out_dir, "stats.json"), "w") as fh:
         json.dump(stats, fh, indent=2)
 
