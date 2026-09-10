@@ -4,8 +4,8 @@
   Scaffolded by relay-automation/new-relay.sh on 2026-09-09.
 -->
 
-NEXT: Reviewer
-STATUS: Open
+NEXT: Producer
+STATUS: Approved
 ROUND: 1 / 1
 
 ## ▶ TAKE YOUR TURN — read this first (works for ANY agent: Claude, Codex, agy)
@@ -63,5 +63,20 @@ ROUND: 1 / 1
 6. The relay ends on **Approved** (Reviewer only). End each turn by committing just this file; no push.
 
 ## Log
+
+### Reviewer · codex · round 1
+
+swept file: yes
+
+- [Pass] Both prior inferential blockers are resolved: the primary promotion test is a two-sided 95% percentile interval from 10,000 whole-session resamples at seed `2501`, uses row-weighted change, and requires `+5.00 pp` plus a positive lower endpoint; it explicitly makes sub-floor rows/sessions `INCOMPLETE` and relegates McNemar to sensitivity only (`PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md:202-211`).
+- [Pass] Protected subsets now have independently specified session-clustered one-sided 95% lower bounds, 10,000 resamples, seed `2501`, row weighting, a 50-row/20-session eligibility floor, a strict `-5.00 pp` bound, and an `INCOMPLETE` outcome (`PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md:213-220`).
+- [Pass] The source-identity, manifest-disjointness, and matched-target prerequisites remain concrete and fail-closed: mount relocation/event loss, overlap, empty input, ambiguous joins, drift, and arm differences beyond target/reasoning stop progression (`PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md:186-196,226-231`). The plan’s stated first PR remains confined to corpus/audit utilities and their tests, plan/Roadmap, and an aggregate receipt (`PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md:246-248`).
+- [Pass] Privacy is aggregate-only: raw transcripts, prompts, rendered rows, row labels, and local paths stay gitignored or outside the repository; public receipts require credential/path scanning (`PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md:260-265`). This matches the extractor’s private-data rule (`utils/corpus/extract_claude_transcripts.py:12-20`).
+
+Whole-artifact sweep found no additional pre-existing defects in `PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md`, `doc/recon-25-feedback-experiment.md`, or the matching `ROADMAP.md` row.
+
+**Verdict:** Approved
+
+Relay closed (Approved), no further turn needed.
 
 <!-- ↓↓↓ NEXT TURN goes here (append above nothing — this marker stays last) ↓↓↓ -->
