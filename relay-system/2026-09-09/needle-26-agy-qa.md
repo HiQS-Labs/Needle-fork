@@ -4,8 +4,8 @@
   Scaffolded by relay-automation/new-relay.sh on 2026-09-09.
 -->
 
-NEXT: Reviewer
-STATUS: Open
+NEXT: Producer
+STATUS: Approved
 ROUND: 1 / 1
 
 ## ▶ TAKE YOUR TURN — read this first (works for ANY agent: Claude, Codex, agy)
@@ -75,5 +75,23 @@ ROUND: 1 / 1
 6. The relay ends on **Approved** (Reviewer only). End each turn by committing just this file; no push.
 
 ## Log
+
+### Reviewer · agy · round 1
+
+swept file: yes
+
+- [Pass] Stable session/event identities remain invariant across mount paths while distinguishing copied transcripts, native duplicates, and ID-less subagents (`utils/corpus/transcript_events.py:54-64`, `utils/corpus/transcript_events.py:94-98`, `utils/corpus/transcript_events.py:130-145`, `utils/corpus/extract_claude_transcripts.py:172-175`). Relative path normalization strips foreign mount points so identical sessions share identity across prefixes (`tests/test_corpus_identity.py:116-136`). Copied transcripts within a namespace collide on native event IDs and fail closed (`tests/test_corpus_identity.py:138-160`), while ID-less subagent events scope to the distinct subagent path session (`tests/test_corpus_identity.py:161-179`).
+- [Pass] Manifest construction fails closed on source mismatch, drift, or missing canonical correction membership (`utils/corpus/build_experiment_manifest.py:142-172`, `utils/corpus/build_experiment_manifest.py:182-239`, `utils/corpus/build_experiment_manifest.py:368-432`). It requires both `--correction-membership-pairs` and `--correction-legacy-source-prefix`, verifies legacy path hashing against training split membership, rebuilds the exact request and prior actions from raw source, and rejects drifted q1 context or post-extraction transcript edits (`tests/test_corpus_identity.py:270-279`, `tests/test_corpus_identity.py:316-322`, `tests/test_corpus_identity.py:342-362`, `tests/test_corpus_identity.py:364-378`).
+- [Pass] Fitting, prior-audit, and model-selection boundaries are mandatory and evaluated without inventing unavailable legacy identifiers (`utils/corpus/build_experiment_manifest.py:28`, `utils/corpus/build_experiment_manifest.py:452-470`, `utils/corpus/build_experiment_manifest.py:309-325`, `utils/corpus/build_experiment_manifest.py:322-365`). Omitted boundary categories fail closed (`tests/test_corpus_identity.py:323-340`). Legacy exclusions explicitly record `source_identity: "unavailable in frozen legacy pairs"`, reporting `session: null` and `source_event_id: null` in separation rather than inventing synthetic identifiers (`TESTS-RESULTS/2026-09-09-issue-25-source-gate/receipt.json:62,148-154`, `tests/test_corpus_identity.py:219-223`).
+- [Pass] Opt-in namespaced paths preserve legacy extract, sample, and score behavior when `--source-namespace` is omitted (`utils/corpus/extract_claude_transcripts.py:151-155,183-191`, `utils/corpus/sample_for_audit.py:88-105,157-162`, `utils/corpus/score_audit.py:99-106,301-306`, `utils/corpus/measure_taxonomy.py:26-44,147`). Legacy pair generation, audit format 2, `--allow-legacy-plan`, and `iter_calls` run unchanged when namespacing is not requested, and legacy test suites continue to pass (`tests/test_audit.py:139-150`).
+- [Pass] Public receipt and plan claims are backed by code and aggregate data, free of secrets and local paths, and honest about the 17-session shortfall (`TESTS-RESULTS/2026-09-09-issue-25-source-gate/receipt.json:287-300`, `TESTS-RESULTS/2026-09-09-issue-25-source-gate/SUMMARY.md:5-7,67-70`, `PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md:256-259`). Programmatic gate `_assert_public_safe` bans credential patterns and operator home paths (`utils/corpus/build_experiment_manifest.py:29-33,485-491`). The shortfall below the 30-session floor is clearly marked `INCOMPLETE`, and training was correctly not started.
+- [Pass] Focused test suite exercises failure paths rather than mirroring implementation and passes cleanly from checkout (`PYTHONDONTWRITEBYTECODE=1 pytest -o cache_dir=/tmp/pytest_cache -p no:cacheprovider tests/test_corpus_identity.py tests/test_audit.py` -> 42 passed in 1.69s). Red controls cover duplicate session rejection (`tests/test_corpus_identity.py:146-149`), context drift (`line 278`), exclusion overlap (`lines 284, 291`), empty input (`line 301`), overwrite refusal (`line 312`), hash drift (`line 319`), missing boundaries (`line 338`), missing membership flags (`line 360`), tampered context (`line 376`), and contract version drift (`line 391`).
+- [Pass] Complete sweep of all 20 changed files across `origin/main...HEAD` (`PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md`, `ROADMAP.md`, `TESTS-RESULTS/2026-09-09-issue-25-source-gate/SUMMARY.md`, `TESTS-RESULTS/2026-09-09-issue-25-source-gate/receipt.json`, `doc/recon-25-feedback-experiment.md`, relay files, `tests/test_audit.py`, `tests/test_corpus_identity.py`, and `utils/corpus/*.py`) identified no pre-existing defects, privacy leaks, or scope creep. PR #26 is safe to merge.
+
+**VERDICT:** PASS
+**Basis:** All 7 Definition of Done requirements verified with concrete file:line citations; failure paths and red controls confirmed; privacy and honest 17-session shortfall verified; full sweep of PR #26 clean.  [Unverified — no citation]
+**Verdict:** Approved
+
+relay closed (Approved), no further turn needed.
 
 <!-- ↓↓↓ NEXT TURN goes here (append above nothing — this marker stays last) ↓↓↓ -->
