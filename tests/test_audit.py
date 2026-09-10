@@ -1,4 +1,6 @@
 """Deterministic gates for the blind label-correctness audit (issue #20)."""
+import collections
+import hashlib
 import json
 import os
 import subprocess
@@ -78,6 +80,39 @@ def _score(tmp_path, extra=()):
     return subprocess.run(command, capture_output=True, text=True)
 
 
+def _upgrade_fixture_to_v3(tmp_path, design=sampler.SAMPLING_DESIGN):
+    plan_path = tmp_path / "plan.json"
+    plan = json.loads(plan_path.read_text())
+    plan.update({
+        "audit_format_version": 3,
+        "identity_format": IDENTITY_FORMAT_VERSION,
+        "source_namespace": "fixture",
+        "sampling_design": design,
+    })
+    if design == sampler.TARGETED_DESIGN:
+        plan.update({
+            "min_sessions": 2,
+            "max_per_session": 2,
+            "drawn_sessions": 2,
+            "observed_max_per_session": 2,
+        })
+    plan_path.write_text(json.dumps(plan))
+    sorter_path = tmp_path / "sorter.jsonl"
+    rows = [json.loads(line) for line in sorter_path.read_text().splitlines()]
+    for ordinal, row in enumerate(rows):
+        row.update({
+            "identity_format": IDENTITY_FORMAT_VERSION,
+            "source_namespace": "fixture",
+            "source_relpath": f"p/{ordinal}.jsonl",
+            "session": f"{ordinal // 2 + 101:064x}",
+            "transcript_sha256": f"{ordinal + 1:064x}",
+            "source_event_id": f"{ordinal + 11:064x}",
+            "source_event_ordinal": ordinal,
+        })
+    _write_jsonl(sorter_path, rows)
+    return plan, rows
+
+
 def test_scorer_adjudicates_and_weights_the_stratified_sample(tmp_path):
     _audit_fixture(tmp_path)
     result = _score(tmp_path)
@@ -91,6 +126,57 @@ def test_scorer_adjudicates_and_weights_the_stratified_sample(tmp_path):
     assert report["population_weighted"]["all"]["estimate"] == 0.55
     assert report["reference"]["disagreements_adjudicated"] == 1
     assert raw["disagreement"]["population_weighted"]["estimate"] == 0.55
+
+
+def test_targeted_session_draw_reports_sample_statistics_only(tmp_path):
+    _audit_fixture(tmp_path)
+    _upgrade_fixture_to_v3(tmp_path, sampler.TARGETED_DESIGN)
+
+    result = _score(tmp_path)
+    assert result.returncode == 0, result.stderr
+    report = json.loads((tmp_path / "adjudicated.json").read_text())
+    raw = json.loads((tmp_path / "raw.json").read_text())
+    assert report["adjudicated"]["agreement"] == 0.75
+    assert report["population_weighted"] is None
+    assert raw["auditors"]["alice"]["population_weighted"] is None
+    assert raw["disagreement"]["population_weighted"] is None
+    assert "not estimated" in raw["measurement_contract"]["population_statistics"]
+    assert all("wilson_ci95" not in row for row in report["per_label"].values())
+    assert all(
+        "wilson_ci95" not in row
+        for auditor in raw["auditors"].values()
+        for row in auditor["per_label"].values())
+
+
+@pytest.mark.parametrize("relpath", ["", "/absolute.jsonl", "../escape.jsonl", 7])
+def test_v3_scorer_rejects_an_invalid_source_relpath(tmp_path, relpath):
+    _audit_fixture(tmp_path)
+    _, rows = _upgrade_fixture_to_v3(tmp_path)
+    rows[0]["source_relpath"] = relpath
+    _write_jsonl(tmp_path / "sorter.jsonl", rows)
+
+    result = _score(tmp_path)
+    assert result.returncode != 0
+    assert "invalid source_relpath" in result.stderr
+
+
+@pytest.mark.parametrize(
+    ("field", "value", "message"), [
+        ("drawn_sessions", 1, "plan.drawn_sessions"),
+        ("observed_max_per_session", 1, "plan.observed_max_per_session"),
+        ("min_sessions", 3, "below min_sessions"),
+        ("max_per_session", 1, "above max_per_session"),
+    ])
+def test_targeted_v3_scorer_rechecks_the_declared_session_contract(
+        tmp_path, field, value, message):
+    _audit_fixture(tmp_path)
+    plan, _ = _upgrade_fixture_to_v3(tmp_path, sampler.TARGETED_DESIGN)
+    plan[field] = value
+    (tmp_path / "plan.json").write_text(json.dumps(plan))
+
+    result = _score(tmp_path)
+    assert result.returncode != 0
+    assert message in result.stderr
 
 
 @pytest.mark.parametrize(
@@ -157,6 +243,7 @@ def test_scorer_accepts_v3_only_with_complete_unique_source_identity(tmp_path):
         "audit_format_version": 3,
         "identity_format": IDENTITY_FORMAT_VERSION,
         "source_namespace": "fixture",
+        "sampling_design": sampler.SAMPLING_DESIGN,
     })
     plan_path.write_text(json.dumps(plan))
     sorter_path = tmp_path / "sorter.jsonl"
@@ -179,6 +266,58 @@ def test_scorer_accepts_v3_only_with_complete_unique_source_identity(tmp_path):
     result = _score(tmp_path)
     assert result.returncode != 0
     assert "duplicate source_event_id" in result.stderr
+
+
+def test_scorer_accepts_a_v3_audit_from_multiple_declared_namespaces(tmp_path):
+    _audit_fixture(tmp_path)
+    plan_path = tmp_path / "plan.json"
+    plan = json.loads(plan_path.read_text())
+    plan.update({
+        "audit_format_version": 3,
+        "identity_format": IDENTITY_FORMAT_VERSION,
+        "source_namespaces": ["fixture-a", "fixture-b"],
+        "sampling_design": sampler.SAMPLING_DESIGN,
+    })
+    plan_path.write_text(json.dumps(plan))
+    sorter_path = tmp_path / "sorter.jsonl"
+    rows = [json.loads(line) for line in sorter_path.read_text().splitlines()]
+    for ordinal, row in enumerate(rows):
+        row.update({
+            "identity_format": IDENTITY_FORMAT_VERSION,
+            "source_namespace": f"fixture-{'a' if ordinal % 2 == 0 else 'b'}",
+            "source_relpath": f"p/{ordinal}.jsonl",
+            "session": f"{ordinal + 101:064x}",
+            "transcript_sha256": f"{ordinal + 1:064x}",
+            "source_event_id": f"{ordinal + 11:064x}",
+            "source_event_ordinal": ordinal,
+        })
+    _write_jsonl(sorter_path, rows)
+    assert _score(tmp_path).returncode == 0
+
+    rows[-1]["source_namespace"] = "undeclared"
+    _write_jsonl(sorter_path, rows)
+    result = _score(tmp_path)
+    assert result.returncode != 0
+    assert "wrong source_namespace" in result.stderr
+
+
+def test_scorer_rejects_a_non_string_source_namespace(tmp_path):
+    _audit_fixture(tmp_path)
+    plan_path = tmp_path / "plan.json"
+    plan = json.loads(plan_path.read_text())
+    plan.update({
+        "audit_format_version": 3,
+        "identity_format": IDENTITY_FORMAT_VERSION,
+        "source_namespaces": ["fixture", {"not": "a namespace"}],
+        "sampling_design": sampler.SAMPLING_DESIGN,
+    })
+    plan_path.write_text(json.dumps(plan))
+
+    result = _score(tmp_path)
+    assert result.returncode != 0
+    assert "source namespaces must be a non-empty unique list" in result.stderr.lower()
+    assert "traceback" not in result.stderr.lower()
+    assert not (tmp_path / "raw.json").exists()
 
 
 def test_scorer_refuses_duplicate_auditor_paths(tmp_path):
@@ -270,12 +409,90 @@ def test_blind_ids_are_stable_and_do_not_encode_sorted_strata():
     assert emitted_labels != sorted(emitted_labels)
 
 
+def test_session_constrained_draw_is_exact_stable_and_fail_closed():
+    pool = {
+        label: [
+            {
+                "session": f"session-{i % 5}",
+                "tool": "Bash",
+                "text": f"{label} {i}",
+                "source_event_id": hashlib.sha256(f"{label}-{i}".encode()).hexdigest(),
+            }
+            for i in range(10)
+        ]
+        for label in ("read_file", "run_tests")
+    }
+    plan = {"read_file": 4, "run_tests": 4}
+    first = sampler.draw(pool, plan, seed=2501, min_sessions=4, max_per_session=2)
+    second = sampler.draw(pool, plan, seed=2501, min_sessions=4, max_per_session=2)
+    assert first == second
+    session_counts = collections.Counter(row["session"] for row in first[1])
+    assert len(first[0]) == 8
+    assert len(session_counts) >= 4
+    assert max(session_counts.values()) <= 2
+    assert collections.Counter(row["sorter_label"] for row in first[1]) == plan
+
+    with pytest.raises(ValueError, match="below required 6"):
+        sampler.draw(pool, plan, seed=2501, min_sessions=6, max_per_session=2)
+    with pytest.raises(ValueError, match="permit only 5 rows"):
+        sampler.draw(pool, plan, seed=2501, min_sessions=0, max_per_session=1)
+
+
+def test_session_constrained_draw_finds_terras_feasible_counterexample():
+    pool = {
+        "A": [{"session": "s1", "tool": "Bash", "text": "a"}],
+        "B": [
+            {"session": "s1", "tool": "Bash", "text": "b1"},
+            {"session": "s2", "tool": "Bash", "text": "b2"},
+            {"session": "s3", "tool": "Bash", "text": "b3"},
+        ],
+    }
+    _, truth = sampler.draw(
+        pool, {"A": 1, "B": 2}, seed=0, min_sessions=3, max_per_session=1)
+    assert {row["session"] for row in truth} == {"s1", "s2", "s3"}
+
+
+def test_v3_scorer_refuses_a_plan_without_the_srs_design_contract(tmp_path):
+    _audit_fixture(tmp_path)
+    plan_path = tmp_path / "plan.json"
+    plan = json.loads(plan_path.read_text())
+    plan.update({
+        "audit_format_version": 3,
+        "identity_format": IDENTITY_FORMAT_VERSION,
+        "source_namespace": "fixture",
+    })
+    plan_path.write_text(json.dumps(plan))
+
+    result = _score(tmp_path)
+    assert result.returncode != 0
+    assert "sampling design" in result.stderr.lower()
+    assert not (tmp_path / "raw.json").exists()
+
+
 def test_sampler_refuses_to_mix_a_new_draw_with_stale_answers(tmp_path, monkeypatch):
     monkeypatch.chdir(tmp_path)
     out = tmp_path / "data" / "audit"
     out.mkdir(parents=True)
     (out / "old-auditor.jsonl").write_text("stale\n")
     assert sampler.main(["--source", "missing", "--out-dir", "data/audit"]) == 2
+
+
+def test_non_manifest_targeted_draw_records_a_scoreable_session_contract(
+        tmp_path, monkeypatch):
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setattr(sampler, "iter_calls", lambda _: iter([
+        ("session-a", "Bash", {"command": "cat one"}),
+        ("session-b", "Bash", {"command": "cat two"}),
+    ]))
+    assert sampler.main([
+        "--source", "fixture", "--out-dir", "data/audit",
+        "--target", "2", "--floor", "1",
+        "--min-sessions", "2", "--max-per-session", "1",
+    ]) == 0
+    plan = json.loads((tmp_path / "data/audit/plan.json").read_text())
+    assert plan["sampling_design"] == sampler.TARGETED_DESIGN
+    assert plan["drawn_sessions"] == plan["min_sessions"] == 2
+    assert plan["observed_max_per_session"] == plan["max_per_session"] == 1
 
 
 def test_sampler_refuses_a_path_that_escapes_data(tmp_path, monkeypatch):
@@ -349,7 +566,10 @@ def test_cause_analyzer_reproduces_weighted_error_and_sensitivity(tmp_path):
     _write_jsonl(causes, [_cause_row(cause="rule_defect", confidence="low")])
     report = cause_analyzer.analyze(
         str(tmp_path), ("alice", "bob"), "judge", str(causes))
-    assert report["errors"] == {"rows": 1, "population_error_estimate": 0.45}
+    assert report["errors"] == {
+        "rows": 1, "sample_error_rate": 0.25,
+        "population_error_estimate": 0.45,
+    }
     assert report["by_cause"]["rule_defect"]["rows"] == 1
     assert report["low_confidence_as_unresolved"]["unresolved"][
         "population_error_contribution"] == 0.45
@@ -360,6 +580,56 @@ def test_cause_analyzer_reproduces_weighted_error_and_sensitivity(tmp_path):
         str(tmp_path), ("alice", "bob"), "judge", str(causes))
     assert report["reviewed_correction_seed"]["rows"] == 1
     assert report["reviewed_correction_seed"]["population_error_contribution"] == 0.45
+
+
+def test_targeted_cause_analysis_reports_counts_without_population_claims(tmp_path):
+    _cause_fixture(tmp_path)
+    _upgrade_fixture_to_v3(tmp_path, sampler.TARGETED_DESIGN)
+    causes = tmp_path / "causes.jsonl"
+    _write_jsonl(causes, [_cause_row(cause="rule_defect", confidence="high")])
+
+    report = cause_analyzer.analyze(
+        str(tmp_path), ("alice", "bob"), "judge", str(causes))
+    assert report["errors"] == {
+        "rows": 1, "sample_error_rate": 0.25,
+        "population_error_estimate": None,
+    }
+    assert report["by_cause"]["rule_defect"]["sample_error_contribution"] == 0.25
+    assert "population_error_contribution" not in report["by_cause"]["rule_defect"]
+    assert report["reviewed_correction_seed"]["share_of_sample_errors"] == 1.0
+    assert "not a population estimate" in report["reviewed_correction_seed"]["limitation"]
+
+
+def test_cause_analyzer_uses_the_complete_v3_sorter_identity_gate(tmp_path):
+    _cause_fixture(tmp_path)
+    plan_path = tmp_path / "plan.json"
+    plan = json.loads(plan_path.read_text())
+    plan.update({
+        "audit_format_version": 3,
+        "identity_format": IDENTITY_FORMAT_VERSION,
+        "source_namespace": "fixture",
+        "sampling_design": sampler.SAMPLING_DESIGN,
+    })
+    plan_path.write_text(json.dumps(plan))
+    sorter_path = tmp_path / "sorter.jsonl"
+    rows = [json.loads(line) for line in sorter_path.read_text().splitlines()]
+    for ordinal, row in enumerate(rows):
+        row.update({
+            "identity_format": IDENTITY_FORMAT_VERSION,
+            "source_namespace": "fixture",
+            "source_relpath": f"p/{ordinal}.jsonl",
+            "session": f"{ordinal + 101:064x}",
+            "transcript_sha256": f"{ordinal + 1:064x}",
+            "source_event_id": "f" * 64,
+            "source_event_ordinal": ordinal,
+        })
+    _write_jsonl(sorter_path, rows)
+    causes = tmp_path / "causes.jsonl"
+    _write_jsonl(causes, [_cause_row()])
+
+    with pytest.raises(scorer.AuditError, match="duplicate source_event_id"):
+        cause_analyzer.analyze(
+            str(tmp_path), ("alice", "bob"), "judge", str(causes))
 
 
 @pytest.mark.parametrize("defect", ["missing", "extra", "pair", "cause", "observation", "falsifier"])
@@ -407,6 +677,9 @@ def test_cause_analyzer_accepts_a_zero_error_audit(tmp_path):
 
     report = cause_analyzer.analyze(
         str(tmp_path), ("alice", "bob"), "judge", str(causes))
-    assert report["errors"] == {"rows": 0, "population_error_estimate": 0.0}
+    assert report["errors"] == {
+        "rows": 0, "sample_error_rate": 0.0,
+        "population_error_estimate": 0.0,
+    }
     assert report["by_cause"] == {}
     assert report["reviewed_correction_seed"]["share_of_estimated_error"] is None

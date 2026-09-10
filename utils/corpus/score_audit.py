@@ -21,6 +21,8 @@ from transcript_events import IDENTITY_FORMAT_VERSION, validate_namespace  # noq
 
 
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+SAMPLING_DESIGN = "stratified-srswor-v1"
+TARGETED_DESIGN = "session-constrained-targeted-v1"
 
 
 class AuditError(ValueError):
@@ -88,6 +90,63 @@ def require_same_ids(role: str, rows: dict, expected: set[str]) -> None:
             f"{len(expected - actual)} missing, {len(actual - expected)} extra")
 
 
+def load_and_validate_sorter(directory: str, plan: dict,
+                             sample_ids: set[str]) -> dict[str, dict]:
+    """Load the frozen sorter and validate its complete audit contract."""
+    required = ["sorter_label", "session"]
+    if plan.get("audit_format_version") == 3:
+        required.extend((
+            "identity_format", "source_namespace", "source_relpath",
+            "transcript_sha256", "source_event_id", "source_event_ordinal"))
+    sorter = load_jsonl(
+        os.path.join(directory, "sorter.jsonl"), "sorter_label",
+        required=tuple(required))
+    require_same_ids("sorter", sorter, sample_ids)
+    if plan.get("audit_format_version") == 3:
+        event_ids = [row["source_event_id"] for row in sorter.values()]
+        if len(event_ids) != len(set(event_ids)):
+            raise AuditError("sorter contains duplicate source_event_id values")
+        for rid, row in sorter.items():
+            if row["identity_format"] != IDENTITY_FORMAT_VERSION:
+                raise AuditError(f"sorter row {rid} has wrong identity_format")
+            if row["source_namespace"] not in plan["_source_namespaces"]:
+                raise AuditError(f"sorter row {rid} has wrong source_namespace")
+            relpath = row["source_relpath"]
+            if (not isinstance(relpath, str) or not relpath or
+                    os.path.isabs(relpath) or
+                    os.path.normpath(relpath) in {".", ".."} or
+                    os.path.normpath(relpath).startswith(f"..{os.path.sep}")):
+                raise AuditError(f"sorter row {rid} has invalid source_relpath")
+            for field in ("session", "transcript_sha256", "source_event_id"):
+                if (not isinstance(row[field], str) or
+                        not _SHA256_RE.fullmatch(row[field])):
+                    raise AuditError(f"sorter row {rid} has invalid {field}")
+            ordinal = row["source_event_ordinal"]
+            if isinstance(ordinal, bool) or not isinstance(ordinal, int) or ordinal < 0:
+                raise AuditError(f"sorter row {rid} has invalid source_event_ordinal")
+    if len(sorter) != plan["drawn"]:
+        raise AuditError("sorter row count differs from plan.drawn")
+    observed = collections.Counter(row["sorter_label"] for row in sorter.values())
+    if dict(observed) != plan["allocation"]:
+        raise AuditError("sorter strata do not match plan.allocation")
+    if plan["_sampling_design"] == TARGETED_DESIGN:
+        counts = collections.Counter(row["session"] for row in sorter.values())
+        sessions = len(counts)
+        observed_max = max(counts.values(), default=0)
+        if sessions < plan["min_sessions"]:
+            raise AuditError(
+                f"targeted sorter has {sessions} sessions, below min_sessions")
+        if plan["max_per_session"] and observed_max > plan["max_per_session"]:
+            raise AuditError(
+                f"targeted sorter has {observed_max} rows in one session, above max_per_session")
+        if sessions != plan["drawn_sessions"]:
+            raise AuditError("targeted sorter session count differs from plan.drawn_sessions")
+        if observed_max != plan["observed_max_per_session"]:
+            raise AuditError(
+                "targeted sorter maximum differs from plan.observed_max_per_session")
+    return sorter
+
+
 def load_plan(path: str, allow_legacy: bool = False) -> dict:
     try:
         with open(path) as fh:
@@ -105,14 +164,39 @@ def load_plan(path: str, allow_legacy: bool = False) -> dict:
     else:
         plan["_loaded_format"] = str(format_version)
     if format_version == 3:
+        if plan.get("sampling_design") not in {SAMPLING_DESIGN, TARGETED_DESIGN}:
+            raise AuditError(
+                f"{path}: sampling design is {plan.get('sampling_design')!r}, "
+                f"expected {SAMPLING_DESIGN!r} or {TARGETED_DESIGN!r}")
         if plan.get("identity_format") != IDENTITY_FORMAT_VERSION:
             raise AuditError(
                 f"{path}: identity format is {plan.get('identity_format')!r}, "
                 f"expected {IDENTITY_FORMAT_VERSION!r}")
+        namespaces = plan.get("source_namespaces")
+        if namespaces is None:
+            namespaces = [plan.get("source_namespace")]
+        if (not isinstance(namespaces, list) or not namespaces or
+                not all(isinstance(namespace, str) for namespace in namespaces) or
+                len(namespaces) != len(set(namespaces))):
+            raise AuditError(f"{path}: source namespaces must be a non-empty unique list")
         try:
-            validate_namespace(plan.get("source_namespace"))
+            for namespace in namespaces:
+                validate_namespace(namespace)
         except ValueError as exc:
             raise AuditError(f"{path}: invalid source namespace: {exc}") from exc
+        plan["_source_namespaces"] = namespaces
+    design = plan.get("sampling_design", SAMPLING_DESIGN)
+    if design not in {SAMPLING_DESIGN, TARGETED_DESIGN}:
+        raise AuditError(f"{path}: unsupported sampling design {design!r}")
+    plan["_sampling_design"] = design
+    if design == TARGETED_DESIGN:
+        for field in ("min_sessions", "max_per_session", "drawn_sessions",
+                      "observed_max_per_session"):
+            value = plan.get(field)
+            if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+                raise AuditError(f"{path}: targeted plan has invalid {field}")
+        if not (plan["min_sessions"] or plan["max_per_session"]):
+            raise AuditError(f"{path}: targeted plan has no session constraint")
     if plan.get("label_set_version") != tx.LABEL_SET_VERSION:
         raise AuditError(
             f"{path}: label set is {plan.get('label_set_version')!r}, "
@@ -133,7 +217,8 @@ def load_plan(path: str, allow_legacy: bool = False) -> dict:
     return plan
 
 
-def score_reference(sorter: dict, reference: dict) -> tuple[dict, list[dict]]:
+def score_reference(sorter: dict, reference: dict,
+                    include_intervals: bool = True) -> tuple[dict, list[dict]]:
     per = collections.defaultdict(lambda: [0, 0])
     confusion = collections.Counter()
     low = 0
@@ -147,20 +232,24 @@ def score_reference(sorter: dict, reference: dict) -> tuple[dict, list[dict]]:
         low += reference[rid].get("confidence") == "low"
     n = sum(v[1] for v in per.values())
     k = sum(v[0] for v in per.values())
+    per_label = {
+        label: {
+            "n": values[1],
+            "agree": values[0],
+            "precision": round(values[0] / values[1], 4),
+        }
+        for label, values in sorted(per.items())
+    }
+    if include_intervals:
+        for label, values in sorted(per.items()):
+            per_label[label]["wilson_ci95"] = [
+                round(x, 4) for x in wilson(values[0], values[1])]
     result = {
         "n": n,
         "agree": k,
         "sample_agreement": round(k / n, 4),
         "low_confidence_rows": low,
-        "per_label": {
-            label: {
-                "n": values[1],
-                "agree": values[0],
-                "precision": round(values[0] / values[1], 4),
-                "wilson_ci95": [round(x, 4) for x in wilson(values[0], values[1])],
-            }
-            for label, values in sorted(per.items())
-        },
+        "per_label": per_label,
     }
     full_confusion = [
         {"sorter": got, "reference": gold, "n": count}
@@ -231,7 +320,7 @@ def adjudicate(sorter: dict, first: dict, second: dict,
 
 
 def inter_rater(sorter: dict, first: dict, second: dict,
-                population: dict) -> dict:
+                population: dict, estimate_population: bool = True) -> dict:
     per = collections.defaultdict(lambda: [0, 0])
     for rid, sorted_row in sorter.items():
         label = sorted_row["sorter_label"]
@@ -247,7 +336,8 @@ def inter_rater(sorter: dict, first: dict, second: dict,
         "n": n,
         "agree": same,
         "sample_agreement": round(same / n, 4),
-        "population_weighted": stratified_estimate(by_stratum, population),
+        "population_weighted": (
+            stratified_estimate(by_stratum, population) if estimate_population else None),
     }
 
 
@@ -298,36 +388,8 @@ def main(argv=None) -> int:
         plan = load_plan(plan_path, allow_legacy=args.allow_legacy_plan)
         sample = load_jsonl(sample_path,
                             required=("tool", "text"))
-        sorter_required = ["sorter_label", "session"]
-        if plan.get("audit_format_version") == 3:
-            sorter_required.extend((
-                "identity_format", "source_namespace", "source_relpath",
-                "transcript_sha256", "source_event_id", "source_event_ordinal"))
-        sorter = load_jsonl(sorter_path, "sorter_label",
-                            required=tuple(sorter_required))
         sample_ids = set(sample)
-        require_same_ids("sorter", sorter, sample_ids)
-        if plan.get("audit_format_version") == 3:
-            event_ids = [row["source_event_id"] for row in sorter.values()]
-            if len(event_ids) != len(set(event_ids)):
-                raise AuditError("sorter contains duplicate source_event_id values")
-            for rid, row in sorter.items():
-                if row["identity_format"] != IDENTITY_FORMAT_VERSION:
-                    raise AuditError(f"sorter row {rid} has wrong identity_format")
-                if row["source_namespace"] != plan["source_namespace"]:
-                    raise AuditError(f"sorter row {rid} has wrong source_namespace")
-                for field in ("session", "transcript_sha256", "source_event_id"):
-                    if (not isinstance(row[field], str) or
-                            not _SHA256_RE.fullmatch(row[field])):
-                        raise AuditError(f"sorter row {rid} has invalid {field}")
-                ordinal = row["source_event_ordinal"]
-                if isinstance(ordinal, bool) or not isinstance(ordinal, int) or ordinal < 0:
-                    raise AuditError(f"sorter row {rid} has invalid source_event_ordinal")
-        if len(sorter) != plan["drawn"]:
-            raise AuditError("sorter row count differs from plan.drawn")
-        observed = collections.Counter(row["sorter_label"] for row in sorter.values())
-        if dict(observed) != plan["allocation"]:
-            raise AuditError("sorter strata do not match plan.allocation")
+        sorter = load_and_validate_sorter(args.dir, plan, sample_ids)
 
         names = [name.strip() for name in args.auditors.split(",") if name.strip()]
         if not names or len(names) != len(set(names)):
@@ -373,29 +435,42 @@ def main(argv=None) -> int:
 
         report = {
             "measurement_contract": {
-                "sampling": "predicted-label stratified, unequal allocation",
+                "sampling": plan["_sampling_design"],
                 "plan_format": plan["_loaded_format"],
                 "sample_statistics": "unweighted agreement on the audited rows",
-                "population_statistics": "weighted by plan.population; sampling error only",
+                "population_statistics": (
+                    "weighted by plan.population; sampling error only"
+                    if plan["_sampling_design"] == SAMPLING_DESIGN else
+                    "not estimated: the session-constrained targeted draw has unequal "
+                    "inclusion probabilities"),
             },
             "auditors": {},
             "disagreement": None,
             "confusion": {},
         }
         for name, answers in auditors.items():
-            scored, confusion = score_reference(sorter, answers)
-            scored["population_weighted"] = stratified_estimate(
-                scored["per_label"], plan["population"])
+            scored, confusion = score_reference(
+                sorter, answers,
+                include_intervals=plan["_sampling_design"] == SAMPLING_DESIGN)
+            if plan["_sampling_design"] == SAMPLING_DESIGN:
+                scored["population_weighted"] = stratified_estimate(
+                    scored["per_label"], plan["population"])
+            else:
+                scored["population_weighted"] = None
             report["auditors"][name] = scored
             report["confusion"][name] = confusion
-            print(f"auditor {name}: {scored['agree']}/{scored['n']} = "
-                  f"{100 * scored['agree'] / scored['n']:.1f}% sample agreement; "
-                  f"{100 * scored['population_weighted']['estimate']:.1f}% weighted")
+            message = (f"auditor {name}: {scored['agree']}/{scored['n']} = "
+                       f"{100 * scored['agree'] / scored['n']:.1f}% sample agreement")
+            if scored["population_weighted"]:
+                message += (f"; {100 * scored['population_weighted']['estimate']:.1f}% "
+                            "weighted")
+            print(message)
 
         if len(auditors) == 2:
             first, second = auditors[names[0]], auditors[names[1]]
             report["disagreement"] = inter_rater(
-                sorter, first, second, plan["population"])
+                sorter, first, second, plan["population"],
+                estimate_population=plan["_sampling_design"] == SAMPLING_DESIGN)
 
         if bool(args.adjudicator) != bool(args.adjudicated_out):
             raise AuditError("--adjudicator and --adjudicated-out must be used together")
@@ -406,7 +481,9 @@ def main(argv=None) -> int:
                                allow_empty=True)
             gold, disagreement_n = adjudicate(
                 sorter, auditors[names[0]], auditors[names[1]], judge)
-            scored, confusion = score_reference(sorter, gold)
+            scored, confusion = score_reference(
+                sorter, gold,
+                include_intervals=plan["_sampling_design"] == SAMPLING_DESIGN)
             all_ids = set(sorter)
             governance_labels = {
                 label for label in plan["population"]
@@ -422,16 +499,7 @@ def main(argv=None) -> int:
                 "adjudicated": subset_summary(sorter, gold, all_ids),
                 "governance": subset_summary(sorter, gold, governance_ids),
                 "non_governance": subset_summary(sorter, gold, all_ids - governance_ids),
-                "population_weighted": {
-                    "all": stratified_estimate(scored["per_label"], plan["population"]),
-                    "governance": optional_stratified_estimate(
-                        scored["per_label"], plan["population"], governance_labels),
-                    "non_governance": optional_stratified_estimate(
-                        scored["per_label"], plan["population"],
-                        set(plan["population"]) - governance_labels),
-                    "assigned_only": optional_stratified_estimate(
-                        scored["per_label"], plan["population"], mapped_labels),
-                },
+                "population_weighted": None,
                 "per_label": scored["per_label"],
                 "confusion": confusion,
                 "reference": {
@@ -442,14 +510,28 @@ def main(argv=None) -> int:
                                    "shared auditor errors were not independently measured.",
                 },
             }
+            if plan["_sampling_design"] == SAMPLING_DESIGN:
+                adjudicated["population_weighted"] = {
+                    "all": stratified_estimate(scored["per_label"], plan["population"]),
+                    "governance": optional_stratified_estimate(
+                        scored["per_label"], plan["population"], governance_labels),
+                    "non_governance": optional_stratified_estimate(
+                        scored["per_label"], plan["population"],
+                        set(plan["population"]) - governance_labels),
+                    "assigned_only": optional_stratified_estimate(
+                        scored["per_label"], plan["population"], mapped_labels),
+                }
             write_json(args.adjudicated_out, adjudicated)
-            population = adjudicated["population_weighted"]["all"]
-            print(f"adjudicated: {adjudicated['adjudicated']['correct']}/{len(sorter)} = "
-                  f"{100 * adjudicated['adjudicated']['correct'] / len(sorter):.1f}% "
-                  "sample agreement; "
-                  f"{100 * population['estimate']:.1f}% weighted "
-                  f"(95% sampling CI {100 * population['ci95'][0]:.1f}-"
-                  f"{100 * population['ci95'][1]:.1f}%)")
+            message = (
+                f"adjudicated: {adjudicated['adjudicated']['correct']}/{len(sorter)} = "
+                f"{100 * adjudicated['adjudicated']['correct'] / len(sorter):.1f}% "
+                "sample agreement")
+            if adjudicated["population_weighted"]:
+                population = adjudicated["population_weighted"]["all"]
+                message += (f"; {100 * population['estimate']:.1f}% weighted "
+                            f"(95% sampling CI {100 * population['ci95'][0]:.1f}-"
+                            f"{100 * population['ci95'][1]:.1f}%)")
+            print(message)
 
         if args.out:
             write_json(args.out, report)
