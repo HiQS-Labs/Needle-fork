@@ -1,8 +1,8 @@
 ---
 title: "Phase 2 §1 — Freeze the v1 Oracle label taxonomy"
-status: In progress
+status: Completed
 created: 2026-09-07
-updated: 2026-09-07
+updated: 2026-09-09
 owner: noelsaw1
 goal: >
   Freeze the v1 label taxonomy for the Needle SDLC Oracle and publish it from this
@@ -25,7 +25,12 @@ branch: main
 
 | What was just completed | What's next |
 |---|---|
-| §3's `query` serialization shipped as **one shared function** (`utils/corpus/serialize.py`) used by both the corpus builder and the end-of-turn Stop hook; the train/serve invariant is a test. Token budget measured: 44 full schemas = **1,383 tokens**, so training runs at `--max-len 2048`, not the default 1024 (Phase D). | Cut `v1.0.0-draft` → `v1.0.0`; run `needle finetune` on `data/corpus/oracle-train.jsonl` at `--max-len 2048` (§4); §3b/§3c synthesis for the three thin governance labels and the `no_action` abstain slice. |
+| The 44 label names were frozen as `v1.0.0`; the corrected mapper was re-run on the Studio corpus, and query serialization is shared by training and the Stop hook. | **[#20](https://github.com/HiQS-Labs/Needle-fork/issues/20): establish a trustworthy label-correctness estimate before choosing any mapper, taxonomy, or training change.** |
+
+> **Corrected 2026-09-09.** An earlier status cell continued to call closed #2 a blocker after the
+> `v1.0.0` cut had completed. The checklist and receipts below are the historical evidence; #20 owns
+> the current label-correctness gate. §4's CPU run remains replaced by the MLX lane
+> ([#1 §4 decision](https://github.com/HiQS-Labs/Needle-fork/issues/1#issuecomment-5574864887)).
 
 ## Table of contents
 
@@ -172,7 +177,15 @@ intents lowers the score a majority-class predictor gets, which is the honest ba
 
 ## Phase C — Re-extract on the Studio and freeze
 
-**Done.** The Studio's `~/.claude/projects` was reachable as an SMB share
+> **Re-opened, then re-measured — 2026-09-09.** Every measurement in this section was
+> produced by the positional rules #16 replaced. The Studio corpus has now been
+> re-scored under the corrected mapper: the §2 gate reads **96.33%**, and a control run
+> attributes **all** of the 2.19-point fall to the rule change rather than to corpus
+> drift. Current gate result: `TESTS-RESULTS/2026-09-09-taxonomy-studio-postfix/`.
+> The numbers *below* are the superseded pre-fix record — see
+> [Superseded measurements](#superseded-measurements).
+
+**Ran 2026-09-07, under rules since corrected.** The Studio's `~/.claude/projects` was reachable as an SMB share
 (`//noels-mac-studio.local/noelsaw`, mounted read-only), so the re-extraction ran
 from this machine rather than needing a handoff. Receipt:
 `TESTS-RESULTS/2026-09-07-taxonomy-v1-studio/`.
@@ -223,11 +236,54 @@ than action — left unmapped deliberately so the gate keeps its meaning.
 - [x] Teach `extract_claude_transcripts.py` to record `file_path` and to import
       `taxonomy.label_call` instead of its own `BASH_RULES` — done and verified locally
       (16 sessions, 1,439 pairs, coverage 99.03%, governance share 3.75%)
-- [x] Re-extract on the Mac Studio — done from this machine over SMB; coverage 98.52%
+- [x] Re-extract on the Mac Studio — **re-done 2026-09-09** under the corrected mapper
+      (`5ed316d`): 335 sessions, 71,547 calls, coverage **96.33%**; corpus 71,186 pairs
 - [x] Apply the support floor (0.1% of calls) — 40 of 44 clear it; 3 real stragglers + `no_action`
 - [x] Decide `pkg_manage` — **kept**; the decision dissolved once the measurement was fixed (below)
-- [ ] Cut `label_set_version` from `v1.0.0-draft` to `v1.0.0` and re-publish the contract
-- [x] Report the Studio coverage number to issue #1 as the §2 gate result
+- [x] Cut `label_set_version` from `v1.0.0-draft` to `v1.0.0` and re-publish the contract —
+      **done 2026-09-09**; 44 labels, coverage 96.41%, receipt
+      `TESTS-RESULTS/2026-09-09-taxonomy-v1.0.0-freeze/`. Names frozen; the **sorter** is not
+      (#17), and the freeze commits the project to §3b/§3c supplementation (#9)
+- [x] Report the Studio coverage number to issue #1 as the §2 gate result — **96.33%**,
+      with the pre-fix mapper control that attributes the fall to the rule change
+
+### Superseded measurements
+
+**What happened.** Phase C closed on 2026-09-07 with the §2 coverage gate reported as
+met at 98.52%. #16 then corrected a defect in *positional* label assignment — a
+printed or quoted path was being read as an operand, so displayed text could score a
+governance label. The fix moves 322 labels on the local corpus. The Studio numbers
+were produced by the defective rules, which makes the checked gate above an
+assertion the branch's own diff invalidates.
+
+**Why the boxes are unchecked rather than re-measured in place.** The corrected
+number is unknown, not merely different: the SMB share is not mounted, so it cannot
+be measured on this machine right now. Leaving the boxes checked would ship a
+contradiction — `TESTS-RESULTS/2026-09-09-taxonomy-positional-fix/` already records
+these numbers as stale while this checklist claimed the gate was met.
+
+**What is *not* claimed.** The 98.52% is not known to be wrong, and 322 moved labels
+is not 322 corrections — 3 were governance losses, each verified a false positive.
+The claim is narrower and sufficient: the number was produced by rules that no longer
+exist, so it is not evidence about the rules that do.
+
+**How it resolved.** The re-measurement ran on 2026-09-09 once the share was mounted:
+**96.33%**, down 2.19 points. Because the Studio's transcript set had also drifted (383
+files then, 337 now), the raw delta was unattributable, so the pre-fix mapper was re-run
+over *today's* corpus as a control — identical 335 sessions and 71,547 calls, mapper the
+only variable. The control scores **98.52%**, exactly the 2026-09-07 figure: corpus drift
+moved the gate by **0.00 pp**, and the whole 2.19-point fall is the rule change.
+
+A lower number is the fix working. `unmapped` is the honest bucket; commands that were
+mislabelled from *displayed* text used to count as covered, covered by a wrong label. On
+the identical corpus the fix also removes 513 false governance calls (6.61% → 5.90%),
+which is the class of error #2 reported. The old 98.52% was inflated by mislabelling.
+
+**The general rule this is an instance of.** *A measurement is scoped to the code
+that produced it.* When a change moves the mapper, every acceptance box downstream of
+that mapper reverts to unmet — the box is a claim about current code, not a record
+that a run once happened. Records live in `TESTS-RESULTS/`, which is why the
+2026-09-07 receipt keeps its numbers and gains a pointer instead of an edit.
 
 ### Reproducing the Studio extraction
 
@@ -406,3 +462,13 @@ refuses the build if any exceeds the cap. Without the tokenizer it skips **loudl
 
 - **`"answers": []` abstain slice.** `no_action` has zero support in traces by construction (it is never a tool call). `doc/finetuning.md` rule 2 says without ~1 in 8 refusals the tuned model calls a tool on everything. Source: `needle generate-data` per §3b — not fabricated from traces.
 - §3b/§3c synthesis for `park_roadmap_row`, `promote_capture`, `publish_release`.
+
+## Lessons Learned (For Future Agents)
+
+- Coverage proves that a rule returned a label; it does not prove that the label is correct.
+- Establish a command's role before interpreting its operands, especially for display and search
+  commands that carry governance-looking text as data.
+- A receipt applies to the code and corpus that produced it. Re-run a gate after either changes.
+- Sparse but distinct labels require supplementation evidence before any merge or deletion decision.
+- Training and serving must share one serializer, and the token-budget check must render the exact
+  model input rather than estimate it from components.

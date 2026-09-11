@@ -144,9 +144,9 @@ regardless of outcome.
   arithmetic takes ten seconds; naming a risk out loud is not mitigating it.
 - **Do not trust a framework's memory cap.** `mx.set_memory_limit` is advisory — measured, a step
   peaked at 13.4 GB against a 12 GB cap and allocated straight through without raising. A
-  unified-memory GPU framework starves the kernel rather than getting OOM-killed, so the blast
-  radius is the **host**, not the process.
-- **Write logs somewhere that survives a restart.** `/private/tmp` is wiped on reboot; the crash
+  unified-memory GPU workload can exhaust host resources rather than fail cleanly, so the blast
+  radius can include the **host**, not just the process.
+- **Write logs somewhere that survives a restart.** Temporary directories may be cleared on reboot; the crash
   above took ~1.5 h of baseline logs with it.
 - **Commit before you launch.** ~2 h of uncommitted work was in the tree when that machine went
   down. It survived; it did not have to.
@@ -244,7 +244,7 @@ local call — `AGENTS.md` §8 still applies.
    every check*, and a threshold applied to a buggy measurement is a check that reports
    confidence it never earned. In practice this step has dissolved the decision outright
    more than once — the Phase 2 `pkg_manage` question turned out to be two bugs in our own
-   labeler, not a question (see `PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md`).
+   labeler, not a question (see `PROJECT/3-COMPLETED/PHASE-2-LABEL-TAXONOMY.md`).
 
 2. **Adjudicate against the governance docs explicitly, naming which rail bears.**
    -> expect a citation, not a vibe. `GUIDING-PRINCIPLES.md` for the durable/reversible/DRY

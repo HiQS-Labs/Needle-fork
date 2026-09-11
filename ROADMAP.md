@@ -14,7 +14,14 @@
 
 | What was just completed | What's next |
 |---|---|
-| Phase 2 §3 `query` serialization shipped as one shared function for trainer and Stop hook, with the train/serve invariant as a test; token budget measured (schemas alone = 1,383 tokens) so §4 trains at `--max-len 2048` (2026-09-07). | Cut `v1.0.0-draft` → `v1.0.0`; first `needle finetune` run on JAX/CPU at `--max-len 2048`; §3b/§3c synthesis for the abstain slice and three thin governance labels. |
+| Public-trained six-action pilots completed; the Astra/Fable review identified an untested private-training comparison. | **Run the bounded in-domain baseline round described in the [current arc](doc/oracle-collaborator-summary.md#next-milestone--agreed-not-yet-run) and tracked in [#1](https://github.com/HiQS-Labs/Needle-fork/issues/1).** The stricter #25 lane remains capacity-blocked at 541/1,000 and is deferred in priority. |
+
+> **Corrected 2026-09-09.** This cell previously read *"first `needle finetune` run on JAX/CPU at
+> `--max-len 2048`"*. That was superseded on 2026-09-07 by
+> [#1's §4 decision](https://github.com/HiQS-Labs/Needle-fork/issues/1#issuecomment-5574864887):
+> measured at ~150 s/step and ~127 h/epoch, the CPU path does not finish, and §4 is satisfied by MLX
+> on the GPU (§4 and GH-5 are one lane). The pointer kept instructing that run after the measurement
+> that killed it. `--max-len 2048` itself stands — it prevents target truncation.
 
 ## Ledger
 
@@ -24,11 +31,13 @@
 
 ### In progress
 
-- [Phase 2 §1 — Freeze the v1 Oracle label taxonomy](PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md) — v1 published as `oracle/labels-v1.json`; Studio corpus re-extracted (74,909 pairs, coverage 98.52%). ([#1](https://github.com/HiQS-Labs/Needle-fork/issues/1))
+- [ZCode mapper recon and qualification](PROJECT/2-WORKING/RECON-ZCODE-MAPPER-CORRECTION.md) — PR #40 merged the scoped corrections; fresh blind qualification remains open in [#37](https://github.com/HiQS-Labs/Needle-fork/issues/37).
+
+- [Label correctness audit — make the §2 gate trustworthy](PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md) — source identity and disjoint manifests are merged; #25 clears its 30-session floor but remains blocked because the frozen sampler can allocate only 541/1,000 evaluation rows under its label quotas and session cap. ([#20](https://github.com/HiQS-Labs/Needle-fork/issues/20), [#23](https://github.com/HiQS-Labs/Needle-fork/issues/23), [#25](https://github.com/HiQS-Labs/Needle-fork/issues/25))
 
 ### Completed
 
-- No completed docs.
+- [Phase 2 §1 — Freeze the v1 Oracle label taxonomy](PROJECT/3-COMPLETED/PHASE-2-LABEL-TAXONOMY.md) — v1 published as `oracle/labels-v1.json`; current Studio corpus has 71,763 calls at 96.41% mapping coverage. ([#1](https://github.com/HiQS-Labs/Needle-fork/issues/1))
 
 ### Deferred
 

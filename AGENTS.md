@@ -105,6 +105,21 @@ local change.
 
 ## Repo-specific rails
 
+### Branch and PR hygiene
+
+- Start a bounded task from freshly fetched `origin/main` in an isolated checkout when needed.
+  Use another base only for an explicit stack or experiment, and name that dependency.
+- Give each active pushed task branch one linked PR (draft while incomplete) and a tracking issue.
+  A parked research base may instead have an explicit issue-linked disposition and dependent PR.
+- Keep PR scope, base, description and verification current as the work changes. Distinguish
+  experimental evidence from code proposed for main; never retarget a broad spike without review.
+- Before landing, review the final diff and applicable checks against the current base. After
+  landing, verify the merge, reconcile issue/docs, and return the operator's checkout to current
+  main when safe. Record remaining work instead of leaving its branch silently active.
+- At handoff, list open PRs and parked branches relevant to the task. Mark merged branches as
+  retirement candidates; delete only after preservation checks and the explicit remote-deletion
+  approval above. Never clean up another participant's checkout.
+
 - **This is a fork with an upstream, not a standalone project.** `origin` is `HiQS-Labs/needle-fork`;
   `upstream` is `cactus-compute/needle`, read-only. All work pushes to `origin`. Before a broad
   refactor, check whether upstream has moved the same files recently (`git fetch upstream && git log
