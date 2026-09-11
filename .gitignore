@@ -123,3 +123,4 @@ relay-system/**/*.log
 # Relay/turn runtime state inside the vendored harness (telemetry + per-turn scratch), not source.
 .xyz/XYZ.json*
 .xyz/.relay-scratch/
+.DS_Store

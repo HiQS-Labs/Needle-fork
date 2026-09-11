@@ -15,10 +15,12 @@ local-only spot check and do not commit that output.
     python3 utils/corpus/measure_taxonomy.py --out TESTS-RESULTS/<campaign>/raw-metrics.json
 """
 from __future__ import annotations
+import re
 import argparse, collections, glob, json, math, os, platform, subprocess, sys, time
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import taxonomy as tx  # noqa: E402
+from transcript_events import iter_transcript_paths, read_transcript, validate_namespace  # noqa: E402
 
 
 def iter_calls(source: str):
@@ -41,6 +43,34 @@ def iter_calls(source: str):
                         yield fp, block["name"], block.get("input") or {}
 
 
+def iter_call_records(source: str, source_namespace: str):
+    """Yield identified tool calls while retaining legacy ``iter_calls`` unchanged."""
+    validate_namespace(source_namespace)
+    seen_sessions, seen_events = set(), set()
+    for path in iter_transcript_paths(source):
+        meta, steps = read_transcript(path, source, source_namespace)
+        if meta.session_id in seen_sessions:
+            raise ValueError(f"duplicate source session identity: {meta.session_id}")
+        seen_sessions.add(meta.session_id)
+        for step in steps:
+            if step.kind != "action":
+                continue
+            if step.source_event_id in seen_events:
+                raise ValueError(f"duplicate source event identity: {step.source_event_id}")
+            seen_events.add(step.source_event_id)
+            yield {
+                "path": path,
+                "source_namespace": meta.source_namespace,
+                "source_relpath": meta.source_relpath,
+                "session": meta.session_id,
+                "transcript_sha256": meta.transcript_sha256,
+                "source_event_id": step.source_event_id,
+                "source_event_ordinal": step.action_ordinal,
+                "tool": step.tool,
+                "input": step.tool_input or {},
+            }
+
+
 def ambiguity_rate(commands: list[str]) -> dict:
     """How often the FIRST-PASS whole-string rules were decided by list order.
 
@@ -55,6 +85,13 @@ def ambiguity_rate(commands: list[str]) -> dict:
             "compound_pct": round(100 * compound / n, 2)}
 
 
+def _sanitise_source(path: str) -> str:
+    """`~/.claude/projects`-style shape, with no local mount path."""
+    p = path.replace(os.path.expanduser("~"), "~")
+    m = re.search(r"(\.claude/projects.*)$", p)
+    return "~/" + m.group(1) if m else os.path.basename(p.rstrip("/"))
+
+
 def probe_machine() -> dict:
     def sh(*cmd):
         try:
@@ -67,7 +104,9 @@ def probe_machine() -> dict:
     # the record because the ANE is the target runtime.
     ane = next((n for k, n in (("M4 Max", 16), ("M4 Pro", 16), ("M4", 16),
                                ("M3", 16), ("M2", 16), ("M1", 16)) if k in chip), None)
-    return {"machine": sh("scutil", "--get", "ComputerName") or platform.node(),
+    # The operator's computer name is identifying and adds nothing a model or
+    # chip does not. Receipts are committed to a PUBLIC repo (CodeRabbit, PR #19).
+    return {"machine": sh("sysctl", "-n", "hw.model") or platform.machine(),
             "chip": chip,
             "cores": {"total": int(sh("sysctl", "-n", "hw.ncpu") or 0),
                       "performance": int(sh("sysctl", "-n", "hw.perflevel0.logicalcpu") or 0),
@@ -81,6 +120,8 @@ def probe_machine() -> dict:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--source", default=os.path.expanduser("~/.claude/projects"))
+    ap.add_argument("--source-namespace",
+                    help="use mount-invariant source/session/event identity")
     ap.add_argument("--out", help="write a raw-metrics.json receipt here")
     ap.add_argument("--min-support-rate", type=float, default=tx.SUPPORT_FLOOR_RATE,
                     help="labels below this SHARE of calls are FLAGGED FOR SUPPLEMENTATION "
@@ -94,14 +135,28 @@ def main() -> int:
     t0 = time.perf_counter()
     counts, sessions, bash_cmds = collections.Counter(), collections.Counter(), []
     evidence = collections.defaultdict(list)
-    for path, tool, inp in iter_calls(args.source):
-        label, ev = tx.label_call(tool, inp)
-        counts[label] += 1
-        sessions[path] += 1
-        if tool == "Bash":
-            bash_cmds.append(inp.get("command") or "")
-        if args.show_evidence and len(evidence[label]) < 5:
-            evidence[label].append(ev)
+    if args.source_namespace:
+        try:
+            validate_namespace(args.source_namespace)
+            calls = ((r["path"], r["tool"], r["input"])
+                     for r in iter_call_records(args.source, args.source_namespace))
+        except ValueError as exc:
+            print(f"invalid --source-namespace: {exc}", file=sys.stderr)
+            return 2
+    else:
+        calls = iter_calls(args.source)
+    try:
+        for path, tool, inp in calls:
+            label, ev = tx.label_call(tool, inp)
+            counts[label] += 1
+            sessions[path] += 1
+            if tool == "Bash":
+                bash_cmds.append(inp.get("command") or "")
+            if args.show_evidence and len(evidence[label]) < 5:
+                evidence[label].append(ev)
+    except ValueError as exc:
+        print(f"cannot identify source calls: {exc}", file=sys.stderr)
+        return 2
     t_label = time.perf_counter() - t0
 
     total = sum(counts.values())
@@ -155,7 +210,9 @@ def main() -> int:
             "target": "taxonomy-v1-measurement",
             "benchmark": "label_call over local Claude Code transcripts",
             # Repo is public: record the source shape, not the operator's home path.
-            "source": args.source.replace(os.path.expanduser("~"), "~"),
+            # Only the shape of the source, never the mount path: a
+            # `/Volumes/...` prefix names the operator's local volume.
+            "source": _sanitise_source(args.source),
             "sessions": len(sessions),
             "tool_calls": total,
             "label_set_version": tx.LABEL_SET_VERSION,

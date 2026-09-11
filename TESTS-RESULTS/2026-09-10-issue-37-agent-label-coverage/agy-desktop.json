@@ -1,0 +1,353 @@
+{
+  "actions": 27757,
+  "alias_coverage": 0.944014,
+  "aliased_actions": 26203,
+  "audit_format_version": "agent-label-coverage-v1",
+  "canonical_tools": {
+    "<unaliased>": 1554,
+    "Bash": 12487,
+    "Edit": 1832,
+    "Glob": 460,
+    "Grep": 977,
+    "Read": 5750,
+    "TodoWrite": 4075,
+    "WebFetch": 4,
+    "WebSearch": 11,
+    "Write": 607
+  },
+  "distinct_mapped_labels": 6,
+  "eligible_pairs": 27676,
+  "event_format_version": "normalized-agent-transcript-v1",
+  "input_shapes": [
+    {
+      "count": 6662,
+      "keys": [
+        "CommandLine",
+        "Cwd",
+        "IsDaemon",
+        "WaitMsBeforeAsync",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "run_command"
+    },
+    {
+      "count": 5794,
+      "keys": [
+        "CommandLine",
+        "Cwd",
+        "WaitMsBeforeAsync",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "run_command"
+    },
+    {
+      "count": 4067,
+      "keys": [
+        "AbsolutePath",
+        "EndLine",
+        "StartLine",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "view_file"
+    },
+    {
+      "count": 4051,
+      "keys": [
+        "Action",
+        "TaskId",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "manage_task"
+    },
+    {
+      "count": 1810,
+      "keys": [
+        "AllowMultiple",
+        "Description",
+        "EndLine",
+        "Instruction",
+        "ReplacementContent",
+        "StartLine",
+        "TargetContent",
+        "TargetFile",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "replace_file_content"
+    },
+    {
+      "count": 1469,
+      "keys": [
+        "DurationSeconds",
+        "Prompt",
+        "TimerCondition",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "schedule"
+    },
+    {
+      "count": 891,
+      "keys": [
+        "AbsolutePath",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "view_file"
+    },
+    {
+      "count": 612,
+      "keys": [
+        "AbsolutePath",
+        "ContentOffset",
+        "EndLine",
+        "StartLine",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "view_file"
+    },
+    {
+      "count": 387,
+      "keys": [
+        "CodeContent",
+        "Description",
+        "Overwrite",
+        "TargetFile",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "write_to_file"
+    },
+    {
+      "count": 362,
+      "keys": [
+        "MatchPerLine",
+        "Query",
+        "SearchPath",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "grep_search"
+    },
+    {
+      "count": 344,
+      "keys": [
+        "CaseInsensitive",
+        "MatchPerLine",
+        "Query",
+        "SearchPath",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "grep_search"
+    },
+    {
+      "count": 268,
+      "keys": [
+        "Pattern",
+        "SearchDirectory",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "find_by_name"
+    },
+    {
+      "count": 220,
+      "keys": [
+        "ArtifactMetadata",
+        "CodeContent",
+        "Description",
+        "Overwrite",
+        "TargetFile",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "write_to_file"
+    },
+    {
+      "count": 153,
+      "keys": [
+        "DirectoryPath",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "list_dir"
+    },
+    {
+      "count": 134,
+      "keys": [
+        "AbsolutePath",
+        "StartLine",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "view_file"
+    },
+    {
+      "count": 94,
+      "keys": [
+        "CaseInsensitive",
+        "Includes",
+        "IsRegex",
+        "MatchPerLine",
+        "Query",
+        "SearchPath",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "grep_search"
+    },
+    {
+      "count": 54,
+      "keys": [
+        "Query",
+        "SearchPath",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "grep_search"
+    },
+    {
+      "count": 54,
+      "keys": [
+        "CaseInsensitive",
+        "IsRegex",
+        "MatchPerLine",
+        "Query",
+        "SearchPath",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "grep_search"
+    },
+    {
+      "count": 34,
+      "keys": [
+        "DurationSeconds",
+        "Prompt",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "schedule"
+    },
+    {
+      "count": 32,
+      "keys": [
+        "MaxDepth",
+        "Pattern",
+        "SearchDirectory",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "find_by_name"
+    },
+    {
+      "count": 31,
+      "keys": [
+        "BypassSandbox",
+        "CommandLine",
+        "Cwd",
+        "WaitMsBeforeAsync",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "run_command"
+    },
+    {
+      "count": 28,
+      "keys": [
+        "Arguments",
+        "ServerName",
+        "ToolName",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "call_mcp_tool"
+    },
+    {
+      "count": 26,
+      "keys": [
+        "AbsolutePath",
+        "ContentOffset",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "view_file"
+    },
+    {
+      "count": 23,
+      "keys": [
+        "CaseInsensitive",
+        "LineNumber",
+        "MatchPerLine",
+        "Query",
+        "SearchPath",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "grep_search"
+    },
+    {
+      "count": 22,
+      "keys": [
+        "Description",
+        "Instruction",
+        "ReplacementChunks",
+        "TargetFile",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "multi_replace_file_content"
+    }
+  ],
+  "input_shapes_omitted": 24,
+  "input_shapes_omitted_actions": 135,
+  "input_shapes_total": 49,
+  "inventory_digest": "b5ff1ef093302503fc4f82b2ed44a46df51234aef0f5cc83f81ea7aed4e24da4",
+  "label_set_version": "v1.0.0",
+  "labels": {
+    "apply_patch": 2439,
+    "find_files": 460,
+    "net": 15,
+    "read_file": 5750,
+    "search_code": 977,
+    "track_todo": 4075,
+    "unmapped": 14041
+  },
+  "mapped_actions": 13716,
+  "mapping_coverage": 0.494146,
+  "rejections": {
+    "conflicting_step_identity": 1,
+    "invalid_json": 1
+  },
+  "sessions_accepted": 82,
+  "sessions_rejected": 2,
+  "source": "agy_desktop",
+  "source_namespace": "studio-agy-desktop",
+  "source_tools": {
+    "ask_permission": 2,
+    "ask_question": 4,
+    "call_mcp_tool": 28,
+    "find_by_name": 307,
+    "grep_search": 977,
+    "invoke_subagent": 2,
+    "list_dir": 153,
+    "manage_subagents": 3,
+    "manage_task": 4075,
+    "multi_replace_file_content": 22,
+    "read_url_content": 4,
+    "replace_file_content": 1810,
+    "run_command": 12487,
+    "schedule": 1514,
+    "search_web": 11,
+    "send_message": 1,
+    "view_file": 5750,
+    "write_to_file": 607
+  },
+  "tool_alias_version": "agent-tool-alias-v1"
+}

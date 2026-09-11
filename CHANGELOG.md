@@ -3,6 +3,213 @@
 Newest-first, dated end-of-iteration record. One entry per substantive iteration: what changed,
 why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
+## 2026-09-11
+
+### Branch inventory and PR hygiene recorded
+
+Triaged the five open PRs, the un-PR'd MLX research base, and merged branch families. Recorded
+integration priorities and the #6 → #10 dependency in `doc/branch-triage-2026-09-11.md`.
+AGENTS.md now requires explicit branch ownership through a PR or parked research disposition,
+current review evidence, and post-merge reconciliation. No experimental merge or deletion occurred.
+
+### README refreshed after branch triage
+
+Clarified the pending private-training experiment, linked the open branch-hygiene proposal, and
+listed integration priorities. Recorded the explicit operator testing hold on PR #43. This is an
+operator-requested documentation update directly on main; no experimental code was merged.
+
+### README now leads with the fork's Oracle story
+
+After the documentation reconciliation landed in PR #44, added a two-paragraph TLDR, a linked
+experiment inventory and the pending in-domain milestone to README. Separated the experimental
+fork claims from retained upstream package documentation. Documentation-only diff; existing
+package setup and usage content preserved.
+
+### Oracle findings and collaborator briefing reconciled
+
+Added a two-paragraph executive summary with the experiment arc and evidence links; appended the
+missing September 7–11 synthesis to FINDINGS.md. Recorded the Astra/Fable correction: repeat-last
+is a baseline, the private-trained round is still pending, and reused evaluation scores do not
+measure human acceptance. Documentation only; no runtime or experimental behavior changed.
+
+### ZCode mapper correction targets three observed command shapes
+
+The first ZCode blind audit found 69 errors in 200 reviewed rows. Three narrow, source-grounded
+corrections now recognize shell test entrypoints, compound wait-and-poll commands, and edits to
+already-completed project documents. The shared 44-label vocabulary is
+unchanged. The old review set improves from 131/200 to 141/200 only as development evidence; it is
+not a fresh post-change estimate and cannot qualify ZCode for training.
+
+Three load-bearing assertions were witnessed failing before the mapper changed, then the complete taxonomy
+suite and non-slow repository suite passed. A new frozen blind sample remains required before any
+ZCode admission decision. Broad compound-command precedence and free-text-description rules were
+deliberately excluded because they would guess across ambiguous multi-action calls and widen the
+Claude mapper's blast radius.
+
+## 2026-09-10
+
+### Evaluation readiness now fails on capacity, not session count
+
+An immutable refresh of the MacBook and Studio transcript sources isolates 2,913 evaluation
+candidates across 32 sessions, clearing the frozen 30-session floor. The live-source attempt first
+failed closed on transcript hash drift; rebuilding from a private snapshot made the source manifest
+stable and preserved zero comparable overlap with correction, prior-audit, and legacy-training
+boundaries.
+
+The unchanged evaluation sampler still refuses before writing output. It excludes 100 events with
+no auditable command or path text, leaving 2,813 reviewable rows across 38 labels. Its 40-row session
+cap permits at most 604 rows, and the exact label-quota allocator can select only 541 of the required
+1,000. The next action is therefore to collect independent, label-diverse sessions until the same
+allocator succeeds. Ten additional full-capacity sessions is only a mathematical lower bound from
+the raw capacity shortfall; the label mix can require more. No audit draw or training run started.
+`sample_for_audit.py --check-only` now emits these post-filter metrics as aggregate JSON while
+preserving exit 2 for an incomplete gate and writing no sample files. It computes label-constrained
+capacity independently of the minimum-session rule, so that metric remains present when the session
+floor is the reason a draw refuses. A pool too small to construct label quotas also emits structured
+`INCOMPLETE` JSON with its inventory, raw capped capacity, and refusal reason.
+
+### The label errors now have measured causes and a bounded feedback seed
+
+All 61 adjudicated sorter disagreements from #20 were traced through the segmenter and rule matcher,
+assigned a falsifiable primary cause, and weighted through the frozen sampling plan. Shell visibility
+contributes an estimated 6.99 percentage points of corpus error, inline-program semantics 5.43,
+multi-action one-label selection 4.46, taxonomy boundaries 2.66, direct rule defects 2.52, and
+reference uncertainty 0.10. Treating all low-confidence cause judgments as unresolved leaves the
+same top three causes.
+
+`analyze_audit_causes.py` rejects missing, extra, stale-label, unknown-cause, empty-evidence, and
+invalid multi-action classifications before writing an aggregate receipt. Its conservative feedback
+seed contains 26 high-confidence reviewed corrections representing 12.31 percentage points of the
+estimated error. They are development examples, not a holdout or a promise of equivalent model gain.
+The next action is one unchanged-versus-corrected training comparison on fresh session-separated
+evaluation rows; the frozen taxonomy and mapper stay unchanged for the comparison.
+
+## 2026-09-09
+
+### The label-correctness audit now measures the corpus it claims to measure
+
+The frozen 399-row audit was internally complete, but its 84.71% headline pooled unequal
+predicted-label strata and its Wilson interval described the sampled rows, not the corpus. The
+unchanged adjudicated judgments produce a **77.84% population-weighted estimate** with a
+stratified finite-population 95% sampling interval of **72.30–83.38%**. Governance predicted
+strata estimate 94.32%; non-governance strata estimate 76.78%.
+
+`score_audit.py` now rejects duplicate, missing, extra, unknown-label, invalid-confidence, and
+allocation-mismatched inputs before writing output; performs the two-auditor adjudication path;
+reports weighted estimates and full confusion pairs; and records the interval's limits.
+`sample_for_audit.py` now reaches the requested target exactly or refuses, rejects reused non-empty
+output directories, and assigns opaque IDs after the draw. Focused tests include red controls
+against the previous permissive behavior, and the aggregate receipt was regenerated.
+New plans require audit format v2; the frozen unversioned plan is accepted only through an explicit
+`--allow-legacy-plan` compatibility switch recorded in the receipt.
+
+The corrected weighting changes the next decision: `run_script` contributes about 10.86 percentage
+points of estimated corpus error versus at most 3.46 points for `unmapped`. Issue #20's original
+unmapped-first P1→P4 sequence and its ≤85%-proves-rule-order decision are superseded. The one next
+action is to classify the existing adjudicated errors by observed cause and population-weighted
+contribution before changing the mapper, vocabulary, or training path.
+
+### Label vocabulary frozen as `v1.0.0`
+
+`LABEL_SET_VERSION` cut from `v1.0.0-draft` to **`v1.0.0`**; `oracle/labels-v1.json`
+regenerated through `build_schema`. 44 labels. Studio corpus at the freeze: 335
+sessions, 71,763 calls, **coverage 96.41%**, governance 5.91%, top-3 bar 45.16%,
+197 tests passing. Receipt: `TESTS-RESULTS/2026-09-09-taxonomy-v1.0.0-freeze/`.
+
+The version guard was verified to fire rather than assumed: a contract still
+stamped `v1.0.0-draft` is now refused by `serialize.load_schemas`.
+
+**What is frozen is the label NAMES.** The sorter that decides which label a
+command gets is not frozen and is still under repair (#17) — the two artifacts
+version independently. Freezing also **commits the project to supplementation**
+(#9): the contract says the support floor's action is `"supplement"`, never
+delete or merge, and `promote_capture` (8) and `publish_release` (2) are kept on
+that basis.
+
+The final pre-freeze review (`codex`) returned FAIL, and its own reasoning is why
+the freeze proceeded anyway: *"the freeze blocker here is sorter correctness, not
+rarity alone… the contract can freeze label names while still requiring sorter QA
+and supplementation."* Its blocker was fixed first (`7cd7150`).
+
+**96.41% counts resolution, not correctness.** 78.12% of bash commands match more
+than one rule and rule order picks the winner; nothing has been hand-audited.
+Seven review rounds have found seven disjoint defect sets, which is not evidence
+that the eighth does not exist.
+
+
+### Positional label rules — role before operands, and the §2 gate re-opened
+
+A command's **operands** were being read as if they were its **invocation**, so text a
+command merely *displayed* or *carried* could score a governance label: `echo mv
+PROJECT/1-INBOX/x.md ...` scored `promote_capture`, `chmod +x validate.sh` scored
+`run_validate`. The fix establishes the command's role first (`ANY_POSITION_GATE`,
+with per-clause `_is_move` / `_is_roadmap_tool` predicates) and only then reads its
+operands with values intact — an earlier attempt that blanked quoted text was wrong in
+*both* directions, missing unquoted display data and destroying the operands of a real
+`mv "PROJECT/1-INBOX/a.md" "..."`.
+
+**Mutation controls, not membership assertions.** The previous class control asserted
+that a program was absent from a table, which shows the table's contents, not that the
+guard is why a test passes — it was decorative. The controls now disable
+`command_region` and require the class tests to go red. That caught a
+mis-attribution on its first run: `touch requirements.txt` does **not** revert when
+the positional guard is disabled; it was fixed by removing a rule alternative. Two
+mechanisms had landed in one change and the wrong one had been credited. Both halves
+are now pinned separately.
+
+**Found by four independent reviews, each in code the previous had not seen** — a
+corpus re-extraction diff (3 regressions no unit test caught), a headless `agy`
+adversarial pass (6 categories), and two AgentChorus rounds with Codex Astra (5, then
+3). Four disjoint defect sets is not evidence the search is exhausted; the review loop
+was stopped by a bounded-pass rule, not by a clean round.
+
+**The §2 coverage gate is re-opened.** The 2026-09-07 Studio measurement (98.52%) was
+produced by the rules this change replaces, which move 322 labels. The acceptance
+boxes in `PROJECT/3-COMPLETED/PHASE-2-LABEL-TAXONOMY.md` are unchecked and the
+2026-09-07 receipt gains a STALE pointer with its numbers left unedited. The general
+rule, now written down: *a measurement is scoped to the code that produced it* — an
+acceptance box is a claim about current code, not a record that a run once happened.
+Records belong in `TESTS-RESULTS/`; boxes revert.
+
+Merging this does **not** freeze the taxonomy. `LABEL_SET_VERSION` stays
+`v1.0.0-draft` and `utils/corpus/serialize.py` raises if a corpus artifact disagrees
+with `taxonomy.py`, so the freeze remains a separate, enforced step.
+
+Verification: `python3.11 -m pytest tests/ -q` → 253 passed, 6 skipped, 6 deselected;
+local corpus 2,111 commands, coverage 98.77% → 97.92%, 322 labels change, 3 governance
+losses (each verified a false positive), 0 gained; receipt in
+`TESTS-RESULTS/2026-09-09-taxonomy-positional-fix/`.
+
+### The §2 gate, re-measured — 96.33%, and a control that attributes the fall
+
+The Studio corpus was re-scored under the corrected mapper once the share was mounted:
+**335 sessions, 71,547 calls, mapping coverage 96.33%** (corpus: 71,186 pairs, 274/47
+split). Receipt: `TESTS-RESULTS/2026-09-09-taxonomy-studio-postfix/`.
+
+Coverage fell 2.19 points from 98.52%. The Studio's transcript set had *also* drifted
+(383 files on 09-07, 337 now), so the raw delta confounded two changes. The **pre-fix
+mapper was re-run over today's corpus as a control** — identical 335 sessions and 71,547
+calls, mapper the only variable. It scores **98.52%**, exactly the 09-07 figure. Corpus
+drift moved the gate **0.00 pp**; the entire fall is the rule change.
+
+**The lower number is mostly the fix working — ~97% of it.** (Corrected 2026-09-09 by
+GH-17: round 4 also dropped 45 real commands, +0.06 pp recovered once fixed. The
+original claim here said "entirely", which the control did not support — it showed the
+fall was *caused by* the rule change, not that every dropped call deserved dropping.)
+Coverage counts resolution, not correctness.
+Commands mislabelled from displayed text (`echo mv PROJECT/...` → `promote_capture`)
+used to count as covered — covered by a wrong label — and now fall to `unmapped`. On the
+identical corpus the fix removes **513 false governance calls** (6.61% → 5.90%), the
+exact error class #2 reported, in the group this Oracle exists to get right.
+
+Support floor: `park_roadmap_row` crossed it (68 → 96) because it had been losing real
+calls to mislabelling; `promote_capture` fell 14 → 8 because six were display text. Two
+stragglers now rather than three, both still #9's supplementation targets.
+
+Unchanged and still the structural risk: `multi_rule_pct` 78.09% over 55,269 bash
+commands, statistically identical to the control's 77.87%. The fix corrected *which*
+rule wins positionally; it did not reduce how often several match.
+
 ## 2026-09-07
 
 ### SOP §5: the GitHub issue is the actionable source of truth
@@ -178,7 +385,7 @@ environment" and "run something ad hoc" are two concepts. Reversibility is asymm
 
 Codified in four places so it is found later — `utils/corpus/taxonomy.py` (at the
 constant itself), `oracle/labels-v1.json` (`support_floor`, so consumers inherit it),
-`PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md`, and here — and guarded by a test that
+`PROJECT/3-COMPLETED/PHASE-2-LABEL-TAXONOMY.md`, and here — and guarded by a test that
 was verified to fail when the rule is reversed.
 
 `SOP.md` gains **§4, "Adjudicating a contested decision"**, generalising the procedure:
@@ -193,7 +400,7 @@ five points, but one model that agrees with the framing it was handed is corrobo
 not verification, and is recorded as such.
 
 Not yet done: `v1.0.0-draft` has not been cut to `v1.0.0`. Tracked in
-`PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md`.
+`PROJECT/3-COMPLETED/PHASE-2-LABEL-TAXONOMY.md`.
 
 Verification: `python3.11 -m pytest tests/test_taxonomy.py -q` → 46 passed;
 `utils/corpus/extract_claude_transcripts.py` over the Studio corpus → 74,909 pairs,

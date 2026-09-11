@@ -96,3 +96,53 @@ finding came from a **search tool silently not running**, not from bad reasoning
 "0 matches" result as unconfirmed until re-run in a form known to work, and treat knowledge-graph
 counts (node totals, `EnvVar` counts, "entry points") as leads to confirm, never as inventories to
 publish — the graph also listed `export.py:main` as an entry point, which it is not.
+
+---
+
+## 2026-09-11 — Oracle experiments and revised next milestone
+
+### Process
+
+Reconciled the current GitHub issue #1 and child-experiment reports, `main`'s CHANGELOG,
+PRs #42/#43, and the completed Astra/Fable AgentChorus #743999. Earlier entries above are historical;
+this append supplies the missing experiment arc. See the [collaborator briefing](doc/oracle-collaborator-summary.md)
+for a compact narrative and source links.
+
+### Findings
+
+- The overall umbrella is [XYZ-forge #467](https://github.com/HiQS-Labs/XYZ-forge/issues/467).
+  [Needle-fork #1](https://github.com/HiQS-Labs/Needle-fork/issues/1) owns the Oracle implementation
+  and running experiment record; its original plan and later comments include superseded decisions.
+- Training/export plumbing has run, but ranking accuracy did not establish useful native serving.
+  Issue #12 records the five-of-44-tool retrieval limitation in the tested serving contract.
+- Label resolution is not correctness: the 399-row audit estimates 77.84% population-weighted
+  correctness. Issue #25's fresh 1,000-row evaluation remains blocked at 541 selectable rows under
+  its unchanged capacity and label constraints. These are different datasets from the older,
+  larger private corpus used in the exploratory six-label experiment.
+- Six-label LoRA: 27% on 100 OpenHands development rows versus 37% Markov-1; stopped.
+  Phase-aware backoff: 42% on that development set, then 25.23% on 23,442 eligible private rows
+  across 63 sessions, versus 28.78% OpenHands-fitted Markov-1 and 43.52% repeat-last; stopped.
+- Correction to earlier interpretation: repeat-last is a persistence comparator, not demonstrated
+  recommendation usefulness. Poor OpenHands transfer does not establish that private-trained
+  predictors fail. The private evaluation has now informed decisions and is reused development
+  evidence, although excluded from fitting.
+- The separate purpose-classification experiment (#31) and augmentation tooling (#41 / PR #43)
+  are not next-action efficacy evidence. Neither supplies a deployment-ready Oracle.
+
+### Agreed next action, not yet measured
+
+One private-trained round with unchanged Markov-1 and phase-backoff. The same family must beat
+repeat-last by five points overall and the training-derived conditional destination comparator by
+ten points. Report ordinary transition accuracy too: a destination score conditioned on a true
+switch does not demonstrate detecting that switch at inference time. Both passing earns a
+prospective serving-experiment design; partial success supports considering a narrower question;
+both failing stops investment in these two models at this representation. These are resource
+decisions, not universal impossibility claims or measured human acceptance rates.
+
+### Publication state
+
+The active checkout `audit/23-error-causes` was 50 commits behind freshly fetched `main` and had
+no unique commits. PR #42 targets `spike/mlx-finetune`; its branch differs from current `main`
+across 147 files, including historical divergence. Do not promote that whole branch solely to
+publish this story. This documentation update is based on current `main`; experimental code
+promotion requires a separately scoped integration review.

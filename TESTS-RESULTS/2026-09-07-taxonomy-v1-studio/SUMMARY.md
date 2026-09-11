@@ -4,6 +4,14 @@
 mounted read-only over SMB · **Label set:** `v1.0.0-draft` (44 labels)
 · **Issue:** [Needle-fork#1](https://github.com/HiQS-Labs/Needle-fork/issues/1) §1, §2
 
+> **Status 2026-09-09: SUPERSEDED — measured under rules since corrected.** #16 fixed
+> positional label assignment. The numbers below stand as the record of what this run
+> measured and are **not edited**; they are no longer evidence about the current mapper.
+> **Current §2 gate result: `../2026-09-09-taxonomy-studio-postfix/` — 96.33%.**
+> A control there re-runs *this* receipt's mapper over the newer corpus and reproduces
+> 98.52% exactly, which is what attributes the 2.19-point fall to the rule change rather
+> than to corpus drift.
+
 Supersedes the local-sample measurement in `../2026-09-07-taxonomy-v1/`, which was
 17 transcripts on the MacBook and could validate the mechanism but not size the
 label set. This is the real corpus.
@@ -53,7 +61,7 @@ number would look like a win while having learned less than one scoring 50% here
 labeler were suppressing it — `uv add ruff` scored as `run_linter` (a package *name*
 read as an invocation) and dependency inspection (`pip list`, `brew list`, `npm ls`)
 had been tightened out into `unmapped`. Fixed, it measures **111**. See the decision
-record in `PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md` and `SOP.md` §4 for the
+record in `PROJECT/3-COMPLETED/PHASE-2-LABEL-TAXONOMY.md` and `SOP.md` §4 for the
 procedure that caught it.
 
 So #1 §1's "roughly 20-30" understates what the corpus actually contains: 39 labels

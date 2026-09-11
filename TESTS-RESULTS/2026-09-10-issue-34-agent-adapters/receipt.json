@@ -1,0 +1,64 @@
+{
+  "timestamp": "2026-09-10T16:58:17Z",
+  "issue": 34,
+  "target": "private-agent-transcript-adapter-compatibility",
+  "event_format_version": "normalized-agent-transcript-v1",
+  "tool_alias_version": "agent-tool-alias-v1",
+  "source_state": "live-local-inventory",
+  "sources": {
+    "codex": {
+      "files_seen": 1907,
+      "sessions_accepted": 1903,
+      "sessions_rejected": 4,
+      "user_steps": 6331,
+      "actions": 61548,
+      "aliased_actions": 29665,
+      "rejections": {
+        "missing_or_conflicting_session_identity": 4
+      }
+    },
+    "agy_desktop": {
+      "files_seen": 81,
+      "sessions_accepted": 79,
+      "sessions_rejected": 2,
+      "user_steps": 692,
+      "actions": 26792,
+      "aliased_actions": 25268,
+      "rejections": {
+        "invalid_json": 1,
+        "conflicting_step_identity": 1
+      }
+    },
+    "agy_cli": {
+      "files_seen": 501,
+      "sessions_accepted": 501,
+      "sessions_rejected": 0,
+      "user_steps": 501,
+      "actions": 5137,
+      "aliased_actions": 5131,
+      "rejections": {}
+    },
+    "zcode": {
+      "sessions_accepted": 21,
+      "sessions_rejected": 0,
+      "user_steps": 21,
+      "actions": 1091,
+      "aliased_actions": 1091,
+      "rejections": {}
+    }
+  },
+  "privacy": {
+    "contains_native_session_ids": false,
+    "contains_source_paths": false,
+    "contains_user_text": false,
+    "contains_tool_inputs_or_results": false
+  },
+  "validation": {
+    "focused_tests_passed": 14,
+    "red_controls_failed_as_expected": 5,
+    "non_slow_tests_passed": 360,
+    "non_slow_tests_skipped": 6,
+    "slow_tests_deselected": 6
+  },
+  "status": "PASS_WITH_EXPLICIT_REJECTIONS"
+}

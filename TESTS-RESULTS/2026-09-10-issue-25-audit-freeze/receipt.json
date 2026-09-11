@@ -1,0 +1,125 @@
+{
+  "receipt_format": "feedback-audit-freeze-v2",
+  "status": "INCOMPLETE",
+  "source_manifest_sha256": "01ec1edbc1c35c257c7696e1946a39d5dd7bcaf0670a9cdb42737ab2e6a0e77b",
+  "measurement_contract": {
+    "sampling_design": "session-constrained-targeted-v1",
+    "reported_estimand": "unweighted agreement on the deliberately session-spread audited rows",
+    "population_estimate": null,
+    "confidence_interval": null,
+    "reason": "session constraints produce unequal inclusion probabilities"
+  },
+  "draw_contract": {
+    "allocation": "predicted-label strata; floor 8 then square-root proportional remainder",
+    "allocator": "exact label quotas under session cap; maximize distinct sessions",
+    "seed": 2501,
+    "correction": {
+      "target_rows": 400,
+      "min_sessions": 30,
+      "max_per_session": 20
+    },
+    "evaluation": {
+      "target_rows": 1000,
+      "min_sessions": 30,
+      "max_per_session": 40
+    }
+  },
+  "correction": {
+    "status": "audited targeted development sample",
+    "manifest_rows": 20711,
+    "excluded_unrenderable": 530,
+    "reviewable_rows": 20181,
+    "eligible_sessions": 257,
+    "drawn_rows": 400,
+    "drawn_sessions": 254,
+    "observed_max_per_session": 17,
+    "predicted_strata": 39,
+    "sample_agreement": 0.8025,
+    "adjudicated_correct": 321,
+    "governance_sample_agreement": 0.9135,
+    "non_governance_sample_agreement": 0.7635,
+    "auditor_disagreements": 72,
+    "cause_review_confidence_high_rows": 64,
+    "safe_feedback_rows": 19,
+    "sample_sha256": "289bd8ccd543cbc2326e789283ddfe016eeeda8d0e1790ad4ecd943a6c3b4885",
+    "sorter_sha256": "4ef51b77cb64f779965b00ca85ee5c81ac3fafebb1bd0af44392183fd93f6140",
+    "plan_sha256": "d459749e4f6f595525e156ae737ab6d0dd2eb52e0b59f19955419dfa08c0f452",
+    "replay": "byte-identical"
+  },
+  "evaluation": {
+    "status": "INCOMPLETE",
+    "manifest_rows": 2806,
+    "excluded_unrenderable": 97,
+    "reviewable_rows": 2709,
+    "eligible_sessions": 17,
+    "required_sessions": 30,
+    "predicted_strata": 38,
+    "output_written": false
+  },
+  "review": {
+    "auditors": [
+      "Codex GPT-5.6 Terra High",
+      "Codex GPT-6 Astra Medium"
+    ],
+    "auditor_rows_each": 400,
+    "auditor_agreement_with_sorter": {
+      "terra": {
+        "sample": 0.74,
+        "population_weighted": null
+      },
+      "astra": {
+        "sample": 0.8075,
+        "population_weighted": null
+      }
+    },
+    "inter_rater_sample_agreement": 0.82,
+    "adjudicator": "fresh Codex GPT-5.6 Luna High context",
+    "cause_reviewer": "fresh Codex GPT-6 Astra Medium context with frozen taxonomy and segment traces",
+    "cause_review_limitation": "Single-model cause judgments; low-confidence causes are excluded from the correction seed.",
+    "agy_gemini_audit_attempt": "timed out without an artifact; excluded from evidence"
+  },
+  "red_controls": {
+    "greedy_allocator_counterexample": {
+      "old_result": "refused a feasible draw",
+      "exact_allocator_result": "selected all required rows across all required sessions"
+    },
+    "targeted_population_reporting": {
+      "population_estimate": null,
+      "confidence_interval": null
+    },
+    "evaluation_session_floor": {
+      "exit_code": 2,
+      "output_written": false
+    }
+  },
+  "withdrawn_result": {
+    "description": "An earlier 400-row constrained draw was incorrectly analyzed as stratified random sampling and is superseded.",
+    "reason": "the session-constrained selection had unequal inclusion probabilities; an external Terra High review also found the greedy allocator could reject feasible draws",
+    "published_as_current_evidence": false
+  },
+  "credential_scan": {
+    "rows_scanned": 400,
+    "credential_reference_rows": 7,
+    "literal_known_token_or_private_key_matches": 0,
+    "literal_sensitive_assignment_matches": 0,
+    "interpretation": "Seven rows reference credential-related paths or environment-variable names; no literal credential values matched. This pattern scan is not proof that arbitrary text contains no secret."
+  },
+  "privacy": "aggregate hashes and counts only; no prompts, commands, row identities, or local paths",
+  "private_artifact_sha256": {
+    "terra.jsonl": "12ee4cf92acda24d6816f8b8c733f3d9536f0857858c9eebe715417e2c927f23",
+    "astra.jsonl": "33d527eb7118c857f03c9b20a646aa9311152efe255377b982afe2d3568c0f96",
+    "judge.jsonl": "1789ebad4ed32d49c77e3bed236e7e5f8a82099393d811bdf598012c2adfcdc7",
+    "error-causes.jsonl": "8b6860b5aacac400d7be5f98a56690c8803b109d69d1324d5f60a6ddc6cfb43a"
+  },
+  "public_artifact_sha256": {
+    "correction-raw-metrics.json": "2cea04c5935efeb88b443b726d5636473d0b7b615b95cca940c8f6300304f953",
+    "correction-adjudicated.json": "815311064ef61c934f17ffffc2a478b7ab0ae7288c529862b4beb829656f9449",
+    "correction-cause-metrics.json": "2a2fa131d00c80564d1243901c8e9885150f4a4d10ab961d8b08b28c8f6a2bc6"
+  },
+  "validation": {
+    "focused_audit_and_identity": "61 passed",
+    "full_non_slow": "342 passed, 6 skipped, 6 deselected",
+    "pdda": "all checks passed; optional LLM readiness review not configured",
+    "public_scan": "nonempty artifacts; no raw row IDs, local paths, private-key markers, or known token patterns found"
+  }
+}
