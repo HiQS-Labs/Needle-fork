@@ -66,15 +66,20 @@ exported from #25 without exposing #25 files to this lane.
 
 The reviewed-seed JSONL is the trust boundary. Each canonical seed contains `source_id`,
 `source_kind` (`human` or `rule`), `reviewed_by`, `taxonomy_version`, `label`,
-`recent_user_request`, and `prior_actions`. Its `source_sha256` is SHA-256 over UTF-8 JSON with sorted
-keys, compact separators, and no trailing newline. The candidate file references that ID and digest;
-the composer loads the separate seed file, recomputes the digest, and rejects disagreement.
+`recent_user_request`, and `prior_actions`; it does **not** contain its own digest. `source_sha256` is
+SHA-256 over that complete UTF-8 seed object encoded with sorted keys, compact separators, and no
+trailing newline. The candidate file references the seed ID and digest; the composer loads the
+separate seed file, recomputes the digest, and rejects disagreement. The byte-drift control changes
+one hashed seed field while retaining the candidate's prior digest.
 
 Every candidate also contains unique `record_id`, `split: train`, `generated: true`, `kind`,
 `generator`, and `config_sha256`. Output is a **generated-only** trainer JSONL plus a manifest that
-binds every emitted row hash to its seed/candidate identities. Real rows are not mixed here. Phase 3
-may assemble a training arm only with trainer validation splitting disabled (`--val-split 0`) and a
-separately supplied real evaluation artifact whose source IDs/hashes pass the forbidden manifest.
+binds every emitted row hash to its seed/candidate identities. Real rows are not mixed here. This
+initial composer proves marking and separation at composition time; it does not claim to police a
+later trainer invocation after the canonical serializer intentionally drops provenance metadata.
+Phase 3 therefore remains blocked on a separately reviewed assembly/preflight command that consumes
+this manifest plus the real holdout, proves disjoint row/source hashes, emits the exact training
+command with `--val-split 0`, and rejects any generated hash in validation or evaluation.
 
 Canonical request normalization is Unicode-preserving whitespace collapse, identical to
 `serialize._clean`; its SHA-256 is the duplicate key. Duplicate keys are rejected across all
@@ -113,7 +118,7 @@ real holdout exists.
 
 ### Phase 1 — QA checklist
 
-- [ ] `test_empty_input_refuses_without_run`, `test_generated_validation_split_refuses`, `test_seed_byte_drift_refuses`, `test_counterfactual_pair_invariants`, and duplicate/identity tests assert the exact error and absence of a final run.
+- [ ] `test_empty_input_refuses_without_run`, `test_non_train_candidate_refuses`, `test_seed_byte_drift_refuses`, `test_counterfactual_pair_invariants`, and duplicate/identity tests assert the exact error and absence of a final run.
 - [ ] The valid fixture asserts nonzero input/output counts before hashes/distributions; monkeypatching `serialize.to_finetune_row` to a noncanonical row makes the contract test fail before restoration.
 - [ ] No issue #25-owned audit or manifest file changes.
 
@@ -139,6 +144,7 @@ real holdout exists.
 **Goal:** decide on an untouched real holdout whether augmentation improves thin labels without broad regression.
 
 - [ ] Before any training, add and review an experiment addendum freezing minimum real-holdout size, label/session/repository/time allocation, commands, primary metric, uncertainty method, improvement and regression thresholds, and stop rule.
+- [ ] Add and review the bounded assembly/preflight command described above, including a red test that a generated row hash placed in validation/evaluation refuses before training and a command assertion that `--val-split 0` is present.
 - [ ] Wait for mapper-qualified seeds and a new independently labelled real holdout that is disjoint from issue #25 evidence.
 - [ ] Freeze real-only, real+paraphrase, and real+targeted-counterfactual arms with identical model, seed, compute, and holdout.
 - [ ] Report macro-F1, per-label recall, governance accuracy, abstention precision/recall, calibration, and common-label regressions.

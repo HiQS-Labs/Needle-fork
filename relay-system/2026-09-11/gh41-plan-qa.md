@@ -6,7 +6,7 @@
 
 NEXT: Reviewer
 STATUS: Open
-ROUND: 2 / 3
+ROUND: 3 / 3
 
 ## ▶ TAKE YOUR TURN — read this first (works for ANY agent: Claude, Codex, agy)
 1. **Read this whole file** (header, Setup, Ground rules, every block in the Log).
@@ -107,5 +107,30 @@ Handing off to Producer — go to the Producer window and say “take your turn�
 Plan updated at `PROJECT/2-WORKING/GH-41-TARGETED-AUGMENTATION.md`; no implementation started.
 
 Handing off to Reviewer — review the revised artifact and close Approved only if every blocker is resolved.
+
+### Reviewer · Round 2
+
+swept file: yes
+
+- [Pass] The revised plan now gives GH-41 concrete owned paths and bars reads and writes of #25-owned code/data, with later overlap checked through an explicit exported identifier boundary (`.relay-artifacts/GH-41-TARGETED-AUGMENTATION.md:52-63`). No additional pre-existing defect was found in the reviewed plan outside the findings below.
+- [Blocker] The seed digest definition is circular as written: every canonical seed "contains" `source_sha256`, but the digest is defined over UTF-8 JSON without excluding that field (`.relay-artifacts/GH-41-TARGETED-AUGMENTATION.md:67-71`). There is no generally constructible JSON value whose embedded digest can be recomputed over itself, so `test_seed_byte_drift_refuses` cannot implement the stated contract. Cheapest fix: define the preimage as the canonical seed object with `source_sha256` omitted (or put the digest only in the candidate/manifest), then require the drift test to mutate one hashed field while retaining the prior digest.
+- [Blocker] Training-only use is still a prose precondition with no planned enforcement seam. The emitted trainer row necessarily loses `split` and `generated` because the canonical serializer returns only five trainer fields (`utils/corpus/serialize.py:96-116`), while the unchanged trainer independently creates validation rows from any supplied input unless `--val-split 0` is passed (`needle/model/finetune.py:360-366`). A composer test named `test_generated_validation_split_refuses` cannot observe a later trainer invocation, and Phase 3 specifies no assembler or preflight command that can reject generated validation/evaluation membership (`.relay-artifacts/GH-41-TARGETED-AUGMENTATION.md:73-77,141-150`). Cheapest fix: keep the serializer unchanged, but add a bounded Phase 3 assembly/preflight artifact to the plan that consumes the manifest plus real holdout, emits/validates disjoint hashes, and produces the exact training command with `--val-split 0`; assign the rejection test to that seam. Alternatively narrow the DoD claim to composition-time marking rather than proof of training-only use.
+- [Pass] Counterfactual completeness, duplicate scope, deterministic ordering, and collision behavior are now normative and falsifiable (`.relay-artifacts/GH-41-TARGETED-AUGMENTATION.md:79-88,114-133`).
+- [Pass] Publication now has one atomic visibility boundary—a completed staging directory renamed to a new immutable run path—and a fault-injection control that requires no final run (`.relay-artifacts/GH-41-TARGETED-AUGMENTATION.md:97-103,129-134`).
+- [Pass] The initial implementation remains additive and smaller than changing the public generator: it reuses `serialize.to_finetune_row`, adds one stdlib command, and excludes trainer/runtime/release changes (`.relay-artifacts/GH-41-TARGETED-AUGMENTATION.md:47-50,90-112`). Phase 3 honestly defers benefit claims behind a reviewed preregistration and real holdout (`.relay-artifacts/GH-41-TARGETED-AUGMENTATION.md:137-152`).
+
+VERDICT: Changes requested
+
+Handing off to Producer — go to the Producer window and say “take your turn”.
+
+### Producer · Round 3
+
+- Implemented — removed `source_sha256` from the seed object and defined the digest over the complete canonical seed bytes; the drift control retains the prior candidate digest while mutating a hashed seed field.
+- Modified — narrowed the initial milestone to composition-time marking and generated-only separation, because the canonical serializer intentionally strips provenance. Phase 3 is now explicitly blocked on a reviewed assembly/preflight command that checks manifest/holdout hash disjointness, rejects generated validation/evaluation membership, and emits a command containing `--val-split 0`.
+- Implemented — reassigned the initial red test to the actual composer seam (`test_non_train_candidate_refuses`) and assigned the generated-validation rejection test to the future assembly/preflight seam that can observe it.
+
+Plan updated; implementation remains unstarted pending final plan verdict.
+
+Handing off to Reviewer — review Round 3 and close Approved only if both blockers are resolved.
 
 <!-- ↓↓↓ NEXT TURN goes here (append above nothing — this marker stays last) ↓↓↓ -->
