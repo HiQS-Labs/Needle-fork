@@ -14,7 +14,7 @@ ROUND: 2 / 3
    last Log block isn't already yours. If not → STOP and reply "wrong window — nudge the <other> window."
 3. **Do your role's work** on the artifact named in Setup:
    - **Reviewer:** review vs the Definition of Done → graded findings
-     (`[Blocker]`/`[Should]`/`[Nit]`/`[Pass]`), each with a concrete fix → set a **Verdict**
+     (`[Blocker]`/`[Should]`/`[Nit]`/`[Pass]`), each with a concrete fix → end with the exact uppercase marker **VERDICT: Approved**, **VERDICT: Changes requested**, or **VERDICT: Blocked**
      (Approved | Changes requested | Blocked). **Review the whole file, not just the diff** (GH-268):
      a beta test had this loop reach `Approved` in two rounds while an independent audit of the same
      branch found 20 issues (1 critical, 4 high) — every one of them in the pre-existing code the
