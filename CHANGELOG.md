@@ -5,6 +5,13 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-11
 
+### Adapter build provenance guard (#8)
+
+Builds now reject full-precision or provenance-unknown LoRA adapters unless explicitly passed
+`--allow-numerics-mismatch`. Compatible QAT and adapter-free builds retain their behavior;
+quantization/export math is unchanged. This intentional CLI compatibility change is reversible
+by reverting the PR. Build/finetune regression coverage verifies refusal and explicit opt-in.
+
 ### README refreshed after branch triage
 
 Clarified the pending private-training experiment, linked the open branch-hygiene proposal, and

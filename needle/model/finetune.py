@@ -491,7 +491,7 @@ def build_main(args):
                           "does not declare its training numerics")
             raise ValueError(
                 f"adapter {provenance}, but this build would deploy CQ {deploying}"
-                f" + A8, which it never saw during training. Either retrain with"
+                f" + A8, without matching QAT provenance. Either retrain with"
                 f" --qat-bits auto so training and deployment numerics agree, or"
                 f" pass --allow-numerics-mismatch to accept post-training"
                 f" quantisation and its accuracy cost.")
