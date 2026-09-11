@@ -65,6 +65,27 @@ parse error exits nonzero rather than producing a partial passing result.
 Mapping coverage is only a schema-compatibility measurement. It does not show that the assigned
 labels are semantically right; that requires a separate blind human review before training use.
 
+## Blind semantic-label sample
+
+After a source clears the mechanical gate, draw its semantic-review sample separately. The command
+reuses the normalized adapter, unchanged taxonomy, and exact stratified allocator. It writes private
+tool arguments to `sample.jsonl`, holds predictions back in `sorter.jsonl`, and records aggregate
+allocation metadata in `plan.json`:
+
+```bash
+python3 utils/corpus/sample_agent_label_audit.py \
+  --source zcode --root /private/source/root --namespace studio-zcode \
+  --target 200 --floor 4 --seed 3701 \
+  --out-dir data/agent-label-review/zcode-v1
+```
+
+The output directory must be new and below a directory named `data`; all three files stay private
+until review is complete. Only aggregate plan or scored-result fields may be promoted after a
+privacy scan. The sample contains no sorter labels, and the sorter file contains no tool arguments.
+The generated plan and sorter use the existing `score_audit.py` contract, so two complete blind
+audits and disagreement-only adjudication are checked and scored by the same fail-closed path as the
+Claude label audit.
+
 ## Failure behavior and privacy
 
 Malformed JSON, ambiguous session identity, conflicting Agy steps, invalid tool inputs, and duplicate
