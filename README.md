@@ -26,11 +26,23 @@ Status: September 11, 2026. This is HiQS's experimental fork of [Cactus Compute'
 
 ## Next milestone
 
+**Pending, not yet run.** The next experiment uses our own training sessions to test whether the failure of public-data transfer also occurs with in-domain training.
+
 Fit the unchanged Markov-1 and phase-aware predictors on private training sessions and score once on the separate 63-session evaluation partition. The same family must exceed repeat-last by five percentage points overall (approximately 48.52%) and a training-derived conditional destination baseline by ten points. Also report ordinary accuracy on action-change rows and per-session distributions.
 
 Both gates passing earns a prospective serving-experiment design; one passing supports considering a narrower action-run-ending question; neither passing stops investment in these two models at this representation. The evaluation partition has already informed decisions, so it is reused development evidence rather than fresh confirmation. Conditional destination accuracy assumes a switch occurred; it does not establish detecting switches live. These scores measure agreement with recorded labels, not human acceptance or whether an action was advisable.
 
 The [collaborator briefing](doc/oracle-collaborator-summary.md) provides the detailed qualifications and source index. [XYZ-forge #467](https://github.com/HiQS-Labs/XYZ-forge/issues/467) owns the overall arc; [Needle-fork #1](https://github.com/HiQS-Labs/Needle-fork/issues/1) tracks this implementation. [ROADMAP.md](ROADMAP.md) points to current work and [FINDINGS.md](FINDINGS.md) preserves investigation history.
+
+## Repository readiness and next steps
+
+The findings cleanup and this project story are merged into `main` through PRs #44 and #45. The subsequent [branch triage and hygiene rules](https://github.com/HiQS-Labs/Needle-fork/pull/46) are proposed in an open documentation PR. The remaining branches have separate integration decisions:
+
+1. Review and land the branch-hygiene documentation in #46, then refresh the small [adapter build-safety change #8](https://github.com/HiQS-Labs/Needle-fork/pull/8) against current `main` and validate its build behavior.
+2. Reconcile the overlapping governance stack [#6](https://github.com/HiQS-Labs/Needle-fork/pull/6) → [#10](https://github.com/HiQS-Labs/Needle-fork/pull/10), preserving current documentation and checking section references.
+3. Run the bounded private-training experiment above under issue #1. [PR #42](https://github.com/HiQS-Labs/Needle-fork/pull/42) and its MLX base remain experimental; a whole-branch merge into `main` is not the promotion path.
+
+**PR #43 is on an explicit operator testing hold.** Do not merge or modify its branch until that hold is released. Merged historical branches remain preserved pending retirement checks; no blanket branch cleanup has been performed.
 
 ---
 

@@ -5,6 +5,12 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-11
 
+### README refreshed after branch triage
+
+Clarified the pending private-training experiment, linked the open branch-hygiene proposal, and
+listed integration priorities. Recorded the explicit operator testing hold on PR #43. This is an
+operator-requested documentation update directly on main; no experimental code was merged.
+
 ### README now leads with the fork's Oracle story
 
 After the documentation reconciliation landed in PR #44, added a two-paragraph TLDR, a linked
