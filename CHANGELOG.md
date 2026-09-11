@@ -12,6 +12,12 @@ integration priorities and the #6 → #10 dependency in `doc/branch-triage-2026-
 AGENTS.md now requires explicit branch ownership through a PR or parked research disposition,
 current review evidence, and post-merge reconciliation. No experimental merge or deletion occurred.
 
+### README refreshed after branch triage
+
+Clarified the pending private-training experiment, linked the open branch-hygiene proposal, and
+listed integration priorities. Recorded the explicit operator testing hold on PR #43. This is an
+operator-requested documentation update directly on main; no experimental code was merged.
+
 ### README now leads with the fork's Oracle story
 
 After the documentation reconciliation landed in PR #44, added a two-paragraph TLDR, a linked
