@@ -32,6 +32,7 @@
 ### In progress
 
 - [Label correctness audit — make the §2 gate trustworthy](PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md) — source identity and disjoint manifests are merged; #25 clears its 30-session floor but remains blocked because the frozen sampler can allocate only 541/1,000 evaluation rows under its label quotas and session cap. ([#20](https://github.com/HiQS-Labs/Needle-fork/issues/20), [#23](https://github.com/HiQS-Labs/Needle-fork/issues/23), [#25](https://github.com/HiQS-Labs/Needle-fork/issues/25))
+- [Targeted grounded augmentation](PROJECT/2-WORKING/GH-41-TARGETED-AUGMENTATION.md) — build the training-only validation/composition gate without consuming #25 evaluation evidence. ([#41](https://github.com/HiQS-Labs/Needle-fork/issues/41))
 
 ### Completed
 
