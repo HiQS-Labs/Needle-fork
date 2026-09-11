@@ -5,7 +5,7 @@
 -->
 
 NEXT: Reviewer
-STATUS: Open
+STATUS: Approved
 ROUND: 3 / 3
 
 ## ▶ TAKE YOUR TURN — read this first (works for ANY agent: Claude, Codex, agy)
@@ -132,5 +132,18 @@ Handing off to Producer — go to the Producer window and say “take your turn�
 Plan updated; implementation remains unstarted pending final plan verdict.
 
 Handing off to Reviewer — review Round 3 and close Approved only if both blockers are resolved.
+
+### Reviewer · Round 3
+
+swept file: yes
+
+- [Pass] The seed provenance contract is now constructible and grounded: the reviewed seed explicitly omits its own digest, the digest covers the complete canonical seed bytes, and the drift control mutates a hashed field while retaining the prior candidate digest (`.relay-artifacts/GH-41-TARGETED-AUGMENTATION.md:67-73`). This resolves the circular-preimage blocker.
+- [Pass] The plan now states the initial composer's actual enforcement boundary: it publishes generated-only rows, binds them to a manifest, and claims only composition-time marking/separation because `to_finetune_row` intentionally emits the five canonical trainer fields (`.relay-artifacts/GH-41-TARGETED-AUGMENTATION.md:75-82`; `utils/corpus/serialize.py:96-116`). The later training seam is concretely blocked on a reviewed assembly/preflight command that checks manifest/holdout disjointness, rejects generated validation/evaluation membership, and asserts `--val-split 0` (`.relay-artifacts/GH-41-TARGETED-AUGMENTATION.md:146-148`), matching the trainer's automatic validation split behavior (`needle/model/finetune.py:360-366`).
+- [Pass] The remaining Definition of Done is fully represented: GH-41/#25 paths are disjoint (`.relay-artifacts/GH-41-TARGETED-AUGMENTATION.md:52-63`), canonical serialization and deterministic pair/deduplication invariants are explicit (`:84-93,114-123`), publication has one atomic directory boundary (`:102-108,134-139`), and reporting excludes source text and operational identity (`:127-132`).
+- [Pass] The initial implementation remains bounded and reversible: one stdlib offline command reuses `serialize.to_finetune_row`, leaves the generic augmentation/trainer/runtime/release surfaces unchanged, and rolls back by deletion (`.relay-artifacts/GH-41-TARGETED-AUGMENTATION.md:47-50,95-117`). Phase 3 benefit and deployment claims remain deferred behind preregistration, a fresh real holdout, and explicit stop criteria (`:142-158`). No pre-existing defect was found in the reviewed plan file.
+
+VERDICT: Approved
+
+Relay closed (Approved), no further turn needed.
 
 <!-- ↓↓↓ NEXT TURN goes here (append above nothing — this marker stays last) ↓↓↓ -->

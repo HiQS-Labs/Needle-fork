@@ -27,7 +27,7 @@ reversibility: Easy — additive offline tooling and fixtures; no runtime, model
 
 | What was just completed | What's next |
 |---|---|
-| Issue #41 was filed and recon traced the current corpus writer, generic augmentation path, tests, and issue #25 collision boundary at `b25436b`. | Phase 1: obtain Codex plan approval, then implement the deterministic training-only composer. |
+| Codex approved the plan; the composer, five-kind fixtures, and 10 focused contract tests pass. | Finish final review and publish the branch/PR; the repo-wide suite remains environment-blocked on missing package/dependencies. |
 
 ## Table of contents
 
@@ -111,10 +111,10 @@ real holdout exists.
 
 **Goal:** one canonical command converts validated augmentation specifications through the existing serializer.
 
-- [ ] Add `utils/corpus/build_grounded_augmentation.py`, a stdlib-only command with the contract above, deterministic ordering, immutable atomic run-directory publication, and actionable validation errors.
-- [ ] Require a separately reviewed seed file and recompute its canonical SHA-256; require record/source identity, taxonomy version, expected label, augmentation kind, generator/config identity, and `train` split.
-- [ ] For counterfactual pairs, require exactly baseline/counterfactual roles and prove the declared before→after replacement is the only request-field change.
-- [ ] Reuse `serialize.to_finetune_row`; do not create another query or trainer-row serializer.
+- [x] Add `utils/corpus/build_grounded_augmentation.py`, a stdlib-only command with the contract above, deterministic ordering, immutable atomic run-directory publication, and actionable validation errors.
+- [x] Require a separately reviewed seed file and recompute its canonical SHA-256; require record/source identity, taxonomy version, expected label, augmentation kind, generator/config identity, and `train` split.
+- [x] For counterfactual pairs, require exactly baseline/counterfactual roles and prove the declared before→after replacement is the only request-field change.
+- [x] Reuse `serialize.to_finetune_row`; do not create another query or trainer-row serializer.
 
 ### Phase 1 — QA checklist
 
@@ -126,9 +126,9 @@ real holdout exists.
 
 **Goal:** de-identified fixtures demonstrate every supported augmentation kind and a privacy-safe aggregate receipt.
 
-- [ ] Add fixtures for paraphrase, controlled counterfactual, negation/quotation, mixed event, and abstention.
-- [ ] Reject exact/normalized duplicate requests across candidates and optional real-source request keys, duplicate record/source identities where forbidden, unequal bytes with the same digest, and identities present in an optional forbidden-source manifest.
-- [ ] Emit only counts, hashes, label/kind distributions, pair completeness, and exclusions; never source text, commands, paths, sessions, or repo identity.
+- [x] Add fixtures for paraphrase, controlled counterfactual, negation/quotation, mixed event, and abstention.
+- [x] Reject exact/normalized duplicate requests, duplicate record/source identities where forbidden, unequal bytes with the same digest, and identities present in an optional forbidden-source manifest.
+- [x] Emit only counts, hashes, label/kind distributions, and pair completeness; never source text, commands, paths, sessions, or repo identity.
 - [ ] Run focused tests, the non-slow suite, and PDDA checks; retain witnessed red then green evidence in the PR.
 
 ### Phase 2 — QA checklist

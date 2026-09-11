@@ -1,0 +1,2 @@
+{"source_id":"reviewed-1","source_kind":"human","reviewed_by":"fixture-reviewer","taxonomy_version":"v1","label":"apply_patch","recent_user_request":"Please update the parser.","prior_actions":["read_file"]}
+{"source_id":"reviewed-2","source_kind":"rule","reviewed_by":"fixture-reviewer","taxonomy_version":"v1","label":"no_action","recent_user_request":"Thanks, that is all.","prior_actions":["read_file"]}
