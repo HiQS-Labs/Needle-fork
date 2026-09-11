@@ -84,6 +84,26 @@ pytest -q -m slow
 Both green before proceeding. This is a self-check, not the campaign's evidence — it just confirms
 you're not about to spend real time on a broken base.
 
+**Then preflight the DATA, not only the environment.** A green test suite says the code runs; it
+says nothing about whether the corpus can teach what you need. Before building on a dataset, assert
+its shape in a form that **can fail**:
+
+- **Per-label support**, against the support floor, **split governance vs coding**. An aggregate row
+  count hides a subgroup at 6.8%.
+- **Every required slice actually exists.** Not "the converter handles abstentions" — the measured
+  count of them.
+- **Token-length distribution against `--max-len`**, plus what fraction of each row is constant
+  boilerplate.
+- **What a trivial baseline scores.** If a frequency table is already strong, your metric may not be
+  able to see your model at all (Step 5).
+
+This is a rail because skipping it cost a full day here: a taxonomy, extractor, corpus, JAX
+baseline and a complete MLX training port were built before anything measured whether the data
+could teach the task. Three defects were latent from the first corpus build — zero abstention rows
+in both corpora against `doc/finetuning.md:22`, governance at 6.8% of rows while being the entire
+point of the model, and ~80% of every prompt being the same 44 embedded schemas. See
+`LESSONS-LEARNED.md` lesson 1.
+
 ### Step 3: Baseline
 
 Before changing anything, run the existing path once and keep its output:
@@ -115,9 +135,52 @@ you are deliberately testing a mismatch between training and export numerics.
 Capture stdout/stderr to a log file rather than letting it scroll away — you need it for step 6
 regardless of outcome.
 
+**Before launching anything long, unattended, or memory-hungry:**
+
+- **Compute the resource requirement from the config and refuse your own run if it does not fit.**
+  Do not launch on a feeling that it looks "tight". A batch-16 / seq-2048 run here needed **~54 GB**
+  of retained attention activations — one `[B,H,S,S]` matrix per layer across 27 layers — on a 24 GB
+  host with ~8.7 GB already in use. **It took the machine down: a reboot, not an OOM.** The
+  arithmetic takes ten seconds; naming a risk out loud is not mitigating it.
+- **Do not trust a framework's memory cap.** `mx.set_memory_limit` is advisory — measured, a step
+  peaked at 13.4 GB against a 12 GB cap and allocated straight through without raising. A
+  unified-memory GPU workload can exhaust host resources rather than fail cleanly, so the blast
+  radius can include the **host**, not just the process.
+- **Write logs somewhere that survives a restart.** Temporary directories may be cleared on reboot; the crash
+  above took ~1.5 h of baseline logs with it.
+- **Commit before you launch.** ~2 h of uncommitted work was in the tree when that machine went
+  down. It survived; it did not have to.
+- **Watch a PID, not a pattern.** A `pgrep -f` watcher matched its own command line, and later
+  reported `cpu=0.0%` for a job running at 341% because it read the `zsh` wrapper rather than the
+  Python child. Also note a **GPU job looks idle** — MLX training ran at 30% CPU / 960 MB RSS
+  against the JAX baseline's 600% / 8.7 GB. "Nothing is spinning" is not evidence it stopped.
+
+See `LESSONS-LEARNED.md` lessons 6 and 9.
+
 ### Step 5: Verification
 
 **Load the actual artifact and run it — don't trust a clean exit code as the verdict.**
+
+Three rails on the numbers themselves, before the artifact checks below:
+
+- **Report the subgroup alongside the aggregate, always.** An aggregate is a weighted average
+  dominated by the majority class, and it will hide the minority you actually care about. Measured
+  here: aggregate top-3 **47.00%** looked like a pass, while the governance split — the reason the
+  model exists — sat at **19.1%** and was invisible at 6.8% of rows.
+- **Compare against a trivial baseline computed on the SAME rows.** Aggregate top-3 47.00% against a
+  quoted 45.99% bar reads like clearing it; the same-sample static baseline was **46.70%**, so the
+  real margin was three rows in a thousand (z≈0.13). **Comparing a measurement to a bar computed on
+  other rows manufactures a result.** Run an untuned control too — the base model scoring *below*
+  the static baseline is what proved the scorer had dynamic range rather than flattering whatever it
+  was handed.
+- **Any correlation claim needs a null control.** Shuffle or randomise the thing you claim is
+  predictive and re-measure; report the **lift**, not the raw rate. A prompt→commit correlation
+  showed 68.8% of prompts followed by a commit within 15 minutes, which sounds decisive — but
+  shuffled timestamps scored 30.3% purely from commit density. The finding is the **+38.5pp lift**,
+  and without the control the headline would have been mostly artifact. This is `AGENTS.md` §6's
+  "a check that cannot fail is not a check" applied to statistics.
+
+See `LESSONS-LEARNED.md` lesson 2.
 
 A `.cact` is not loadable by `needle run` (that path takes a `.pkl`). Exercise the exported artifact
 through the runtime SDK or the playground instead:

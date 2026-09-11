@@ -5,6 +5,14 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-11
 
+### Campaign operational rails reconciled (#10)
+
+Promoted data preflight, resource/log safety, and subgroup/same-row/null-control reporting
+into SOP Steps 2/4/5 after the issue-authority policy (#6). Preserved current source-of-truth
+sections and removed a duplicated historical changelog entry introduced by the stacked merge.
+Host-memory and temporary-directory guidance describes risks, not universal platform behavior.
+Verification: non-slow suite 384 passed, 6 skipped; documentation-only runtime diff.
+
 ### Adapter build provenance guard (#8)
 
 Builds now reject full-precision or provenance-unknown LoRA adapters unless explicitly passed
