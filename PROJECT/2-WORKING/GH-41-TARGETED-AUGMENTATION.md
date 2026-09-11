@@ -49,6 +49,44 @@ rows that this command validates. This keeps provider choice outside the canonic
 avoids a new dependency. Debugging follows debug-mantra. Failure is a nonzero exit with no output or
 report; there is no retry loop.
 
+### Owned and reserved paths
+
+GH-41 owns `utils/corpus/build_grounded_augmentation.py`,
+`tests/test_grounded_augmentation.py`, `tests/fixtures/gh41/`, and private run directories beneath
+`data/grounded-augmentation/`. It may read only a newly supplied reviewed-seed file and optional
+forbidden-ID manifest passed explicitly on the command line.
+
+Issue #25 retains `utils/corpus/sample_for_audit.py`, `score_audit.py`,
+`build_experiment_manifest.py`, `analyze_audit_causes.py`, their audit/corpus-identity tests, and all
+existing private audit/correction/evaluation artifacts under `data/`. GH-41 neither reads nor writes
+those paths. A later operator-created forbidden-ID manifest may contain stable source IDs or hashes
+exported from #25 without exposing #25 files to this lane.
+
+### Normative input and output contract
+
+The reviewed-seed JSONL is the trust boundary. Each canonical seed contains `source_id`,
+`source_kind` (`human` or `rule`), `reviewed_by`, `taxonomy_version`, `label`,
+`recent_user_request`, and `prior_actions`. Its `source_sha256` is SHA-256 over UTF-8 JSON with sorted
+keys, compact separators, and no trailing newline. The candidate file references that ID and digest;
+the composer loads the separate seed file, recomputes the digest, and rejects disagreement.
+
+Every candidate also contains unique `record_id`, `split: train`, `generated: true`, `kind`,
+`generator`, and `config_sha256`. Output is a **generated-only** trainer JSONL plus a manifest that
+binds every emitted row hash to its seed/candidate identities. Real rows are not mixed here. Phase 3
+may assemble a training arm only with trainer validation splitting disabled (`--val-split 0`) and a
+separately supplied real evaluation artifact whose source IDs/hashes pass the forbidden manifest.
+
+Canonical request normalization is Unicode-preserving whitespace collapse, identical to
+`serialize._clean`; its SHA-256 is the duplicate key. Duplicate keys are rejected across all
+candidates and optional real-source keys. Sorting is by `record_id`, so reversed input order is
+byte-identical. A digest collision between unequal canonical bytes is a hard failure.
+
+A counterfactual `pair_id` contains exactly one `baseline` and one `counterfactual`. Both records
+have byte-identical source ID/digest, prior actions, generator/config, taxonomy version, and every
+candidate field except record ID, role, expected label, request, and `controlled_change`. Replacing
+the declared nonempty `before` span exactly once in the baseline request with `after` must produce
+the counterfactual request; no other request byte may change.
+
 ## Blast radius and rollback
 
 Current-state radius is the offline Oracle corpus seam: `utils/corpus/serialize.py` writes the exact
@@ -58,22 +96,25 @@ package augmentation, trainer, hook, taxonomy, checkpoint, export, or release su
 
 Undo class is Easy: delete the new command/tests/fixtures and their plan records. Shield: outputs
 must be explicitly marked `split: train` and generated; forbidden source identities are rejected.
-Tripwire: any validation failure removes temporary output and exits before publishing either the
-JSONL or report. Model training is a later phase and stops unless a fresh real holdout exists.
+Tripwire: the command builds `training.jsonl`, `manifest.json`, and `report.json` inside a sibling
+staging directory, closes and fsyncs them, then atomically renames the one directory to a new,
+nonexistent immutable run path. Any validation/fault before that rename removes only the proven
+staging directory, leaving no final run. Model training is a later phase and stops unless a fresh
+real holdout exists.
 
 ## Phase 1: Contract and deterministic composer
 
 **Goal:** one canonical command converts validated augmentation specifications through the existing serializer.
 
-- [ ] Add a stdlib-only command under `utils/corpus/` with a versioned spec, deterministic ordering, atomic output, and actionable validation errors.
-- [ ] Require record/source identity, SHA-256 provenance, taxonomy version, expected label, augmentation kind, generator/config identity, and `train` split.
+- [ ] Add `utils/corpus/build_grounded_augmentation.py`, a stdlib-only command with the contract above, deterministic ordering, immutable atomic run-directory publication, and actionable validation errors.
+- [ ] Require a separately reviewed seed file and recompute its canonical SHA-256; require record/source identity, taxonomy version, expected label, augmentation kind, generator/config identity, and `train` split.
 - [ ] For counterfactual pairs, require exactly baseline/counterfactual roles and prove the declared before→after replacement is the only request-field change.
 - [ ] Reuse `serialize.to_finetune_row`; do not create another query or trainer-row serializer.
 
 ### Phase 1 — QA checklist
 
-- [ ] Empty, unknown-label, non-training, duplicate-identity, incomplete-pair, and ungrounded rows fail before output exists.
-- [ ] A deliberate serializer bypass in the test is observed red.
+- [ ] `test_empty_input_refuses_without_run`, `test_generated_validation_split_refuses`, `test_seed_byte_drift_refuses`, `test_counterfactual_pair_invariants`, and duplicate/identity tests assert the exact error and absence of a final run.
+- [ ] The valid fixture asserts nonzero input/output counts before hashes/distributions; monkeypatching `serialize.to_finetune_row` to a noncanonical row makes the contract test fail before restoration.
 - [ ] No issue #25-owned audit or manifest file changes.
 
 ## Phase 2: Fixtures, red controls, and readiness report
@@ -81,14 +122,15 @@ JSONL or report. Model training is a later phase and stops unless a fresh real h
 **Goal:** de-identified fixtures demonstrate every supported augmentation kind and a privacy-safe aggregate receipt.
 
 - [ ] Add fixtures for paraphrase, controlled counterfactual, negation/quotation, mixed event, and abstention.
-- [ ] Reject exact/normalized duplicate requests and identities present in an optional forbidden-source manifest.
+- [ ] Reject exact/normalized duplicate requests across candidates and optional real-source request keys, duplicate record/source identities where forbidden, unequal bytes with the same digest, and identities present in an optional forbidden-source manifest.
 - [ ] Emit only counts, hashes, label/kind distributions, pair completeness, and exclusions; never source text, commands, paths, sessions, or repo identity.
 - [ ] Run focused tests, the non-slow suite, and PDDA checks; retain witnessed red then green evidence in the PR.
 
 ### Phase 2 — QA checklist
 
-- [ ] Unchanged input/config produces byte-identical JSONL and report.
+- [ ] Unchanged input/config and reversed candidate ordering produce byte-identical JSONL, manifest, and report.
 - [ ] Every new gate has a witnessed failing control.
+- [ ] A fault injected after staging but before the directory rename leaves no final run.
 - [ ] `pytest -q -m "not slow"` and `utils/pdda/pdda.sh run` pass.
 - [ ] Status and changelog reflect the measured result, not predicted model benefit.
 
@@ -96,10 +138,11 @@ JSONL or report. Model training is a later phase and stops unless a fresh real h
 
 **Goal:** decide on an untouched real holdout whether augmentation improves thin labels without broad regression.
 
+- [ ] Before any training, add and review an experiment addendum freezing minimum real-holdout size, label/session/repository/time allocation, commands, primary metric, uncertainty method, improvement and regression thresholds, and stop rule.
 - [ ] Wait for mapper-qualified seeds and a new independently labelled real holdout that is disjoint from issue #25 evidence.
 - [ ] Freeze real-only, real+paraphrase, and real+targeted-counterfactual arms with identical model, seed, compute, and holdout.
 - [ ] Report macro-F1, per-label recall, governance accuracy, abstention precision/recall, calibration, and common-label regressions.
-- [ ] Advance only if thin-label gains are material on real data without material broad degradation; otherwise retain the negative result and stop.
+- [ ] Apply only the preregistered addendum thresholds; otherwise retain the negative or inconclusive result and stop.
 
 ### Phase 3 — QA checklist
 
@@ -107,4 +150,3 @@ JSONL or report. Model training is a later phase and stops unless a fresh real h
 - [ ] The generating model does not grade its own examples.
 - [ ] Exact commands, configs, hashes, raw model outputs, and provenance are retained.
 - [ ] No runtime deployment or automatic-action authority is inferred from an experimental gain.
-
