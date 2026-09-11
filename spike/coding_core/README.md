@@ -44,3 +44,15 @@ adapter reached 27% top-1 accuracy, versus 26% for the majority baseline and 37%
 Because the adapter did not beat the strongest cheap baseline, this arm does not proceed to
 synthetic balancing, a larger training run, private-corpus evaluation, or one-enum serving. See
 `TESTS-RESULTS/2026-09-11-coding-core-pilot/SUMMARY.md` for the aggregate receipt and limitations.
+
+## State/transition pivot (2026-09-11)
+
+A fixed phase-aware backoff classifier reached the 42% development gate, five points above
+Markov-1, without training a model. It conditions on the last action, whether an edit occurred
+before that action, and the penultimate action, then backs off to Markov-1. Raw issue-text features
+were excluded because only 11 distinct training instances repeat across 500 rows, making task-text
+memorization a larger risk than useful signal. This promotion result authorizes one frozen,
+session-separated private evaluation; it is not itself a product-efficacy claim. That private check
+subsequently failed: phase-backoff scored 25.23% against 28.78% Markov-1 and 43.52% repeat-last over
+23,442 eligible actions from 63 sessions. The classifier arm is stopped; action persistence is the
+only candidate signal that transferred.

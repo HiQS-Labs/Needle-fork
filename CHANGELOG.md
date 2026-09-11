@@ -17,6 +17,26 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 - Verification: 13 focused tests passed; the full non-slow suite passed with 195 tests, 6 skipped,
   and 6 deselected.
 
+### Coding-core pivot promoted a phase-aware transition classifier
+
+- Extended the existing baseline evaluator with one standard-library phase-aware backoff candidate;
+  no model, dependency, taxonomy, or serving surface changed.
+- Frozen development gate: at least 42% top-1, five points above the existing 37% Markov-1 result.
+  The candidate scored exactly 42/100 and therefore advances only to one disjoint private check.
+- Higher-order transition history alone scored 37%, 37%, 37%, 32%, 31%, and 30% for maximum orders
+  1–6, so sequence depth was rejected. Raw issue-text learning was also rejected because the 500
+  rows contain only 11 repeated training-instance requests.
+- The CLI receipt now carries train/holdout hashes and exits nonzero when the frozen gate fails. A
+  43% red control exited 1 before the restored 42% gate passed.
+- Added a fail-closed projection of the private canonical Oracle pairs into the six-label view. On
+  23,442 eligible actions from 63 held-out sessions, the frozen classifier scored 25.23%, missing
+  its 33.78% gate and trailing Markov-1 at 28.78%; repeat-last scored 43.52%. The classifier arm is
+  stopped. This identifies action persistence—not transferred OpenHands transitions—as the next
+  smallest product hypothesis.
+- Verification: 16 focused tests and the full non-slow suite passed (198 passed, 6 skipped,
+  6 deselected); Python compilation and `git diff --check` passed. The private projection test was
+  also witnessed red by deliberately misprojecting `run_tests`, then restored green.
+
 ## 2026-09-07
 
 ### Phase 2 §3 — `query` serialization is one shared function; token budget forces `--max-len 2048`

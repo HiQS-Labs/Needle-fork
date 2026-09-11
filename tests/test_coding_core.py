@@ -83,8 +83,10 @@ def test_unsupported_call_breaks_sequence():
 
 
 def test_baselines_are_fit_on_train_with_lexical_ties():
-    train = [("read", "edit"), ("edit", "read"), ("read", "edit"), ("git", "read")]
-    holdout = [("read", "edit"), ("edit", "edit"), ("unknown", "edit")]
+    train = [("task", ("read",), "edit"), ("task", ("edit",), "read"),
+             ("task", ("read",), "edit"), ("task", ("git",), "read")]
+    holdout = [("other", ("read",), "edit"), ("other", ("edit",), "edit"),
+               ("other", ("unknown",), "edit")]
     got = baselines.evaluate(train, holdout)
     assert got["majority_label"] == "edit"
     assert got["metrics"]["majority"]["correct"] == 3
@@ -92,11 +94,56 @@ def test_baselines_are_fit_on_train_with_lexical_ties():
     assert got["metrics"]["markov_1"]["correct"] == 2
 
 
+def test_baseline_loader_uses_only_issue_and_prior_actions(tmp_path):
+    path = tmp_path / "row.jsonl"
+    path.write_text(json.dumps({
+        "query": "[coding-core-q1]\nISSUE: fix tests\n"
+                 "RECENT ACTIONS (oldest->newest): read, edit\nLAST: edit",
+        "answers": [{"name": "run_tests"}],
+        "reasoning": "SECRET_TARGET_LEAK",
+    }) + "\n")
+    assert baselines.load(path) == [("fix tests", ("read", "edit"), "run_tests")]
+
+
+def test_phase_backoff_uses_prior_edit_and_backs_off():
+    train = [
+        ("a", ("read", "edit", "read"), "run_tests"),
+        ("b", ("search", "edit", "read"), "run_tests"),
+        ("c", ("read",), "search"),
+        ("d", ("read",), "search"),
+        ("e", ("search",), "search"),
+    ]
+    holdout = [
+        ("unseen", ("edit", "read"), "run_tests"),
+        ("unseen", ("unknown",), "search"),
+    ]
+    got = baselines.evaluate(train, holdout)
+    assert got["metrics"]["phase_backoff"]["correct"] == 2
+    assert got["promotion"]["gate_accuracy_pct"] == 42.0
+
+
 def test_baseline_loader_rejects_empty(tmp_path):
     path = tmp_path / "empty.jsonl"
     path.write_text("")
     with pytest.raises(ValueError, match="no examples"):
         baselines.load(path)
+
+
+def test_private_oracle_projection_breaks_at_control_actions(tmp_path):
+    path = tmp_path / "pairs.jsonl"
+    material = [
+        {"split": "train", "session": "ignored", "recent_user_request": "x",
+         "prior_actions": ["read_file"], "label": "apply_patch"},
+        {"split": "holdout", "session": "s1", "recent_user_request": "fix",
+         "prior_actions": ["read_file", "ask_user", "search_code", "apply_patch"],
+         "label": "run_tests"},
+        {"split": "holdout", "session": "s1", "recent_user_request": "fix",
+         "prior_actions": ["read_file"], "label": "no_action"},
+    ]
+    path.write_text("".join(json.dumps(row) + "\n" for row in material))
+    rows, sessions = baselines.load_oracle_pairs(path)
+    assert rows == [("fix", ("search", "edit"), "run_tests")]
+    assert sessions == 1
 
 
 def test_prepare_failure_leaves_no_partial_output(tmp_path):
