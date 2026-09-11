@@ -1,0 +1,347 @@
+{
+  "actions": 5227,
+  "alias_coverage": 0.998852,
+  "aliased_actions": 5221,
+  "audit_format_version": "agent-label-coverage-v1",
+  "canonical_tools": {
+    "<unaliased>": 6,
+    "Bash": 2915,
+    "Edit": 873,
+    "Glob": 123,
+    "Grep": 80,
+    "Read": 1098,
+    "TodoWrite": 123,
+    "Write": 9
+  },
+  "distinct_mapped_labels": 5,
+  "eligible_pairs": 4741,
+  "event_format_version": "normalized-agent-transcript-v1",
+  "input_shapes": [
+    {
+      "count": 2915,
+      "keys": [
+        "CommandLine",
+        "Cwd",
+        "WaitMsBeforeAsync",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "run_command"
+    },
+    {
+      "count": 910,
+      "keys": [
+        "AbsolutePath",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "view_file"
+    },
+    {
+      "count": 836,
+      "keys": [
+        "AllowMultiple",
+        "Description",
+        "EndLine",
+        "Instruction",
+        "ReplacementContent",
+        "StartLine",
+        "TargetContent",
+        "TargetFile",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "replace_file_content"
+    },
+    {
+      "count": 162,
+      "keys": [
+        "AbsolutePath",
+        "EndLine",
+        "StartLine",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "view_file"
+    },
+    {
+      "count": 122,
+      "keys": [
+        "Action",
+        "TaskId",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "manage_task"
+    },
+    {
+      "count": 72,
+      "keys": [
+        "DirectoryPath",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "list_dir"
+    },
+    {
+      "count": 50,
+      "keys": [
+        "Pattern",
+        "SearchDirectory",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "find_by_name"
+    },
+    {
+      "count": 31,
+      "keys": [
+        "AllowMultiple",
+        "Description",
+        "EndLine",
+        "Instruction",
+        "ReplacementContent",
+        "StartLine",
+        "TargetContent",
+        "TargetFile",
+        "TargetLintErrorIds",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "replace_file_content"
+    },
+    {
+      "count": 29,
+      "keys": [
+        "MatchPerLine",
+        "Query",
+        "SearchPath",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "grep_search"
+    },
+    {
+      "count": 19,
+      "keys": [
+        "AbsolutePath",
+        "StartLine",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "view_file"
+    },
+    {
+      "count": 19,
+      "keys": [
+        "CaseInsensitive",
+        "IsRegex",
+        "MatchPerLine",
+        "Query",
+        "SearchPath",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "grep_search"
+    },
+    {
+      "count": 18,
+      "keys": [
+        "Query",
+        "SearchPath",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "grep_search"
+    },
+    {
+      "count": 8,
+      "keys": [
+        "CodeContent",
+        "Description",
+        "Overwrite",
+        "TargetFile",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "write_to_file"
+    },
+    {
+      "count": 6,
+      "keys": [
+        "AllowMultiple",
+        "Description",
+        "EndLine",
+        "Instruction",
+        "ReplacementContent",
+        "StartLine",
+        "TargetContent",
+        "TargetFile"
+      ],
+      "source_tool": "replace_file_content"
+    },
+    {
+      "count": 5,
+      "keys": [
+        "Includes",
+        "IsRegex",
+        "MatchPerLine",
+        "Query",
+        "SearchPath",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "grep_search"
+    },
+    {
+      "count": 5,
+      "keys": [
+        "DurationSeconds",
+        "Prompt",
+        "TimerCondition",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "schedule"
+    },
+    {
+      "count": 5,
+      "keys": [
+        "AbsolutePath",
+        "ContentOffset",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "view_file"
+    },
+    {
+      "count": 4,
+      "keys": [
+        "Includes",
+        "MatchPerLine",
+        "Query",
+        "SearchPath",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "grep_search"
+    },
+    {
+      "count": 2,
+      "keys": [
+        "AbsolutePath",
+        "ContentOffset",
+        "EndLine",
+        "StartLine",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "view_file"
+    },
+    {
+      "count": 2,
+      "keys": [
+        "CaseInsensitive",
+        "Includes",
+        "IsRegex",
+        "MatchPerLine",
+        "Query",
+        "SearchPath",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "grep_search"
+    },
+    {
+      "count": 1,
+      "keys": [
+        "Includes",
+        "Query",
+        "SearchPath",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "grep_search"
+    },
+    {
+      "count": 1,
+      "keys": [
+        "IsRegex",
+        "Query",
+        "SearchPath",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "grep_search"
+    },
+    {
+      "count": 1,
+      "keys": [
+        "IsRegex",
+        "MatchPerLine",
+        "Query",
+        "SearchPath",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "grep_search"
+    },
+    {
+      "count": 1,
+      "keys": [
+        "Arguments",
+        "ServerName",
+        "ToolName",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "call_mcp_tool"
+    },
+    {
+      "count": 1,
+      "keys": [
+        "ArtifactMetadata",
+        "CodeContent",
+        "Description",
+        "Overwrite",
+        "TargetFile",
+        "toolAction",
+        "toolSummary"
+      ],
+      "source_tool": "write_to_file"
+    }
+  ],
+  "input_shapes_omitted": 2,
+  "input_shapes_omitted_actions": 2,
+  "input_shapes_total": 27,
+  "inventory_digest": "18d46c7b5229c339b23d02ab0c9b510a7b3b4e9b3b684c6667bba838bddee8fd",
+  "label_set_version": "v1.0.0",
+  "labels": {
+    "apply_patch": 882,
+    "find_files": 123,
+    "read_file": 1098,
+    "search_code": 80,
+    "track_todo": 123,
+    "unmapped": 2921
+  },
+  "mapped_actions": 2306,
+  "mapping_coverage": 0.441171,
+  "rejections": {},
+  "sessions_accepted": 501,
+  "sessions_rejected": 0,
+  "source": "agy_cli",
+  "source_namespace": "studio-agy-cli",
+  "source_tools": {
+    "call_mcp_tool": 1,
+    "find_by_name": 51,
+    "grep_search": 80,
+    "list_dir": 72,
+    "manage_task": 123,
+    "replace_file_content": 873,
+    "run_command": 2915,
+    "schedule": 5,
+    "view_file": 1098,
+    "write_to_file": 9
+  },
+  "tool_alias_version": "agent-tool-alias-v1"
+}

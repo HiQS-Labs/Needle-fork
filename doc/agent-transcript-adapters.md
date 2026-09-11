@@ -45,6 +45,26 @@ session ID. `NormalizedStep` is either a non-empty user message or an action wit
 An alias does not establish label correctness. Before these events enter a corpus, each agent needs
 its own blind mapping audit and source-separated transfer evaluation.
 
+## Mechanical label-coverage audit
+
+Run `audit_agent_label_coverage.py` separately for each source. It applies only the adapter's exact
+tool alias and then calls the unchanged `v1.0.0` taxonomy mapper:
+
+```bash
+python3 utils/corpus/audit_agent_label_coverage.py \
+  --source zcode --root /private/source/root --namespace studio-zcode \
+  --out data/agent-audit/zcode.json
+```
+
+Valid source names are `codex`, `agy_desktop`, `agy_cli`, and `zcode`. The output contains aggregate
+counts, tool and label distributions, input field-name shapes, format versions, and a source-state
+digest. It never writes argument values, prompt text, source paths, or native identities. A source
+with zero actions, duplicate normalized sessions, incomplete accounting, or a source-wide ZCode
+parse error exits nonzero rather than producing a partial passing result.
+
+Mapping coverage is only a schema-compatibility measurement. It does not show that the assigned
+labels are semantically right; that requires a separate blind human review before training use.
+
 ## Failure behavior and privacy
 
 Malformed JSON, ambiguous session identity, conflicting Agy steps, invalid tool inputs, and duplicate
