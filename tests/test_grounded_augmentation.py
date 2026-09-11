@@ -79,6 +79,15 @@ def test_counterfactual_pair_invariants(tmp_path):
         grounded.compose(seeds, candidates, tmp_path / "out", "run")
 
 
+def test_counterfactual_extra_field_drift_refuses(tmp_path):
+    seeds, candidates, rows = _inputs(tmp_path)
+    rows[0]["undeclared"] = "drift"
+    candidates.write_text("".join(json.dumps(r) + "\n" for r in rows))
+    with pytest.raises(grounded.ContractError, match="undeclared field drift"):
+        grounded.compose(seeds, candidates, tmp_path / "out", "run")
+    assert not (tmp_path / "out/run").exists()
+
+
 def test_duplicate_normalized_request_refuses(tmp_path):
     seeds, candidates, rows = _inputs(tmp_path)
     duplicate = dict(rows[2], record_id="duplicate", recent_user_request="Thank   you, no more work.\n")
@@ -114,3 +123,11 @@ def test_canonical_serializer_is_called(monkeypatch, tmp_path):
     monkeypatch.setattr(grounded.serialize, "to_finetune_row", observed)
     grounded.compose(seeds, candidates, tmp_path / "out", "run")
     assert calls == sorted(r["record_id"] for r in rows)
+
+
+def test_noncanonical_serializer_output_refuses(monkeypatch, tmp_path):
+    seeds, candidates, _ = _inputs(tmp_path)
+    monkeypatch.setattr(grounded.serialize, "to_finetune_row", lambda pair, schemas: {"query": "wrong"})
+    with pytest.raises(grounded.ContractError, match="invalid trainer row"):
+        grounded.compose(seeds, candidates, tmp_path / "out", "run")
+    assert not (tmp_path / "out/run").exists()

@@ -69,6 +69,11 @@ def compose(seeds_path: Path, candidates_path: Path, output_parent: Path, run_id
     digest_bytes: dict[str, bytes] = {}
     for seed in seeds:
         _require(set(seed) == SEED_FIELDS, "seed fields do not match the v1 contract")
+        _require(all(isinstance(seed[k], str) and seed[k] for k in
+                     ("source_id", "source_kind", "reviewed_by", "taxonomy_version", "label")),
+                 "seed identity fields must be nonempty strings")
+        _require(isinstance(seed["recent_user_request"], str) and
+                 isinstance(seed["prior_actions"], list), "seed content has invalid types")
         _require(seed["source_kind"] in {"human", "rule"}, "invalid source_kind")
         _require(bool(seed["reviewed_by"]), "reviewed_by is required")
         sid, raw, sha = seed["source_id"], canonical_bytes(seed), digest(seed)
@@ -81,7 +86,12 @@ def compose(seeds_path: Path, candidates_path: Path, output_parent: Path, run_id
     forbidden: set[str] = set()
     if forbidden_path:
         doc = json.loads(forbidden_path.read_text(encoding="utf-8"))
-        forbidden = set(doc.get("source_ids", [])) | set(doc.get("source_sha256", []))
+        _require(isinstance(doc, dict), "forbidden manifest must be an object")
+        ids, hashes = doc.get("source_ids", []), doc.get("source_sha256", [])
+        _require(isinstance(ids, list) and isinstance(hashes, list) and
+                 all(isinstance(v, str) and v for v in ids + hashes),
+                 "forbidden identities must be nonempty string lists")
+        forbidden = set(ids) | set(hashes)
 
     seen_records: set[str] = set()
     seen_requests: set[str] = set()
@@ -91,6 +101,11 @@ def compose(seeds_path: Path, candidates_path: Path, output_parent: Path, run_id
         for key in ("record_id", "source_id", "source_sha256", "split", "generated", "kind",
                     "generator", "config_sha256", "recent_user_request", "prior_actions", "label"):
             _require(key in row, f"candidate missing {key}")
+        _require(all(isinstance(row[k], str) and row[k] for k in
+                     ("record_id", "source_id", "source_sha256", "split", "kind", "generator",
+                      "config_sha256", "taxonomy_version", "recent_user_request", "label")),
+                 "candidate identity/content fields must be nonempty strings")
+        _require(isinstance(row["prior_actions"], list), "candidate prior_actions must be a list")
         _require(row["record_id"] not in seen_records, f"duplicate record_id: {row['record_id']}")
         seen_records.add(row["record_id"])
         _require(row["split"] == "train" and row["generated"] is True,
@@ -121,9 +136,10 @@ def compose(seeds_path: Path, candidates_path: Path, output_parent: Path, run_id
         change = before.get("controlled_change")
         _require(change == after.get("controlled_change") and isinstance(change, dict),
                  f"controlled_change mismatch: {pair_id}")
-        for field in ("source_id", "source_sha256", "prior_actions", "generator", "config_sha256",
-                      "taxonomy_version"):
-            _require(before[field] == after[field], f"counterfactual {field} drift: {pair_id}")
+        exceptions = {"record_id", "pair_role", "label", "recent_user_request", "controlled_change"}
+        _require({k: v for k, v in before.items() if k not in exceptions} ==
+                 {k: v for k, v in after.items() if k not in exceptions},
+                 f"counterfactual undeclared field drift: {pair_id}")
         old, new = change.get("before", ""), change.get("after", "")
         _require(bool(old) and before["recent_user_request"].count(old) == 1,
                  f"controlled before span must occur exactly once: {pair_id}")
@@ -133,6 +149,9 @@ def compose(seeds_path: Path, candidates_path: Path, output_parent: Path, run_id
     schemas = serialize.load_schemas()
     normalized.sort(key=lambda r: r["record_id"])
     trainer_rows = [serialize.to_finetune_row(r, schemas) for r in normalized]
+    expected_row_fields = {"query", "tools", "answers", "reasoning", "system"}
+    _require(all(isinstance(row, dict) and set(row) == expected_row_fields for row in trainer_rows),
+             "canonical serializer returned an invalid trainer row")
     manifest_rows = [{"record_id": r["record_id"], "source_id": r["source_id"],
                       "source_sha256": r["source_sha256"], "row_sha256": digest(out),
                       "split": "train", "generated": True}
