@@ -11,6 +11,7 @@ CORPUS = os.path.join(os.path.dirname(os.path.dirname(__file__)), "utils", "corp
 sys.path.insert(0, CORPUS)
 
 import sample_agent_label_audit as sample  # noqa: E402
+import score_audit as scorer  # noqa: E402
 from normalized_transcript import (  # noqa: E402
     EVENT_FORMAT_VERSION, TOOL_ALIAS_VERSION, NormalizedStep,
     NormalizedTranscript,
@@ -61,6 +62,27 @@ def test_draw_is_deterministic_blind_and_conserves_rows(monkeypatch):
     assert "PRIVATE_PATH" not in json.dumps(plan)
     assert "private-session" not in json.dumps(first)
     assert "native-1" not in json.dumps(first)
+
+
+def test_draw_is_accepted_by_existing_fail_closed_scorer(monkeypatch, tmp_path):
+    transcript = _transcript()
+    monkeypatch.setattr(
+        sample.coverage, "read_independent",
+        lambda *_args: iter([(transcript, None, None)]))
+    plan, blinded, truth = sample.build_draw(
+        "zcode", object(), "fixture-zcode", 2, 1, 37)
+    audit_dir = tmp_path / "audit"
+    audit_dir.mkdir()
+    (audit_dir / "plan.json").write_text(json.dumps(plan))
+    (audit_dir / "sample.jsonl").write_text(sample._jsonl(blinded))
+    (audit_dir / "sorter.jsonl").write_text(sample._jsonl(truth))
+
+    loaded_plan = scorer.load_plan(str(audit_dir / "plan.json"))
+    loaded_sample = scorer.load_jsonl(str(audit_dir / "sample.jsonl"))
+    loaded_sorter = scorer.load_and_validate_sorter(
+        str(audit_dir), loaded_plan, set(loaded_sample))
+
+    assert len(loaded_sorter) == 2
 
 
 def test_pool_rejects_duplicate_event_identity(monkeypatch):

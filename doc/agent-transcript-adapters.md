@@ -82,6 +82,9 @@ python3 utils/corpus/sample_agent_label_audit.py \
 The output directory must be new and below a directory named `data`; all three files stay private
 until review is complete. Only aggregate plan or scored-result fields may be promoted after a
 privacy scan. The sample contains no sorter labels, and the sorter file contains no tool arguments.
+The generated plan and sorter use the existing `score_audit.py` contract, so two complete blind
+audits and disagreement-only adjudication are checked and scored by the same fail-closed path as the
+Claude label audit.
 
 ## Failure behavior and privacy
 

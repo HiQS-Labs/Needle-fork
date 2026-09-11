@@ -81,7 +81,9 @@ def build_draw(source: str, root: Path, namespace: str, target: int,
     allocation = sampler.allocate(population, target, floor)
     sample, truth = sampler.draw(pool, allocation, seed)
     plan = {
+        "audit_format_version": 2,
         "sample_format_version": SAMPLE_FORMAT_VERSION,
+        "sampling_design": sampler.SAMPLING_DESIGN,
         "source": source,
         "source_namespace": namespace,
         "label_set_version": tx.LABEL_SET_VERSION,
