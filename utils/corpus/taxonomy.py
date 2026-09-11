@@ -798,6 +798,10 @@ def label_bash(cmd: str) -> tuple[str, str]:
     for index, seg in enumerate(raw_segments[:-1]):
         if leading_program(seg) != "sleep":
             continue
+        # Waiting can refine an otherwise unlabeled prefix, but it must not erase
+        # a substantive action that already happened in this command.
+        if any(label_segment(item) is not None for item in raw_segments[:index]):
+            continue
         tail = raw_segments[index + 1:]
         labels = [label_segment(item) for item in tail]
         allowed = {"read_file", "search_code", "sys_inspect"}

@@ -108,6 +108,7 @@ def test_governance_invocations(cmd, expected):
     ("sleep 2", "sys_inspect"),
     ("cat before.log; sleep 1; echo done", "read_file"),
     ("sleep 1 && git commit -am checkpoint && cat status.log", "commit_changes"),
+    ("git commit -am checkpoint && sleep 1 && cat status.log", "commit_changes"),
 ])
 def test_zcode_source_grounded_command_shapes(cmd, expected):
     assert tx.label_bash(cmd)[0] == expected
