@@ -95,3 +95,27 @@ def test_no_change_rows_cannot_pass_and_receipt_has_no_identifiers():
         b.evaluate_private(fixture(), [("private-session", ("read",), "read")])
     report = b.evaluate_private(fixture(), [("private-session", ("read",), "edit")])
     assert "private-session" not in json.dumps(report)
+
+
+def test_cli_manifest_guard_runs_before_fit(tmp_path, monkeypatch):
+    source = write_pairs(tmp_path, [pair(), pair(session="b", split="holdout", request="other")])
+    out = tmp_path / "receipt.json"
+    monkeypatch.setattr("sys.argv", ["baselines", "--private-pairs", str(source), "--out", str(out)])
+    monkeypatch.setattr(b, "fit", lambda _: pytest.fail("must not fit wrong manifest"))
+    with pytest.raises(ValueError, match="fixed evaluation manifest mismatch"):
+        b.main()
+    assert not out.exists()
+
+
+def test_cli_refuses_existing_receipt_before_reading_input(tmp_path, monkeypatch):
+    out = tmp_path / "receipt.json"
+    out.write_text("preserve")
+    monkeypatch.setattr("sys.argv", ["baselines", "--private-pairs", "absent.jsonl", "--out", str(out)])
+    with pytest.raises(SystemExit, match="refusing to overwrite"):
+        b.main()
+    assert out.read_text() == "preserve"
+
+
+def test_empty_conditional_terminal_fails():
+    with pytest.raises(ValueError, match="empty action-change destination fallback"):
+        b.predict(b.fit([("a", ("read",), "read")]), ("read",), True)

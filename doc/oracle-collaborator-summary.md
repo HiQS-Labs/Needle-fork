@@ -4,7 +4,7 @@
 
 We’re exploring whether a tiny local model can suggest useful next steps during software work, including testing, Git actions, and project governance, cheaply enough to run alongside a larger coding assistant. We have built and exercised the training/export pipeline, assembled private activity traces, and tested both model-based and simple statistical predictors. The engineering path works, but useful recommendations remain unproven: label noise, a mismatch between training and native serving, and poor transfer from public coding-agent data have limited results.
 
-Our next step is one small test using our own training sessions: can two existing lightweight predictors beat “repeat the last action” and predict where genuine action changes lead? Passing earns the design of a prospective user-facing experiment; failure stops investment in these two predictors at this six-action representation. We welcome collaborators who can help assess recommendation usefulness, improve independently reviewed examples, or challenge the evaluation design. No human acceptance rate has been established.
+The private-trained follow-up has now run: phase-backoff scored 45.73% overall versus 43.52% for repeat-last, but missed the agreed overall and conditional-destination gates. We are stopping these two predictors at this six-action representation. We welcome collaborators who can help choose a narrower, directly valuable assistance task and judge its usefulness before more model investment. No human acceptance rate has been established.
 
 ## The story and evidence
 
@@ -17,7 +17,15 @@ Our next step is one small test using our own training sessions: can two existin
 | Work-purpose classification, a separate side experiment | Frozen ModernBERT features reached 57.5% purpose accuracy on 40 records versus 50% TF-IDF and 42.5% majority; TF-IDF had better purpose macro-F1. Area classification and rejection policies remained inadequate. | Limited signal, no deployment qualification; this is classification of work, not prediction of the next action. [#31](https://github.com/HiQS-Labs/Needle-fork/issues/31). |
 | External data and targeted augmentation | TAWOS did not cover the full eight-purpose taxonomy. A separate PR implements grounded, training-only augmentation tooling, with no measured model gain yet. | Volume alone does not solve domain and label mismatch. [#35](https://github.com/HiQS-Labs/Needle-fork/issues/35), [#41](https://github.com/HiQS-Labs/Needle-fork/issues/41), [PR #43](https://github.com/HiQS-Labs/Needle-fork/pull/43). |
 
-## Next milestone — agreed, not yet run
+## Private-trained milestone — completed, gates failed
+
+Fitted on 45,127 actions / 296 sessions and evaluated once on the existing 23,442 actions / 63
+sessions. Phase-backoff reached 45.7256% overall (required 48.5244%) and 40.8112% conditional
+destination accuracy (required 40.8634%). Markov-1 reached 43.5244% and 37.9711%. Neither passed.
+Ordinary phase predictions on change rows were correct 14.0645% of the time. The decision is stop,
+not a rounded-up pass or further tuning. [Full receipt](../TESTS-RESULTS/2026-09-11-private-transitions/SUMMARY.md).
+
+The predeclared protocol below is retained as history, not instructions for another run:
 
 1. Fit unchanged first-order and phase-aware transition predictors on the private training partition, proving session separation from evaluation.
 2. Score once on the existing 63-session evaluation partition. The same model family must beat repeat-last by five percentage points overall (approximately 48.52%) and a training-derived destination baseline by ten points on action-change rows when the previous action is excluded.
@@ -32,4 +40,4 @@ Budget: standard-library tooling, one engineer-hour, no feature search. The eval
 - Needle implementation and experiment history: [Needle-fork #1](https://github.com/HiQS-Labs/Needle-fork/issues/1).
 - Supporting investigation log: [FINDINGS.md](../FINDINGS.md); measurements live in dated `TESTS-RESULTS/` receipts and linked issues.
 
-Status checked 2026-09-11. Experimental code and receipts in PR #42 are on its branch; they are not all present on `main`. The final next-milestone interpretation incorporates the completed Astra/Fable discussion #743999.
+Status updated 2026-09-11 after the private-trained round in PR #48. Experimental code and receipts in PR #42 remain on its branch; they are not all present on `main`. The protocol incorporated the completed Astra/Fable discussion #743999; its measured outcome now stops these two models. PR #43 is still on an explicit operator testing hold.

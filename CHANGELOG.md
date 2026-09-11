@@ -5,13 +5,16 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-11
 
-### Private-trained transition comparison started (#1)
+### Private-trained transition comparison completed (#1, #48)
 
 Selected the frozen standard-library predictor from #42 into a focused main-based experiment,
 adding private split checks, explicit conditional destination scoring and per-family dual gates.
 No MLX/runtime/taxonomy or #43 changes. Private input and consult details remain ignored;
-only sanitized pooled results will be published. Ordinary predictions match the frozen evaluator
+only sanitized pooled results are published. Ordinary predictions match the frozen evaluator
 on 6,192 synthetic comparisons; same-family and session-overlap negative controls were witnessed.
+One frozen run: phase-backoff 45.7256% overall versus 43.5244% repeat-last and 40.8112% conditional
+destinations versus 30.8634% baseline. Required +5/+10-point margins were both missed; stop this
+round without tuning or serving. README, collaborator briefing, FINDINGS and #1 record the outcome.
 
 ### Integration queue closed; deferred work retained
 

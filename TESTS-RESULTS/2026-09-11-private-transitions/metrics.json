@@ -1,0 +1,125 @@
+{
+  "overall": {
+    "majority": {
+      "rows": 23442,
+      "correct": 6807,
+      "accuracy_pct": 29.037624776043
+    },
+    "repeat_last": {
+      "rows": 23442,
+      "correct": 10203,
+      "accuracy_pct": 43.524443306885075
+    },
+    "markov_1": {
+      "rows": 23442,
+      "correct": 10203,
+      "accuracy_pct": 43.524443306885075
+    },
+    "phase_backoff": {
+      "rows": 23442,
+      "correct": 10719,
+      "accuracy_pct": 45.72562068082928
+    }
+  },
+  "change_ordinary": {
+    "majority": {
+      "rows": 13239,
+      "correct": 3376,
+      "accuracy_pct": 25.50041543923257
+    },
+    "repeat_last": {
+      "rows": 13239,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    "markov_1": {
+      "rows": 13239,
+      "correct": 0,
+      "accuracy_pct": 0.0
+    },
+    "phase_backoff": {
+      "rows": 13239,
+      "correct": 1862,
+      "accuracy_pct": 14.064506382657301
+    }
+  },
+  "change_excluded": {
+    "destination_baseline": {
+      "rows": 13239,
+      "correct": 4086,
+      "accuracy_pct": 30.86335825968729
+    },
+    "markov_1": {
+      "rows": 13239,
+      "correct": 5027,
+      "accuracy_pct": 37.97114585693784
+    },
+    "phase_backoff": {
+      "rows": 13239,
+      "correct": 5403,
+      "accuracy_pct": 40.81123951960118
+    }
+  },
+  "promotion": {
+    "families": {
+      "markov_1": {
+        "overall_margin_pp": 0.0,
+        "destination_margin_pp": 7.1077875972505495,
+        "overall_passed": false,
+        "destination_passed": false,
+        "passed": false
+      },
+      "phase_backoff": {
+        "overall_margin_pp": 2.201177373944205,
+        "destination_margin_pp": 9.947881259913892,
+        "overall_passed": false,
+        "destination_passed": false,
+        "passed": false
+      }
+    },
+    "passed": false,
+    "decision": "stop"
+  },
+  "train_rows": 45127,
+  "train_label_counts": {
+    "edit": 5035,
+    "git": 9161,
+    "search": 7987,
+    "read": 8378,
+    "run_command": 13129,
+    "run_tests": 1437
+  },
+  "holdout_label_counts": {
+    "run_command": 6807,
+    "read": 3678,
+    "git": 5748,
+    "search": 4034,
+    "edit": 2549,
+    "run_tests": 626
+  },
+  "audit": {
+    "raw_rows": {
+      "train": 48744,
+      "holdout": 25684
+    },
+    "raw_sessions": {
+      "train": 296,
+      "holdout": 63
+    },
+    "sessions": {
+      "train": 296,
+      "holdout": 63
+    },
+    "eligible_before_filter": {
+      "train": 45128,
+      "holdout": 23442
+    },
+    "excluded_train_content_overlap": 1,
+    "session_overlap": 0,
+    "duplicate_events": 0,
+    "remaining_content_overlap": 0
+  },
+  "evidence_status": "reused development evaluation; not human acceptance",
+  "code_revision": "082ca3a",
+  "runtime_seconds": 1.39
+}

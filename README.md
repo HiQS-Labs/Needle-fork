@@ -4,7 +4,7 @@
 
 We’re exploring whether a tiny local model can suggest useful next steps during software work—including testing, Git actions, and project governance—cheaply enough to run alongside a larger coding assistant. We have built and exercised the training/export pipeline, assembled private activity traces, audited their labels, and tested neural and simple statistical predictors. Useful recommendations remain unproven: label noise, a training/serving mismatch, and poor transfer from public coding-agent data have limited results.
 
-Next we will test two existing lightweight predictors trained on our own sessions against “repeat the last action,” measuring both overall accuracy and action-change destinations. Passing earns the design of a small prospective serving experiment; failure stops investment in these two predictors at this six-action representation. We welcome help assessing recommendation usefulness, reviewing examples, and challenging the evaluation. No human acceptance rate or production-ready Oracle has been established.
+Training the lightweight predictors on our own sessions improved the phase-aware model to 45.73% versus 43.52% for “repeat the last action,” but it missed the agreed improvement gates. We are stopping these two predictors at the current six-action representation, not expanding training or serving. The next useful collaboration is to choose a narrower, directly valuable assistance task and how users would judge it. No human acceptance rate or production-ready Oracle has been established.
 
 ## What we have tried and learned
 
@@ -23,14 +23,15 @@ Status: September 11, 2026. This is HiQS's experimental fork of [Cactus Compute'
 | Separate work-purpose classification | ModernBERT features scored 57.5% purpose accuracy on 40 records versus 50% TF-IDF; TF-IDF had better macro-F1. Area classification and rejection remained inadequate for deployment. | [Classification experiment #31](https://github.com/HiQS-Labs/Needle-fork/issues/31) |
 | External datasets and grounded augmentation | TAWOS lacked coverage for the full eight-purpose task. A separate open PR supplies training-only augmentation tooling; no model improvement has been measured from it. | [Data qualification #35](https://github.com/HiQS-Labs/Needle-fork/issues/35), [augmentation PR #43](https://github.com/HiQS-Labs/Needle-fork/pull/43) |
 | Independent Astra/Fable review | Reframed repeat-last as the baseline to beat and identified the untested in-domain comparison. A failed transfer experiment does not establish that private-trained models fail. | [Current synthesis on #1](https://github.com/HiQS-Labs/Needle-fork/issues/1#issuecomment-5641167454) |
+| Private-trained transition comparison | Fitted on 45,127 actions from 296 sessions. Phase-backoff scored 45.73% overall and 40.81% on conditional change destinations; required 48.52% and 40.86%. Neither family passed; this round stopped. | [Receipt](TESTS-RESULTS/2026-09-11-private-transitions/SUMMARY.md), [PR #48](https://github.com/HiQS-Labs/Needle-fork/pull/48) |
 
 ## Next milestone
 
-**Pending, not yet run.** The next experiment uses our own training sessions to test whether the failure of public-data transfer also occurs with in-domain training.
+**The agreed in-domain milestone ran and failed its gates.** Private training improved phase-backoff over public-data fitting, but not enough to qualify it. See the [result and exact counts](TESTS-RESULTS/2026-09-11-private-transitions/SUMMARY.md).
 
-Fit the unchanged Markov-1 and phase-aware predictors on private training sessions and score once on the separate 63-session evaluation partition. The same family must exceed repeat-last by five percentage points overall (approximately 48.52%) and a training-derived conditional destination baseline by ten points. Also report ordinary accuracy on action-change rows and per-session distributions.
+The frozen rule required the same family to beat repeat-last by five points overall and a training-derived conditional destination baseline by ten points. Phase-backoff improved by 2.2012 and 9.9479 points respectively; Markov-1 improved by 0 and 7.1078 points. Neither passed. Ordinary action-change accuracy was 14.06% for phase-backoff and 0% for Markov-1; detailed session distributions remain private.
 
-Both gates passing earns a prospective serving-experiment design; one passing supports considering a narrower action-run-ending question; neither passing stops investment in these two models at this representation. The evaluation partition has already informed decisions, so it is reused development evidence rather than fresh confirmation. Conditional destination accuracy assumes a switch occurred; it does not establish detecting switches live. These scores measure agreement with recorded labels, not human acceptance or whether an action was advisable.
+Per that rule, these two models stop at this representation. A different product experiment requires a new scope decision; serving is not the automatic next step. The evaluation partition is reused development evidence, not fresh confirmation. Conditional destination accuracy assumes a switch occurred; it does not establish detecting switches live. These scores measure agreement with recorded labels, not human acceptance or whether an action was advisable.
 
 The [collaborator briefing](doc/oracle-collaborator-summary.md) provides the detailed qualifications and source index. [XYZ-forge #467](https://github.com/HiQS-Labs/XYZ-forge/issues/467) owns the overall arc; [Needle-fork #1](https://github.com/HiQS-Labs/Needle-fork/issues/1) tracks this implementation. [ROADMAP.md](ROADMAP.md) points to current work and [FINDINGS.md](FINDINGS.md) preserves investigation history.
 
@@ -38,7 +39,7 @@ The [collaborator briefing](doc/oracle-collaborator-summary.md) provides the det
 
 The findings cleanup and project story (#44/#45), [branch hygiene rules (#46)](https://github.com/HiQS-Labs/Needle-fork/pull/46), [adapter build-safety guard (#8)](https://github.com/HiQS-Labs/Needle-fork/pull/8), and governance stack (#6/#10) are merged into `main`. Integration verification passed: 384 non-slow tests and 11 slow build/finetune tests; six tests were skipped. This validates the engineering changes, not Oracle recommendation usefulness.
 
-1. **Deferred experiment (previous step 3):** run the bounded private-training experiment above under issue #1 when resumed. [PR #42](https://github.com/HiQS-Labs/Needle-fork/pull/42) and its MLX base remain experimental; a whole-branch merge into `main` is not the promotion path.
+1. **Completed experiment (previous step 3):** review [PR #48](https://github.com/HiQS-Labs/Needle-fork/pull/48), which records the failed gates and focused evaluator. Decide on a different user-valued task before further model work. [PR #42](https://github.com/HiQS-Labs/Needle-fork/pull/42) and its MLX base remain parked; no whole-branch promotion.
 2. **Deferred augmentation review (previous step 4):** wait for the operator to release #43's testing hold, then review its results before any integration decision.
 
 Adapter builds with missing or full-precision training provenance now require an explicit

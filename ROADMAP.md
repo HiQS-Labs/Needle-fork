@@ -14,7 +14,7 @@
 
 | What was just completed | What's next |
 |---|---|
-| Public-trained six-action pilots completed; the Astra/Fable review identified an untested private-training comparison. | **Run the bounded in-domain baseline round described in the [current arc](doc/oracle-collaborator-summary.md#next-milestone--agreed-not-yet-run) and tracked in [#1](https://github.com/HiQS-Labs/Needle-fork/issues/1).** The stricter #25 lane remains capacity-blocked at 541/1,000 and is deferred in priority. |
+| The private-trained comparison ran; neither model passed its gates ([receipt](TESTS-RESULTS/2026-09-11-private-transitions/SUMMARY.md)). | Review #48 and choose a different user-valued task under [#1](https://github.com/HiQS-Labs/Needle-fork/issues/1) before further model work. #43 remains held; #25 remains capacity-blocked and deferred. |
 
 > **Corrected 2026-09-09.** This cell previously read *"first `needle finetune` run on JAX/CPU at
 > `--max-len 2048`"*. That was superseded on 2026-09-07 by
@@ -31,13 +31,13 @@
 
 ### In progress
 
-- [Private-trained transition comparison](PROJECT/2-WORKING/PRIVATE-TRANSITIONS.md) — bounded follow-through under [#1](https://github.com/HiQS-Labs/Needle-fork/issues/1); no serving or #43 changes.
-
 - [ZCode mapper recon and qualification](PROJECT/2-WORKING/RECON-ZCODE-MAPPER-CORRECTION.md) — PR #40 merged the scoped corrections; fresh blind qualification remains open in [#37](https://github.com/HiQS-Labs/Needle-fork/issues/37).
 
 - [Label correctness audit — make the §2 gate trustworthy](PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md) — source identity and disjoint manifests are merged; #25 clears its 30-session floor but remains blocked because the frozen sampler can allocate only 541/1,000 evaluation rows under its label quotas and session cap. ([#20](https://github.com/HiQS-Labs/Needle-fork/issues/20), [#23](https://github.com/HiQS-Labs/Needle-fork/issues/23), [#25](https://github.com/HiQS-Labs/Needle-fork/issues/25))
 
 ### Completed
+
+- [Private-trained transition comparison](PROJECT/3-COMPLETED/PRIVATE-TRANSITIONS.md) — both models failed their gates; stopped at the current representation ([#1](https://github.com/HiQS-Labs/Needle-fork/issues/1), PR #48).
 
 - [Phase 2 §1 — Freeze the v1 Oracle label taxonomy](PROJECT/3-COMPLETED/PHASE-2-LABEL-TAXONOMY.md) — v1 published as `oracle/labels-v1.json`; current Studio corpus has 71,763 calls at 96.41% mapping coverage. ([#1](https://github.com/HiQS-Labs/Needle-fork/issues/1))
 

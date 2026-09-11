@@ -60,8 +60,8 @@ not quantization math. No branch or worktree was deleted.
 
 Still tracked under [issue #1](https://github.com/HiQS-Labs/Needle-fork/issues/1):
 
-- **Previous step 3, deferred:** private-trained Markov-1/phase-backoff comparison, using the
-  already-agreed bounded protocol in README. Not run during integration. #42 and its MLX base
-  remain parked research, not wholesale main-integration candidates.
+- **Previous step 3, now completed in #48:** private-trained Markov-1/phase-backoff comparison.
+  Neither model passed the agreed gates; no further tuning or serving follows. It was not run
+  during the earlier integration pass. #42 and its MLX base remain parked research.
 - **Previous step 4, held:** #43 remains open at `974ddcf9b480a985c272ac5215bce87ea669436e`.
   Do not merge or modify its branch until the operator explicitly releases the testing hold.

@@ -1,6 +1,6 @@
 ---
 title: Private-trained transition comparison
-status: In progress
+status: Completed
 created: 2026-09-11
 updated: 2026-09-11
 owner: noelsaw1
@@ -13,7 +13,7 @@ goal: Run the agreed bounded private-training comparison and report both gates h
 
 | What was just completed | What's next |
 |---|---|
-| Measurement tests and 6,192 frozen-predictor parity comparisons passed; split audited. | Freeze code, then fit once and report under issue #1. |
+| One frozen private round completed; both families failed both gates. | Review PR #48; no tuning or serving. A different product scope needs a new decision under #1. |
 
 Canonical authority: [#1](https://github.com/HiQS-Labs/Needle-fork/issues/1), including the
 Astra/Fable synthesis and subsequent operator authorization. PR #43 remains held and untouched.
@@ -42,6 +42,11 @@ is selected, not the MLX branch or its other files.
   No shared sessions or duplicate session/step events; all six training labels have support.
 
 ## Frozen protocol and execution
+
+Completed protocol retained below as history, not instructions to repeat the run. Measured
+phase-backoff: 45.7256% overall, 40.8112% conditional destinations; required 48.5244% and 40.8634%.
+Markov-1: 43.5244% and 37.9711%. Decision: stop. Pooled receipt is
+`TESTS-RESULTS/2026-09-11-private-transitions/SUMMARY.md`; detailed distributions remain private.
 
 Reversibility: Easy — additive isolated experiment; no runtime, taxonomy, release or held-branch
 changes. Preserve private inputs byte-for-byte; publish aggregates only. Budget: one engineer-hour,
@@ -85,6 +90,6 @@ code, not a completed experiment; their advice is not runtime verification. No n
 by review is in scope. Raw consult logs remain private because they contain local paths.
 
 - [x] Nonempty/split/content checks and falsification tests pass with red controls witnessed.
-- [ ] Predictor parity and full non-slow suite pass.
-- [ ] One frozen result and sanitized receipt recorded; no private rows or IDs published.
-- [ ] Issue and current docs reconciled with measured outcome; #43 unchanged.
+- [x] Predictor parity and full non-slow suite pass (398 passed, 6 skipped, 11 deselected).
+- [x] One frozen result and sanitized receipt recorded; no private rows or IDs published.
+- [x] Issue and current docs reconciled with measured outcome; #43 unchanged at `974ddcf`.

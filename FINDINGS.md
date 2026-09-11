@@ -146,3 +146,30 @@ no unique commits. PR #42 targets `spike/mlx-finetune`; its branch differs from 
 across 147 files, including historical divergence. Do not promote that whole branch solely to
 publish this story. This documentation update is based on current `main`; experimental code
 promotion requires a separately scoped integration review.
+
+---
+
+## 2026-09-11 — Private-trained transition comparison completed
+
+Supersedes the preceding "Agreed next action, not yet measured" status. Under issue #1, selected
+the frozen standard-library evaluator from #42 into a focused main-based branch. Cross-model plan
+review clarified conditional support/backoff, same-family gates and private-only session reporting.
+No MLX, runtime, canonical taxonomy or held #43 changes.
+
+One fit/score invocation at `082ca3a` took 1.39 seconds. Training contained 45,127 eligible actions
+from 296 sessions after one exact overlapping request/history/target row was excluded from training.
+Evaluation stayed at 23,442 actions / 63 sessions, including 13,239 changes. No shared sessions or
+duplicate session/step events were found; these legacy checks do not prove semantic independence.
+
+- Overall: repeat-last and Markov-1 43.5244%; phase-backoff 45.7256%; required 48.5244%.
+- Conditional change destinations: baseline 30.8634%; Markov-1 37.9711%; phase-backoff 40.8112%;
+  required 40.8634%. No rounding up the near miss.
+- Ordinary change-row accuracy: Markov-1 0%; phase-backoff 14.0645%.
+- Both families failed both gates. Stop these predictors at this representation; no automatic
+  serving, feature search or extra training. A different product question needs a new scope decision.
+
+This establishes improvement from private fitting, not qualified recommendation usefulness. The
+evaluation is reused development evidence, labels are imperfect, conditional scoring assumes a
+switch occurred, and no human acceptance or significance claim is supported. Full hashes and
+session distributions stay private; [pooled receipt](TESTS-RESULTS/2026-09-11-private-transitions/SUMMARY.md)
+records exact counts, frozen rules and verification. PR #48 carries the focused change.
