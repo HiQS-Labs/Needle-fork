@@ -27,7 +27,7 @@ reversibility: Easy — additive offline tooling and fixtures; no runtime, model
 
 | What was just completed | What's next |
 |---|---|
-| Codex approved the plan; the composer, five-kind fixtures, and 10 focused contract tests pass. | Finish final review and publish the branch/PR; the repo-wide suite remains environment-blocked on missing package/dependencies. |
+| The composer and five-kind fixtures passed final Codex review, 16 focused tests, and 400 non-slow tests in the declared Python 3.12 test/train environment. | Analyze the readiness evidence, then preregister Phase 3 only after a fresh real holdout and the assembly/preflight seam exist. |
 
 ## Table of contents
 
@@ -118,9 +118,9 @@ real holdout exists.
 
 ### Phase 1 — QA checklist
 
-- [ ] `test_empty_input_refuses_without_run`, `test_non_train_candidate_refuses`, `test_seed_byte_drift_refuses`, `test_counterfactual_pair_invariants`, and duplicate/identity tests assert the exact error and absence of a final run.
-- [ ] The valid fixture asserts nonzero input/output counts before hashes/distributions; monkeypatching `serialize.to_finetune_row` to a noncanonical row makes the contract test fail before restoration.
-- [ ] No issue #25-owned audit or manifest file changes.
+- [x] `test_empty_input_refuses_without_run`, `test_non_train_candidate_refuses`, `test_seed_byte_drift_refuses`, `test_counterfactual_pair_invariants`, and duplicate/identity tests assert the exact error and absence of a final run.
+- [x] The valid fixture asserts nonzero input/output counts before hashes/distributions; monkeypatching `serialize.to_finetune_row` to a noncanonical row makes the contract test fail before restoration.
+- [x] No issue #25-owned audit or manifest file changes.
 
 ## Phase 2: Fixtures, red controls, and readiness report
 
@@ -133,11 +133,11 @@ real holdout exists.
 
 ### Phase 2 — QA checklist
 
-- [ ] Unchanged input/config and reversed candidate ordering produce byte-identical JSONL, manifest, and report.
+- [x] Unchanged input/config and reversed candidate ordering produce byte-identical JSONL, manifest, and report.
 - [ ] Every new gate has a witnessed failing control.
-- [ ] A fault injected after staging but before the directory rename leaves no final run.
+- [x] A fault injected after staging but before the directory rename leaves no final run.
 - [ ] `pytest -q -m "not slow"` and `utils/pdda/pdda.sh run` pass.
-- [ ] Status and changelog reflect the measured result, not predicted model benefit.
+- [x] Status reflects the measured result, not predicted model benefit; no changelog entry is required for this Easy, additive offline change.
 
 ## Phase 3: Controlled model experiment
 

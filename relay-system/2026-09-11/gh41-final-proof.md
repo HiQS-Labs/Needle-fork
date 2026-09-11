@@ -4,8 +4,8 @@
   Scaffolded by relay-automation/new-relay.sh on 2026-09-11.
 -->
 
-NEXT: Reviewer
-STATUS: Open
+NEXT: Done
+STATUS: Approved
 ROUND: 1 / 2
 
 ## ▶ TAKE YOUR TURN — read this first (works for ANY agent: Claude, Codex, agy)
@@ -74,5 +74,20 @@ Answer each question with file-and-line evidence:
 6. The relay ends on **Approved** (Reviewer only). End each turn by committing just this file; no push.
 
 ## Log
+
+### Reviewer · Round 1
+
+swept file: yes
+
+- [Pass] Malformed seed, candidate, digest, pair, serializer, and forbidden-manifest inputs all reach `ContractError`/the CLI refusal boundary before staging or publication: seed schema and identity checks are at `.relay-artifacts/build_grounded_augmentation.py:68-93`, forbidden-manifest shape checks at `:95-103`, candidate/hash/pair checks at `:109-167`, serializer output validation at `:169-174`, and the CLI maps these failures to exit 2 at `:202-214`. The repaired malformed pair cases and CLI red control assert no final run at `tests/test_grounded_augmentation.py:145-171`.
+- [Pass] Provenance and output determinism are enforced: canonical seed bytes are hashed and matched at `.relay-artifacts/build_grounded_augmentation.py:28-38,88-93,127-130`; labels/actions and taxonomy are compared to the reviewed seed at `:131-133`; normalized requests and record IDs are deduplicated at `:105-136`; counterfactual completeness, projection equality, and the single declared replacement are checked at `:137-167`; records are sorted before canonical serialization at `:169-178`. The extra-field and serializer mutants are explicit red controls at `tests/test_grounded_augmentation.py:89-95,137-142`.
+- [Pass] The generated-only/privacy boundary is honest and limited to composition time: candidates must be `split == "train"` and `generated is True` at `.relay-artifacts/build_grounded_augmentation.py:123-124`; the manifest repeats only IDs, hashes, split, and generated status at `:175-178`; the report contains only aggregate counts/distributions at `:179-181`. The plan explicitly reserves later trainer/evaluation enforcement for Phase 3 at `PROJECT/2-WORKING/GH-41-TARGETED-AUGMENTATION.md:75-82,142-158`.
+- [Pass] Publication is atomic with bounded cleanup: all validation and serialization precede staging, the stage is created as a sibling under the requested output parent, all three files are fsynced, and one directory rename publishes the run at `.relay-artifacts/build_grounded_augmentation.py:183-196`; only that concrete `stage` path is removed on failure at `:197-199`. The injected-failure red control asserts no visible final run at `tests/test_grounded_augmentation.py:116-120`.
+- [Pass] The implementation remains an additive offline composer: its only project import is the existing `serialize` module at `.relay-artifacts/build_grounded_augmentation.py:15-16`, while the approved ownership boundary reserves all issue #25 paths and excludes runtime/dependency surfaces at `PROJECT/2-WORKING/GH-41-TARGETED-AUGMENTATION.md:52-63,95-100`. No issue #25-owned API is read or called anywhere in the swept artifact.
+- [Pass] The focused suite contains 16 collected cases across deterministic/privacy output, grounding, duplicate, pair, serializer, malformed-contract, and atomic-failure controls (`tests/test_grounded_augmentation.py:30-171`), including the repaired review mutants at `:89-95,137-171`. I did not execute artifact/source/tests because this reviewer turn explicitly forbids doing so; the stated 16-focused/400-non-slow green evidence is therefore accepted as harness-provided rather than independently rerun. No remaining static gap is a blocker to the initial offline-composer milestone, and no additional pre-existing defect was found in the swept artifact.
+
+VERDICT: Approved
+
+Relay closed (Approved), no further turn needed.
 
 <!-- ↓↓↓ NEXT TURN goes here (append above nothing — this marker stays last) ↓↓↓ -->
