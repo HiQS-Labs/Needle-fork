@@ -31,6 +31,8 @@
 
 ### In progress
 
+- [Private-trained transition comparison](PROJECT/2-WORKING/PRIVATE-TRANSITIONS.md) — bounded follow-through under [#1](https://github.com/HiQS-Labs/Needle-fork/issues/1); no serving or #43 changes.
+
 - [ZCode mapper recon and qualification](PROJECT/2-WORKING/RECON-ZCODE-MAPPER-CORRECTION.md) — PR #40 merged the scoped corrections; fresh blind qualification remains open in [#37](https://github.com/HiQS-Labs/Needle-fork/issues/37).
 
 - [Label correctness audit — make the §2 gate trustworthy](PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md) — source identity and disjoint manifests are merged; #25 clears its 30-session floor but remains blocked because the frozen sampler can allocate only 541/1,000 evaluation rows under its label quotas and session cap. ([#20](https://github.com/HiQS-Labs/Needle-fork/issues/20), [#23](https://github.com/HiQS-Labs/Needle-fork/issues/23), [#25](https://github.com/HiQS-Labs/Needle-fork/issues/25))

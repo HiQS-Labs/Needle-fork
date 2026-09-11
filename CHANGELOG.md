@@ -5,6 +5,14 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-11
 
+### Private-trained transition comparison started (#1)
+
+Selected the frozen standard-library predictor from #42 into a focused main-based experiment,
+adding private split checks, explicit conditional destination scoring and per-family dual gates.
+No MLX/runtime/taxonomy or #43 changes. Private input and consult details remain ignored;
+only sanitized pooled results will be published. Ordinary predictions match the frozen evaluator
+on 6,192 synthetic comparisons; same-family and session-overlap negative controls were witnessed.
+
 ### Integration queue closed; deferred work retained
 
 Reconciled README and the dated branch inventory after landing #46, #8, #6 and #10.
