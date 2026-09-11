@@ -5,6 +5,13 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-11
 
+### Branch inventory and PR hygiene recorded
+
+Triaged the five open PRs, the un-PR'd MLX research base, and merged branch families. Recorded
+integration priorities and the #6 → #10 dependency in `doc/branch-triage-2026-09-11.md`.
+AGENTS.md now requires explicit branch ownership through a PR or parked research disposition,
+current review evidence, and post-merge reconciliation. No experimental merge or deletion occurred.
+
 ### README now leads with the fork's Oracle story
 
 After the documentation reconciliation landed in PR #44, added a two-paragraph TLDR, a linked
