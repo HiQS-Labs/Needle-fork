@@ -169,6 +169,9 @@ def main():
     p.add_argument("--out", type=str, default=None, help="Output .cact path")
     p.add_argument("--upload", action="store_true", help="Push the .cact to $NEEDLE_HF_REPO")
     p.add_argument("--bits", type=str, default=None, choices=["2", "4"])
+    p.add_argument("--allow-numerics-mismatch", action="store_true",
+                   help="build an adapter that was not trained quantisation-aware, "
+                        "accepting that deployment numerics differ from training")
 
     p = sub.add_parser("download")
     p.add_argument("spec", type=str,
