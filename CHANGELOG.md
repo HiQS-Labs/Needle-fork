@@ -5,6 +5,13 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-11
 
+### README now leads with the fork's Oracle story
+
+After the documentation reconciliation landed in PR #44, added a two-paragraph TLDR, a linked
+experiment inventory and the pending in-domain milestone to README. Separated the experimental
+fork claims from retained upstream package documentation. Documentation-only diff; existing
+package setup and usage content preserved.
+
 ### Oracle findings and collaborator briefing reconciled
 
 Added a two-paragraph executive summary with the experiment arc and evidence links; appended the

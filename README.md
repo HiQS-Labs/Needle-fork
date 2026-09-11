@@ -1,3 +1,43 @@
+# HiQS Needle Oracle — project story
+
+## TLDR
+
+We’re exploring whether a tiny local model can suggest useful next steps during software work—including testing, Git actions, and project governance—cheaply enough to run alongside a larger coding assistant. We have built and exercised the training/export pipeline, assembled private activity traces, audited their labels, and tested neural and simple statistical predictors. Useful recommendations remain unproven: label noise, a training/serving mismatch, and poor transfer from public coding-agent data have limited results.
+
+Next we will test two existing lightweight predictors trained on our own sessions against “repeat the last action,” measuring both overall accuracy and action-change destinations. Passing earns the design of a small prospective serving experiment; failure stops investment in these two predictors at this six-action representation. We welcome help assessing recommendation usefulness, reviewing examples, and challenging the evaluation. No human acceptance rate or production-ready Oracle has been established.
+
+## What we have tried and learned
+
+Status: September 11, 2026. This is HiQS's experimental fork of [Cactus Compute's Needle](https://github.com/cactus-compute/needle). Experimental branches are not all merged into `main`; an implemented tool or passing test does not imply a validated recommendation model.
+
+| Work | Result and consequence | Evidence |
+|---|---|---|
+| Architecture and integration reconnaissance | Mapped the training, export, runtime and hook boundaries; distinguished previous integration attempts from measured model capability. | [Architecture](ARCHITECTURE.md), [findings](FINDINGS.md) |
+| 44-label software-work and governance vocabulary | Built and froze the label-name contract, semantic mapper, session-based extraction and shared query serialization. High mapping coverage alone did not establish label correctness. | [Oracle plan #1](https://github.com/HiQS-Labs/Needle-fork/issues/1), [label contract](oracle/labels-v1.json) |
+| Apple Silicon training and export | CPU training was impractical at the original scale; the MLX spike exercised GPU training, parity checks and export. That establishes an engineering path, not recommendation usefulness. | [MLX lane #5](https://github.com/HiQS-Labs/Needle-fork/issues/5) |
+| Model ranking versus actual serving | Early ranking results did not establish useful native behavior. The tested native contract retrieved only five of 44 declared tools. | [Serving mismatch #12](https://github.com/HiQS-Labs/Needle-fork/issues/12) |
+| Label correctness and source qualification | A 399-row audit estimated 77.84% population-weighted correctness. Error analysis and scoped mapper corrections followed; new sources still require qualification. | [Correction experiment #25](https://github.com/HiQS-Labs/Needle-fork/issues/25), [cross-agent audit #37](https://github.com/HiQS-Labs/Needle-fork/issues/37) |
+| Strict fresh evaluation preparation | The frozen sampler can select 541 of 1,000 required rows under its session caps and label quotas. This lane remains blocked and lower priority. | [#25](https://github.com/HiQS-Labs/Needle-fork/issues/25) |
+| Six-action OpenHands LoRA pilot | On 100 development actions, trained with 500 actions, LoRA scored 27% top-1 versus 37% for Markov-1. The pilot stopped. | [Experimental PR #42](https://github.com/HiQS-Labs/Needle-fork/pull/42) |
+| Cheap phase-aware transition classifier | Scored 42% on the OpenHands development set, then 25.23% on 23,442 private actions across 63 sessions. OpenHands-fitted Markov-1 scored 28.78%; repeat-last scored 43.52%. The transferred classifier stopped. | [Private result](https://github.com/HiQS-Labs/Needle-fork/issues/1#issuecomment-5639743768) |
+| Separate work-purpose classification | ModernBERT features scored 57.5% purpose accuracy on 40 records versus 50% TF-IDF; TF-IDF had better macro-F1. Area classification and rejection remained inadequate for deployment. | [Classification experiment #31](https://github.com/HiQS-Labs/Needle-fork/issues/31) |
+| External datasets and grounded augmentation | TAWOS lacked coverage for the full eight-purpose task. A separate open PR supplies training-only augmentation tooling; no model improvement has been measured from it. | [Data qualification #35](https://github.com/HiQS-Labs/Needle-fork/issues/35), [augmentation PR #43](https://github.com/HiQS-Labs/Needle-fork/pull/43) |
+| Independent Astra/Fable review | Reframed repeat-last as the baseline to beat and identified the untested in-domain comparison. A failed transfer experiment does not establish that private-trained models fail. | [Current synthesis on #1](https://github.com/HiQS-Labs/Needle-fork/issues/1#issuecomment-5641167454) |
+
+## Next milestone
+
+Fit the unchanged Markov-1 and phase-aware predictors on private training sessions and score once on the separate 63-session evaluation partition. The same family must exceed repeat-last by five percentage points overall (approximately 48.52%) and a training-derived conditional destination baseline by ten points. Also report ordinary accuracy on action-change rows and per-session distributions.
+
+Both gates passing earns a prospective serving-experiment design; one passing supports considering a narrower action-run-ending question; neither passing stops investment in these two models at this representation. The evaluation partition has already informed decisions, so it is reused development evidence rather than fresh confirmation. Conditional destination accuracy assumes a switch occurred; it does not establish detecting switches live. These scores measure agreement with recorded labels, not human acceptance or whether an action was advisable.
+
+The [collaborator briefing](doc/oracle-collaborator-summary.md) provides the detailed qualifications and source index. [XYZ-forge #467](https://github.com/HiQS-Labs/XYZ-forge/issues/467) owns the overall arc; [Needle-fork #1](https://github.com/HiQS-Labs/Needle-fork/issues/1) tracks this implementation. [ROADMAP.md](ROADMAP.md) points to current work and [FINDINGS.md](FINDINGS.md) preserves investigation history.
+
+---
+
+## Upstream Needle package and usage
+
+The package description, benchmarks and usage documentation below describe upstream Needle. They are not results for this fork's experimental Oracle. Installing `cactus-needle` alone does not install a validated HiQS next-action assistant.
+
 ![Needle](assets/banner.png)
 
 # Needle 2
