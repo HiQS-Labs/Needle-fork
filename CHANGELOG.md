@@ -3,6 +3,22 @@
 Newest-first, dated end-of-iteration record. One entry per substantive iteration: what changed,
 why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
+## 2026-09-11
+
+### ZCode mapper correction targets three observed command shapes
+
+The first ZCode blind audit found 69 errors in 200 reviewed rows. Three narrow, source-grounded
+corrections now recognize shell test entrypoints, compound wait-and-poll commands, and edits to
+already-completed project documents. The shared 44-label vocabulary is
+unchanged. The old review set improves from 131/200 to 141/200 only as development evidence; it is
+not a fresh post-change estimate and cannot qualify ZCode for training.
+
+Three load-bearing assertions were witnessed failing before the mapper changed, then the complete taxonomy
+suite and non-slow repository suite passed. A new frozen blind sample remains required before any
+ZCode admission decision. Broad compound-command precedence and free-text-description rules were
+deliberately excluded because they would guess across ambiguous multi-action calls and widen the
+Claude mapper's blast radius.
+
 ## 2026-09-10
 
 ### Evaluation readiness now fails on capacity, not session count
