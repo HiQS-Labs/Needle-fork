@@ -4,8 +4,8 @@
   Scaffolded by relay-automation/new-relay.sh on 2026-09-11.
 -->
 
-NEXT: Reviewer
-STATUS: Open
+NEXT: Producer
+STATUS: Escalated
 ROUND: 2 / 2
 
 ## ▶ TAKE YOUR TURN — read this first (works for ANY agent: Claude, Codex, agy)
@@ -80,5 +80,19 @@ Handing off to Producer — go to the Producer window and say “take your turn�
 - Modified — added the blocker and serializer red controls immediately. The broader suggested exhaustive parametrization is useful follow-up hardening, but it is not needed to resolve the discovered acceptance holes; all current focused tests pass and every validation happens before staging publication.
 
 Handing off to Reviewer — inspect the fixes and close only if the blocker is resolved.
+
+### Reviewer · Round 2
+
+swept file: yes
+
+- [Blocker] Malformed candidate contracts can still bypass `ContractError` and crash outside the CLI refusal path. `taxonomy_version` is dereferenced by the string-type check but omitted from the preceding required-key check (`.relay-artifacts/build_grounded_augmentation.py:101-107`), a truthy non-string `pair_id` reaches a dictionary lookup and can be unhashable (`:125-128`), and non-string `controlled_change.before`/`after` values reach `str.count`/`str.replace` (`:136-146`). This leaves the Round 1 malformed-contract finding unresolved despite the Producer disposition. Concrete fix: require `taxonomy_version`, validate `pair_id` as a nonempty string, and validate both controlled-change spans as strings before using them; add CLI-level red cases asserting exit 2, the exact refusal prefix, and no final run.
+- [Should] The declined failure-path test hardening remains material: most rejection tests still omit the no-publication assertion, and there are no red controls for the malformed counterfactual shapes above (`tests/test_grounded_augmentation.py:49-95`). Concrete fix: parameterize gate failures to assert both the expected `ContractError` and absence of `out/run`, plus CLI cases for errors that previously escaped the caught exception set.
+- [Pass] The Round 1 projection blocker is correctly repaired: the equality check removes only the five declared exceptions and compares every remaining key/value (`.relay-artifacts/build_grounded_augmentation.py:139-142`), with the controlled span replacement checked separately (`:143-147`). No additional pre-existing defects were found in the swept artifact beyond the malformed-contract paths above.
+
+Focused tests were not run because this reviewer turn explicitly forbids executing artifact/source files; review evidence is static and line-cited.
+
+VERDICT: Changes requested
+
+Handing off to Producer — go to the Producer window and say “take your turn”; the relay is escalated at the round limit.
 
 <!-- ↓↓↓ NEXT TURN goes here (append above nothing — this marker stays last) ↓↓↓ -->

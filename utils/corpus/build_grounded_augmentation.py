@@ -99,7 +99,8 @@ def compose(seeds_path: Path, candidates_path: Path, output_parent: Path, run_id
     normalized: list[dict] = []
     for row in candidates:
         for key in ("record_id", "source_id", "source_sha256", "split", "generated", "kind",
-                    "generator", "config_sha256", "recent_user_request", "prior_actions", "label"):
+                    "generator", "config_sha256", "taxonomy_version", "recent_user_request",
+                    "prior_actions", "label"):
             _require(key in row, f"candidate missing {key}")
         _require(all(isinstance(row[k], str) and row[k] for k in
                      ("record_id", "source_id", "source_sha256", "split", "kind", "generator",
@@ -123,7 +124,8 @@ def compose(seeds_path: Path, candidates_path: Path, output_parent: Path, run_id
         _require(request_key not in seen_requests, "duplicate normalized request")
         seen_requests.add(request_key)
         if row["kind"] == "counterfactual":
-            _require(bool(row.get("pair_id")) and row.get("pair_role") in {"baseline", "counterfactual"},
+            _require(isinstance(row.get("pair_id"), str) and bool(row["pair_id"]) and
+                     row.get("pair_role") in {"baseline", "counterfactual"},
                      "counterfactual requires pair_id and pair_role")
             pairs[row["pair_id"]].append(row)
         normalized.append(row)
@@ -134,14 +136,21 @@ def compose(seeds_path: Path, candidates_path: Path, output_parent: Path, run_id
         before = next(r for r in pair if r["pair_role"] == "baseline")
         after = next(r for r in pair if r["pair_role"] == "counterfactual")
         change = before.get("controlled_change")
-        _require(change == after.get("controlled_change") and isinstance(change, dict),
+        other_change = after.get("controlled_change")
+        _require(isinstance(change, dict) and isinstance(other_change, dict),
+                 f"controlled_change must be an object: {pair_id}")
+        for item in (change, other_change):
+            _require(isinstance(item.get("before"), str) and
+                     isinstance(item.get("after"), str) and bool(item["before"]),
+                     f"controlled spans must be strings: {pair_id}")
+        _require(change == other_change,
                  f"controlled_change mismatch: {pair_id}")
         exceptions = {"record_id", "pair_role", "label", "recent_user_request", "controlled_change"}
         _require({k: v for k, v in before.items() if k not in exceptions} ==
                  {k: v for k, v in after.items() if k not in exceptions},
                  f"counterfactual undeclared field drift: {pair_id}")
         old, new = change.get("before", ""), change.get("after", "")
-        _require(bool(old) and before["recent_user_request"].count(old) == 1,
+        _require(before["recent_user_request"].count(old) == 1,
                  f"controlled before span must occur exactly once: {pair_id}")
         _require(before["recent_user_request"].replace(old, new, 1) == after["recent_user_request"],
                  f"counterfactual changes more than declared span: {pair_id}")

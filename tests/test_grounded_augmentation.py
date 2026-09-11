@@ -131,3 +131,17 @@ def test_noncanonical_serializer_output_refuses(monkeypatch, tmp_path):
     with pytest.raises(grounded.ContractError, match="invalid trainer row"):
         grounded.compose(seeds, candidates, tmp_path / "out", "run")
     assert not (tmp_path / "out/run").exists()
+
+
+@pytest.mark.parametrize("mutate,message", [
+    (lambda row: row.pop("taxonomy_version"), "candidate missing taxonomy_version"),
+    (lambda row: row.update(pair_id=[]), "counterfactual requires pair_id"),
+    (lambda row: row["controlled_change"].update(before=[]), "controlled spans must be strings"),
+])
+def test_malformed_counterfactual_refuses_without_publish(tmp_path, mutate, message):
+    seeds, candidates, rows = _inputs(tmp_path)
+    mutate(rows[0])
+    candidates.write_text("".join(json.dumps(r) + "\n" for r in rows))
+    with pytest.raises(grounded.ContractError, match=message):
+        grounded.compose(seeds, candidates, tmp_path / "out", "run")
+    assert not (tmp_path / "out/run").exists()
