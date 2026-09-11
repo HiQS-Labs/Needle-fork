@@ -12,6 +12,13 @@ Builds now reject full-precision or provenance-unknown LoRA adapters unless expl
 quantization/export math is unchanged. This intentional CLI compatibility change is reversible
 by reverting the PR. Build/finetune regression coverage verifies refusal and explicit opt-in.
 
+### Branch inventory and PR hygiene recorded
+
+Triaged the five open PRs, the un-PR'd MLX research base, and merged branch families. Recorded
+integration priorities and the #6 → #10 dependency in `doc/branch-triage-2026-09-11.md`.
+AGENTS.md now requires explicit branch ownership through a PR or parked research disposition,
+current review evidence, and post-merge reconciliation. No experimental merge or deletion occurred.
+
 ### README refreshed after branch triage
 
 Clarified the pending private-training experiment, linked the open branch-hygiene proposal, and
