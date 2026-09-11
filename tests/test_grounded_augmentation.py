@@ -1,5 +1,7 @@
 import importlib.util
 import json
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -18,6 +20,7 @@ def _inputs(tmp_path):
     candidates = grounded.read_jsonl(FIXTURES / "candidates.jsonl")
     for row in candidates:
         row["source_sha256"] = digests[row["source_id"]]
+        row["config_sha256"] = grounded.digest({"generator": row["generator"]})
     seed_path, candidate_path = tmp_path / "seeds.jsonl", tmp_path / "candidates.jsonl"
     seed_path.write_text("".join(json.dumps(r) + "\n" for r in seeds), encoding="utf-8")
     candidate_path.write_text("".join(json.dumps(r) + "\n" for r in candidates), encoding="utf-8")
@@ -52,6 +55,7 @@ def test_non_train_candidate_refuses(tmp_path):
     candidates.write_text("".join(json.dumps(r) + "\n" for r in rows))
     with pytest.raises(grounded.ContractError, match="generated training data"):
         grounded.compose(seeds, candidates, tmp_path / "out", "run")
+    assert not (tmp_path / "out/run").exists()
 
 
 def test_seed_byte_drift_refuses(tmp_path):
@@ -61,6 +65,7 @@ def test_seed_byte_drift_refuses(tmp_path):
     seeds.write_text("".join(json.dumps(r) + "\n" for r in changed))
     with pytest.raises(grounded.ContractError, match="source digest mismatch"):
         grounded.compose(seeds, candidates, tmp_path / "out", "run")
+    assert not (tmp_path / "out/run").exists()
 
 
 def test_candidate_label_must_be_grounded_by_seed(tmp_path):
@@ -69,6 +74,7 @@ def test_candidate_label_must_be_grounded_by_seed(tmp_path):
     candidates.write_text("".join(json.dumps(r) + "\n" for r in rows))
     with pytest.raises(grounded.ContractError, match="not grounded by seed"):
         grounded.compose(seeds, candidates, tmp_path / "out", "run")
+    assert not (tmp_path / "out/run").exists()
 
 
 def test_counterfactual_pair_invariants(tmp_path):
@@ -77,6 +83,7 @@ def test_counterfactual_pair_invariants(tmp_path):
     candidates.write_text("".join(json.dumps(r) + "\n" for r in rows))
     with pytest.raises(grounded.ContractError, match="changes more than declared span"):
         grounded.compose(seeds, candidates, tmp_path / "out", "run")
+    assert not (tmp_path / "out/run").exists()
 
 
 def test_counterfactual_extra_field_drift_refuses(tmp_path):
@@ -94,6 +101,7 @@ def test_duplicate_normalized_request_refuses(tmp_path):
     candidates.write_text("".join(json.dumps(r) + "\n" for r in rows + [duplicate]))
     with pytest.raises(grounded.ContractError, match="duplicate normalized request"):
         grounded.compose(seeds, candidates, tmp_path / "out", "run")
+    assert not (tmp_path / "out/run").exists()
 
 
 def test_forbidden_identity_refuses(tmp_path):
@@ -102,6 +110,7 @@ def test_forbidden_identity_refuses(tmp_path):
     forbidden.write_text(json.dumps({"source_ids": ["reviewed-2"]}))
     with pytest.raises(grounded.ContractError, match="forbidden source identity"):
         grounded.compose(seeds, candidates, tmp_path / "out", "run", forbidden)
+    assert not (tmp_path / "out/run").exists()
 
 
 def test_fault_before_publish_leaves_no_final_run(tmp_path):
@@ -145,3 +154,18 @@ def test_malformed_counterfactual_refuses_without_publish(tmp_path, mutate, mess
     with pytest.raises(grounded.ContractError, match=message):
         grounded.compose(seeds, candidates, tmp_path / "out", "run")
     assert not (tmp_path / "out/run").exists()
+
+
+def test_cli_malformed_contract_exits_two_without_publish(tmp_path):
+    seeds, candidates, rows = _inputs(tmp_path)
+    rows[0].pop("taxonomy_version")
+    candidates.write_text("".join(json.dumps(r) + "\n" for r in rows))
+    output = tmp_path / "out"
+    result = subprocess.run(
+        [sys.executable, str(MODULE), "--seeds", str(seeds), "--candidates", str(candidates),
+         "--output-parent", str(output), "--run-id", "run"],
+        capture_output=True, text=True, check=False,
+    )
+    assert result.returncode == 2
+    assert result.stderr.startswith("grounded augmentation refused: candidate missing taxonomy_version")
+    assert not (output / "run").exists()

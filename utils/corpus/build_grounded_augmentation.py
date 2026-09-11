@@ -18,6 +18,7 @@ import serialize  # noqa: E402
 KINDS = {"paraphrase", "counterfactual", "negation", "mixed_event", "abstention"}
 SEED_FIELDS = {"source_id", "source_kind", "reviewed_by", "taxonomy_version", "label",
                "recent_user_request", "prior_actions"}
+_HEX = frozenset("0123456789abcdef")
 
 
 class ContractError(ValueError):
@@ -31,6 +32,10 @@ def canonical_bytes(value: object) -> bytes:
 
 def digest(value: object) -> str:
     return hashlib.sha256(canonical_bytes(value)).hexdigest()
+
+
+def _is_sha256(value: str) -> bool:
+    return len(value) == 64 and set(value) <= _HEX
 
 
 def read_jsonl(path: Path) -> list[dict]:
@@ -76,6 +81,10 @@ def compose(seeds_path: Path, candidates_path: Path, output_parent: Path, run_id
                  isinstance(seed["prior_actions"], list), "seed content has invalid types")
         _require(seed["source_kind"] in {"human", "rule"}, "invalid source_kind")
         _require(bool(seed["reviewed_by"]), "reviewed_by is required")
+        _require(seed["label"] in serialize.tx.LABELS_V1, f"unknown seed label: {seed['label']}")
+        _require(bool(seed["prior_actions"]) and all(
+            action in serialize.tx.LABELS_V1 or action == "unmapped"
+            for action in seed["prior_actions"]), "invalid seed prior_actions")
         sid, raw, sha = seed["source_id"], canonical_bytes(seed), digest(seed)
         _require(sid not in seed_by_id, f"duplicate source_id: {sid}")
         if sha in digest_bytes and digest_bytes[sha] != raw:
@@ -107,6 +116,8 @@ def compose(seeds_path: Path, candidates_path: Path, output_parent: Path, run_id
                       "config_sha256", "taxonomy_version", "recent_user_request", "label")),
                  "candidate identity/content fields must be nonempty strings")
         _require(isinstance(row["prior_actions"], list), "candidate prior_actions must be a list")
+        _require(_is_sha256(row["source_sha256"]), "source_sha256 must be lowercase SHA-256")
+        _require(_is_sha256(row["config_sha256"]), "config_sha256 must be lowercase SHA-256")
         _require(row["record_id"] not in seen_records, f"duplicate record_id: {row['record_id']}")
         seen_records.add(row["record_id"])
         _require(row["split"] == "train" and row["generated"] is True,
@@ -198,7 +209,7 @@ def main() -> int:
     args = parser.parse_args()
     try:
         final = compose(args.seeds, args.candidates, args.output_parent, args.run_id, args.forbidden)
-    except (ContractError, OSError, json.JSONDecodeError) as exc:
+    except (ValueError, OSError, json.JSONDecodeError) as exc:
         parser.exit(2, f"grounded augmentation refused: {exc}\n")
     print(final)
     return 0
