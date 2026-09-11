@@ -1,0 +1,300 @@
+{
+  "actions": 62455,
+  "alias_coverage": 0.474982,
+  "aliased_actions": 29665,
+  "audit_format_version": "agent-label-coverage-v1",
+  "canonical_tools": {
+    "<unaliased>": 32790,
+    "Bash": 25368,
+    "Edit": 3597,
+    "TodoWrite": 285,
+    "WebSearch": 415
+  },
+  "distinct_mapped_labels": 3,
+  "eligible_pairs": 60638,
+  "event_format_version": "normalized-agent-transcript-v1",
+  "input_shapes": [
+    {
+      "count": 24125,
+      "keys": [
+        "raw_input"
+      ],
+      "source_tool": "exec"
+    },
+    {
+      "count": 17653,
+      "keys": [
+        "cmd",
+        "max_output_tokens",
+        "workdir",
+        "yield_time_ms"
+      ],
+      "source_tool": "exec_command"
+    },
+    {
+      "count": 3681,
+      "keys": [
+        "cmd",
+        "max_output_tokens",
+        "workdir"
+      ],
+      "source_tool": "exec_command"
+    },
+    {
+      "count": 3597,
+      "keys": [
+        "raw_input"
+      ],
+      "source_tool": "apply_patch"
+    },
+    {
+      "count": 2996,
+      "keys": [
+        "command",
+        "workdir"
+      ],
+      "source_tool": "shell_command"
+    },
+    {
+      "count": 2453,
+      "keys": [
+        "chars",
+        "max_output_tokens",
+        "session_id",
+        "yield_time_ms"
+      ],
+      "source_tool": "write_stdin"
+    },
+    {
+      "count": 1180,
+      "keys": [
+        "cmd"
+      ],
+      "source_tool": "exec_command"
+    },
+    {
+      "count": 689,
+      "keys": [
+        "cmd",
+        "login",
+        "max_output_tokens",
+        "workdir",
+        "yield_time_ms"
+      ],
+      "source_tool": "exec_command"
+    },
+    {
+      "count": 677,
+      "keys": [
+        "command",
+        "timeout_ms",
+        "workdir"
+      ],
+      "source_tool": "shell_command"
+    },
+    {
+      "count": 595,
+      "keys": [
+        "cell_id",
+        "max_tokens",
+        "yield_time_ms"
+      ],
+      "source_tool": "wait"
+    },
+    {
+      "count": 386,
+      "keys": [
+        "cmd",
+        "max_output_tokens",
+        "yield_time_ms"
+      ],
+      "source_tool": "exec_command"
+    },
+    {
+      "count": 384,
+      "keys": [
+        "duration_ms"
+      ],
+      "source_tool": "sleep"
+    },
+    {
+      "count": 367,
+      "keys": [
+        "cmd",
+        "justification",
+        "max_output_tokens",
+        "prefix_rule",
+        "sandbox_permissions",
+        "workdir",
+        "yield_time_ms"
+      ],
+      "source_tool": "exec_command"
+    },
+    {
+      "count": 292,
+      "keys": [
+        "cmd",
+        "justification",
+        "max_output_tokens",
+        "sandbox_permissions",
+        "workdir",
+        "yield_time_ms"
+      ],
+      "source_tool": "exec_command"
+    },
+    {
+      "count": 292,
+      "keys": [
+        "max_output_tokens",
+        "session_id",
+        "yield_time_ms"
+      ],
+      "source_tool": "write_stdin"
+    },
+    {
+      "count": 224,
+      "keys": [
+        "chars",
+        "session_id",
+        "yield_time_ms"
+      ],
+      "source_tool": "write_stdin"
+    },
+    {
+      "count": 223,
+      "keys": [],
+      "source_tool": "list_projects"
+    },
+    {
+      "count": 199,
+      "keys": [
+        "cmd",
+        "workdir"
+      ],
+      "source_tool": "exec_command"
+    },
+    {
+      "count": 168,
+      "keys": [
+        "queries",
+        "query",
+        "type"
+      ],
+      "source_tool": "web_search"
+    },
+    {
+      "count": 154,
+      "keys": [
+        "cmd",
+        "login",
+        "max_output_tokens",
+        "shell",
+        "workdir",
+        "yield_time_ms"
+      ],
+      "source_tool": "exec_command"
+    },
+    {
+      "count": 146,
+      "keys": [
+        "explanation",
+        "plan"
+      ],
+      "source_tool": "update_plan"
+    },
+    {
+      "count": 139,
+      "keys": [
+        "plan"
+      ],
+      "source_tool": "update_plan"
+    },
+    {
+      "count": 127,
+      "keys": [
+        "type",
+        "url"
+      ],
+      "source_tool": "web_search"
+    },
+    {
+      "count": 116,
+      "keys": [
+        "cmd",
+        "login",
+        "max_output_tokens",
+        "workdir"
+      ],
+      "source_tool": "exec_command"
+    },
+    {
+      "count": 114,
+      "keys": [
+        "chars",
+        "max_output_tokens",
+        "session_id"
+      ],
+      "source_tool": "write_stdin"
+    }
+  ],
+  "input_shapes_omitted": 105,
+  "input_shapes_omitted_actions": 1478,
+  "input_shapes_total": 130,
+  "inventory_digest": "aae45caaeff332abe025bbb67e4cd42026a72153dea90d240de4adc7cbbc5c77",
+  "label_set_version": "v1.0.0",
+  "labels": {
+    "apply_patch": 3597,
+    "net": 415,
+    "track_todo": 285,
+    "unmapped": 58158
+  },
+  "mapped_actions": 4297,
+  "mapping_coverage": 0.068802,
+  "rejections": {
+    "missing_or_conflicting_session_identity": 4
+  },
+  "sessions_accepted": 1934,
+  "sessions_rejected": 4,
+  "source": "codex",
+  "source_namespace": "studio-codex",
+  "source_tools": {
+    "apply_patch": 3597,
+    "browser_evaluate": 2,
+    "browser_navigate": 11,
+    "browser_network_requests": 1,
+    "browser_snapshot": 5,
+    "browser_take_screenshot": 1,
+    "close_agent": 2,
+    "exec": 24125,
+    "exec_command": 25368,
+    "followup_task": 20,
+    "get_architecture": 1,
+    "get_code_snippet": 49,
+    "index_repository": 52,
+    "index_status": 47,
+    "js": 35,
+    "list_agents": 2,
+    "list_mcp_resource_templates": 5,
+    "list_mcp_resources": 7,
+    "list_projects": 223,
+    "query_graph": 3,
+    "request_user_input": 4,
+    "request_user_input_async": 20,
+    "search_code": 25,
+    "search_graph": 114,
+    "send_input": 1,
+    "send_message": 106,
+    "shell_command": 3721,
+    "sleep": 384,
+    "spawn_agent": 38,
+    "tool_search": 78,
+    "trace_path": 7,
+    "update_plan": 285,
+    "view_image": 1,
+    "wait": 596,
+    "wait_agent": 21,
+    "web_search": 415,
+    "write_stdin": 3083
+  },
+  "tool_alias_version": "agent-tool-alias-v1"
+}
