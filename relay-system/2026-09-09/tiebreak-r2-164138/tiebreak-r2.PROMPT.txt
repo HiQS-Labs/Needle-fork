@@ -1,0 +1,664 @@
+# Break 82 ties in a label audit — and tell me what the ties mean
+
+Two independent auditors blind-labelled 399 real tool calls from a developer's session
+history, assigning each ONE intent label from a frozen 44-label taxonomy. They agreed on
+317 and disagreed on the 82 below. A rule-based sorter also labelled every row; you are
+NOT shown its answer, so you cannot anchor on it.
+
+## Your task
+
+**Part 1 — adjudicate.** For each row, give the single best label. Output ONE line per row,
+exactly: `id<TAB>label`. Use a label from the menu, or `unmapped` if none genuinely fits.
+Nothing else on those lines.
+
+**Part 2 — diagnose.** After the lines, answer in prose:
+
+1. The most contested pairs are `session_control`/`unmapped` (9 rows),
+   `find_files`/`read_file`, `search_code`/`unmapped`, `search_code`/`sys_inspect`,
+   `apply_patch`/`fs_mutate`. For each: **is this two auditors making errors, or is the
+   TAXONOMY failing to separate two real actions?** Those need opposite fixes.
+
+2. Where both auditors were confident and agreed (240 rows), the sorter scored 96.2%.
+   Overall it scored 79-84%. **Does that mean the sorter is good and the taxonomy is
+   ambiguous, or is that reasoning circular?** Say plainly if it is circular.
+
+3. Is there any action in these rows the 44-label menu has **no** home for? The vocabulary
+   was frozen as v1.0.0 today, so a genuine gap matters.
+
+## The label menu
+
+- apply_patch (code): Edit or create a source file.
+- ask_user (control): Ask the operator a question.
+- cloud_cli (infra): Cloud provider CLI (gcloud, oci, aws).
+- commit_changes (git): Stage and commit changes.
+- complete_doc (pdda): Move a working doc -> 3-COMPLETED.
+- create_branch (git): Create or switch to a branch.
+- cut_release (prs): Edit RELEASES.md / prepare a release.
+- db_query (infra): Query a database.
+- delegate_agent (control): Delegate to a subagent or skill.
+- file_capture_doc (pdda): Create a capture doc in PROJECT/1-INBOX.
+- file_issue (git): Create a GitHub issue.
+- find_files (code): Locate files or list a directory.
+- fs_mutate (infra): Create, move, copy or delete files.
+- gh_cli (git): Other GitHub CLI call (api, run, repo).
+- git_inspect (git): Inspect git state (status, log, diff, show).
+- git_sync (git): Push, pull, fetch, merge, rebase or stash.
+- merge_pr (git): Merge a pull request.
+- net (infra): Network or remote transfer.
+- no_action (control): Nothing to recommend; abstain.
+- open_pr (git): Open a pull request.
+- park_roadmap_row (prs): Park a new ROADMAP queue row.
+- pkg_manage (code): Install or manage dependencies.
+- promote_capture (pdda): Move a capture doc 1-INBOX -> 2-WORKING.
+- publish_release (prs): Publish a release or tag.
+- read_file (code): Read a file's contents.
+- read_issue (git): View or list GitHub issues.
+- review_pr (git): Inspect a PR's diff, checks or comments.
+- run_build (code): Compile or build the project.
+- run_linter (code): Run a linter or formatter.
+- run_pdda_check (pdda): Run pdda.sh checks.
+- run_script (code): Run an ad-hoc or inline analysis script.
+- run_tests (code): Run the test suite.
+- run_validate (xyz): Run the XYZ validate/preflight harness.
+- search_code (code): Search code or text by pattern.
+- session_control (control): Session plumbing: monitor, schedule, tool search.
+- start_relay (xyz): Start a relay or cross-model consult.
+- sys_inspect (infra): Inspect the machine or environment.
+- track_todo (control): Update the task list.
+- unmapped (control): Fell through every rule (coverage gate).
+- update_changelog (pdda): Append to CHANGELOG.md.
+- update_governance_doc (pdda): Edit AGENTS/SOP/ROUTER/GUIDING-PRINCIPLES.
+- update_pr (git): Edit or comment on an existing PR.
+- update_roadmap (prs): Edit ROADMAP.md (park vs repoint undetermined).
+- update_working_doc (pdda): Edit an active PROJECT/2-WORKING doc.
+
+## The 82 contested rows
+
+### a0002  [tool: Bash]
+```
+cat > /private/tmp/claude-501/-Users-noelsaw-Documents-GH-Repos-XYZ-forge/0f27051d-3441-453b-a9da-8520c12f33a4/scratchpad/a2a-105406-t3.md <<'EOF'
+Orchestrator verification complete — independent, not trusting the self-report:
+
+- Diff footprint: 4 files, all in-scope; every forbidden surface (RELEASES.md, skills/releases,
+  utils/pdda, ballast-release.sh) untouched. Confirmed.
+- test/gh32-releases
+```
+Auditor A said: `apply_patch`   Auditor B said: `fs_mutate`
+
+### a0009  [tool: Bash]
+```
+cat > /tmp/claude/t3.md <<'EOF'
+## Second reproduction, different cause, same silent success (2026-08-24)
+
+Defect 2 in the original report — **escalation/failure exits 0** — reproduced twice more today on `relay-drive.sh --review-once`, via a failure path unrelated to the original `TICK_REPO_ROOT` one. That matters: it confirms the exit code is wrong at the *driver* level, not incidental to the on
+```
+Auditor A said: `apply_patch`   Auditor B said: `fs_mutate`
+
+### a0023  [tool: Bash]
+```
+git add releases.sql && bash utils/releases-merge-resolve.sh 2>&1
+```
+Auditor A said: `run_script`   Auditor B said: `commit_changes`
+
+### a0024  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/xyz-3-agents-swarm" && /usr/bin/git add test/_setup.sh test/gh520-default-reviewer-stub.sh test/baselines/GH-520-default-stub-control.md validate.sh PROJECT/2-WORKING/GH-520-DEFAULT-REVIEWER-STUB.md && /usr/bin/git commit -q -m "fix(GH-520): default CODEX_BIN in test/_setup.sh so fixtures test their subject
+
+marathon_drive.py probes the REVIEWER binary before 
+```
+Auditor A said: `commit_changes`   Auditor B said: `run_tests`
+
+### a0045  [tool: Bash]
+```
+SP=/private/tmp/claude-501/-Users-noelsaw-Documents-GH-Repos-XYZ-forge/5ad2181e-96a3-431d-a8b7-ae7a137a79fb/scratchpad; cd "/Users/noelsaw/Documents/GH Repos/XYZ-forge" && git status --short && git checkout -b temp/gh131-harness-telemetry-rows origin/development 2>&1 | tail -2 && cp "$SP/h131/stash-harnesses.db" harnesses.db && cp "$SP/h131/stash-harnesses.sql" harnesses.sql && python3 utils/py/ha
+```
+Auditor A said: `unmapped`   Auditor B said: `create_branch`
+
+### a0051  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/XYZ-forge" && SHA=$(/usr/bin/git rev-parse refs/remotes/origin/fix/gh-23-kernel-overlap-enforcement) && echo "pr24 tip: $SHA" && /usr/bin/git switch -c gh23-rebase "$SHA" 2>&1 | tail -3 && echo "=== HEAD ===" && /usr/bin/git log --oneline -1 && echo "=== clean? ===" && /usr/bin/git status --short | /usr/bin/grep -v "^??" | head -3; echo "(no output above = cle
+```
+Auditor A said: `git_inspect`   Auditor B said: `create_branch`
+
+### a0084  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/XYZ-forge" && S="/private/tmp/claude-501/-Users-noelsaw-Documents-GH-Repos-XYZ-forge/11206b75-e175-4fc1-9704-10e13a28365d/scratchpad" && gh issue create --repo HiQS-Labs/XYZ-forge --title "External review (Russ K.): eight findings on guards that cover a narrower path than the doc claims — all reproduce at HEAD" --body-file "$S/body1.md" 2>&1 | tail -3
+```
+Auditor A said: `sys_inspect`   Auditor B said: `file_issue`
+
+### a0090  [tool: Bash]
+```
+ls utils/ate utils/fuzzing; echo ---; head -30 utils/ate/README.md utils/fuzzing/README.md 2>/dev/null; echo ---; head -20 utils/releases-merge-resolve.sh
+```
+Auditor A said: `read_file`   Auditor B said: `find_files`
+
+### a0092  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/XYZ-forge" && echo "=== GH-39 doc head ===" && head -12 PROJECT/2-WORKING/GH-39-RELEASES-PROJECT-SYNC.md && echo "=== a compliant sibling for the frontmatter shape ===" && head -14 PROJECT/2-WORKING/GH-23-KERNEL-OVERLAP-ENFORCEMENT.md 2>/dev/null || ls PROJECT/2-WORKING/ | head
+```
+Auditor A said: `read_file`   Auditor B said: `find_files`
+
+### a0096  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/rebalanceOS" && ls -la temp/bakeoff/ && echo "--- procs ---" && ps -eo pid,etime,command | grep "[e]mbed_" | head
+```
+Auditor A said: `sys_inspect`   Auditor B said: `find_files`
+
+### a0102  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/xyz-3-agents-swarm" && mkdir -p temp && cp "/private/tmp/claude-501/-Users-noelsaw-Documents-GH-Repos-xyz-3-agents-swarm/fc8942a9-44f4-4db5-be32-0e78d7bc81cc/scratchpad/551.md" temp/GH-551-corrected-body.md && ls -la temp/GH-551-corrected-body.md && git check-ignore -q temp/ && echo "(temp/ is gitignored — will not be committed)"
+```
+Auditor A said: `fs_mutate`   Auditor B said: `git_inspect`
+
+### a0103  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/aegis-sleuth-slack-bot" && S="/private/tmp/claude-501/-Users-noelsaw-Documents-GH-Repos-aegis-sleuth-slack-bot/f3c837f5-410b-4797-aa1d-8e110769c37e/scratchpad" && cp scripts/reminder-thread-battery.js "$S/rtb.bak" && rtk proxy perl -0pi -e 's/if\(!IsDirectMessage\)\n    await SeedEnabledChannelAsync/if\(false\)\n    await SeedEnabledChannelAsync/' scripts/remi
+```
+Auditor A said: `unmapped`   Auditor B said: `apply_patch`
+
+### a0107  [tool: Bash]
+```
+rm -rf "$HOME/Documents/GH Repos/rebalanceos-webapp" && echo "deleted rebalanceos-webapp"; echo; echo "=== rebalance folders now ==="; ls -d "$HOME/Documents/GH Repos/"*ebalance* "$HOME/rebalance"* 2>/dev/null; echo; echo "=== main checkout ==="; cd "$HOME/Documents/GH Repos/rebalanceOS" && echo "branch:   $(git branch --show-current)"; echo "head:     $(git log --oneline -1)"; echo "version:  $(/
+```
+Auditor A said: `fs_mutate`   Auditor B said: `review_pr`
+
+### a0109  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/XYZ-forge" && diff -q HARNESS-MODELS-REGISTRY.md "/private/tmp/claude-501/-Users-noelsaw-Documents-GH-Repos-XYZ-forge/0f27051d-3441-453b-a9da-8520c12f33a4/scratchpad/harness-registry-live-backup.md" 2>&1
+cp "/private/tmp/claude-501/-Users-noelsaw-Documents-GH-Repos-XYZ-forge/0f27051d-3441-453b-a9da-8520c12f33a4/scratchpad/harness-registry-live-backup.md" HARNE
+```
+Auditor A said: `read_file`   Auditor B said: `unmapped`
+
+### a0116  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/xyz-3-agents-swarm" && gh api repos/Claude-AI-Tools-Ventura-County/xyz-3-agents-swarm/issues/comments/5300711863 -q '.body'
+```
+Auditor A said: `read_issue`   Auditor B said: `gh_cli`
+
+### a0117  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/XYZ-forge" && gh api repos/HiQS-Labs/XYZ-forge/issues/comments/5463438436 --jq '.user.login + " · " + .created_at + "\n\n" + .body' 2>&1 | head -200
+```
+Auditor A said: `read_issue`   Auditor B said: `gh_cli`
+
+### a0128  [tool: Bash]
+```
+tail -20 "/private/tmp/claude-501/-Users-noelsaw-Documents-GH-Repos-XYZ-forge/0f27051d-3441-453b-a9da-8520c12f33a4/tasks/b6cv90p9d.output"; cd "/Users/noelsaw/Documents/GH Repos/XYZ-forge" && git log --oneline -1 origin/development 2>/dev/null
+```
+Auditor A said: `sys_inspect`   Auditor B said: `git_inspect`
+
+### a0140  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/xyz-3-agents-swarm" && PRE=$(git rev-parse HEAD) && git stash push -q -- bin/tick utils/py/rtl.py utils/py/marathon_drive.py && { echo "# GH-409 — recorded negative control (#419)"; echo; echo "Test:     \`test/gh409-claim-leak.sh\` (TEST_SOFT_FAIL=1)"; echo "Baseline: \`$PRE\` — bin/tick, utils/py/rtl.py, utils/py/marathon_drive.py at pre-fix content"; echo "
+```
+Auditor A said: `git_sync`   Auditor B said: `run_tests`
+
+### a0142  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/aegis-sleuth-slack-bot" && git pull --ff-only 2>&1 | tail -2; rtk proxy git log --oneline -1; echo "=== npm test ==="; npm test 2>&1 | rtk proxy grep -E "Tests:|Test Suites:|^# (tests|pass|fail)" - | head -10
+```
+Auditor A said: `git_sync`   Auditor B said: `run_tests`
+
+### a0149  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/rebalanceOS-gh94" && gh pr merge 95 --merge --delete-branch 2>&1|tail -1 && gh issue close 94 --reason "not planned" --comment "## Paused by operator decision — 2026-08-20
+
+**Measurement of the fused retrieval path is deferred indefinitely. Retrieval quality is judged by everyday use instead.**
+
+Operator's reasoning: the remaining work — hand-building ~25 lexi
+```
+Auditor A said: `merge_pr`   Auditor B said: `update_pr`
+
+### a0158  [tool: Bash]
+```
+ssh -o ConnectTimeout=8 -o BatchMode=yes root@64.176.223.93 'journalctl -u sleuth-app --since "-4 min" --no-pager | grep -iE "error|fatal|listening|started|ready" | tail -6'
+```
+Auditor A said: `sys_inspect`   Auditor B said: `net`
+
+### a0162  [tool: Bash]
+```
+SP=/private/tmp/claude-501/-Users-noelsaw-Local-Sites-ai-design-la-wp-app-public-wp-content-themes-AI-design-LA-WP-theme/93c950a8-e995-4196-ae9f-2f02c7462bc0/scratchpad; T="/Users/noelsaw/Local Sites/ai-design-la-wp/app/public/wp-content/themes/AI-design-LA-WP-theme"; set -e; php -l "$T/bin/adl-debug-probe.php" | tail -1; cp "$T/bin/adl-debug-probe.php" "/Users/noelsaw/Local Sites/ai-design-la-wp/
+```
+Auditor A said: `unmapped`   Auditor B said: `db_query`
+
+### a0165  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/xyz-3-agents-swarm" && SP="/private/tmp/claude-501/-Users-noelsaw-Documents-GH-Repos-xyz-3-agents-swarm/12ecbe8a-027e-4c08-961c-3b2ffea4cd2d/scratchpad"; gh pr create --base development --head fix/gh385-retry-token-parity --title "fix(GH-385): log the token/relay disagreement before rebuilding an Approved phase" --body-file "$SP/gh385-pr-body.md" 2>&1 | tail -
+```
+Auditor A said: `unmapped`   Auditor B said: `open_pr`
+
+### a0175  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/XYZ-forge"
+RAW='- **GH-505 · Builder can approve and close its own relay; no merge path checks for a reviewer** 🆕 — relay_drive.py trusts the STATUS word without checking who wrote it; jog overrides the driver'"'"'s escalation on that same word; no merge path, hook, or branch protection requires a review. rated 85/85/50/55 → [GH-505-RELAY-REVIEWER-INTEGRITY.md
+```
+Auditor A said: `unmapped`   Auditor B said: `park_roadmap_row`
+
+### a0178  [tool: Bash]
+```
+cd "$HOME/task-clones/xyzforge-gh478-runaway-guard"
+RAW='- **GH-478 · ATE exit-cleanup / runaway-process guard — gen4 adaptive-ate test hung ~3 days at ~100% CPU** 🔨 **active 2026-09-06** — harness-side watchdog on `fix/gh478-ate-runaway-guard`: test/lib runaway guard (per-invocation timeout + trap-safe child reaper) + standalone ATE sweep, one PR, two commits; engine-side termination cap deferred
+```
+Auditor A said: `unmapped`   Auditor B said: `park_roadmap_row`
+
+### a0183  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/rebalanceOS" && ls HiQS/tests/conftest.py 2>/dev/null && /usr/bin/grep -n 'sys.path\|rootdir' HiQS/tests/conftest.py | head; echo "--- root conftest ---"; /usr/bin/grep -n 'sys.path\|HiQS' conftest.py tests/conftest.py 2>/dev/null | head; echo "--- is hiqs installed in the ci venv? ---"; SB=/private/tmp/claude-501/-Users-noelsaw-Documents-GH-Repos-rebalanceOS/
+```
+Auditor A said: `search_code`   Auditor B said: `find_files`
+
+### a0184  [tool: Bash]
+```
+head -5 /Users/noelsaw/.local/bin/aider; echo "---"; pipx list 2>/dev/null | grep -i aider; echo "---"; grep -n -i "aider" "/Users/noelsaw/Documents/GH Repos/aegis-sleuth-slack-bot/.xyz/relay-automation/README.md" | grep -i "install\|venv\|pip" | head -10
+```
+Auditor A said: `sys_inspect`   Auditor B said: `pkg_manage`
+
+### a0185  [tool: Bash]
+```
+df -h ~ | tail -1 && echo "---uv---" && which uv && uv --version
+```
+Auditor A said: `sys_inspect`   Auditor B said: `read_file`
+
+### a0187  [tool: Bash]
+```
+C="$HOME/rbos-clones/gh67-pytest-config"; cd "$C"; "$C/.venv2/bin/python" -m pip install -q ruff mypy 2>&1 | tail -2; echo "=== ruff check ==="; "$C/.venv2/bin/python" -m ruff check . 2>&1 | tail -4; echo "=== ruff format --check ==="; "$C/.venv2/bin/python" -m ruff format --check . 2>&1 | tail -3; echo "=== mypy src/ ==="; "$C/.venv2/bin/python" -m mypy src/ 2>&1 | tail -4; echo "=== toml parses 
+```
+Auditor A said: `pkg_manage`   Auditor B said: `run_linter`
+
+### a0189  [tool: Bash]
+```
+which rtk; rtk --version 2>&1 | head -3; echo "--- install method ---"; ls -la "$(which rtk)" 2>&1; echo "--- brew? ---"; brew list 2>/dev/null | /usr/bin/grep -i rtk; echo "--- cargo? ---"; ls ~/.cargo/bin/rtk 2>/dev/null && echo "cargo install present"
+```
+Auditor A said: `sys_inspect`   Auditor B said: `pkg_manage`
+
+### a0192  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/aegis-sleuth-slack-bot" && git checkout -b gh-43-reminder-extraction-fidelity 2>&1 | tail -2 && git branch --show-current && git mv PROJECT/1-INBOX/GH-43-REMINDER-EXTRACTION-FIDELITY.md PROJECT/2-WORKING/GH-43-REMINDER-EXTRACTION-FIDELITY.md && git mv PROJECT/1-INBOX/REMINDER-EXTRACTION-BATTERY-CORPUS.md PROJECT/2-WORKING/REMINDER-EXTRACTION-BATTERY-CORPUS.md 
+```
+Auditor A said: `create_branch`   Auditor B said: `promote_capture`
+
+### a0193  [tool: Bash]
+```
+SC=/private/tmp/claude-501/-Users-noelsaw-Documents-GH-Repos-XYZ-forge/5ad2181e-96a3-431d-a8b7-ae7a137a79fb/scratchpad
+cd "$SC/clone-gh399" && mkdir -p PROJECT/2-WORKING && git mv PROJECT/1-INBOX/GH-399-PROFILE-CARRIES-THE-ROUTE.md PROJECT/2-WORKING/GH-399-PROFILE-CARRIES-THE-ROUTE.md && cat > PROJECT/2-WORKING/GH-399-PROFILE-CARRIES-THE-ROUTE.md <<'EOF'
+---
+title: "Let the profile carry the route
+```
+Auditor A said: `fs_mutate`   Auditor B said: `promote_capture`
+
+### a0198  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/giant-brains-claude-skills" && grep -l "MOVED " */*/SKILL.md | while read s; do git rm -rq "$(dirname "$s")"; done; rmdir repo-health utils 2>&1; echo "stubs left: $(grep -l 'MOVED ' */*/SKILL.md 2>/dev/null | wc -l)"; echo "SKILL.md count: $(find . -name SKILL.md -not -path './.git/*' -not -path './.xyz/*' -not -path './.tick/*' | wc -l)"; ls -d */ | tr '\n' 
+```
+Auditor A said: `fs_mutate`   Auditor B said: `commit_changes`
+
+### a0208  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/xyz-3-agents-swarm" && echo "=== example MARATHON.yaml ===" && sed -n '1,60p' "PROJECT/2-WORKING/MARATHON-2026-08-06-LITMUS/MARATHON.yaml" 2>/dev/null || find . -name 'MARATHON.yaml' -not -path './.git/*' | head -3
+```
+Auditor A said: `read_file`   Auditor B said: `find_files`
+
+### a0235  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/rebalanceOS-issue-42"
+until [ "$(gh run list --repo HiQS-Suite/rebalanceOS --branch fix/gh-42-mlx-metal-abort --limit 1 --json status -q '.[0].status')" = "completed" ]; do sleep 15; done
+gh pr view 43 --repo HiQS-Suite/rebalanceOS --json statusCheckRollup \
+  -q '.statusCheckRollup // [] | map("\(.name // .context)=\(.conclusion // .state)") | join("\n")'
+```
+Auditor A said: `gh_cli`   Auditor B said: `review_pr`
+
+### a0240  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/aegis-sleuth-slack-bot" && npx tsc --noEmit 2>&1|tail -2 && cat >> tests/gh143-unresolved-reference.test.js <<'EOF'
+
+describe('GH-143 agy review findings', () => {
+  const ContextResolutionModule = require('../src/reminder-context-resolution');
+  const DisplaySelectionModule = require('../src/reminder-display-selection');
+
+  test('a user\'s own numbering survi
+```
+Auditor A said: `apply_patch`   Auditor B said: `run_tests`
+
+### a0245  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/rebalanceOS-gh144"
+source .venv/bin/activate
+which mypy ruff
+mypy src/ 2>&1 | tail -15
+deactivate
+```
+Auditor A said: `run_linter`   Auditor B said: `unmapped`
+
+### a0257  [tool: Bash]
+```
+C="$HOME/rbos-clones/gh67-rebase"; cd "$C"; git commit --amend --no-edit --reset-author -q && git log -1 --format='author: %an <%ae>%ncommitter: %cn <%ce>'; echo "=== pyproject identical to the QA'd version? ==="; git diff c67e037..HEAD -- pyproject.toml 2>/dev/null | head -3; echo "(empty = identical)"; echo "=== PDDA ==="; for c in frontmatter roadmap roadmap-coverage releases; do printf '%-18s 
+```
+Auditor A said: `commit_changes`   Auditor B said: `run_pdda_check`
+
+### a0259  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/XYZ-forge-marathon-ledger-trust"
+bash utils/pdda/pdda.sh status-table 2>&1 | tail -5
+bash utils/pdda/pdda.sh hardcoded-paths 2>&1 | tail -5
+echo "=== pdda-repo-contract full ==="
+bash test/pdda-repo-contract.sh 2>&1 | tail -10
+```
+Auditor A said: `run_pdda_check`   Auditor B said: `run_tests`
+
+### a0264  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/XYZ-forge" && python3 - <<'PY'
+p="PROJECT/2-WORKING/GH-77-STANDUP-SESSION-TRIAGE.md"
+s=open(p).read()
+s=s.replace("doc_type: prd\n", "owner: noelsaw1\ndoc_type: prd\n", 1)
+s=s.replace("phases: 4\n---", """phases: 4
+goal: >
+  Give the operator one instrument that answers "what did I leave open, what is rotting, and is the
+  plan still right?" in under a screen 
+```
+Auditor A said: `update_working_doc`   Auditor B said: `run_pdda_check`
+
+### a0265  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/rebalanceOS/.xyz/relay-automation" && [ -x resolve-model-alias.sh ] && ./resolve-model-alias.sh "qwen 3.8 max" 2>&1 | head -6; echo "---"; ./resolve-model-alias.sh "qwen3-max" 2>&1 | head -4; echo "--- key present? ---"; [ -n "${OPENROUTER_API_KEY:-}" ] && echo "  OPENROUTER_API_KEY set in env" || echo "  OPENROUTER_API_KEY not in this shell env"
+```
+Auditor A said: `run_script`   Auditor B said: `read_file`
+
+### a0267  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/XYZ-forge"
+rm -f releases.db.bak && echo "deleted releases.db.bak"
+echo "=== validate.sh auto-merge sane? both TESTS entries present? ==="
+grep -c 'gh353-vendored-router-audit.sh' validate.sh
+git diff origin/development -- validate.sh | head -20
+echo "=== artifacts test ==="
+bash test/gh32-releases-artifacts.sh 2>&1 | tail -3
+```
+Auditor A said: `fs_mutate`   Auditor B said: `run_tests`
+
+### a0268  [tool: Bash]
+```
+cd ~/task-clones/xyzforge-merge-cleanup-primary-first && python3 - <<'PY'
+import pathlib
+q = pathlib.Path("test/agent-chorus.sh"); s = q.read_text()
+start = s.index('# B1: recording an identity makes join a WRITER.')
+end = s.index('printf \'  agent-chorus: %s pass, %s fail')
+new = '''# B1: recording an identity makes join a WRITER. Without the discussion lock its stale snapshot
+# could overwrite a
+```
+Auditor A said: `run_script`   Auditor B said: `run_tests`
+
+### a0269  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/XYZ-forge" && python3 - <<'PYEOF'
+p = "RELEASES-DB-FAQS.md"
+s = open(p, encoding="utf-8").read()
+old = """| Case | Result |
+|---|---|
+| both branches made the **same number** of writes | merges **cleanly** — one generation header, both sides' rows present. The header is identical text on both sides (`-- generation: 2`), so there is nothing to conflict. |
+| bra
+```
+Auditor A said: `apply_patch`   Auditor B said: `run_script`
+
+### a0273  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/aegis-sleuth-slack-bot" && python3 - <<'PY'
+import io
+p="relay-system/2026-08-10/gh-43-branch-qa-codex.md"
+s=io.open(p,encoding="utf-8").read()
+block = """### claude-a r4 (Producer) — round cap extended 3 → 4 to resolve the escalation
+
+Both blockers accepted and fixed. Extending the cap rather than leaving this `Escalated`: the
+findings were real and actionabl
+```
+Auditor A said: `run_script`   Auditor B said: `start_relay`
+
+### a0274  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/aegis-sleuth-slack-bot"
+echo "=== SYSTEM 1: Sleuth's production RAG (powers the live Slack 'ask-self' command) ==="
+grep -n "EMBED_MODEL\|EMBED_DIM\|SYNTHESIS_MODEL" src/rag/index.js | head -4
+echo "  entry point:"; grep -n "RagModule.askSelf\|require.*rag" src/chat-commands/ask-self-command.js | head -2
+echo
+echo "=== SYSTEM 2: the ask-self dev-tool index (CL
+```
+Auditor A said: `unmapped`   Auditor B said: `search_code`
+
+### a0275  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/rebalanceOS" && python3 - <<'PY'
+import pathlib
+p = pathlib.Path("ROADMAP.md"); lines = p.read_text().split("\n")
+q = next(i for i,l in enumerate(lines) if l.strip()=="### Queue / parked intake")
+lines.insert(q+1, "- **Monitored-repo rules: how repos are selected, added, and managed (and which rules to tweak)** ([#158](https://github.com/HiQS-Labs/rebalanceOS/
+```
+Auditor A said: `update_roadmap`   Auditor B said: `start_relay`
+
+### a0278  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/XYZ-forge" && TICK="$PWD/bin/tick"; T="RELAY-gh77-standup-prd-review-codex"; "$TICK" claim "$T" --agent claude-a --paths "relay-system/2026-08-19/gh77-standup-prd-review-codex.md" >/dev/null 2>&1; "$TICK" release "$T" --agent claude-a --to codex >/dev/null 2>&1; "$TICK" info "$T" 2>/dev/null | grep -E "status|handoff"
+```
+Auditor A said: `start_relay`   Auditor B said: `search_code`
+
+### a0281  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/LTVera-Pandas" && OUT="/private/tmp/claude-501/-Users-noelsaw-Documents-GH-Repos-LTVera-Pandas/f01bfdf4-0d21-4a03-81d8-b2828899401a/scratchpad/pytest-full.txt" && python3 -m pytest -q > "$OUT" 2>&1; echo "EXIT=$?"; python3 -c "
+d=open('$OUT').read()
+import re
+m=re.findall(r'^(FAILED|ERROR).*', d, re.M)
+print('failures/errors:', len(m))
+for x in m[:15]: print('
+```
+Auditor A said: `unmapped`   Auditor B said: `run_tests`
+
+### a0283  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/aegis-sleuth-slack-bot" && S="/private/tmp/claude-501/-Users-noelsaw-Documents-GH-Repos-aegis-sleuth-slack-bot/f3c837f5-410b-4797-aa1d-8e110769c37e/scratchpad" && cp "$S/rtb.bak" scripts/reminder-thread-battery.js && rtk proxy grep -c "if(false)" scripts/reminder-thread-battery.js; npx jest tests/reminder-thread-battery.test.js 2>&1 | tail -5
+```
+Auditor A said: `sys_inspect`   Auditor B said: `run_tests`
+
+### a0290  [tool: Bash]
+```
+D="/private/tmp/claude-501/-Users-noelsaw-Documents-GH-Repos-xyz-3-agents-swarm/12ecbe8a-027e-4c08-961c-3b2ffea4cd2d/scratchpad/ci-local"; cd "$D" && chmod +x ci-local.sh && echo "=== self-checks first: does it pass its own repo's gates?"; shellcheck -S error ci-local.sh && echo "  shellcheck clean"; bash -n ci-local.sh && echo "  bash -n clean"; echo; echo "=== --fast run:"; ./ci-local.sh --fast 
+```
+Auditor A said: `unmapped`   Auditor B said: `run_linter`
+
+### a0291  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/.meter-build" && for m in "/Users/" "/Volumes/" "noelsaw" "Local Sites"; do printf "  %-14s %s\n" "$m" "$(/usr/bin/grep -cF "$m" CHANGELOG.md)"; done && ./validate.sh >"$TMPDIR/v2.log" 2>&1; echo "validate EXIT=$?"; /usr/bin/grep -A5 "^failed:" "$TMPDIR/v2.log" || echo "suite GREEN"
+```
+Auditor A said: `search_code`   Auditor B said: `run_validate`
+
+### a0292  [tool: Bash]
+```
+cd "$HOME/marathon-clones/gh346-model-resolution" && bash test/gh346-gateway-allowlists.sh 2>&1 | tail -2 && ./validate.sh > "/var/folders/69/3l_82qtj7fzglnt_jjg07jh40000gn/T/gh346-validate4.log" 2>&1; echo "VALIDATE_RC=$?"
+```
+Auditor A said: `run_validate`   Auditor B said: `run_tests`
+
+### a0293  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/.meter-build" && bash -n validate.sh && bash test/path-integrity.sh 2>&1 | tail -2; echo "---"; ./validate.sh > /tmp/claude/gh557/validate4.log 2>&1; echo "VALIDATE4 EXIT=$?"; /usr/bin/sed -n '/^failed:/,$p' /tmp/claude/gh557/validate4.log
+```
+Auditor A said: `run_validate`   Auditor B said: `run_tests`
+
+### a0294  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/xyz-3-agents-swarm-doorbell" && git add CHANGELOG.md && git commit -q -m "docs(changelog): record the agy relay hardening of Doorbell mode (#510)
+
+Co-Authored-By: Claude Opus 5 (1M context) <noreply@anthropic.com>" && ./validate.sh 2>&1 | tail -6
+```
+Auditor A said: `commit_changes`   Auditor B said: `run_validate`
+
+### a0300  [tool: Bash]
+```
+L="/private/tmp/claude-501/-Users-noelsaw-Documents-GH-Repos-xyz-3-agents-swarm/12ecbe8a-027e-4c08-961c-3b2ffea4cd2d/tasks/ba86be4j2.output"; echo "=== suites with failures:"; /usr/bin/grep -nE "^[a-z0-9-]+: [0-9]+ pass, [1-9][0-9]* fail" "$L"; echo; echo "=== validate.sh FAILED summary block:"; /usr/bin/grep -n -A12 "^FAILED" "$L" | tail -20
+```
+Auditor A said: `sys_inspect`   Auditor B said: `search_code`
+
+### a0301  [tool: Bash]
+```
+WT=/private/tmp/claude-501/-Users-noelsaw-Documents-GH-Repos-xyz-3-agents-swarm/12ecbe8a-027e-4c08-961c-3b2ffea4cd2d/scratchpad/wt-dev && cd "$WT" && echo "=== tail of test ===" && tail -22 test/marathon-drive.sh && echo "=== helper names from _setup.sh ===" && /usr/bin/grep -n "^pass()\|^fail()\|^ok()\|finish\|summary" test/_setup.sh | head
+```
+Auditor A said: `unmapped`   Auditor B said: `search_code`
+
+### a0306  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/aegis-sleuth-slack-bot" && for f in utils/py/releases_app.py .xyz/utils/py/releases_app.py "/Users/noelsaw/Documents/GH Repos/XYZ-forge/utils/py/releases_app.py"; do printf "%-60s " "$(basename $(dirname $(dirname $f)))/$(basename $f)"; grep -o 'VALUES\\((\.\*)\\);\$"[^)]*' "$f" | head -1; done
+```
+Auditor A said: `find_files`   Auditor B said: `search_code`
+
+### a0308  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/XYZ-forge" && head -10 relay-system/2026-08-18/gh32-releases-app-prd-review.md && grep -n "Reviewer · Round 4" relay-system/2026-08-18/gh32-releases-app-prd-review.md
+```
+Auditor A said: `read_file`   Auditor B said: `search_code`
+
+### a0313  [tool: ToolSearch]
+```
+select:mcp__claude_ai_Google_Calendar__search_events
+```
+Auditor A said: `unmapped`   Auditor B said: `session_control`
+
+### a0314  [tool: ToolSearch]
+```
+select:TaskStop
+```
+Auditor A said: `unmapped`   Auditor B said: `session_control`
+
+### a0315  [tool: ToolSearch]
+```
+select:WebFetch
+```
+Auditor A said: `unmapped`   Auditor B said: `session_control`
+
+### a0316  [tool: ToolSearch]
+```
+select:TaskStop
+```
+Auditor A said: `unmapped`   Auditor B said: `session_control`
+
+### a0317  [tool: ToolSearch]
+```
+select:Monitor
+```
+Auditor A said: `unmapped`   Auditor B said: `session_control`
+
+### a0318  [tool: ToolSearch]
+```
+select:TaskStop,TaskOutput
+```
+Auditor A said: `unmapped`   Auditor B said: `session_control`
+
+### a0319  [tool: ToolSearch]
+```
+select:Monitor
+```
+Auditor A said: `unmapped`   Auditor B said: `session_control`
+
+### a0320  [tool: ToolSearch]
+```
+select:Monitor
+```
+Auditor A said: `unmapped`   Auditor B said: `session_control`
+
+### a0321  [tool: ToolSearch]
+```
+select:mcp__codebase-memory-mcp__index_repository
+```
+Auditor A said: `unmapped`   Auditor B said: `session_control`
+
+### a0326  [tool: Bash]
+```
+export HARNESS="/Users/noelsaw/Documents/GH Repos/aegis-sleuth-slack-bot/.xyz"; export TICK_REPO_ROOT="/Users/noelsaw/Documents/GH Repos/aegis-sleuth-slack-bot"; cd "$HARNESS"
+TASK="$(cat /tmp/claude/relay-task-r2.txt)"
+AGY_AGENT=agy RELAY_PEER=claude-a ALLOW_PATHS="" AGY_LOG="/tmp/claude/agy-turn-r2.log" \
+relay-automation/relay-drive.sh \
+  --relay-file "relay-system/2026-08-16/gh-65-attachment-
+```
+Auditor A said: `session_control`   Auditor B said: `start_relay`
+
+### a0328  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/rebalanceOS/.xyz" && export TICK_REPO_ROOT="/Users/noelsaw/Documents/GH Repos/rebalanceOS/.xyz" && T="$TICK_REPO_ROOT/bin/tick" && TASK="RELAY-pr83-gh81-code-qa-r2" && "$T" log task.created "$TASK" --agent claude-a >/dev/null && "$T" claim "$TASK" --agent claude-a --paths "relay-system/2026-08-20/pr83-gh81-code-qa.md" >/dev/null && "$T" release "$TASK" --agent
+```
+Auditor A said: `session_control`   Auditor B said: `start_relay`
+
+### a0331  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/pdda" && echo "=== RELEASE-PLAN frontmatter ==="; head -4 SKILLS/RELEASE-PLAN/SKILL.md | cut -c1-120; echo; echo "=== pdda skill root resolution ==="; command grep -n "repo root\|git rev-parse\|utils/pdda/pdda.sh" ~/.claude/skills/pdda/SKILL.md | head -20
+```
+Auditor A said: `read_file`   Auditor B said: `git_inspect`
+
+### a0334  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/xyz-3-agents-swarm" && sleep 900; wc -l /tmp/claude/validate-rebased.log; /usr/bin/grep -n "FAIL:" /tmp/claude/validate-rebased.log | head -5; tail -4 /tmp/claude/validate-rebased.log
+```
+Auditor A said: `sys_inspect`   Auditor B said: `search_code`
+
+### a0335  [tool: Bash]
+```
+which agy && timeout 120 agy -p "Reply with exactly: AGY_OK" 2>&1 | tail -20; echo "EXIT:${PIPESTATUS[0]}"
+```
+Auditor A said: `run_script`   Auditor B said: `read_file`
+
+### a0336  [tool: Bash]
+```
+command -v cmd 2>/dev/null && (cmd --help 2>&1 | /usr/bin/grep -iE 'yolo|permission-mode|tools-all' | head -6) || echo "cmd not on PATH — cannot settle empirically"
+```
+Auditor A said: `sys_inspect`   Auditor B said: `search_code`
+
+### a0338  [tool: Bash]
+```
+ps aux 2>/dev/null | grep "[g]it " | head -5; echo "--- lock age:"; ls -l "/Users/noelsaw/Documents/GH Repos/XYZ-forge/.git/index.lock" 2>/dev/null; echo "--- main repo HEAD:"; git -C "/Users/noelsaw/Documents/GH Repos/XYZ-forge" rev-parse --short HEAD; echo "--- branch:"; git -C "/Users/noelsaw/Documents/GH Repos/XYZ-forge" rev-parse --abbrev-ref HEAD
+```
+Auditor A said: `sys_inspect`   Auditor B said: `find_files`
+
+### a0339  [tool: Bash]
+```
+source "$HOME/Library/Application Support/Local/ssh-entry/h5_ZJ-nor.sh" >/dev/null 2>&1; cd "/Users/noelsaw/Local Sites/macnerd-xyz-09-10/app/public"; which wp php; export WP_CLI_PHP_ARGS="-d memory_limit=1024M"; wp plugin list --fields=name,status,version 2>&1 | grep -i -E '^name|mac-|mbg|soc|kiss-tabs|Error|Fatal' | head -30
+```
+Auditor A said: `unmapped`   Auditor B said: `net`
+
+### a0345  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/aegis-sleuth-slack-bot" && SCRATCH="/private/tmp/claude-501/-Users-noelsaw-Documents-GH-Repos-aegis-sleuth-slack-bot/80022562-b588-426c-9b03-8a85a529110b/scratchpad" && rtk proxy grep -n "review-once\|non-approval\|stall\|STATUS:" "$SCRATCH/codex-drive.out" | head -6; echo "=== RELAY LOG ==="; rtk proxy awk '/## Log/,0' .xyz/relay-system/2026-08-10/gh37-qa-r2.
+```
+Auditor A said: `unmapped`   Auditor B said: `search_code`
+
+### a0346  [tool: Bash]
+```
+dhq deployments list -p aegis-sleuth-slackbot 2>&1 | head -8
+```
+Auditor A said: `cloud_cli`   Auditor B said: `read_file`
+
+### a0347  [tool: Bash]
+```
+for d in "/Users/noelsaw/Documents/GH Repos/XYZ-forge-unstuck" "/Users/noelsaw/marathon-clones/marathon-gh-417-gh406-remediation" "/Users/noelsaw/Documents/GH Repos/XYZ-forge-gate-203849" "/Users/noelsaw/marathon-clones/transcript-archive-2026-09-05"; do
+  echo "=== $(basename "$d")"
+  echo "  dirty: $(git -C "$d" status --porcelain 2>/dev/null | wc -l | tr -d ' ')  stash: $(git -C "$d" stash list
+```
+Auditor A said: `sys_inspect`   Auditor B said: `unmapped`
+
+### a0349  [tool: Bash]
+```
+tail -5 "/private/tmp/claude-501/-Users-noelsaw-Documents-GH-Repos-rebalanceOS/4067f433-c427-4fcb-a1b2-fc3393e27285/tasks/bre7tuy0t.output" 2>/dev/null || echo "(still running)"
+date '+%H:%M:%S'
+```
+Auditor A said: `sys_inspect`   Auditor B said: `read_file`
+
+### a0372  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/LTVera-Pandas" && S="/private/tmp/claude-501/-Users-noelsaw-Documents-GH-Repos-LTVera-Pandas/9bfbd1c6-5750-45e1-856e-0079c50fb771/scratchpad" && gh issue comment 127 --body-file "$S/127-comment.md" 2>&1 | tail -2 && echo "--- verify ---" && gh issue view 127 --json state,comments --jq '"state=\(.state)  comments=\(.comments|length)"'
+```
+Auditor A said: `unmapped`   Auditor B said: `read_issue`
+
+### a0375  [tool: Bash]
+```
+cd "/Users/noelsaw/Documents/GH Repos/XYZ-forge" && gh pr comment 488 --body "$(cat <<'EOF'
+## Adjudication of CodeRabbit's 7 findings — 1 Major is real, 3 are already fixed
+
+Verified each against the PR head (`6914b8e0`), mapping every comment to the commit it actually reviewed. **Three findings target superseded commits.** One Major holds and I reproduced it; three Minors hold and are cheap.
+
+| 
+```
+Auditor A said: `update_pr`   Auditor B said: `review_pr`

@@ -8,6 +8,8 @@ This file is the first entry point for an AI agent working in this repo: it tell
 - `GUIDING-PRINCIPLES.md` = the north star; what the repo's goals and design tradeoffs answer to
 - `AGENTS.md` = behavioral rules, decision quality, reversibility, blast radius, proof
 - `README.md` = human-facing repo/product overview
+- `doc/oracle-collaborator-summary.md` = dated Oracle story, evidence index, and agreed next milestone; [Needle #1](https://github.com/HiQS-Labs/Needle-fork/issues/1) tracks execution under [XYZ #467](https://github.com/HiQS-Labs/XYZ-forge/issues/467)
+- `FINDINGS.md` = append-only investigation history; dated entries are historical observations, not current instructions
 - `ROADMAP.md` = pointer ledger for this repo's own maintenance work
 - `CHANGELOG.md` = the end-of-iteration running log (first-class PDDA artifact; governed by `PROJECT/PDDA.md`)
 - `RELEASES.md` = forward-looking release-planning ledger (first-class PDDA artifact; governed by `PROJECT/PDDA.md`)

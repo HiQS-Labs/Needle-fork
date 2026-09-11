@@ -1,0 +1,227 @@
+{
+  "actions": 1091,
+  "alias_coverage": 1.0,
+  "aliased_actions": 1091,
+  "audit_format_version": "agent-label-coverage-v1",
+  "canonical_tools": {
+    "Bash": 773,
+    "Edit": 69,
+    "Read": 182,
+    "SendMessage": 1,
+    "TaskOutput": 7,
+    "TaskStop": 1,
+    "TodoWrite": 46,
+    "Write": 12
+  },
+  "distinct_mapped_labels": 26,
+  "eligible_pairs": 1070,
+  "event_format_version": "normalized-agent-transcript-v1",
+  "input_shapes": [
+    {
+      "count": 677,
+      "keys": [
+        "command",
+        "description"
+      ],
+      "source_tool": "Bash"
+    },
+    {
+      "count": 102,
+      "keys": [
+        "file_path",
+        "limit",
+        "offset"
+      ],
+      "source_tool": "Read"
+    },
+    {
+      "count": 71,
+      "keys": [
+        "file_path"
+      ],
+      "source_tool": "Read"
+    },
+    {
+      "count": 67,
+      "keys": [
+        "command",
+        "description",
+        "timeout"
+      ],
+      "source_tool": "Bash"
+    },
+    {
+      "count": 48,
+      "keys": [
+        "file_path",
+        "new_string",
+        "old_string"
+      ],
+      "source_tool": "Edit"
+    },
+    {
+      "count": 46,
+      "keys": [
+        "todos"
+      ],
+      "source_tool": "TodoWrite"
+    },
+    {
+      "count": 20,
+      "keys": [
+        "file_path",
+        "new_string",
+        "old_string",
+        "replace_all"
+      ],
+      "source_tool": "Edit"
+    },
+    {
+      "count": 12,
+      "keys": [
+        "content",
+        "file_path"
+      ],
+      "source_tool": "Write"
+    },
+    {
+      "count": 11,
+      "keys": [
+        "command",
+        "dangerouslyDisableSandbox",
+        "description",
+        "timeout"
+      ],
+      "source_tool": "Bash"
+    },
+    {
+      "count": 8,
+      "keys": [
+        "file_path",
+        "limit"
+      ],
+      "source_tool": "Read"
+    },
+    {
+      "count": 8,
+      "keys": [
+        "command",
+        "description",
+        "run_in_background"
+      ],
+      "source_tool": "Bash"
+    },
+    {
+      "count": 7,
+      "keys": [
+        "block",
+        "task_id",
+        "timeout"
+      ],
+      "source_tool": "TaskOutput"
+    },
+    {
+      "count": 7,
+      "keys": [
+        "command",
+        "dangerouslyDisableSandbox",
+        "description",
+        "run_in_background"
+      ],
+      "source_tool": "Bash"
+    },
+    {
+      "count": 3,
+      "keys": [
+        "command",
+        "description",
+        "run_in_background",
+        "timeout"
+      ],
+      "source_tool": "Bash"
+    },
+    {
+      "count": 1,
+      "keys": [
+        "file_path",
+        "offset"
+      ],
+      "source_tool": "Read"
+    },
+    {
+      "count": 1,
+      "keys": [
+        "file_path",
+        "new_string"
+      ],
+      "source_tool": "Edit"
+    },
+    {
+      "count": 1,
+      "keys": [
+        "task_id"
+      ],
+      "source_tool": "TaskStop"
+    },
+    {
+      "count": 1,
+      "keys": [
+        "message",
+        "summary"
+      ],
+      "source_tool": "RespondToCoordinator"
+    }
+  ],
+  "input_shapes_omitted": 0,
+  "input_shapes_omitted_actions": 0,
+  "input_shapes_total": 18,
+  "inventory_digest": "bdebcb2a9e5341e9aeea647dbb6c2b2dd42dac3e7482cda635a70242561c5132",
+  "label_set_version": "v1.0.0",
+  "labels": {
+    "apply_patch": 82,
+    "commit_changes": 13,
+    "complete_doc": 2,
+    "create_branch": 7,
+    "db_query": 11,
+    "file_capture_doc": 2,
+    "file_issue": 3,
+    "find_files": 60,
+    "fs_mutate": 22,
+    "gh_cli": 7,
+    "git_inspect": 39,
+    "git_sync": 34,
+    "open_pr": 5,
+    "read_file": 305,
+    "read_issue": 11,
+    "review_pr": 6,
+    "run_linter": 1,
+    "run_pdda_check": 4,
+    "run_script": 114,
+    "run_validate": 2,
+    "search_code": 269,
+    "session_control": 9,
+    "sys_inspect": 31,
+    "track_todo": 46,
+    "unmapped": 3,
+    "update_changelog": 2,
+    "update_working_doc": 1
+  },
+  "mapped_actions": 1088,
+  "mapping_coverage": 0.99725,
+  "rejections": {},
+  "sessions_accepted": 21,
+  "sessions_rejected": 0,
+  "source": "zcode",
+  "source_namespace": "studio-zcode",
+  "source_tools": {
+    "Bash": 773,
+    "Edit": 69,
+    "Read": 182,
+    "RespondToCoordinator": 1,
+    "TaskOutput": 7,
+    "TaskStop": 1,
+    "TodoWrite": 46,
+    "Write": 12
+  },
+  "tool_alias_version": "agent-tool-alias-v1"
+}

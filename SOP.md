@@ -181,7 +181,7 @@ local call — `AGENTS.md` §8 still applies.
    every check*, and a threshold applied to a buggy measurement is a check that reports
    confidence it never earned. In practice this step has dissolved the decision outright
    more than once — the Phase 2 `pkg_manage` question turned out to be two bugs in our own
-   labeler, not a question (see `PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md`).
+   labeler, not a question (see `PROJECT/3-COMPLETED/PHASE-2-LABEL-TAXONOMY.md`).
 
 2. **Adjudicate against the governance docs explicitly, naming which rail bears.**
    -> expect a citation, not a vibe. `GUIDING-PRINCIPLES.md` for the durable/reversible/DRY
