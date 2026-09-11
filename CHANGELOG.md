@@ -5,6 +5,13 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-11
 
+### Oracle findings and collaborator briefing reconciled
+
+Added a two-paragraph executive summary with the experiment arc and evidence links; appended the
+missing September 7–11 synthesis to FINDINGS.md. Recorded the Astra/Fable correction: repeat-last
+is a baseline, the private-trained round is still pending, and reused evaluation scores do not
+measure human acceptance. Documentation only; no runtime or experimental behavior changed.
+
 ### ZCode mapper correction targets three observed command shapes
 
 The first ZCode blind audit found 69 errors in 200 reviewed rows. Three narrow, source-grounded

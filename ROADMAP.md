@@ -14,7 +14,7 @@
 
 | What was just completed | What's next |
 |---|---|
-| The 400-row targeted correction audit is complete, and a snapshot-based source refresh now provides 2,913 isolated evaluation candidates across 32 sessions. | **Collect more independent, label-diverse evaluation sessions until the frozen sampler can allocate all 1,000 rows.** It currently allocates at most 541 under the label quotas and 40-row session cap; then freeze and review the draw before training. |
+| Public-trained six-action pilots completed; the Astra/Fable review identified an untested private-training comparison. | **Run the bounded in-domain baseline round described in the [current arc](doc/oracle-collaborator-summary.md#next-milestone--agreed-not-yet-run) and tracked in [#1](https://github.com/HiQS-Labs/Needle-fork/issues/1).** The stricter #25 lane remains capacity-blocked at 541/1,000 and is deferred in priority. |
 
 > **Corrected 2026-09-09.** This cell previously read *"first `needle finetune` run on JAX/CPU at
 > `--max-len 2048`"*. That was superseded on 2026-09-07 by
@@ -30,6 +30,8 @@
 - No parked intake docs.
 
 ### In progress
+
+- [ZCode mapper recon and qualification](PROJECT/2-WORKING/RECON-ZCODE-MAPPER-CORRECTION.md) — PR #40 merged the scoped corrections; fresh blind qualification remains open in [#37](https://github.com/HiQS-Labs/Needle-fork/issues/37).
 
 - [Label correctness audit — make the §2 gate trustworthy](PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md) — source identity and disjoint manifests are merged; #25 clears its 30-session floor but remains blocked because the frozen sampler can allocate only 541/1,000 evaluation rows under its label quotas and session cap. ([#20](https://github.com/HiQS-Labs/Needle-fork/issues/20), [#23](https://github.com/HiQS-Labs/Needle-fork/issues/23), [#25](https://github.com/HiQS-Labs/Needle-fork/issues/25))
 

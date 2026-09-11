@@ -1,4 +1,19 @@
+---
+title: "Recon Map — ZCode mapper correction"
+status: In progress
+created: 2026-09-11
+updated: 2026-09-11
+owner: noelsaw1
+goal: Track mapper correction evidence and remaining source qualification before training admission.
+---
+
 # Recon Map — ZCode mapper correction
+
+## Status
+
+| What was just completed | What's next |
+|---|---|
+| The scoped mapper correction landed in PR #40. This map records the pre-change trace. | Issue #37 still requires a new blind qualification sample before ZCode training admission. |
 
 Commit: `eca144b` · Mode: grep + direct read · Lanes: mapper, campaign, build
 
