@@ -186,7 +186,6 @@ PATH_RULES = [
     ("cut_release",           re.compile(r"(^|/)RELEASES\.md$", re.I)),
     ("file_capture_doc",      re.compile(r"PROJECT/1-INBOX/")),
     ("update_working_doc",    re.compile(r"PROJECT/2-WORKING/")),
-    ("complete_doc",          re.compile(r"PROJECT/3-COMPLETED/")),
     ("update_governance_doc", re.compile(r"(^|/)(AGENTS|SOP|ROUTER|GUIDING-PRINCIPLES|CLAUDE|PDDA)\.md$", re.I)),
 ]
 
@@ -218,7 +217,8 @@ BASH_RULES = [
     # `make test` must survive global flags the same way the git rules do:
     # `make -C /repo test` was scoring run_build because the tokens are not adjacent.
     ("run_tests",        r"\b(pytest|jest|vitest|go test|cargo(?:\s+(?:-{1,2}[\w-]+(?:=\S+)?|\"\"))*\s+test|npm (run )?test|run-tests)\b"
-                         r"|\bmake(?:\s+-\S+(?:\s+\S+)?)*\s+test\b"),
+                         r"|\bmake(?:\s+-\S+(?:\s+\S+)?)*\s+test\b"
+                         r"|\b(?:bash|sh|zsh|ksh|dash)\s+(?:\S*/)?test/\S+\.sh\b"),
     ("run_linter",       r"\b(ruff|flake8|eslint|black|prettier|mypy|shellcheck|golangci-lint)\b"),
     ("run_build",        r"\b(make|cmake|cargo build|go build|npm run build|xcodebuild|clang|gcc|tsc)\b"),
     ("pkg_manage",       r"\b(pip3?|uv|poetry|pipx|conda)\s+(install|add|remove|uninstall|sync|list|show|freeze)\b"
@@ -791,8 +791,26 @@ def label_segment(seg: str) -> str | None:
 
 def label_bash(cmd: str) -> tuple[str, str]:
     """Label a Bash command. Returns (label, evidence_segment)."""
+    raw_segments = split_segments(cmd)
+    segments = substantive_segments(cmd)
+    # ZCode commonly emits waiting and the subsequent status read as one call.
+    # A bare sleep remains machine inspection; the compound shape controls a session.
+    for index, seg in enumerate(raw_segments[:-1]):
+        if leading_program(seg) != "sleep":
+            continue
+        # Waiting can refine an otherwise unlabeled prefix, but it must not erase
+        # a substantive action that already happened in this command.
+        if any(label_segment(item) is not None for item in raw_segments[:index]):
+            continue
+        tail = raw_segments[index + 1:]
+        labels = [label_segment(item) for item in tail]
+        allowed = {"read_file", "search_code", "sys_inspect"}
+        if (any(label in allowed for label in labels)
+                and all(label in allowed or leading_program(item) in {"echo", "printf"}
+                        for item, label in zip(tail, labels))):
+            return "session_control", cmd[:120]
     best = None  # (tier, -order, label, segment)
-    for order, seg in enumerate(substantive_segments(cmd)):
+    for order, seg in enumerate(segments):
         name = label_segment(seg)
         if name is None:
             continue

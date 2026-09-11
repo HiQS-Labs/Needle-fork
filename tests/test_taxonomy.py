@@ -99,12 +99,28 @@ def test_governance_invocations(cmd, expected):
     assert tx.label_bash(cmd)[0] == expected
 
 
+@pytest.mark.parametrize("cmd,expected", [
+    ("bash test/example-suite.sh", "run_tests"),
+    ("bash scripts/deploy.sh", "run_script"),
+    ("bash scripts/test-data-migration.sh", "run_script"),
+    ("bash scripts/suite-cleanup.sh", "run_script"),
+    ("sleep 90 && tail -5 worker.log", "session_control"),
+    ("sleep 2", "sys_inspect"),
+    ("cat before.log; sleep 1; echo done", "read_file"),
+    ("sleep 1 && git commit -am checkpoint && cat status.log", "commit_changes"),
+    ("git commit -am checkpoint && sleep 1 && cat status.log", "commit_changes"),
+])
+def test_zcode_source_grounded_command_shapes(cmd, expected):
+    assert tx.label_bash(cmd)[0] == expected
+
+
 @pytest.mark.parametrize("path,expected", [
     ("/repo/CHANGELOG.md", "update_changelog"),
     ("/repo/ROADMAP.md", "update_roadmap"),
     ("/repo/RELEASES.md", "cut_release"),
     ("/repo/PROJECT/1-INBOX/GH-9.md", "file_capture_doc"),
     ("/repo/PROJECT/2-WORKING/v0.5/FINDINGS.md", "update_working_doc"),
+    ("/repo/PROJECT/3-COMPLETED/GH-9.md", "apply_patch"),
     ("/repo/AGENTS.md", "update_governance_doc"),
     ("/repo/src/app.py", "apply_patch"),
 ])
