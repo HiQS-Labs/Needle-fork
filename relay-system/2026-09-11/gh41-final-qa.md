@@ -40,7 +40,8 @@ ROUND: 1 / 2
    was merely waiting looked stalled. A turn that ends without this line is not finished.
 
 ## Setup
-- Artifact under review: commit `d0c3d7d` and all files it changes; inspect the committed diff against `origin/main`, with emphasis on `utils/corpus/build_grounded_augmentation.py` and `tests/test_grounded_augmentation.py`.
+- Artifact under review: **utils/corpus/build_grounded_augmentation.py**
+- Also inspect commit `d0c3d7d` and its tests/fixtures/plan diff against the branch base.
 - Reviewer: codex   ·   Producer: claude-a
 - Started: 2026-09-11
 - Definition of Done: implementation matches the approved GH-41 plan; seed provenance is grounded, outputs are deterministic/generated-only/private/atomic, counterfactual and duplicate gates are non-vacuous, canonical serialization is reused, issue #25 paths are untouched, errors cannot publish partial runs, and tests meaningfully cover failure paths. Run the focused test file and cite code lines for findings.
