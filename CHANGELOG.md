@@ -5,6 +5,14 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-11
 
+### Integration queue closed; deferred work retained
+
+Reconciled README and the dated branch inventory after landing #46, #8, #6 and #10.
+The private-trained comparison remains deferred under #1; #43 remains on the explicit operator
+testing hold. No experiment, branch deletion, or wholesale research-branch promotion occurred.
+Verification: reviewed final documentation diff and clean whitespace check; runtime validation
+is recorded in the integration entries and PR comments.
+
 ### Campaign operational rails reconciled (#10)
 
 Promoted data preflight, resource/log safety, and subgroup/same-row/null-control reporting
