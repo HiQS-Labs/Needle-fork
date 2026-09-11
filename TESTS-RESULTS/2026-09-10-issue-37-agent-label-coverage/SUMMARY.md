@@ -7,7 +7,7 @@ admit any source to training.
 
 | Source | Sessions accepted | Rejected | Actions | Alias coverage | Mapping coverage | Mapped labels | Decision |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | --- |
-| Codex | 1,934 | 4 | 62,453 | 47.50% | 6.88% | 3 | Defer; tool and argument schemas differ |
+| Codex | 1,934 | 4 | 62,455 | 47.50% | 6.88% | 3 | Defer; tool and argument schemas differ |
 | Agy desktop | 82 | 2 | 27,757 | 94.40% | 49.41% | 6 | Defer; argument schema differs |
 | Agy CLI | 501 | 0 | 5,227 | 99.89% | 44.12% | 5 | Defer; argument schema differs |
 | ZCode | 21 | 0 | 1,091 | 100.00% | 99.73% | 26 | Advance to blind label review |
