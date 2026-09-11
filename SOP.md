@@ -13,7 +13,7 @@
 This covers designing, executing, verifying, and recording evidence from a LoRA finetune run, a
 quantization sweep (`quantize.py`'s fake-quant or CQ codebooks), or an accuracy/eval benchmark
 against a checkpoint — and, in §4, how to settle a judgment call the run surfaces so it stays
-settled.
+settled, and in §5 how local docs stay synchronised to the GitHub issues that govern them.
 
 ---
 
@@ -220,7 +220,148 @@ local call — `AGENTS.md` §8 still applies.
    that cannot fail is decorative and worse than nothing. This is what stops a written-down
    decision from quietly reverting.
 
-## 5. Anti-patterns (apply `AGENTS.md` §6 here specifically)
+## 5. Source of truth: the GitHub issue wins
+
+This repo is worked from **more than one machine at a time** — the Studio runs the Phase 2 lane,
+the MBP runs side quests — and from more than one branch and session per machine. The GitHub
+issue on the server is the only surface all of them can see. A `PROJECT/**` doc on an unmerged
+branch is invisible to the other machine, and a decision recorded only there is a decision the
+other machine will unknowingly contradict.
+
+So:
+
+> **The GitHub issue is the canonical, actionable source of truth. Local docs, ROADMAP rows and
+> receipts are projections of it. Where they conflict, the issue wins — unless verified local
+> evidence contradicts the issue's premise, in which case you neither obey nor override it
+> silently: you post the finding, and if confidence is low you stop and ask.**
+
+### 5.1 Read the issue first, and read it fresh
+
+-> expect the issue, not your memory of it, and not the local doc. Before acting on a plan,
+`gh issue view <n> --comments`. The body is often the *oldest* thing in the thread: a later
+comment may supersede it, and a plan revised in comments while the body still shows the original
+sketch is normal, not an anomaly. If the body and a comment disagree, the comment thread is the
+later state — say which one you followed.
+
+### 5.2 Sync local docs to the issue, and push findings back up
+
+-> expect the two to agree after your change, in both directions:
+
+- **Down:** when the issue moves, update the local `PROJECT/**` doc, its Status table and its
+  ROADMAP row so a cold session on the other machine is not led by a stale plan.
+- **Up:** when local work produces a result, a decision or a contradiction, **post it to the
+  issue in the same iteration that produced it** — not in a later summary. Until it is on the
+  issue it does not exist for anyone else. This is the same "file it immediately" rule as §1's
+  confirmed-defect rail, applied to findings and decisions rather than bugs.
+
+Comment on the issue; do **not** silently rewrite its body to match local reality. The thread is
+the audit trail, and an edited body destroys the record of what was believed when.
+
+### 5.3 On conflict, the issue wins — by default
+
+-> expect the default to be "follow the issue," because it is the shared state. A local doc that
+disagrees is usually the stale one.
+
+### 5.4 The carve-out: the issue does not win against verified evidence
+
+An issue is a plan written at a moment in time. It can be **wrong about the world**, and this has
+already happened repeatedly here:
+
+- #1 named `rebalance.db`'s `clio_prompts` as the corpus source. It has no tool-call column, so
+  it cannot supply a supervision target at all.
+- #1 §5/§6 build the hook on a `min_confidence` floor. Fine-tuning does not update the confidence
+  head, so a tuned model reports `confidence` as `None` and the mechanism does not exist.
+- #1 §3 requires an `"answers": []` abstain slice at roughly 1 in 8. The built corpus has 0.00%.
+
+In each case, obeying the issue literally would have burned hours. **Verified local evidence — a
+measurement you can point at, with a receipt — outranks a plan's assumption about reality.** But
+it does not license you to quietly do something else:
+
+1. Post the contradiction to the issue, with the measurement and how to reproduce it.
+2. Propose the specific edit the issue needs.
+3. Then proceed on the evidence, saying plainly in the commit and the comment that you did.
+
+### 5.5 When confidence is low, stop and raise it with the operator
+
+-> expect a question, not a guess. Do not resolve the conflict yourself when **any** of these
+holds:
+
+- the issue is **newer** than your evidence, or you cannot tell which came first;
+- following the issue would **discard verified work**, or spend more than ~an hour before the
+  conflict would surface on its own;
+- the conflict touches a decision already adjudicated under **§4** — reopening one unilaterally
+  is how a settled call gets silently reversed;
+- the action is **Costly or a one-way door** on `AGENTS.md` §3's scale;
+- **two issues disagree with each other**, or an issue disagrees with its own umbrella;
+- the fix would cross a stated **bound** (another lane's files, another machine's data).
+
+When you raise it, give the operator a decision, not a puzzle: both readings, the evidence
+behind each, your recommendation, and what you will do if they do not answer. Then wait.
+
+### 5.6 Which artifact carries what
+
+| artifact | role | authority |
+|---|---|---|
+| **GitHub issue + comments** | decisions, plan, current state | **canonical, actionable** |
+| `PROJECT/**` doc | execution detail for one effort | projection of the issue; must name its issue |
+| `ROADMAP.md` row | pointer/ledger | projection; per `PROJECT/PDDA.md` |
+| `TESTS-RESULTS/**` receipt | measured evidence | **authoritative for what was measured** — this is what can outrank a plan |
+| `CHANGELOG.md` | end-of-iteration record | historical; never the current plan |
+
+A receipt beats a doc on *what happened*. An issue beats a doc on *what to do*. A doc that
+contradicts both is stale — fix it in the same commit that discovers it.
+
+### 5.7 When a decision changes, codify it *before* you build on it
+
+§5.2 says push findings up in the same iteration. This is the stricter case that governs a
+**reversal**: a pivot, a rescope, an abandoned approach, or a corrected estimate that drove a
+choice.
+
+> **Update every doc and issue carrying the old decision BEFORE starting the new work — not after
+> it lands, and not "once it settles".**
+
+-> expect a stale decision to behave as an *active instruction*, not as neutral history. It points
+the next reader — or the next machine, or your own next session after a compact — at abandoned
+work. The window between "we changed our mind" and "the docs say so" is precisely the window
+someone else reads them in, and starting the new work first is what widens it.
+
+This is not hypothetical. Both have already happened here:
+
+- **XYZ-forge #467** carried *"Framework: JAX/Flax, not MLX … MLX is deferred to Phase 3/4"* in its
+  checklist while a later comment on the **same issue** said CPU training does not finish and §4
+  now runs on MLX. A reader who stopped at the checklist got the opposite instruction from one who
+  scrolled to the bottom.
+- **Needle-fork #1 §4** kept *"Framework decision: JAX"* long after the consolidation — on the
+  issue that is SSOT for that phase, so the most authoritative artifact was the wrong one.
+
+How to apply:
+
+1. **Codify in at least two easily-found places**, always including the issue that is SSOT for the
+   workstream (§4's rule, applied to reversals as well as adjudications).
+2. **Sweep for the same claim restated elsewhere.** A reversal usually invalidates a sentence in
+   more than one artifact — including ones *you wrote earlier in the same session*. A corrected
+   estimate must be chased into every doc that quoted it, or the correction is cosmetic. One
+   re-sizing on 2026-09-07 had already propagated into three documents before it was caught.
+3. **Mark the supersession; do not delete the old text.** The reasoning for the reversal is the
+   useful record — "this previously said X, and here is what measurement changed" is worth more
+   than a clean page.
+4. **Then** start the new work.
+
+**Carve-out to §5.2's "do not rewrite the body".** §5.2's rule protects the audit trail, and it
+holds for *decisions and findings*: comment, never quietly restate. It does **not** license leaving
+a body-level **checklist or status table** that now contradicts a later comment on the same issue,
+because that artifact is read as current instruction rather than as history. Edit it — and make the
+edit non-silent:
+
+- mark the supersession **in place** ("revised YYYY-MM-DD; this supersedes …"), and
+- post a comment recording what changed and why, and
+- never delete the superseded reasoning — GitHub keeps edit history, but the next reader does not
+  read edit history.
+
+Silent is the thing §5.2 forbids. An announced, marked, comment-backed correction of a live
+checklist is the fix, not the violation.
+
+## 6. Anti-patterns (apply `AGENTS.md` §6 here specifically)
 
 - **Trusting exit code 0 as the verdict.** A training loop or export that exits cleanly can still
   have produced a checkpoint nobody can load, or a quantized model that silently diverges. Step 5
@@ -237,3 +378,12 @@ local call — `AGENTS.md` §8 still applies.
 - **Recording a decision in exactly one place.** A decision that lives only in a doc is invisible to
   whoever is editing the code, and a decision that lives only in a code comment is invisible to
   whoever is reading the plan. §4 step 5 requires both.
+- **Leaving a finding in a local doc or a commit message only.** The other machine reads the
+  issue, not your branch. A result that never reaches the issue does not exist for anyone else,
+  and the usual cost is the other lane spending hours on a premise you already disproved (§5.2).
+- **Acting on the issue body without reading its comments.** The body is frequently the oldest
+  text in the thread; a plan revised in comments while the body still shows the original sketch
+  is the normal case here, not an anomaly (§5.1).
+- **Silently resolving a doc-vs-issue conflict either way.** Obeying a plan you have evidence
+  against, and overriding a plan without saying so, are the same failure with opposite signs.
+  Post the contradiction, then proceed on the evidence and say that you did (§5.4-§5.5).

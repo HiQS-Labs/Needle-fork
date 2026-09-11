@@ -8,6 +8,8 @@ This file is the first entry point for an AI agent working in this repo: it tell
 - `GUIDING-PRINCIPLES.md` = the north star; what the repo's goals and design tradeoffs answer to
 - `AGENTS.md` = behavioral rules, decision quality, reversibility, blast radius, proof
 - `README.md` = human-facing repo/product overview
+- **GitHub issues (on the server) = the canonical, actionable source of truth.** Local docs are
+  projections of them; see `SOP.md` §5 for the sync direction and the conflict rule.
 - `doc/oracle-collaborator-summary.md` = dated Oracle story, evidence index, and agreed next milestone; [Needle #1](https://github.com/HiQS-Labs/Needle-fork/issues/1) tracks execution under [XYZ #467](https://github.com/HiQS-Labs/XYZ-forge/issues/467)
 - `FINDINGS.md` = append-only investigation history; dated entries are historical observations, not current instructions
 - `ROADMAP.md` = pointer ledger for this repo's own maintenance work
@@ -24,10 +26,11 @@ This file is the first entry point for an AI agent working in this repo: it tell
 2. Read `GUIDING-PRINCIPLES.md` for the repo's north star. -> expect the goals and tradeoff lens that every design choice answers to.
 3. Read `AGENTS.md` before making recommendations or edits. -> expect explicit assumptions, a reversibility read on consequential changes, and verified claims only.
 4. Read `README.md` for the repo's purpose and baseline usage. -> expect a short explanation of what is canonical here.
-5. If the task is about the PDDA contract or enforcement model, read `PROJECT/PDDA.md`. -> expect the source of truth for lifecycle, roadmap, changelog, and enforcement rules.
-6. Read `ROADMAP.md` only for repo-local maintenance state. -> expect a pointer ledger, not a copied plan body from another repo.
-7. Before reporting success on repo changes, run `utils/pdda/pdda.sh run` or the relevant single check (`utils/pdda/pdda.sh <check>`). -> expect deterministic findings first, then any LLM review.
-8. If you are exploring an unknown system, proposing a new spike, or are blocked, search `PROJECT/3-COMPLETED/` and `CHANGELOG.md` for past context first. -> expect to recover memory of past struggles, gotchas, or decisions.
+5. If the task names a GitHub issue, read that issue **and its comments** (`gh issue view <n> --comments`) before any local doc. -> expect the comment thread to be later than the issue body, and to win over any local doc that disagrees. `SOP.md` §5 carries the full rule, including when a local measurement outranks the plan and when to stop and ask instead.
+6. If the task is about the PDDA contract or enforcement model, read `PROJECT/PDDA.md`. -> expect the source of truth for lifecycle, roadmap, changelog, and enforcement rules.
+7. Read `ROADMAP.md` only for repo-local maintenance state. -> expect a pointer ledger, not a copied plan body from another repo.
+8. Before reporting success on repo changes, run `utils/pdda/pdda.sh run` or the relevant single check (`utils/pdda/pdda.sh <check>`). -> expect deterministic findings first, then any LLM review.
+9. If you are exploring an unknown system, proposing a new spike, or are blocked, search `PROJECT/3-COMPLETED/` and `CHANGELOG.md` for past context first. -> expect to recover memory of past struggles, gotchas, or decisions.
 
 ## Canonical rules
 
@@ -39,6 +42,9 @@ This file is the first entry point for an AI agent working in this repo: it tell
 - The long-term canonical deterministic surface is `utils/pdda/pdda.sh`; do not add wrapper commands unless a real external integration forces them.
 - Do not override deterministic PDDA findings with prose.
 - Do not report a win you did not verify with the relevant script or test.
+- Do not leave a finding or decision only in a local doc, branch or commit message. This repo is
+  worked from more than one machine; until it is on the GitHub issue it does not exist for the
+  other one. Governed by `SOP.md` §5.
 - Update `CHANGELOG.md` at the end of each iteration; its governance lives in `PROJECT/PDDA.md` — do not re-specify CHANGELOG rules in `AGENTS.md` or elsewhere.
 
 ## Command rails
