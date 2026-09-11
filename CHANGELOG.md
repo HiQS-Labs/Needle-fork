@@ -3,6 +3,20 @@
 Newest-first, dated end-of-iteration record. One entry per substantive iteration: what changed,
 why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
+## 2026-09-11
+
+### Coding-core OpenHands pilot stopped at the cheap promotion gate
+
+- Added a reversible six-label projection (`read`, `search`, `edit`, `run_tests`, `run_command`,
+  `git`) without changing the canonical 44-label Oracle contract.
+- Added a bounded, revision-pinned OpenHands preparation path and static baselines. Raw trajectories,
+  generated JSONL, weights, and detailed receipts remain ignored under `data/`.
+- Trained one 29-step MLX LoRA pilot on 500 projected rows. On the instance-separated 100-row public
+  holdout it scored 27% top-1, versus 26% majority and 37% Markov-1. The predeclared gate therefore
+  failed; no synthetic balancing, larger run, private evaluation, or serving integration followed.
+- Verification: 13 focused tests passed; the full non-slow suite passed with 195 tests, 6 skipped,
+  and 6 deselected.
+
 ## 2026-09-07
 
 ### Phase 2 §3 — `query` serialization is one shared function; token budget forces `--max-len 2048`

@@ -1,0 +1,2 @@
+# No extra dependency: preparation uses the Hugging Face datasets-server rows API
+# through Python's standard library. MLX requirements remain separately scoped.
