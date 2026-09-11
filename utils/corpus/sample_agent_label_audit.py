@@ -17,6 +17,8 @@ from pathlib import Path
 
 CORPUS = Path(__file__).resolve().parent
 sys.path.insert(0, str(CORPUS))
+REPOSITORY_ROOT = CORPUS.parent.parent
+PRIVATE_DATA_ROOT = (REPOSITORY_ROOT / "data").resolve()
 
 import audit_agent_label_coverage as coverage  # noqa: E402
 import sample_for_audit as sampler  # noqa: E402
@@ -34,8 +36,14 @@ class SampleError(ValueError):
 def _private_output(path: Path) -> Path:
     """Require a new output directory under the ignored private data tree."""
     resolved = path.expanduser().resolve()
-    if "data" not in resolved.parts:
-        raise SampleError("output directory must be below a directory named data")
+    try:
+        relative = resolved.relative_to(PRIVATE_DATA_ROOT)
+    except ValueError as exc:
+        raise SampleError(
+            "output directory must be below the repository data directory") from exc
+    if not relative.parts:
+        raise SampleError(
+            "output directory must be below the repository data directory")
     if resolved.exists():
         raise SampleError("output directory already exists")
     return resolved

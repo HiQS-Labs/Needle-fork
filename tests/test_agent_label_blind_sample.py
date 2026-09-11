@@ -96,10 +96,16 @@ def test_pool_rejects_duplicate_event_identity(monkeypatch):
         sample.build_pool("zcode", object(), "fixture-zcode")
 
 
-def test_private_output_must_be_new_and_below_data(tmp_path):
-    with pytest.raises(sample.SampleError, match="directory named data"):
-        sample._private_output(tmp_path / "audit")
-    existing = tmp_path / "data" / "audit"
+def test_private_output_must_be_new_and_below_repository_data(
+        tmp_path, monkeypatch):
+    private_root = (tmp_path / "repository" / "data").resolve()
+    private_root.mkdir(parents=True)
+    monkeypatch.setattr(sample, "PRIVATE_DATA_ROOT", private_root)
+    with pytest.raises(sample.SampleError, match="repository data directory"):
+        sample._private_output(tmp_path / "external" / "data" / "audit")
+    assert sample._private_output(private_root / "new-audit") == (
+        private_root / "new-audit")
+    existing = private_root / "existing-audit"
     existing.mkdir(parents=True)
     with pytest.raises(sample.SampleError, match="already exists"):
         sample._private_output(existing)
