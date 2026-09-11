@@ -6,6 +6,8 @@ Baseline: `main` at `497fc82`. No branches or worktrees were deleted.
 
 ## Active PRs
 
+Historical snapshot at triage time; see the integration closeout below for current disposition.
+
 | PR / branch | Observed state | Disposition and next action |
 |---|---|---|
 | [#8](https://github.com/HiQS-Labs/Needle-fork/pull/8) `fix/adapter-numerics-provenance` | Mergeable; 3 files, 119 added lines. Rejects adapters with missing/full-precision training provenance unless explicitly overridden. Historical tests and CodeRabbit pass predate current main. | First integration candidate: refresh against main, review the changed build contract, and run current build and non-slow tests. Mergeability is not numerical validation. |
@@ -47,3 +49,19 @@ the explicit target-specific confirmation required by AGENTS.md.
 
 The new hygiene rule in AGENTS.md applies to subsequent work. This triage does not merge, close,
 retarget, or delete any of the five existing PRs.
+
+## Integration closeout — 2026-09-11
+
+Operator-authorized follow-through landed #46, #8, #6, then #10. Conflicts were resolved without
+discarding current docs; a duplicate historical changelog entry from the stack was removed.
+Verification: 384 non-slow tests passed, 6 skipped; 11 slow build/finetune tests passed;
+governance check reported zero errors and warnings. The adapter guard changes CLI compatibility,
+not quantization math. No branch or worktree was deleted.
+
+Still tracked under [issue #1](https://github.com/HiQS-Labs/Needle-fork/issues/1):
+
+- **Previous step 3, deferred:** private-trained Markov-1/phase-backoff comparison, using the
+  already-agreed bounded protocol in README. Not run during integration. #42 and its MLX base
+  remain parked research, not wholesale main-integration candidates.
+- **Previous step 4, held:** #43 remains open at `974ddcf9b480a985c272ac5215bce87ea669436e`.
+  Do not merge or modify its branch until the operator explicitly releases the testing hold.

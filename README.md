@@ -36,11 +36,13 @@ The [collaborator briefing](doc/oracle-collaborator-summary.md) provides the det
 
 ## Repository readiness and next steps
 
-The findings cleanup and this project story are merged into `main` through PRs #44 and #45. The subsequent [branch triage and hygiene rules](https://github.com/HiQS-Labs/Needle-fork/pull/46) are proposed in an open documentation PR. The remaining branches have separate integration decisions:
+The findings cleanup and project story (#44/#45), [branch hygiene rules (#46)](https://github.com/HiQS-Labs/Needle-fork/pull/46), [adapter build-safety guard (#8)](https://github.com/HiQS-Labs/Needle-fork/pull/8), and governance stack (#6/#10) are merged into `main`. Integration verification passed: 384 non-slow tests and 11 slow build/finetune tests; six tests were skipped. This validates the engineering changes, not Oracle recommendation usefulness.
 
-1. Review and land the branch-hygiene documentation in #46, then refresh the small [adapter build-safety change #8](https://github.com/HiQS-Labs/Needle-fork/pull/8) against current `main` and validate its build behavior.
-2. Reconcile the overlapping governance stack [#6](https://github.com/HiQS-Labs/Needle-fork/pull/6) → [#10](https://github.com/HiQS-Labs/Needle-fork/pull/10), preserving current documentation and checking section references.
-3. Run the bounded private-training experiment above under issue #1. [PR #42](https://github.com/HiQS-Labs/Needle-fork/pull/42) and its MLX base remain experimental; a whole-branch merge into `main` is not the promotion path.
+1. **Deferred experiment (previous step 3):** run the bounded private-training experiment above under issue #1 when resumed. [PR #42](https://github.com/HiQS-Labs/Needle-fork/pull/42) and its MLX base remain experimental; a whole-branch merge into `main` is not the promotion path.
+2. **Deferred augmentation review (previous step 4):** wait for the operator to release #43's testing hold, then review its results before any integration decision.
+
+Adapter builds with missing or full-precision training provenance now require an explicit
+`--allow-numerics-mismatch` override; compatible QAT and adapter-free builds are unchanged.
 
 **PR #43 is on an explicit operator testing hold.** Do not merge or modify its branch until that hold is released. Merged historical branches remain preserved pending retirement checks; no blanket branch cleanup has been performed.
 
