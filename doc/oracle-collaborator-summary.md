@@ -4,7 +4,7 @@
 
 We’re exploring whether a tiny local model can suggest useful next steps during software work, including testing, Git actions, and project governance, cheaply enough to run alongside a larger coding assistant. We have built and exercised the training/export pipeline, assembled private activity traces, and tested both model-based and simple statistical predictors. The engineering path works, but useful recommendations remain unproven: label noise, a mismatch between training and native serving, and poor transfer from public coding-agent data have limited results.
 
-Private-trained predictors and a context-aware OpenHands text classifier missed their gates. A seven-model quiz gave Fable 60.0% versus a 46.7% simple baseline on 30 public examples—not a milestone pass. The subsequent source audit found two action-classification defects, coarse-label ambiguities and context loss. Next is a narrow mapper correction before more model investment. The manual trial stopped for time burden with no ratings; usefulness and deployment readiness remain unproven.
+Private-trained predictors and a context-aware OpenHands text classifier missed their gates. A seven-model quiz gave Fable 60.0% versus a 46.7% simple baseline on 30 public examples—not a milestone pass. A source audit found two action-classification defects, now corrected, alongside coarse-label ambiguities and context loss. Next is a separately versioned data refresh and bounded follow-up decision, not another panel. The manual trial stopped for time burden with no ratings; usefulness and deployment readiness remain unproven.
 
 ## The story and evidence
 
@@ -17,7 +17,17 @@ Private-trained predictors and a context-aware OpenHands text classifier missed 
 | Work-purpose classification, a separate side experiment | Frozen ModernBERT features reached 57.5% purpose accuracy on 40 records versus 50% TF-IDF and 42.5% majority; TF-IDF had better purpose macro-F1. Area classification and rejection policies remained inadequate. | Limited signal, no deployment qualification; this is classification of work, not prediction of the next action. [#31](https://github.com/HiQS-Labs/Needle-fork/issues/31). |
 | External data and targeted augmentation | TAWOS did not cover the full eight-purpose taxonomy. A separate PR implements grounded, training-only augmentation tooling, with no measured model gain yet. | Volume alone does not solve domain and label mismatch. [#35](https://github.com/HiQS-Labs/Needle-fork/issues/35), [#41](https://github.com/HiQS-Labs/Needle-fork/issues/41), [PR #43](https://github.com/HiQS-Labs/Needle-fork/pull/43). |
 
-## Current result — source audit (#53) completed
+## Current result — mapper correction (#56) completed
+
+Unittest execution and unambiguous runner help/version probes now map correctly
+for future extraction. 468 non-slow tests passed; the bounded 16-command audit
+differential changed only the three expected calls. Frozen inputs, responses and
+scores remain unchanged. [Correction receipt](../TESTS-RESULTS/2026-09-12-test-runner-mapping/SUMMARY.md).
+
+Next: scope a separately versioned data refresh and one bounded follow-up, explicitly
+handling the remaining label/context choices before any new scoring or training.
+
+## Previous result — source audit (#53) completed
 
 All 12 selected events align with retained source and call/result chronology. Two
 concrete classification defects were found: unittest suite execution maps to
@@ -26,8 +36,8 @@ ad-hoc-script labels have semantic boundaries, and some context is discarded.
 These findings do not explain every miss or estimate population label quality.
 [Audit receipt](../TESTS-RESULTS/2026-09-12-panel-source-audit/SUMMARY.md).
 
-Next is [#56](https://github.com/HiQS-Labs/Needle-fork/issues/56), a separately scoped
-mapper correction, not implemented in the audit. No new training or model calls;
+The follow-up was [#56](https://github.com/HiQS-Labs/Needle-fork/issues/56), a separately scoped
+mapper correction, now completed above. No new training or model calls;
 prior scores/gates stay frozen. MiniMax's separately requested addition scored
 10/30 (33.3%); [#54](https://github.com/HiQS-Labs/Needle-fork/issues/54#issuecomment-5644221616)
 retains that result and the narrow five-Chinese-model impressions.

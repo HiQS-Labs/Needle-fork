@@ -5,6 +5,17 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-12
 
+### Test-runner classification corrected (#56)
+
+Shared Bash taxonomy recognizes unittest execution and classifies unambiguous
+help/version probes as inspection. Reuses command-position and wrapper guards;
+no generic CLI parser or native-editor changes. Frozen datasets/scores untouched.
+Witnessed failing repro tests before fixing; corrected an initial environment-prefix
+guard bypass and preserved compound tie precedence. Focused suites 263 passed;
+non-slow suite 468 passed, 6 skipped. Bounded raw-command differential changed only
+the three expected calls; all 13 frozen panel hashes remain unchanged. Historical
+#53 audit replay stays pinned to f225278. No training, serving or #43 changes.
+
 ### Bounded panel source audit completed (#53)
 
 Audited nine original shared misses plus three controls against retained raw events.

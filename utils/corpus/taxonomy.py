@@ -762,6 +762,22 @@ def label_segment(seg: str) -> str | None:
             return "apply_patch" if re.search(r"\s-i\b", seg) else "read_file"
         return ARG_CONSUMERS[lead]
     region = command_region(seg)
+    if lead in {"pytest", "unittest"} and leading_program(region) == lead:
+        # GH-56: classify the effective runner, never mentions in scripts/data.
+        # Only unambiguous metadata-only invocations are inspection. Do not scan
+        # arbitrary option values (`pytest -k "--version"`) for metadata flags.
+        tokens = _TOKEN.findall(_REDIRECT.sub("", seg))
+        while tokens and _ENV_ASSIGN.match(tokens[0]):
+            tokens.pop(0)
+        args = [t[1:-1] if _is_quoted(t) else t for t in tokens[1:]]
+        if lead == "unittest" and args[:1] == ["discover"]:
+            args = args[1:]
+        metadata = {"-h", "--help"} | ({"-V", "--version"} if lead == "pytest" else set())
+        if (set(args) & metadata
+                and set(args) <= metadata | {"-q", "--quiet", "-v", "--verbose"}):
+            return "sys_inspect"
+        if lead == "unittest":
+            return "run_tests"
     # ONE ordered pass, so the original rule precedence is preserved exactly; only
     # the HAYSTACK changes per rule. Splitting this into two passes silently
     # promoted every heredoc above `commit_changes`, turning 44 real commits in the

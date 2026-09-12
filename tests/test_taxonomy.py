@@ -21,6 +21,38 @@ REPO = os.path.join(os.path.dirname(__file__), "..")
 
 # --- segmentation --------------------------------------------------------------
 
+@pytest.mark.parametrize("cmd,expected", [
+    ("python3 -m unittest -v bowler.tests", "run_tests"),
+    ("python -m unittest discover -s tests", "run_tests"),
+    ("cd /repo && python -m unittest tests.test_x -v", "run_tests"),
+    ("timeout 5 python -m unittest", "run_tests"),
+    ("python -m pytest --version", "sys_inspect"),
+    ("pytest -q --version", "sys_inspect"),
+    ('"/opt/bin/pytest" "--version"', "sys_inspect"),
+    ("uv run pytest --help", "sys_inspect"),
+    ("python -m unittest -h", "sys_inspect"),
+    ("python -m unittest discover --help", "sys_inspect"),
+    ("pytest --version > version.txt", "sys_inspect"),
+    ("pytest --version && python -m unittest tests.test_x", "run_tests"),
+    # Equal-tier inspection preserves the existing first-segment tie-break.
+    ("pytest --version && git status", "sys_inspect"),
+    ("pytest tests/test_x.py -v", "run_tests"),
+    ('pytest -k "--version"', "run_tests"),
+    ("pytest -- --version", "run_tests"),
+    ("pytest --override-ini=--version", "run_tests"),
+    ("python -m unittest -k --help", "run_tests"),
+    ("python -m unittest.mock", "run_script"),
+    ("python unittest_example.py", "run_script"),
+    ('python -c "print(\'unittest --help\')"', "run_script"),
+    ("echo unittest", "unmapped"),
+    ("grep unittest src.py", "search_code"),
+    ("pip install pytest", "pkg_manage"),
+])
+def test_test_runner_execution_vs_metadata(cmd, expected):
+    assert tx.label_bash(cmd)[0] == expected
+    assert tx.label_call("Bash", {"command": cmd})[0] == expected
+
+
 def test_cd_preamble_is_not_the_intent():
     """78% of real commands start `cd "<path>" && ...`; `cd` is never the action."""
     label, _ = tx.label_bash('cd "/repo" && pytest -q')

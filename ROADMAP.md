@@ -14,7 +14,7 @@
 
 | What was just completed | What's next |
 |---|---|
-| [Twelve-event source audit #53](PROJECT/3-COMPLETED/PANEL-SOURCE-AUDIT.md) completed; two Bash classification defects, no score changes. | [#56: scoped mapper correction](https://github.com/HiQS-Labs/Needle-fork/issues/56), not implemented. No new model calls/training. The stricter #25 lane remains capacity-blocked at 541/1,000 and deferred. |
+| [Test runner correction #56](PROJECT/3-COMPLETED/TEST-RUNNER-MAPPING.md) completed and verified; frozen scores unchanged. | Scope a separately versioned data refresh and bounded follow-up; no new evaluation/training authorized. The stricter #25 lane remains capacity-blocked at 541/1,000 and deferred. |
 
 > **Corrected 2026-09-09.** This cell previously read *"first `needle finetune` run on JAX/CPU at
 > `--max-len 2048`"*. That was superseded on 2026-09-07 by
@@ -36,6 +36,8 @@
 - [Label correctness audit — make the §2 gate trustworthy](PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md) — source identity and disjoint manifests are merged; #25 clears its 30-session floor but remains blocked because the frozen sampler can allocate only 541/1,000 evaluation rows under its label quotas and session cap. ([#20](https://github.com/HiQS-Labs/Needle-fork/issues/20), [#23](https://github.com/HiQS-Labs/Needle-fork/issues/23), [#25](https://github.com/HiQS-Labs/Needle-fork/issues/25))
 
 ### Completed
+
+- [Test runner mapping correction](PROJECT/3-COMPLETED/TEST-RUNNER-MAPPING.md) — unittest execution and unambiguous metadata probes corrected; no old-data writes. ([#56](https://github.com/HiQS-Labs/Needle-fork/issues/56))
 
 - [Panel source audit](PROJECT/3-COMPLETED/PANEL-SOURCE-AUDIT.md) — all 12 source/chronology checks passed; defects and context/taxonomy limitations recorded. ([#53](https://github.com/HiQS-Labs/Needle-fork/issues/53))
 

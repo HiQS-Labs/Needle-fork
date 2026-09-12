@@ -260,3 +260,26 @@ the future target result leaves the pre-action row unchanged. Published
 retained raw events/annotations locally. Next is scoped #56 correction before more
 model investment, not another training run. Original #51/#52/#54 scores and prior
 gates remain unchanged; #43 remains held.
+
+## 2026-09-12 — test-runner mapper correction (#56)
+
+Corrected the two confirmed execution/metadata defects in the existing shared
+label_segment seam. Effective unittest invocations map run_tests; unambiguous
+pytest/unittest help and pytest version probes map sys_inspect, projected to
+run_command. Metadata recognition is deliberately narrow, not a full CLI parser:
+arbitrary option values or positionals do not trigger the metadata-only exception.
+Native editor labels and ad-hoc-script policy are unchanged.
+
+Debug-mantra regression work witnessed the pre-fix failures. The initial patch
+bypassed an environment-prefix mutation guard; fixed by respecting the existing
+command-position check. One new compound expectation was corrected to preserve
+the existing equal-tier first-segment tie-break, rather than changing precedence.
+Final focused suites: 263 passed. Non-slow suite: 468 passed, 6 skipped, 11 deselected.
+
+A read-only differential across 16 Bash calls from #53's 12-event evidence changed
+exactly three: two unittest invocations and one pytest version query. All 13 frozen
+panel artifact/code hashes still match. No re-extraction, model call, training or
+score revision. Historical #53 replay belongs at pre-fix f225278; do not update its
+expected old labels to the new mapper. [Receipt](TESTS-RESULTS/2026-09-12-test-runner-mapping/SUMMARY.md).
+Next is a separately scoped/versioned data refresh and bounded follow-up decision;
+remaining directory-view and ad-hoc-verification semantics are not settled by #56.

@@ -19,6 +19,9 @@ def call(name, arguments):
     ("str_replace_editor", {"command": "str_replace", "path": "a.py"}, "edit"),
     ("execute_bash", {"command": "rg needle src"}, "search"),
     ("execute_bash", {"command": "pytest -q"}, "run_tests"),
+    ("execute_bash", {"command": "python3 -m unittest -v bowler.tests"}, "run_tests"),
+    ("execute_bash", {"command": "python -m pytest --version"}, "run_command"),
+    ("execute_bash", {"command": "python -m unittest --help"}, "run_command"),
     ("execute_bash", {"command": "git status --short"}, "git"),
     ("execute_bash", {"command": "python script.py"}, "run_command"),
 ])

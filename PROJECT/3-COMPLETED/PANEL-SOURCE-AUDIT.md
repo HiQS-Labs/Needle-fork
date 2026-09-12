@@ -27,3 +27,6 @@ Next: [#56](https://github.com/HiQS-Labs/Needle-fork/issues/56), a separately sc
 test-execution/metadata mapper correction. Fix not implemented in #53; no training,
 model expansion or serving follows automatically. Original scores/gates remain
 unchanged; PR #43 stays held.
+
+Later update: [#56 correction completed](TEST-RUNNER-MAPPING.md), without changing
+this audit's frozen evidence. Historical replay stays pinned to f225278.

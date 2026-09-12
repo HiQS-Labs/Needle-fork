@@ -96,3 +96,7 @@ No new model calls, downloads, training, runtime changes, or retroactive scores.
 Original #51/#52/#54 evidence and all gates stand; PR #43 remains held. Stop this
 audit here. Correct and verify #56 before selecting a separately versioned follow-up;
 do not treat the panel leaderboard as calibrated on a clean semantic target.
+
+Later update: [#56 corrected the runner defects](../2026-09-12-test-runner-mapping/SUMMARY.md).
+This audit expected the original mapper: reproduce it from pinned commit `f225278`,
+not the corrected current mapper. Its recorded data, counts and scores stay frozen.
