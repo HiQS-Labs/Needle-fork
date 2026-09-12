@@ -32,12 +32,39 @@ VOCAB_LIMIT = 20000
 LABELS = prep.LABELS
 
 
+def peak_rss():
+    peak = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    return peak if sys.platform == "darwin" else peak * 1024
+
+
+def check_memory():
+    if peak_rss() > 1024 ** 3:
+        raise MemoryError("1 GiB RSS checkpoint tripwire exceeded")
+
+
+def configure_memory():
+    ceiling = 2 * 1024 ** 3
+    _, hard = resource.getrlimit(resource.RLIMIT_AS)
+    try:
+        resource.setrlimit(resource.RLIMIT_AS, (min(ceiling, hard) if hard >= 0 else ceiling, hard))
+    except (ValueError, OSError):
+        if sys.platform != "darwin":
+            raise
+        # Measured on this Mac: even lowering both RLIMIT_AS/RSS limits is refused.
+        # Byte/model caps + RSS checkpoints remain; do not claim a hard memory ceiling.
+        return {"memory_limit_bytes": None, "memory_guard": "bounded inputs plus 1 GiB RSS checkpoints; macOS rejected RLIMIT_AS"}
+    return {"memory_limit_bytes": resource.getrlimit(resource.RLIMIT_AS)[0],
+            "memory_guard": "OS limit plus 1 GiB RSS checkpoints"}
+
+
 def fetch_json(url):
     with urllib.request.urlopen(url, timeout=30) as response:
         raw = response.read(RESPONSE_LIMIT + 1)
     if len(raw) > RESPONSE_LIMIT:
         raise ValueError("source response exceeds 32 MiB cap")
-    return json.loads(raw)
+    parsed = json.loads(raw)
+    check_memory()
+    return parsed
 
 
 def check_revision():
@@ -82,6 +109,7 @@ def prepare(source):
     seen_issues, seen_trajectories = set(), set()
     audit = Counter()
     for row in source:
+        check_memory()
         audit["source_rows"] += 1
         if audit["source_rows"] > PAGES * PAGE_SIZE:
             raise ValueError("source exceeds frozen trajectory cap")
@@ -142,7 +170,10 @@ def features(row, context):
 def fit_nb(rows, context):
     if not rows:
         raise ValueError("empty training data")
-    documents = [(features(r, context), r["target"]) for r in rows]
+    documents = []
+    for row in rows:
+        documents.append((features(row, context), row["target"]))
+        check_memory()
     frequency = Counter(t for tokens, _ in documents for t in tokens)
     vocabulary = set(sorted(frequency, key=lambda t: (-frequency[t], t))[:VOCAB_LIMIT])
     counts = {label: Counter() for label in LABELS}
@@ -255,10 +286,7 @@ def main():
                                 shuffle_seed=51, smoothing_alpha=1),
                   evidence="public successful-trajectory label agreement; not human usefulness")
     try:
-        ceiling = 2 * 1024 ** 3
-        soft, hard = resource.getrlimit(resource.RLIMIT_AS)
-        resource.setrlimit(resource.RLIMIT_AS, (min(ceiling, hard) if hard >= 0 else ceiling, hard))
-        result["memory_limit_bytes"] = resource.getrlimit(resource.RLIMIT_AS)[0]
+        result.update(configure_memory())
         path = acquire(args.out)
         result["source_sha256"] = prep.digest(path)
         splits, audit = prepare(prep._iter_jsonl(path))
@@ -279,8 +307,7 @@ def main():
     finally:
         signal.alarm(0)
         result["elapsed_seconds"] = time.monotonic() - started
-        peak = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-        result["peak_rss_bytes"] = peak if sys.platform == "darwin" else peak * 1024
+        result["peak_rss_bytes"] = peak_rss()
         result["code_sha256"] = {p.name: prep.digest(p) for p in
                                  (Path(__file__), Path(prep.__file__), Path(baselines.__file__),
                                   Path(prep.taxonomy.__file__))}

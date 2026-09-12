@@ -197,3 +197,17 @@ def test_cli_retains_refusal_and_refuses_overwrite(tmp_path, monkeypatch):
     with pytest.raises(FileExistsError):
         probe.main()
     assert (out / "result.json").read_bytes() == saved
+
+
+def test_macos_refused_limit_is_disclosed_and_rss_tripwire_fails(monkeypatch):
+    def refused(*_):
+        raise ValueError("current limit exceeds maximum limit")
+    monkeypatch.setattr(probe.resource, "setrlimit", refused)
+    monkeypatch.setattr(probe.sys, "platform", "darwin")
+    assert probe.configure_memory()["memory_limit_bytes"] is None
+    monkeypatch.setattr(probe, "peak_rss", lambda: 1024 ** 3 + 1)
+    with pytest.raises(MemoryError, match="tripwire"):
+        probe.check_memory()
+    monkeypatch.setattr(probe.sys, "platform", "linux")
+    with pytest.raises(ValueError):
+        probe.configure_memory()

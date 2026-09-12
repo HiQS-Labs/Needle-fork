@@ -5,6 +5,15 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-12
 
+### macOS launch guard corrected before acquisition (#51)
+
+The first context-probe launch refused before data download: this host rejects lowering
+RLIMIT_AS/RSS. Reproduced at four limits and with both soft/hard limits lowered. On macOS only,
+record the unsupported OS ceiling explicitly and retain bounded inputs/model plus a 1 GiB RSS
+checkpoint tripwire; other platforms still fail closed. This is not a hard allocation ceiling.
+Original refusal retained, no score produced or feature/gate tuning. Regression tests cover
+the platform-specific path and measured-memory refusal.
+
 ### Bounded context probe implemented (#51)
 
 Selected the existing OpenHands converter/projection and transition baselines from #42/#48;

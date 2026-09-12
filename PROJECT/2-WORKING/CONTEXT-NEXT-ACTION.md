@@ -86,3 +86,13 @@ dependency-free context probe, not a replacement production architecture.
 
 Execution debugging uses debug-mantra. Reversibility Easy: scoped commits can be reverted without
 changing source data or existing benchmark records. No change to training/export numerical contracts.
+
+### Launch ledger
+
+First launch at `3fe94b9` refused before acquisition/fit: this Mac rejects `RLIMIT_AS` (aliased
+to RSS), including 256 MiB through 2 GiB and lowering both soft/hard limits. The conditional
+"where supported" guard now records that platform limitation and uses 1 GiB measured-RSS
+checkpoints in addition to fixed byte/example/vocabulary caps. Checkpoints are not a hard
+allocation ceiling. Input features, sample selection and scoring gates are unchanged; no score
+existed when this launch fix was made. Refusal retained under ignored data; new output directory
+required for the next attempt. Regression covers disclosed degradation and the RSS tripwire.
