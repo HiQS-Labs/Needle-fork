@@ -220,3 +220,43 @@ malformed-input and wrong-prediction red controls, identical scorer replay.
 441 non-slow tests passed, 6 skipped, 11 deselected; worker and consult harness suites
 each passed 62/62. Public [receipt, scorer and aggregates](TESTS-RESULTS/2026-09-12-next-action-panel/SUMMARY.md);
 raw per-case inputs and transcripts remain ignored locally.
+
+## 2026-09-12 — bounded panel source audit (#53)
+
+Completed the frozen 12-event inspection: nine original all-seven misses and three
+controls. The later MiniMax seat (#54: 10/30, one original shared miss correct)
+did not change selection. Verified the retained source digest, original score
+replay, unique raw next calls, matched prior results, chronology and exact feature
+projection. All 12 source alignments passed; no observed answer-key/row mix-up.
+
+Confirmed two Bash classification defects and filed
+[#56](https://github.com/HiQS-Labs/Needle-fork/issues/56) immediately. A unittest
+suite runs tests but maps to run_command; a pytest version probe only prints
+metadata but maps to run_tests. These affect two audited targets. The unittest
+defect also affects one other event's previous action, not its correct search target.
+The cause is the shared taxonomy's named-test matching, not source chronology.
+No fix or retroactive relabeling performed.
+
+Primary triage of the nine misses: two target-mapping defects, three coarse
+taxonomy boundaries, two material context-loss cases, two behaviorally unresolved.
+These are coordinator judgments, not independent human labels or proven causes;
+secondary caveats overlap. Native editor directory-view maps to read; ad-hoc
+assertion scripts map to run_command. Those boundaries need an explicit policy,
+not silent changes to make model votes correct. The unanimous edit prediction's
+actual target is a real pytest run; the full prior error-bearing response was visible.
+
+All 12 tasks are clipped, ten inside the issue description. Five observations are
+cropped (three misses, two controls; one control loses only six characters).
+Two missed pytest contexts lose test identity while retaining roughly 81% separator
+padding. A different generic-success observation omits that its preceding command
+was cleanup. Previous structured call arguments are absent by feature design.
+These are information losses, not measured evidence that restoring them improves
+prediction. The purposive audit cannot estimate dataset-wide error prevalence.
+
+Verification: 441 non-slow tests passed, 6 skipped, 11 deselected; wrong prior-result
+ID and target-call substitution controls invalidate the original row, while changing
+the future target result leaves the pre-action row unchanged. Published
+[aggregate receipt and replay](TESTS-RESULTS/2026-09-12-panel-source-audit/SUMMARY.md),
+retained raw events/annotations locally. Next is scoped #56 correction before more
+model investment, not another training run. Original #51/#52/#54 scores and prior
+gates remain unchanged; #43 remains held.

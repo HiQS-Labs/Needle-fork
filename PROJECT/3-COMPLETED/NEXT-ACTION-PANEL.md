@@ -31,6 +31,9 @@ advice, not an iterative artifact approval. Gemini 3.1 Pro recommended auditing
 before more model calls or training. Adopted that direction, while preserving
 the frozen macro-F1 convention and treating label noise as unproven.
 
-Next: [#53](https://github.com/HiQS-Labs/Needle-fork/issues/53) proposes a bounded
+At completion: [#53](https://github.com/HiQS-Labs/Needle-fork/issues/53) proposed a bounded
 12-event source audit (nine shared misses plus three controls). Not started;
 no automatic authorization for relabeling, another experiment, or deployment.
+
+Later update: [#53 completed](PANEL-SOURCE-AUDIT.md). Two Bash classification
+defects filed as #56; source alignment passed. Original panel scores unchanged.

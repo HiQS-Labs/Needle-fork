@@ -4,7 +4,7 @@
 
 We’re exploring whether a tiny local model can suggest useful next steps during software work—including testing, Git actions, and project governance—cheaply enough to run alongside a larger coding assistant. We have built and exercised the training/export pipeline, assembled private activity traces, audited their labels, and tested neural and simple statistical predictors. Useful recommendations remain unproven: label noise, a training/serving mismatch, and poor transfer from public coding-agent data have limited results.
 
-Private-trained predictors and a context-aware OpenHands text classifier missed their gates. We then quizzed seven larger models on the same 30 public examples: Fable led at 60.0% versus 46.7% for the strongest simple baseline, but all seven missed nine cases. This small exploratory result is not a milestone pass. After a Gemini 3.1 Pro review, the next step is a bounded source/context audit before more model calls or training. Manual usefulness testing stopped for time burden with no ratings; no human acceptance rate or production-ready Oracle has been established.
+Private-trained predictors and a context-aware OpenHands text classifier missed their gates. A seven-model quiz gave Fable 60.0% versus a 46.7% simple baseline on 30 public examples—not a milestone pass. The follow-up source audit found two concrete action-classification defects, coarse-label ambiguities and context loss. Next is a narrow mapper correction before more model investment. Manual usefulness testing stopped for time burden with no ratings; no human acceptance rate or production-ready Oracle has been established.
 
 ## What we have tried and learned
 
@@ -27,12 +27,14 @@ Status: September 12, 2026. This is HiQS's experimental fork of [Cactus Compute'
 | Manual on-demand usefulness discovery | Stopped for operator time burden after one eligible request and zero ratings; no acceptance or rejection inferred. | [#49](https://github.com/HiQS-Labs/Needle-fork/issues/49) |
 | Context-aware OpenHands prediction | Trained on 10,000 actions; context NB scored 49.67% on 3,000 actions versus 46.83% action-only NB, 41.80% shuffled context, and 52.10% phase-backoff. Follow-up rule failed; no further tuning. | [#51 receipt](TESTS-RESULTS/2026-09-12-context-next-action/SUMMARY.md) |
 | Seven-model next-action panel | Fable scored 18/30 (60.0%) versus phase-backoff 14/30 (46.7%). All seven missed nine cases; zero true Git actions and only one edit limit interpretation. Gemini 3.1 Pro advised auditing before expansion. No promotion. | [#52 receipt and review](TESTS-RESULTS/2026-09-12-next-action-panel/SUMMARY.md) |
+| Post-panel MiniMax addition | Scored 10/30 (33.3%); Tencent's earlier 9/30 result was reused. No promotion or change to the frozen seven-seat comparison. | [#54 addendum](https://github.com/HiQS-Labs/Needle-fork/issues/54#issuecomment-5644221616) |
+| Twelve-event source audit | All source/chronology checks passed; unittest execution and pytest metadata queries expose two classification defects. Context loss and taxonomy ambiguities also occur. No retroactive relabeling. | [#53 receipt](TESTS-RESULTS/2026-09-12-panel-source-audit/SUMMARY.md) |
 
 ## Current result and next decision
 
 **The seven-model panel [#52](https://github.com/HiQS-Labs/Needle-fork/issues/52) is scored and reviewed.** Fable's four-case lead over phase-backoff is exploratory, not evidence of general superiority or human usefulness. These are 30 reused development examples, not 210 independent observations. [Results and review reconciliation](TESTS-RESULTS/2026-09-12-next-action-panel/SUMMARY.md) preserve the frozen six-label scoring convention and distinguish suspected context/taxonomy limitations from proven defects.
 
-Next is [#53's 12-event audit](https://github.com/HiQS-Labs/Needle-fork/issues/53): nine shared misses and three controls, using retained raw trajectories. No additional model calls, training, or manual ratings are needed for this audit. It is proposed, not completed. The earlier [context-aware #51 probe](TESTS-RESULTS/2026-09-12-context-next-action/SUMMARY.md) remains stopped: context NB 49.67% versus phase-backoff 52.10%, with its follow-up rule unmet.
+**[#53's 12-event audit is complete](TESTS-RESULTS/2026-09-12-panel-source-audit/SUMMARY.md).** Source alignment is intact, but a unittest suite is labeled run_command and a pytest version query is labeled run_tests. Next is [#56's scoped mapper correction](https://github.com/HiQS-Labs/Needle-fork/issues/56), not another panel or training run. Coarse-label boundaries and lost context need explicit treatment before any separately versioned follow-up. The earlier [context-aware #51 probe](TESTS-RESULTS/2026-09-12-context-next-action/SUMMARY.md) remains stopped: context NB 49.67% versus phase-backoff 52.10%, with its follow-up rule unmet. All published scores remain unchanged.
 
 Manual discovery [#49](https://github.com/HiQS-Labs/Needle-fork/issues/49) stopped for operator time burden after one eligible request and zero ratings. This pivot changes the input representation; it does not relabel earlier failures as passes.
 
@@ -54,7 +56,7 @@ a new branch/PR requires a concrete isolation or integration need.
 
 The findings cleanup and project story (#44/#45), [branch hygiene rules (#46)](https://github.com/HiQS-Labs/Needle-fork/pull/46), [adapter build-safety guard (#8)](https://github.com/HiQS-Labs/Needle-fork/pull/8), and governance stack (#6/#10) are merged into `main`. Integration verification passed: 384 non-slow tests and 11 slow build/finetune tests; six tests were skipped. This validates the engineering changes, not Oracle recommendation usefulness.
 
-1. **Audit before another experiment:** [#53](https://github.com/HiQS-Labs/Needle-fork/issues/53) tracks a bounded inspection of 12 retained source events after the [panel result](TESTS-RESULTS/2026-09-12-next-action-panel/SUMMARY.md). Distinguish mapping defects from taxonomy boundaries, context loss, and behavioral ambiguity before choosing a separate follow-up. No manual ratings required; old gates remain unchanged.
+1. **Correct the confirmed mapper defects:** [#56](https://github.com/HiQS-Labs/Needle-fork/issues/56) follows the [completed source audit](TESTS-RESULTS/2026-09-12-panel-source-audit/SUMMARY.md). Verify execution-versus-metadata classification and shared-taxonomy regressions before a separately versioned re-extraction or experiment. No manual ratings required; old scores and gates remain unchanged.
 2. **Deferred augmentation review (previous step 4):** wait for the operator to release #43's testing hold, then review its results before any integration decision.
 
 Adapter builds with missing or full-precision training provenance now require an explicit

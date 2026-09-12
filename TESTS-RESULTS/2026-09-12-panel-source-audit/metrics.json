@@ -1,0 +1,48 @@
+{
+  "issue": 53,
+  "status": "completed_audit_no_relabeling",
+  "events": 12,
+  "shared_misses": 9,
+  "controls": 3,
+  "unique_source_issues": 12,
+  "source_alignment_verified": 12,
+  "previous_call_response_target_chronology_verified": 12,
+  "frozen_projection_reproduced": 12,
+  "primary_triage_categories": {
+    "control": 3,
+    "unresolved_behavior": 2,
+    "taxonomy_boundary": 3,
+    "target_mapping_defect": 2,
+    "context_loss": 2
+  },
+  "categories_are_causal_attribution": false,
+  "confirmed_bash_defect_types": 2,
+  "target_rows_affected_by_confirmed_bash_defects": 2,
+  "additional_prior_action_defect_rows": 1,
+  "task_truncated_rows": 12,
+  "issue_description_cut_rows": 10,
+  "observation_tail_cropped_rows": 5,
+  "observation_tail_cropped_misses": 3,
+  "observation_tail_cropped_controls": 2,
+  "previous_call_arguments_excluded_by_feature_schema": 12,
+  "red_controls": [
+    "Wrong prior response ID removes the audited target row",
+    "Changing target result cannot change the pre-action audited row",
+    "Replacing raw next call rejects original target alignment"
+  ],
+  "source_sha256": "929b8265bf1432d2602c51cc1d0b993167a3a857e22cdf170f3d6b2ef467ba5a",
+  "projection_sha256": "1698c76fc975bccbe704d7c880874915bd885b10cfe131086c7f0071080b548f",
+  "followup_issue": 56,
+  "limitations": "Outcome-enriched purposive audit, not population error prevalence. Categories are coordinator judgments with overlapping caveats. Future tool outputs inspected only for audit, never prediction input. Original scores unchanged.",
+  "hashes": {
+    "TESTS-RESULTS/2026-09-12-panel-source-audit/audit.py": "859d64ef54966dc645d61e1f165af82cc3cff2167bed95def4dbce6572eba776",
+    "utils/corpus/taxonomy.py": "31505257fc6e7a5832689d7f742ea82c6b6dc808b9412820531c1344fc02cec1",
+    "data/next-action-panel-v1/audit53-final.json": "9a5e95dfc62e9724598e23704586c2e953f7f8f5e05cb44c78bbf28096004a13",
+    "data/next-action-panel-v1/audit53-classification.json": "83c133ff30878cebcdc9975a5d0ecc9559336d3ec090af74c365953f5647a946"
+  },
+  "tests": {
+    "passed": 441,
+    "skipped": 6,
+    "deselected": 11
+  }
+}

@@ -14,7 +14,7 @@
 
 | What was just completed | What's next |
 |---|---|
-| [Seven-model panel #52](PROJECT/3-COMPLETED/NEXT-ACTION-PANEL.md) scored and reviewed; exploratory lead, no promotion. | [#53: bounded source audit](https://github.com/HiQS-Labs/Needle-fork/issues/53), proposed, not started. No new model calls/training. The stricter #25 lane remains capacity-blocked at 541/1,000 and deferred. |
+| [Twelve-event source audit #53](PROJECT/3-COMPLETED/PANEL-SOURCE-AUDIT.md) completed; two Bash classification defects, no score changes. | [#56: scoped mapper correction](https://github.com/HiQS-Labs/Needle-fork/issues/56), not implemented. No new model calls/training. The stricter #25 lane remains capacity-blocked at 541/1,000 and deferred. |
 
 > **Corrected 2026-09-09.** This cell previously read *"first `needle finetune` run on JAX/CPU at
 > `--max-len 2048`"*. That was superseded on 2026-09-07 by
@@ -36,6 +36,8 @@
 - [Label correctness audit — make the §2 gate trustworthy](PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md) — source identity and disjoint manifests are merged; #25 clears its 30-session floor but remains blocked because the frozen sampler can allocate only 541/1,000 evaluation rows under its label quotas and session cap. ([#20](https://github.com/HiQS-Labs/Needle-fork/issues/20), [#23](https://github.com/HiQS-Labs/Needle-fork/issues/23), [#25](https://github.com/HiQS-Labs/Needle-fork/issues/25))
 
 ### Completed
+
+- [Panel source audit](PROJECT/3-COMPLETED/PANEL-SOURCE-AUDIT.md) — all 12 source/chronology checks passed; defects and context/taxonomy limitations recorded. ([#53](https://github.com/HiQS-Labs/Needle-fork/issues/53))
 
 - [Seven-model next-action panel](PROJECT/3-COMPLETED/NEXT-ACTION-PANEL.md) — locked predictions scored; Gemini 3.1 Pro review reconciled; no milestone pass. ([#52](https://github.com/HiQS-Labs/Needle-fork/issues/52))
 

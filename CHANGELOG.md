@@ -5,6 +5,18 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-12
 
+### Bounded panel source audit completed (#53)
+
+Audited nine original shared misses plus three controls against retained raw events.
+All 12 source/chronology projections align. Filed #56 for unittest suite execution
+mapping to run_command and pytest metadata queries mapping to run_tests. Recorded
+coarse-label boundaries, measured context loss and unresolved behavior separately;
+no cause or population error-rate claim from the purposive sample. Published replay
+and aggregate receipt, kept raw events private, reconciled current docs. No mapper
+fix, new model call, training, score change or #43 modification. Verification: 441
+non-slow tests passed, 6 skipped; frozen-score replay and witnessed chronology,
+target-substitution and future-result controls passed.
+
 ### Frozen seven-model panel scored and reviewed (#52)
 
 Published a replayable scorer and aggregate receipt for 210 locked predictions on

@@ -106,3 +106,8 @@ Review qualifications:
 
 No old gate is changed, no model is promoted, and PR #43 remains held. Any mapper
 fix or subsequent experiment needs its own scope and separately versioned evidence.
+
+Later update: [#53's audit completed](../2026-09-12-panel-source-audit/SUMMARY.md).
+It confirmed two Bash classification defects and context/taxonomy limitations;
+source alignment passed. #56 tracks the scoped correction. This original scoring
+receipt is unchanged, not retroactively relabeled or promoted.
