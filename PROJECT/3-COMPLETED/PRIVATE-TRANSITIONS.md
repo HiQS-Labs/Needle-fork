@@ -82,6 +82,11 @@ stdlib only, one fit/score round, no feature or threshold search. Debug-mantra g
 
 ## QA
 
+2026-09-12 review follow-through: CLI reruns now verify the retained private manifest's input digest
+before loading/fitting and check frozen train/session/overlap counts. The original result is unchanged.
+Use the trusted original private receipt as `--private-manifest`; never regenerate its expected digest
+from an unverified replacement input. Same-size substitution failed a red regression before the fix.
+
 Consult reconciliation: both advisors required explicit filtered support/fallback rules, implemented
 split checks and same-family gates before execution. They differed on privacy: one allowed anonymous
 session summaries and input hashes, the other rejected public distributions/hashes. Use the stricter

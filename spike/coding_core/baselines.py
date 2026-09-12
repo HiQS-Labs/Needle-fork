@@ -305,6 +305,8 @@ def main() -> int:
     ap.add_argument("--train", type=Path)
     ap.add_argument("--private-pairs", type=Path,
                     help="fit private train and score fixed holdout; output must stay private")
+    ap.add_argument("--private-manifest", type=Path,
+                    help="trusted retained private JSON manifest/receipt containing input_sha256")
     holdout = ap.add_mutually_exclusive_group()
     holdout.add_argument("--holdout", type=Path)
     holdout.add_argument("--oracle-pairs", type=Path,
@@ -316,10 +318,20 @@ def main() -> int:
             ap.error("--private-pairs cannot be combined with other input modes")
         if args.out.exists():
             raise SystemExit("refusing to overwrite receipt")
+        if not args.private_manifest:
+            ap.error("--private-pairs requires --private-manifest from the retained frozen input")
+        manifest = json.loads(args.private_manifest.read_text())
+        expected = manifest.get("input_sha256") if isinstance(manifest, dict) else None
+        if not isinstance(expected, str) or not re.fullmatch(r"[0-9a-f]{64}", expected):
+            raise ValueError("private manifest must contain a valid input_sha256")
         before = digest(args.private_pairs)
+        if before != expected:
+            raise ValueError("fixed private input digest mismatch")
         train, evaluation, audit = load_private_splits(args.private_pairs)
-        if len(evaluation) != 23442 or audit["sessions"]["holdout"] != 63:
-            raise ValueError("fixed evaluation manifest mismatch: expected 23442 rows / 63 sessions")
+        if (len(train) != 45127 or audit["sessions"]["train"] != 296
+                or len(evaluation) != 23442 or audit["sessions"]["holdout"] != 63
+                or audit["excluded_train_content_overlap"] != 1):
+            raise ValueError("fixed evaluation manifest mismatch: training/evaluation counts changed")
         result = evaluate_private(train, evaluation)
         if before != digest(args.private_pairs):
             raise ValueError("input changed during run")
@@ -330,6 +342,8 @@ def main() -> int:
             fh.write(json.dumps(result, indent=2) + "\n")
         print(json.dumps({k: result[k] for k in ("overall", "change_ordinary", "change_excluded", "promotion")}, indent=2))
         return 0 if result["promotion"]["passed"] else 1
+    if args.private_manifest:
+        ap.error("--private-manifest requires --private-pairs")
     if not args.train or not (args.holdout or args.oracle_pairs):
         ap.error("provide --private-pairs or --train and one evaluation source")
     if args.oracle_pairs:

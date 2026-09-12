@@ -5,6 +5,13 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-11
 
+### PR #48 review follow-through (2026-09-12 UTC)
+
+Reconciled the main-first README publication without losing either changelog entry. Hardened
+private reruns against same-size input substitution using a required retained private manifest,
+while preserving hash privacy and frozen train/evaluation/overlap counts. Regression witnessed
+red then green; no new evaluation, fitting, prediction changes, or gate changes.
+
 ### Private-trained transition comparison completed (#1, #48)
 
 Selected the frozen standard-library predictor from #42 into a focused main-based experiment,

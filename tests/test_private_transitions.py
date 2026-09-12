@@ -100,7 +100,10 @@ def test_no_change_rows_cannot_pass_and_receipt_has_no_identifiers():
 def test_cli_manifest_guard_runs_before_fit(tmp_path, monkeypatch):
     source = write_pairs(tmp_path, [pair(), pair(session="b", split="holdout", request="other")])
     out = tmp_path / "receipt.json"
-    monkeypatch.setattr("sys.argv", ["baselines", "--private-pairs", str(source), "--out", str(out)])
+    manifest = tmp_path / "frozen.json"
+    manifest.write_text(json.dumps({"input_sha256": b.digest(source)}))
+    monkeypatch.setattr("sys.argv", ["baselines", "--private-pairs", str(source),
+                                   "--private-manifest", str(manifest), "--out", str(out)])
     monkeypatch.setattr(b, "fit", lambda _: pytest.fail("must not fit wrong manifest"))
     with pytest.raises(ValueError, match="fixed evaluation manifest mismatch"):
         b.main()
@@ -119,3 +122,67 @@ def test_cli_refuses_existing_receipt_before_reading_input(tmp_path, monkeypatch
 def test_empty_conditional_terminal_fails():
     with pytest.raises(ValueError, match="empty action-change destination fallback"):
         b.predict(b.fit([("a", ("read",), "read")]), ("read",), True)
+
+
+def test_same_size_substituted_private_input_is_rejected(tmp_path, monkeypatch):
+    import types
+
+    source = write_pairs(tmp_path, [pair(), pair(session="b", split="holdout", request="other")])
+    manifest = tmp_path / "frozen.json"
+    manifest.write_text(json.dumps({"input_sha256": b.digest(source)}))
+    # Same rows, sessions and string length; only content changes after freezing.
+    source.write_text(source.read_text().replace('"other"', '"OTHER"'))
+    monkeypatch.setattr(b.argparse.ArgumentParser, "parse_args", lambda _: types.SimpleNamespace(
+        private_pairs=source, private_manifest=manifest, train=None, holdout=None,
+        oracle_pairs=None, out=tmp_path / "result.json"))
+    # Isolate manifest validation from separately tested projection/counting.
+    monkeypatch.setattr(b, "load_private_splits", lambda _: (
+        [None] * 45127, [None] * 23442,
+        {"sessions": {"train": 296, "holdout": 63}, "excluded_train_content_overlap": 1}))
+    monkeypatch.setattr(b, "evaluate_private", lambda *_: pytest.fail("substituted input reached fitting"))
+    with pytest.raises(ValueError, match="fixed private input digest mismatch"):
+        b.main()
+
+
+@pytest.mark.parametrize("train_count,train_sessions,excluded", [(45126, 296, 1), (45127, 295, 1), (45127, 296, 0)])
+def test_frozen_training_counts_are_checked(tmp_path, monkeypatch, train_count, train_sessions, excluded):
+    source = write_pairs(tmp_path, [pair()])
+    manifest = tmp_path / "frozen.json"
+    manifest.write_text(json.dumps({"input_sha256": b.digest(source)}))
+    monkeypatch.setattr("sys.argv", ["baselines", "--private-pairs", str(source),
+                                   "--private-manifest", str(manifest), "--out", str(tmp_path / "out.json")])
+    monkeypatch.setattr(b, "load_private_splits", lambda _: (
+        [None] * train_count, [None] * 23442,
+        {"sessions": {"train": train_sessions, "holdout": 63}, "excluded_train_content_overlap": excluded}))
+    monkeypatch.setattr(b, "evaluate_private", lambda *_: pytest.fail("changed counts reached fitting"))
+    with pytest.raises(ValueError, match="fixed evaluation manifest mismatch"):
+        b.main()
+
+
+def test_private_mode_requires_retained_manifest(tmp_path, monkeypatch):
+    monkeypatch.setattr("sys.argv", ["baselines", "--private-pairs", "absent.jsonl",
+                                   "--out", str(tmp_path / "out.json")])
+    with pytest.raises(SystemExit) as exc:
+        b.main()
+    assert exc.value.code == 2
+
+
+def test_matching_manifest_and_counts_reach_evaluation(tmp_path, monkeypatch):
+    source = write_pairs(tmp_path, [pair()])
+    manifest = tmp_path / "frozen.json"
+    manifest.write_text(json.dumps({"input_sha256": b.digest(source)}))
+    out = tmp_path / "result.json"
+    monkeypatch.setattr("sys.argv", ["baselines", "--private-pairs", str(source),
+                                   "--private-manifest", str(manifest), "--out", str(out)])
+    monkeypatch.setattr(b, "load_private_splits", lambda _: (
+        [None] * 45127, [None] * 23442,
+        {"sessions": {"train": 296, "holdout": 63}, "excluded_train_content_overlap": 1}))
+    calls = []
+    def evaluate(*_):
+        calls.append(True)
+        return {"overall": {}, "change_ordinary": {}, "change_excluded": {},
+                "promotion": {"passed": False}}
+    monkeypatch.setattr(b, "evaluate_private", evaluate)
+    assert b.main() == 1  # Valid execution; mocked experimental gate still fails.
+    assert calls == [True]
+    assert json.loads(out.read_text())["input_sha256"] == b.digest(source)

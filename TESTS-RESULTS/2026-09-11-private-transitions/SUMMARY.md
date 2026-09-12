@@ -39,10 +39,20 @@ not establish that a deployed predictor can detect that switch or give a useful 
 
 ## Verification
 
+Post-run review hardening (2026-09-12): reruns additionally require
+`--private-manifest <trusted-retained-private-manifest.json>`, with `input_sha256` from the retained
+frozen input (the original private receipt can supply it). This manifest is trusted local provenance,
+not generated from the candidate input at rerun time; deliberately replacing both defeats the check.
+The hash stays private. The CLI also checks 45,127 train rows / 296 train sessions and one excluded
+overlap row, alongside the existing evaluation counts. A same-size content-substitution regression
+was witnessed red, then green. This hardens future reproducibility; it does not retroactively add a
+pre-run guard to `082ca3a`, alter its receipt, or imply a new evaluation was performed.
+
 - Preflight full non-slow suite: 384 passed, 6 skipped, 11 deselected.
 - Extended suite: 395 passed, 6 skipped, 11 deselected; 11 focused tests passed.
 - Final suite after adding CLI manifest/overwrite/empty-fallback guards: 398 passed, 6 skipped,
-  11 deselected (14 focused tests). No predictor code changed after the frozen private run.
+  11 deselected (14 focused tests). No fitting, prediction, or gate logic changed after the frozen run;
+  subsequent changes only harden CLI input validation.
 - 6,192 synthetic label/model comparisons against the original frozen evaluator matched exactly.
 - Negative controls: making same-family AND into OR failed the gate test; disabling session
   overlap refusal failed the overlap test. Both restored; suite green before private fitting.
