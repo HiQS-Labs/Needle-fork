@@ -112,3 +112,17 @@ the harness works, but live agent tools are unnecessary risk. Resolve that conce
 by adapting round two to the previously tested Qwen route over tool-free HTTP,
 before any prediction/scoring. Adopt identical schema for shuffled text. No further
 model panel, per-feature study, or review loop. Raw review transcripts remain private.
+
+## Round-two infrastructure adaptation (before predictions)
+
+Two initial requests were rejected HTTP 400: the Qwen endpoint requires reasoning,
+but the client disabled it. Filed #60, retained failed attempts, and witnessed the
+request-configuration regression test fail before correcting it. No predictions or
+accuracy results existed. Under the operator's explicit adaptation authority, amend
+the one-retry bound once: three corrected requests with reasoning enabled at low
+effort, same model/cases/temperature and 4,096-token total output cap, no further
+retries. No threshold or sampling change. The initial requests were rejected in
+validation with provider_name null; no token usage was returned. Corrected-call
+conservative token-cost estimate is $0.667 (under the unchanged $1 ceiling), with
+provider price filters as an additional guard. This is a documented protocol change,
+not hidden retry selection or a new model candidate.
