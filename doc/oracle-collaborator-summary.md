@@ -4,7 +4,7 @@
 
 We’re exploring whether a tiny local model can suggest useful next steps during software work, including testing, Git actions, and project governance, cheaply enough to run alongside a larger coding assistant. We have built and exercised the training/export pipeline, assembled private activity traces, and tested both model-based and simple statistical predictors. The engineering path works, but useful recommendations remain unproven: label noise, a mismatch between training and native serving, and poor transfer from public coding-agent data have limited results.
 
-The private-trained comparison also missed its gates: phase-backoff reached 45.73% overall versus 43.52% repeat-last. A revised automatic, CPU-only OpenHands experiment added task text and the latest completed tool result: context NB scored 49.67% versus 46.83% without text, but the strongest action-only baseline scored 52.10%. This fixed probe also stopped; the manual usefulness trial stopped for time burden with no ratings. We are testing prediction, not claiming recommendations or deployment readiness.
+Private-trained predictors and a context-aware OpenHands text classifier missed their gates. A subsequent seven-model quiz on 30 public examples gave Fable 60.0% versus 46.7% for the strongest simple baseline, but all seven missed nine cases. This is exploratory, not a milestone pass. After Gemini 3.1 Pro review, the next step is a bounded source/context audit before more model calls or training. The manual trial stopped for time burden with no ratings; usefulness and deployment readiness remain unproven.
 
 ## The story and evidence
 
@@ -17,7 +17,21 @@ The private-trained comparison also missed its gates: phase-backoff reached 45.7
 | Work-purpose classification, a separate side experiment | Frozen ModernBERT features reached 57.5% purpose accuracy on 40 records versus 50% TF-IDF and 42.5% majority; TF-IDF had better purpose macro-F1. Area classification and rejection policies remained inadequate. | Limited signal, no deployment qualification; this is classification of work, not prediction of the next action. [#31](https://github.com/HiQS-Labs/Needle-fork/issues/31). |
 | External data and targeted augmentation | TAWOS did not cover the full eight-purpose taxonomy. A separate PR implements grounded, training-only augmentation tooling, with no measured model gain yet. | Volume alone does not solve domain and label mismatch. [#35](https://github.com/HiQS-Labs/Needle-fork/issues/35), [#41](https://github.com/HiQS-Labs/Needle-fork/issues/41), [PR #43](https://github.com/HiQS-Labs/Needle-fork/pull/43). |
 
-## Current result — context-aware pivot (#51) completed
+## Current result — seven-model panel (#52) scored and reviewed
+
+Seven models answered the same 30 cases before targets were disclosed: Fable 18/30,
+GLM 15/30, Astra and Gemini Flash 14/30, Qwen 12/30, DeepSeek 11/30, Tencent 9/30.
+Phase-backoff scored 14/30. This reused development sample has no true Git actions
+and one edit; selecting the best of seven is not evidence of general superiority.
+[Receipt and Gemini 3.1 Pro review reconciliation](../TESTS-RESULTS/2026-09-12-next-action-panel/SUMMARY.md).
+
+[#53](https://github.com/HiQS-Labs/Needle-fork/issues/53) proposes auditing the nine
+all-model misses plus three controls against retained raw trajectories. Distinguish
+mapping defects from intentional taxonomy boundaries, missing context and behavioral
+ambiguity; do not change labels merely to agree with models. No manual ratings,
+new model calls or training are needed for this audit. It has not started.
+
+## Previous result — context-aware pivot (#51) completed
 
 See the [completed protocol](../PROJECT/3-COMPLETED/CONTEXT-NEXT-ACTION.md) and [receipt](../TESTS-RESULTS/2026-09-12-context-next-action/SUMMARY.md). One run fitted on 10,000 actions / 224 issues and evaluated on 3,000 actions / 68 other issues. Context beat shuffled context by 7.87pp but trailed phase-backoff by 2.43pp and reduced macro-F1 versus action-only NB. The fixed follow-up rule failed; any new model/representation experiment needs a separate scope decision. Main-first commits/pushes are now the operator's default; no new experiment PR without a real isolation need. PR #43 stays held.
 
@@ -38,4 +52,4 @@ Budget: standard-library tooling, one engineer-hour, no feature search. The eval
 - Needle implementation and experiment history: [Needle-fork #1](https://github.com/HiQS-Labs/Needle-fork/issues/1).
 - Supporting investigation log: [FINDINGS.md](../FINDINGS.md); measurements live in dated `TESTS-RESULTS/` receipts and linked issues.
 
-Status reconciled 2026-09-12. Experimental code and receipts in PR #42 are on its branch; they are not all present on `main`. The final next-milestone interpretation incorporates the completed Astra/Fable discussion #743999.
+Status reconciled 2026-09-12 through panel #52 and its Gemini 3.1 Pro advisory review. Experimental code and receipts in PR #42 are on its branch; they are not all present on `main`. The earlier private-trained milestone interpretation incorporated Astra/Fable discussion #743999; its failed gates remain unchanged.

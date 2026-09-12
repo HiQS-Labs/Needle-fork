@@ -184,3 +184,39 @@ Two pre-fit refusals (unsupported macOS memory limit, then an empty source comma
 and fixed before the sole scored run. Snapshot extraction/fitting/scoring took 6.00 seconds and
 ~271 MiB peak RSS; acquisition occurred earlier. Tests: 441 passed, 6 skipped. Full pooled results,
 selection caveats and red-control evidence: [receipt](TESTS-RESULTS/2026-09-12-context-next-action/SUMMARY.md).
+
+## 2026-09-12 — seven-model next-action panel scored and reviewed (#52)
+
+Seven locked responses supplied 210 predictions on the same 30 public examples
+from 30 issues in #51's development partition. Fable 18/30 (60.0%), GLM 15/30,
+Astra and Gemini Flash 14/30, Qwen 12/30, DeepSeek 11/30, Tencent 9/30.
+Unchanged phase-backoff scored 14/30 (46.7%); Markov-1 12/30, repeat-last 9/30,
+majority 7/30. Fable beat phase-backoff on six rows and lost on two: net four,
+not established statistical superiority or a milestone pass.
+
+All seven missed nine cases. Seven cases were unanimous, six correct and one
+wrong; at least one model was correct on 21/30, an oracle bound, not an ensemble
+result. True labels include zero Git actions and only one edit. Six-label macro-F1
+retains zero for unsupported Git for every predictor. No general six-label
+capability, personal preference, private-domain transfer or human acceptance claim.
+
+The operator-requested relay-xyz review used its one-shot consult path with Agy
+Gemini 3.1 Pro, high effort, and completed with one answer and no worker failures.
+Adopted its recommendation to audit before more calls or training. Did not adopt
+its proposed macro-F1 denominator change: uniformly removing Git scales every
+score by 6/5 without changing the ranking. Its assertions that the top score is
+a statistical artifact and that disagreement proves noisy labels are unestablished.
+Its count of ten failures double-counted the one unanimous error within nine misses.
+
+Task/observation truncation and the distinction between named tests and ad-hoc
+verification commands are plausible failure sources, not diagnosed defects.
+[#53](https://github.com/HiQS-Labs/Needle-fork/issues/53) tracks a proposed audit of
+nine shared misses plus three controls, using retained raw events. No manual user
+ratings or new model calls required. Audit not started; old gates and #43 hold stand.
+
+Verification: frozen source/selection/response hashes, nonempty inputs, train/issue
+separation, original baseline-score replay, independent confusion arithmetic,
+malformed-input and wrong-prediction red controls, identical scorer replay.
+441 non-slow tests passed, 6 skipped, 11 deselected; worker and consult harness suites
+each passed 62/62. Public [receipt, scorer and aggregates](TESTS-RESULTS/2026-09-12-next-action-panel/SUMMARY.md);
+raw per-case inputs and transcripts remain ignored locally.

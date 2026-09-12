@@ -5,6 +5,18 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-12
 
+### Frozen seven-model panel scored and reviewed (#52)
+
+Published a replayable scorer and aggregate receipt for 210 locked predictions on
+30 same-case examples. Fable 60.0%, strongest simple baseline 46.7%; nine cases
+missed by all seven. No promotion or old-gate change. Agy Gemini 3.1 Pro reviewed
+through relay-xyz's one-shot consult path; adopted a bounded source audit (#53),
+not its unsupported label-noise conclusion or macro-F1 denominator change.
+Reconciled README, findings, briefing and roadmap. Raw cases remain ignored.
+Verification: 441 non-slow tests passed, 6 skipped; scorer input/hash and
+red controls, independent confusion arithmetic, identical replay; worker and
+consult harness tests each 62/62. No runtime, training, or held #43 changes.
+
 ### Optional asynchronous feedback CSV added
 
 Added a blank three-case CSV with fictional examples for each question, plus short instructions.
