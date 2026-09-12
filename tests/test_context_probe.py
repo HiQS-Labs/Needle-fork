@@ -211,3 +211,27 @@ def test_macos_refused_limit_is_disclosed_and_rss_tripwire_fails(monkeypatch):
     monkeypatch.setattr(probe.sys, "platform", "linux")
     with pytest.raises(ValueError):
         probe.configure_memory()
+
+
+def test_unlabelable_call_is_counted_and_breaks_history():
+    from collections import Counter
+    src = source()
+    src["trajectory"].insert(3, call("empty", ""))
+    audit = Counter()
+    assert prep.trajectory_rows(src, [], context=True, audit=audit) == []
+    assert audit["unlabelable_calls_skipped"] == 1
+    # The legacy mapper still refuses; only q2 explicitly counts/skips ambiguous calls.
+    with pytest.raises(prep.InputError):
+        prep.project_call(call("empty", "")["tool_calls"][0])
+
+
+def test_retained_source_rejects_same_size_substitution(tmp_path):
+    path = tmp_path / "source.jsonl"
+    path.write_text("first")
+    manifest = dict(dataset=prep.DATASET, revision=prep.REVISION,
+                    protocol={"offset": probe.OFFSET}, source_sha256=prep.digest(path))
+    (tmp_path / "result.json").write_text(json.dumps(manifest))
+    assert probe.retained_source(tmp_path) == path
+    path.write_text("other")
+    with pytest.raises(ValueError, match="identity"):
+        probe.retained_source(tmp_path)

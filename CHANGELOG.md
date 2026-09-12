@@ -5,6 +5,15 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-12
 
+### Unlabelable public calls excluded before scoring (#51)
+
+The capped download completed, then extraction refused on an empty shell command. The retained
+snapshot has two such calls in successful trajectories. Q2 now counts/skips unlabelable calls and
+resets history, rather than assigning a guessed label; legacy q1 still refuses. Added verified
+snapshot reuse to avoid another download, guarded by the trusted retained digest and frozen
+source metadata/row count. Tests cover boundary reset and same-size source substitution. No
+model had been fitted or scored when this data-handling clarification was made.
+
 ### macOS launch guard corrected before acquisition (#51)
 
 The first context-probe launch refused before data download: this host rejects lowering

@@ -96,3 +96,11 @@ checkpoints in addition to fixed byte/example/vocabulary caps. Checkpoints are n
 allocation ceiling. Input features, sample selection and scoring gates are unchanged; no score
 existed when this launch fix was made. Refusal retained under ignored data; new output directory
 required for the next attempt. Regression covers disclosed degradation and the RSS tripwire.
+
+Second launch retained all 1000 trajectories (285,443,921 bytes), then refused on an empty
+`execute_bash` command. The retained snapshot contains two such calls in successful trajectories.
+Before any fitting, clarify ambiguous-call handling: count and skip unlabelable calls and reset
+history, never guess a target or bridge the gap. Legacy q1 still refuses. Reuse the exact snapshot
+with `--source-run` only after comparison with its trusted original receipt hash; preserve both
+refusal receipts and write to a fresh directory. Replacing both snapshot and trusted receipt is
+outside this guard's trust boundary. Sample/feature/model/gate settings remain frozen.

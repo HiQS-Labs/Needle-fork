@@ -178,7 +178,12 @@ def _context_rows(source, audit):
                 audit["missing_results"] += 1
                 prior, observation, pending = [], "", None
             call = calls[0]
-            label = project_call(call)
+            try:
+                label = project_call(call)
+            except InputError:
+                audit["unlabelable_calls_skipped"] += 1
+                prior, observation, pending = [], "", None
+                continue
             if label is None:
                 audit["control_resets"] += 1
                 prior, observation, pending = [], "", None

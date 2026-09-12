@@ -97,6 +97,18 @@ def acquire(out):
     return path
 
 
+def retained_source(directory):
+    manifest = json.loads((directory / "result.json").read_text())
+    path = directory / "source.jsonl"
+    expected = manifest.get("source_sha256")
+    if (manifest.get("dataset") != prep.DATASET or manifest.get("revision") != prep.REVISION
+            or manifest.get("protocol", {}).get("offset") != OFFSET
+            or not isinstance(expected, str) or not re.fullmatch(r"[0-9a-f]{64}", expected)
+            or path.stat().st_size > PAGES * RESPONSE_LIMIT or prep.digest(path) != expected):
+        raise ValueError("retained source identity/size mismatch")
+    return path
+
+
 def signature(row):
     # Target/identity are deliberately absent: duplicated inputs can leak across different labels.
     text = json.dumps([row["task"], row["observation"], row["history"]],
@@ -274,6 +286,8 @@ def timeout(signum, frame):
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--out", type=Path, required=True)
+    ap.add_argument("--source-run", type=Path,
+                    help="reuse a retained source.jsonl verified against that run's trusted result.json")
     args = ap.parse_args()
     # Fail before creating output; no overwrites and no arbitrary replay of substituted data.
     args.out.mkdir(parents=True, exist_ok=False)
@@ -287,19 +301,23 @@ def main():
                   evidence="public successful-trajectory label agreement; not human usefulness")
     try:
         result.update(configure_memory())
-        path = acquire(args.out)
+        path = retained_source(args.source_run) if args.source_run else acquire(args.out)
         result["source_sha256"] = prep.digest(path)
         splits, audit = prepare(prep._iter_jsonl(path))
         result.update(audit=audit, rows={s: len(v) for s, v in splits.items()},
                       issues={s: len({r["issue"] for r in v}) for s, v in splits.items()},
                       label_counts={s: {y: sum(r["target"] == y for r in v) for y in LABELS}
                                     for s, v in splits.items()})
+        if audit["source_rows"] != PAGES * PAGE_SIZE:
+            raise ValueError("source does not contain the frozen 1000 trajectories")
         validate(splits)
         for split, rows in splits.items():
             with (args.out / (split + ".jsonl")).open("x") as fh:
                 for row in rows:
                     fh.write(json.dumps(row, ensure_ascii=False) + "\n")
         # All feature choices are frozen before this single evaluation call.
+        if prep.digest(path) != result["source_sha256"]:
+            raise ValueError("source changed during extraction")
         signal.alarm(120)
         result.update(evaluate(splits), status="completed")
     except (ValueError, OSError, TimeoutError, MemoryError) as exc:
