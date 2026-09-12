@@ -16,6 +16,13 @@ One frozen run: phase-backoff 45.7256% overall versus 43.5244% repeat-last and 4
 destinations versus 30.8634% baseline. Required +5/+10-point margins were both missed; stop this
 round without tuning or serving. README, collaborator briefing, FINDINGS and #1 record the outcome.
 
+### README result published ahead of #48
+
+At the operator's request, selected only #48's README update for direct publication on main.
+Evidence and collaborator-briefing links are pinned to the PR commit so they resolve before merge.
+No experiment code or other #48 artifacts landed; #43 remains held. Reviewed the documentation
+diff and whitespace; non-slow test verification recorded in the commit.
+
 ### Integration queue closed; deferred work retained
 
 Reconciled README and the dated branch inventory after landing #46, #8, #6 and #10.
