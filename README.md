@@ -4,7 +4,7 @@
 
 We’re exploring whether a tiny local model can suggest useful next steps during software work—including testing, Git actions, and project governance—cheaply enough to run alongside a larger coding assistant. We have built and exercised the training/export pipeline, assembled private activity traces, audited their labels, and tested neural and simple statistical predictors. Useful recommendations remain unproven: label noise, a training/serving mismatch, and poor transfer from public coding-agent data have limited results.
 
-Training the lightweight predictors on our own sessions improved the phase-aware model to 45.73% versus 43.52% for “repeat the last action,” but it missed the agreed gates. We now test whether task text and the latest completed tool result improve prediction of the same six next-action categories, using a bounded OpenHands sample and automatic offline comparisons. The manual usefulness trial stopped for time burden with no ratings. No human acceptance rate or production-ready Oracle has been established.
+Training the lightweight predictors on our own sessions improved the phase-aware model to 45.73% versus 43.52% for “repeat the last action,” but it missed the agreed gates. A revised OpenHands test added task text and the latest completed tool result: the text classifier reached 49.67%, versus 46.83% without text and 52.10% for the strongest action-only baseline. Context showed signal, but this classifier did not clear its follow-up rule. The manual usefulness trial stopped for time burden with no ratings. No human acceptance rate or production-ready Oracle has been established.
 
 ## What we have tried and learned
 
@@ -24,10 +24,12 @@ Status: September 12, 2026. This is HiQS's experimental fork of [Cactus Compute'
 | External datasets and grounded augmentation | TAWOS lacked coverage for the full eight-purpose task. A separate open PR supplies training-only augmentation tooling; no model improvement has been measured from it. | [Data qualification #35](https://github.com/HiQS-Labs/Needle-fork/issues/35), [augmentation PR #43](https://github.com/HiQS-Labs/Needle-fork/pull/43) |
 | Independent Astra/Fable review | Reframed repeat-last as the baseline to beat and identified the untested in-domain comparison. A failed transfer experiment does not establish that private-trained models fail. | [Current synthesis on #1](https://github.com/HiQS-Labs/Needle-fork/issues/1#issuecomment-5641167454) |
 | Private-trained transition comparison | Fitted on 45,127 actions from 296 sessions. Phase-backoff scored 45.73% overall and 40.81% on conditional change destinations; required 48.52% and 40.86%. Neither family passed; this round stopped. | [Receipt](https://github.com/HiQS-Labs/Needle-fork/blob/7f521b449c9d0f8351fdfc32c8c7180a44cbcf9f/TESTS-RESULTS/2026-09-11-private-transitions/SUMMARY.md), [PR #48](https://github.com/HiQS-Labs/Needle-fork/pull/48) |
+| Manual on-demand usefulness discovery | Stopped for operator time burden after one eligible request and zero ratings; no acceptance or rejection inferred. | [#49](https://github.com/HiQS-Labs/Needle-fork/issues/49) |
+| Context-aware OpenHands prediction | Trained on 10,000 actions; context NB scored 49.67% on 3,000 actions versus 46.83% action-only NB, 41.80% shuffled context, and 52.10% phase-backoff. Follow-up rule failed; no further tuning. | [#51 receipt](TESTS-RESULTS/2026-09-12-context-next-action/SUMMARY.md) |
 
-## Next milestone
+## Current result and next decision
 
-**Revised approach: [context-aware next-action prediction #51](https://github.com/HiQS-Labs/Needle-fork/issues/51).** Keep the six labels, add task text and the latest already-completed tool observation, and compare automatically against action-only and shuffled-context controls. A bounded CPU-only experiment comes first; no new manual ratings, neural training campaign, or serving integration. See the [frozen protocol](PROJECT/2-WORKING/CONTEXT-NEXT-ACTION.md).
+**The context-aware probe [#51](https://github.com/HiQS-Labs/Needle-fork/issues/51) has now run.** On 3,000 evaluation actions from 68 held-out issues, context NB scored 49.67%, action-only NB 46.83%, shuffled context 41.80%, and phase-backoff 52.10%. Context helped within the NB family but missed the strongest-baseline gate and reduced macro-F1. This fixed probe stops; no tuning or serving follows automatically. See the [receipt](TESTS-RESULTS/2026-09-12-context-next-action/SUMMARY.md) and [completed protocol](PROJECT/3-COMPLETED/CONTEXT-NEXT-ACTION.md).
 
 Manual discovery [#49](https://github.com/HiQS-Labs/Needle-fork/issues/49) stopped for operator time burden after one eligible request and zero ratings. This pivot changes the input representation; it does not relabel earlier failures as passes.
 
@@ -49,7 +51,7 @@ a new branch/PR requires a concrete isolation or integration need.
 
 The findings cleanup and project story (#44/#45), [branch hygiene rules (#46)](https://github.com/HiQS-Labs/Needle-fork/pull/46), [adapter build-safety guard (#8)](https://github.com/HiQS-Labs/Needle-fork/pull/8), and governance stack (#6/#10) are merged into `main`. Integration verification passed: 384 non-slow tests and 11 slow build/finetune tests; six tests were skipped. This validates the engineering changes, not Oracle recommendation usefulness.
 
-1. **Active experiment:** run [#51's context-aware probe](PROJECT/2-WORKING/CONTEXT-NEXT-ACTION.md) on main. Prior [#48](https://github.com/HiQS-Labs/Needle-fork/pull/48) and [#42](https://github.com/HiQS-Labs/Needle-fork/pull/42) remain historical experiment PRs; no whole-branch promotion.
+1. **Completed revised experiment:** review [#51's result](TESTS-RESULTS/2026-09-12-context-next-action/SUMMARY.md). The dataset supplied usable context-bearing examples, but this classifier did not qualify further investment. Choose a distinct, bounded model/representation experiment before another run; no manual ratings required. Prior [#48](https://github.com/HiQS-Labs/Needle-fork/pull/48) and [#42](https://github.com/HiQS-Labs/Needle-fork/pull/42) remain historical experiment PRs; only named converter/baseline files were reused.
 2. **Deferred augmentation review (previous step 4):** wait for the operator to release #43's testing hold, then review its results before any integration decision.
 
 Adapter builds with missing or full-precision training provenance now require an explicit

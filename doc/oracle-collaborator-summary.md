@@ -4,7 +4,7 @@
 
 We’re exploring whether a tiny local model can suggest useful next steps during software work, including testing, Git actions, and project governance, cheaply enough to run alongside a larger coding assistant. We have built and exercised the training/export pipeline, assembled private activity traces, and tested both model-based and simple statistical predictors. The engineering path works, but useful recommendations remain unproven: label noise, a mismatch between training and native serving, and poor transfer from public coding-agent data have limited results.
 
-The private-trained comparison also missed its gates: phase-backoff reached 45.73% overall versus 43.52% repeat-last. Our next experiment keeps six next-action labels but adds task text and the latest completed tool result from OpenHands trajectories. It is bounded, automatic and CPU-only; the manual usefulness trial stopped for time burden with no ratings. We are testing prediction, not claiming recommendations or deployment readiness.
+The private-trained comparison also missed its gates: phase-backoff reached 45.73% overall versus 43.52% repeat-last. A revised automatic, CPU-only OpenHands experiment added task text and the latest completed tool result: context NB scored 49.67% versus 46.83% without text, but the strongest action-only baseline scored 52.10%. This fixed probe also stopped; the manual usefulness trial stopped for time burden with no ratings. We are testing prediction, not claiming recommendations or deployment readiness.
 
 ## The story and evidence
 
@@ -17,9 +17,9 @@ The private-trained comparison also missed its gates: phase-backoff reached 45.7
 | Work-purpose classification, a separate side experiment | Frozen ModernBERT features reached 57.5% purpose accuracy on 40 records versus 50% TF-IDF and 42.5% majority; TF-IDF had better purpose macro-F1. Area classification and rejection policies remained inadequate. | Limited signal, no deployment qualification; this is classification of work, not prediction of the next action. [#31](https://github.com/HiQS-Labs/Needle-fork/issues/31). |
 | External data and targeted augmentation | TAWOS did not cover the full eight-purpose taxonomy. A separate PR implements grounded, training-only augmentation tooling, with no measured model gain yet. | Volume alone does not solve domain and label mismatch. [#35](https://github.com/HiQS-Labs/Needle-fork/issues/35), [#41](https://github.com/HiQS-Labs/Needle-fork/issues/41), [PR #43](https://github.com/HiQS-Labs/Needle-fork/pull/43). |
 
-## Current milestone — context-aware pivot (#51)
+## Current result — context-aware pivot (#51) completed
 
-See the [frozen protocol](../PROJECT/2-WORKING/CONTEXT-NEXT-ACTION.md) and [#51](https://github.com/HiQS-Labs/Needle-fork/issues/51). Preserve task/observation context, compare with action-only and shuffled-context controls, and report one bounded offline result. Main-first commits/pushes are now the operator's default; no new experiment PR without a real isolation need. PR #43 stays held.
+See the [completed protocol](../PROJECT/3-COMPLETED/CONTEXT-NEXT-ACTION.md) and [receipt](../TESTS-RESULTS/2026-09-12-context-next-action/SUMMARY.md). One run fitted on 10,000 actions / 224 issues and evaluated on 3,000 actions / 68 other issues. Context beat shuffled context by 7.87pp but trailed phase-backoff by 2.43pp and reduced macro-F1 versus action-only NB. The fixed follow-up rule failed; any new model/representation experiment needs a separate scope decision. Main-first commits/pushes are now the operator's default; no new experiment PR without a real isolation need. PR #43 stays held.
 
 Manual #49 ended with one eligible request and zero ratings, so it supplies no usefulness rate. The old private-trained round below completed and failed both gates; retained as history, not an instruction to rerun. [Receipt](https://github.com/HiQS-Labs/Needle-fork/blob/7f521b449c9d0f8351fdfc32c8c7180a44cbcf9f/TESTS-RESULTS/2026-09-11-private-transitions/SUMMARY.md).
 

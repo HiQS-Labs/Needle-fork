@@ -14,7 +14,7 @@
 
 | What was just completed | What's next |
 |---|---|
-| Private-trained round missed both gates; manual discovery stopped unrated. | **Run the [context-aware next-action probe](PROJECT/2-WORKING/CONTEXT-NEXT-ACTION.md), tracked in [#51](https://github.com/HiQS-Labs/Needle-fork/issues/51).** The stricter #25 lane remains capacity-blocked at 541/1,000 and is deferred in priority. |
+| Context-aware #51 probe completed and missed its follow-up rule; manual discovery stopped unrated. | **Review the [completed context probe](PROJECT/3-COMPLETED/CONTEXT-NEXT-ACTION.md) before choosing any distinct model/representation follow-up.** The stricter #25 lane remains capacity-blocked at 541/1,000 and is deferred in priority. |
 
 > **Corrected 2026-09-09.** This cell previously read *"first `needle finetune` run on JAX/CPU at
 > `--max-len 2048`"*. That was superseded on 2026-09-07 by
@@ -31,13 +31,13 @@
 
 ### In progress
 
-- [Context-aware next-action prediction](PROJECT/2-WORKING/CONTEXT-NEXT-ACTION.md) — operator-authorized OpenHands pivot, CPU-only offline comparison on main. ([#51](https://github.com/HiQS-Labs/Needle-fork/issues/51))
-
 - [ZCode mapper recon and qualification](PROJECT/2-WORKING/RECON-ZCODE-MAPPER-CORRECTION.md) — PR #40 merged the scoped corrections; fresh blind qualification remains open in [#37](https://github.com/HiQS-Labs/Needle-fork/issues/37).
 
 - [Label correctness audit — make the §2 gate trustworthy](PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md) — source identity and disjoint manifests are merged; #25 clears its 30-session floor but remains blocked because the frozen sampler can allocate only 541/1,000 evaluation rows under its label quotas and session cap. ([#20](https://github.com/HiQS-Labs/Needle-fork/issues/20), [#23](https://github.com/HiQS-Labs/Needle-fork/issues/23), [#25](https://github.com/HiQS-Labs/Needle-fork/issues/25))
 
 ### Completed
+
+- [Context-aware next-action prediction](PROJECT/3-COMPLETED/CONTEXT-NEXT-ACTION.md) — bounded attempt completed; context signal present but NB follow-up rule failed. No further tuning/serving. ([#51](https://github.com/HiQS-Labs/Needle-fork/issues/51))
 
 - [Phase 2 §1 — Freeze the v1 Oracle label taxonomy](PROJECT/3-COMPLETED/PHASE-2-LABEL-TAXONOMY.md) — v1 published as `oracle/labels-v1.json`; current Studio corpus has 71,763 calls at 96.41% mapping coverage. ([#1](https://github.com/HiQS-Labs/Needle-fork/issues/1))
 

@@ -1,12 +1,14 @@
 # Coding-core experiments
 
-Current protocol: [context-aware next action #51](../../PROJECT/2-WORKING/CONTEXT-NEXT-ACTION.md).
+Current protocol: [context-aware next action #51](../../PROJECT/3-COMPLETED/CONTEXT-NEXT-ACTION.md).
 This is offline research code, not part of the installed `needle` runtime or a serving model.
 
 ```sh
 python spike/coding_core/context_probe.py --out data/context-next-action-2026-09-12
 ```
 
+The frozen run completed and failed its follow-up rule; do not repeat it as an active instruction.
+The command is retained for reproducibility. Any new campaign needs a separately scoped decision.
 Run only after reading the protocol and passing tests. The destination must not exist. Acquisition
 uses a revision-checked, byte/time-bounded HF sample; data and detailed receipts stay ignored.
 Source: [nebius/SWE-rebench-openhands-trajectories](https://huggingface.co/datasets/nebius/SWE-rebench-openhands-trajectories),

@@ -14,7 +14,7 @@ roadmap_exempt: true
 
 | What was just completed | What's next |
 |---|---|
-| Bounded source trace completed. | Apply the sibling #51 protocol; no further recon lane needed. |
+| Bounded source trace and sibling #51 experiment completed. | Historical map; no active recon work. |
 
 Commit: main `a487839`; selected source `18274fc` (#42), baseline `e05b4d6` (#48).
 Mode: grep-only (no codebase-memory tool available); one local lane, bounded offline subsystem.

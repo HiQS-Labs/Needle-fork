@@ -1,6 +1,6 @@
 ---
 title: Context-aware next-action prediction
-status: In progress
+status: Shipped
 created: 2026-09-12
 updated: 2026-09-12
 owner: noelsaw1
@@ -14,7 +14,7 @@ reversibility: Easy — offline experiment and scoped main commits only
 
 | What was just completed | What's next |
 |---|---|
-| Pivot pushed on main; converter and classifier implemented with witnessed leakage red controls. | Finish verification and run the frozen offline comparison once. |
+| One frozen context-aware run completed; follow-up rule not met. | Stop this NB probe; any different model/representation needs a new scoped decision. |
 
 Authority: [#51](https://github.com/HiQS-Labs/Needle-fork/issues/51), under
 [#1](https://github.com/HiQS-Labs/Needle-fork/issues/1). This supersedes manual discovery #49,
@@ -36,7 +36,7 @@ and tests onto main; no whole-branch merge, MLX dependency, UI, manual annotatio
 private benchmark rerun, or held #43 change. Standard-library Naive Bayes is the smallest
 dependency-free context probe, not a replacement production architecture.
 
-## Execution and proof
+## Frozen execution and proof — completed protocol
 
 1. Record pivot in #1/#49/#51, README, FINDINGS, collaborator briefing, ROADMAP and AGENTS;
    commit/push on main before the campaign. Preserve old results as dated history.
@@ -80,9 +80,19 @@ dependency-free context probe, not a replacement production architecture.
   claimed. Codex found no blockers and requested deterministic issue selection and an explicit
   input-signature definition; both are now specified. Review assessed the plan, not working code.
 - [x] Future leakage, tool matching, split isolation, train-only vocabulary, nonempty checks tested.
-- [x] Future-output and tool-ID red controls witnessed and restored; non-slow suite passes
-  (434 passed, 6 skipped before the final added CLI/control tests; final count in run receipt).
-- [ ] Bounded real-data run completes or explicit refusal retained; receipt and docs agree.
+- [x] Future-output and tool-ID red controls witnessed and restored; final non-slow suite:
+  441 passed, 6 skipped, 11 deselected.
+- [x] Bounded real-data run completed; pooled receipt and docs agree.
+
+## Result
+
+At frozen code `1bee790`: 10,000 training actions / 224 issues, 3,000 evaluation actions / 68
+disjoint issues. Context NB 49.67%, action-only NB 46.83%, shuffled context 41.80%, phase-backoff
+52.10%. Context gained 2.83pp over its own action-only ablation and 7.87pp over shuffled context,
+but fell 2.43pp below the strongest comparator and reduced macro-F1 (0.4072 versus 0.4204).
+Rule failed; stop this fixed model/representation, not declare the dataset useless. No tuning or
+serving followed. One scored run took 6.00 seconds, ~271 MiB peak RSS (download in prior attempt).
+See [full receipt](../../TESTS-RESULTS/2026-09-12-context-next-action/SUMMARY.md).
 
 Execution debugging uses debug-mantra. Reversibility Easy: scoped commits can be reverted without
 changing source data or existing benchmark records. No change to training/export numerical contracts.

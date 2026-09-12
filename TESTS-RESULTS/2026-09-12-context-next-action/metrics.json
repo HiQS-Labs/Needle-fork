@@ -1,0 +1,455 @@
+{
+  "status": "completed",
+  "dataset": "nebius/SWE-rebench-openhands-trajectories",
+  "revision": "35455389ab51bf5e2306bfd436ef72d0f98bf882",
+  "protocol": {
+    "offset": 1000,
+    "pages": 10,
+    "page_size": 100,
+    "row_caps": {
+      "train": 10000,
+      "holdout": 3000
+    },
+    "per_issue_cap": 50,
+    "vocab_limit": 20000,
+    "shuffle_seed": 51,
+    "smoothing_alpha": 1
+  },
+  "evidence": "public successful-trajectory label agreement; not human usefulness",
+  "memory_limit_bytes": null,
+  "memory_guard": "bounded inputs plus 1 GiB RSS checkpoints; macOS rejected RLIMIT_AS",
+  "audit": {
+    "source_rows": 1000,
+    "control_resets": 1236,
+    "unmatched_or_empty_results": 958,
+    "coding_calls": 16101,
+    "eligible_rows": 15191,
+    "row_cap_excluded": 2191,
+    "unresolved_skipped": 503,
+    "duplicate_issue_or_trajectory": 36,
+    "unlabelable_calls_skipped": 1,
+    "split_cap_skipped": 169,
+    "train_input_overlap_excluded": 0
+  },
+  "rows": {
+    "train": 10000,
+    "holdout": 3000
+  },
+  "issues": {
+    "train": 224,
+    "holdout": 68
+  },
+  "label_counts": {
+    "train": {
+      "edit": 1560,
+      "git": 273,
+      "read": 2789,
+      "run_command": 2487,
+      "run_tests": 1149,
+      "search": 1742
+    },
+    "holdout": {
+      "edit": 434,
+      "git": 54,
+      "read": 876,
+      "run_command": 715,
+      "run_tests": 357,
+      "search": 564
+    }
+  },
+  "metrics": {
+    "majority": {
+      "rows": 3000,
+      "correct": 876,
+      "accuracy_pct": 29.2,
+      "macro_f1": 0.07533539731682147,
+      "labels": {
+        "edit": {
+          "support": 434,
+          "predicted": 0,
+          "correct": 0,
+          "recall_pct": 0,
+          "f1": 0
+        },
+        "git": {
+          "support": 54,
+          "predicted": 0,
+          "correct": 0,
+          "recall_pct": 0,
+          "f1": 0
+        },
+        "read": {
+          "support": 876,
+          "predicted": 3000,
+          "correct": 876,
+          "recall_pct": 100,
+          "f1": 0.4520123839009288
+        },
+        "run_command": {
+          "support": 715,
+          "predicted": 0,
+          "correct": 0,
+          "recall_pct": 0,
+          "f1": 0
+        },
+        "run_tests": {
+          "support": 357,
+          "predicted": 0,
+          "correct": 0,
+          "recall_pct": 0,
+          "f1": 0
+        },
+        "search": {
+          "support": 564,
+          "predicted": 0,
+          "correct": 0,
+          "recall_pct": 0,
+          "f1": 0
+        }
+      },
+      "change_rows": 1957,
+      "change_accuracy_pct": 21.71691364333163,
+      "issues": 68,
+      "issue_macro_accuracy_pct": 28.91890670682978
+    },
+    "repeat_last": {
+      "rows": 3000,
+      "correct": 1043,
+      "accuracy_pct": 34.766666666666666,
+      "macro_f1": 0.35049830310944685,
+      "labels": {
+        "edit": {
+          "support": 434,
+          "predicted": 478,
+          "correct": 53,
+          "recall_pct": 12.211981566820276,
+          "f1": 0.1162280701754386
+        },
+        "git": {
+          "support": 54,
+          "predicted": 47,
+          "correct": 24,
+          "recall_pct": 44.44444444444444,
+          "f1": 0.4752475247524752
+        },
+        "read": {
+          "support": 876,
+          "predicted": 946,
+          "correct": 451,
+          "recall_pct": 51.48401826484018,
+          "f1": 0.4950603732162459
+        },
+        "run_command": {
+          "support": 715,
+          "predicted": 634,
+          "correct": 171,
+          "recall_pct": 23.916083916083917,
+          "f1": 0.2535211267605634
+        },
+        "run_tests": {
+          "support": 357,
+          "predicted": 336,
+          "correct": 136,
+          "recall_pct": 38.095238095238095,
+          "f1": 0.3924963924963925
+        },
+        "search": {
+          "support": 564,
+          "predicted": 559,
+          "correct": 208,
+          "recall_pct": 36.87943262411348,
+          "f1": 0.37043633125556547
+        }
+      },
+      "change_rows": 1957,
+      "change_accuracy_pct": 0,
+      "issues": 68,
+      "issue_macro_accuracy_pct": 34.66141242220853
+    },
+    "markov_1": {
+      "rows": 3000,
+      "correct": 1470,
+      "accuracy_pct": 49,
+      "macro_f1": 0.4164687032077741,
+      "labels": {
+        "edit": {
+          "support": 434,
+          "predicted": 634,
+          "correct": 198,
+          "recall_pct": 45.6221198156682,
+          "f1": 0.3707865168539326
+        },
+        "git": {
+          "support": 54,
+          "predicted": 47,
+          "correct": 24,
+          "recall_pct": 44.44444444444444,
+          "f1": 0.4752475247524752
+        },
+        "read": {
+          "support": 876,
+          "predicted": 1505,
+          "correct": 722,
+          "recall_pct": 82.42009132420091,
+          "f1": 0.6064678706425871
+        },
+        "run_command": {
+          "support": 715,
+          "predicted": 478,
+          "correct": 390,
+          "recall_pct": 54.54545454545455,
+          "f1": 0.6538139145012574
+        },
+        "run_tests": {
+          "support": 357,
+          "predicted": 336,
+          "correct": 136,
+          "recall_pct": 38.095238095238095,
+          "f1": 0.3924963924963925
+        },
+        "search": {
+          "support": 564,
+          "predicted": 0,
+          "correct": 0,
+          "recall_pct": 0,
+          "f1": 0
+        }
+      },
+      "change_rows": 1957,
+      "change_accuracy_pct": 43.89371486969852,
+      "issues": 68,
+      "issue_macro_accuracy_pct": 48.96587241138646
+    },
+    "phase_backoff": {
+      "rows": 3000,
+      "correct": 1563,
+      "accuracy_pct": 52.1,
+      "macro_f1": 0.4469692604926328,
+      "labels": {
+        "edit": {
+          "support": 434,
+          "predicted": 449,
+          "correct": 190,
+          "recall_pct": 43.77880184331797,
+          "f1": 0.43035107587768967
+        },
+        "git": {
+          "support": 54,
+          "predicted": 29,
+          "correct": 18,
+          "recall_pct": 33.333333333333336,
+          "f1": 0.43373493975903615
+        },
+        "read": {
+          "support": 876,
+          "predicted": 1360,
+          "correct": 690,
+          "recall_pct": 78.76712328767124,
+          "f1": 0.6171735241502684
+        },
+        "run_command": {
+          "support": 715,
+          "predicted": 708,
+          "correct": 478,
+          "recall_pct": 66.85314685314685,
+          "f1": 0.6718200983836964
+        },
+        "run_tests": {
+          "support": 357,
+          "predicted": 366,
+          "correct": 149,
+          "recall_pct": 41.73669467787115,
+          "f1": 0.41217150760719223
+        },
+        "search": {
+          "support": 564,
+          "predicted": 88,
+          "correct": 38,
+          "recall_pct": 6.73758865248227,
+          "f1": 0.1165644171779141
+        }
+      },
+      "change_rows": 1957,
+      "change_accuracy_pct": 44.55799693408278,
+      "issues": 68,
+      "issue_macro_accuracy_pct": 51.95503370534133
+    },
+    "action_nb": {
+      "rows": 3000,
+      "correct": 1405,
+      "accuracy_pct": 46.833333333333336,
+      "macro_f1": 0.42038819425533847,
+      "labels": {
+        "edit": {
+          "support": 434,
+          "predicted": 349,
+          "correct": 155,
+          "recall_pct": 35.714285714285715,
+          "f1": 0.3959131545338442
+        },
+        "git": {
+          "support": 54,
+          "predicted": 67,
+          "correct": 16,
+          "recall_pct": 29.62962962962963,
+          "f1": 0.2644628099173554
+        },
+        "read": {
+          "support": 876,
+          "predicted": 1057,
+          "correct": 484,
+          "recall_pct": 55.25114155251141,
+          "f1": 0.5007759958613555
+        },
+        "run_command": {
+          "support": 715,
+          "predicted": 586,
+          "correct": 388,
+          "recall_pct": 54.26573426573427,
+          "f1": 0.5964642582628747
+        },
+        "run_tests": {
+          "support": 357,
+          "predicted": 368,
+          "correct": 128,
+          "recall_pct": 35.85434173669468,
+          "f1": 0.35310344827586204
+        },
+        "search": {
+          "support": 564,
+          "predicted": 573,
+          "correct": 234,
+          "recall_pct": 41.48936170212766,
+          "f1": 0.41160949868073876
+        }
+      },
+      "change_rows": 1957,
+      "change_accuracy_pct": 39.8569238630557,
+      "issues": 68,
+      "issue_macro_accuracy_pct": 46.99227204275499
+    },
+    "context_nb": {
+      "rows": 3000,
+      "correct": 1490,
+      "accuracy_pct": 49.666666666666664,
+      "macro_f1": 0.4071559845176805,
+      "labels": {
+        "edit": {
+          "support": 434,
+          "predicted": 326,
+          "correct": 143,
+          "recall_pct": 32.94930875576037,
+          "f1": 0.3763157894736842
+        },
+        "git": {
+          "support": 54,
+          "predicted": 5,
+          "correct": 1,
+          "recall_pct": 1.8518518518518519,
+          "f1": 0.03389830508474576
+        },
+        "read": {
+          "support": 876,
+          "predicted": 878,
+          "correct": 492,
+          "recall_pct": 56.16438356164384,
+          "f1": 0.5610034207525656
+        },
+        "run_command": {
+          "support": 715,
+          "predicted": 544,
+          "correct": 404,
+          "recall_pct": 56.50349650349651,
+          "f1": 0.6417791898332009
+        },
+        "run_tests": {
+          "support": 357,
+          "predicted": 753,
+          "correct": 234,
+          "recall_pct": 65.54621848739495,
+          "f1": 0.42162162162162165
+        },
+        "search": {
+          "support": 564,
+          "predicted": 494,
+          "correct": 216,
+          "recall_pct": 38.297872340425535,
+          "f1": 0.40831758034026466
+        }
+      },
+      "change_rows": 1957,
+      "change_accuracy_pct": 48.95247828308636,
+      "issues": 68,
+      "issue_macro_accuracy_pct": 49.19889662192387
+    },
+    "shuffled_context_nb": {
+      "rows": 3000,
+      "correct": 1254,
+      "accuracy_pct": 41.8,
+      "macro_f1": 0.34211789725660685,
+      "labels": {
+        "edit": {
+          "support": 434,
+          "predicted": 324,
+          "correct": 94,
+          "recall_pct": 21.658986175115206,
+          "f1": 0.24802110817941952
+        },
+        "git": {
+          "support": 54,
+          "predicted": 7,
+          "correct": 2,
+          "recall_pct": 3.7037037037037037,
+          "f1": 0.06557377049180328
+        },
+        "read": {
+          "support": 876,
+          "predicted": 883,
+          "correct": 429,
+          "recall_pct": 48.97260273972603,
+          "f1": 0.4877771461057419
+        },
+        "run_command": {
+          "support": 715,
+          "predicted": 537,
+          "correct": 371,
+          "recall_pct": 51.88811188811189,
+          "f1": 0.5926517571884984
+        },
+        "run_tests": {
+          "support": 357,
+          "predicted": 750,
+          "correct": 199,
+          "recall_pct": 55.74229691876751,
+          "f1": 0.35953026196928634
+        },
+        "search": {
+          "support": 564,
+          "predicted": 499,
+          "correct": 159,
+          "recall_pct": 28.19148936170213,
+          "f1": 0.2991533396048918
+        }
+      },
+      "change_rows": 1957,
+      "change_accuracy_pct": 40.52120592743996,
+      "issues": 68,
+      "issue_macro_accuracy_pct": 41.776710767222255
+    }
+  },
+  "context_shuffle_changed_rows": 2994,
+  "context_shuffle_changed_pct": 99.8,
+  "vocabulary_sizes": {
+    "action": 72,
+    "context": 20000
+  },
+  "decision": {
+    "passed": false,
+    "next": "stop_this_probe",
+    "overall_margin_pp": -2.433333333333337,
+    "shuffle_margin_pp": 7.866666666666667,
+    "shuffle_control_conclusive": true
+  },
+  "elapsed_seconds": 5.999968584001181,
+  "peak_rss_bytes": 283885568
+}

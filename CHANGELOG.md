@@ -5,6 +5,15 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-12
 
+### Context-aware result published and probe closed (#51)
+
+One frozen CPU-only run on 10,000 training / 3,000 evaluation actions: context NB 49.67%,
+action-only NB 46.83%, shuffled context 41.80%, phase-backoff 52.10%. Context signal did not
+clear the strongest-baseline gate, and macro-F1 declined. Published pooled receipt, archived
+completed protocol/recon, and reconciled story/roadmap; no tuning, serving, or #43 change.
+Source snapshots and row-level data remain private. Verified 441 non-slow tests before scoring,
+red controls, split/aggregate consistency and final documentation checks.
+
 ### Unlabelable public calls excluded before scoring (#51)
 
 The capped download completed, then extraction refused on an empty shell command. The retained

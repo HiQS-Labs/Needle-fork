@@ -165,8 +165,22 @@ predictor ignored task text too. That loss of context is confirmed in source, bu
 it improves prediction is a hypothesis, not a finding. The earlier 500/100-action LoRA pilot used
 this exact dataset and already filtered successful trajectories; it did not exhaust the dataset.
 
-Next: one CPU-only text-classifier comparison against same-row action-only baselines and a
-context-shuffle control. See the [protocol](PROJECT/2-WORKING/CONTEXT-NEXT-ACTION.md).
+Planned at pivot time (completed below): one CPU-only text-classifier comparison against same-row action-only baselines and a
+context-shuffle control. See the [protocol](PROJECT/3-COMPLETED/CONTEXT-NEXT-ACTION.md).
 No manual labeling, model download, neural campaign, deployment claim, or #43 modification.
 Main-first scoped commits/pushes supersede the branch-per-experiment default; old branches are
 preserved, not wholesale merged or deleted.
+
+### Same-day measured outcome
+
+#51 completed one frozen run at `1bee790`: 10,000 train actions / 224 issues, 3,000 eval actions /
+68 disjoint issues. Context NB 49.67%, action-only NB 46.83%, shuffled context 41.80%, phase-backoff
+52.10%. Context improves its own-family top-1 and aligned-versus-shuffled comparison, but the
+strongest-baseline margin is -2.43pp and macro-F1 drops from 0.4204 to 0.4072. Follow-up rule failed;
+no tuning or serving followed. This dataset supplied usable examples for all six labels, but the
+fixed text model did not beat the simple baseline. No claim of user usefulness or private transfer.
+
+Two pre-fit refusals (unsupported macOS memory limit, then an empty source command) were retained
+and fixed before the sole scored run. Snapshot extraction/fitting/scoring took 6.00 seconds and
+~271 MiB peak RSS; acquisition occurred earlier. Tests: 441 passed, 6 skipped. Full pooled results,
+selection caveats and red-control evidence: [receipt](TESTS-RESULTS/2026-09-12-context-next-action/SUMMARY.md).
