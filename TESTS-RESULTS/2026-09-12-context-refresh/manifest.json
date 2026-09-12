@@ -1,0 +1,84 @@
+{
+  "audit": {
+    "coding_calls": 14394,
+    "control_resets": 1107,
+    "duplicate_issue_or_trajectory": 36,
+    "eligible_rows": 13585,
+    "out_of_scope_issue": 197,
+    "row_cap_excluded": 1863,
+    "source_rows": 1000,
+    "train_overlap_excluded": 0,
+    "unlabelable_calls_skipped": 1,
+    "unmatched_or_empty_results": 853,
+    "unresolved_skipped": 503
+  },
+  "code_hashes": {
+    "baselines.py": "fc8ae7364a53f43f26eb315092f3fffa5b2f15c3b5ef83d6b6527028678f8487",
+    "context_probe.py": "648af7bd9dbf5b896d00df96d8627163acdb47bbd585ff219836b4a569121679",
+    "context_refresh.py": "188fe71d4f9f4d5640c9a0dec51e254aa77e9204080fa53130c978f1b8d68b04",
+    "prepare_openhands.py": "2c671c579552bc0071ce3c7616f506e7869e05243d36c68a389ac2e997c98492"
+  },
+  "counts": {
+    "holdout": {
+      "issues": 40,
+      "labels": {
+        "edit": 281,
+        "git": 33,
+        "read": 449,
+        "run_command": 450,
+        "run_tests": 219,
+        "search": 290
+      },
+      "rows": 1722
+    },
+    "train": {
+      "issues": 224,
+      "labels": {
+        "edit": 1560,
+        "git": 273,
+        "read": 2789,
+        "run_command": 2564,
+        "run_tests": 1072,
+        "search": 1742
+      },
+      "rows": 10000
+    }
+  },
+  "dataset": "nebius/SWE-rebench-openhands-trajectories",
+  "format": "coding-core-q3-paired-v1",
+  "hashes": {
+    "answer-key.json": "719ca947da300f65d7e267ce348d3229b3fb14e3ec3ae59a85af9017468d6378",
+    "baseline-predictions.json": "6621c712d972ea399991c215189971cf56d9ef902192f12761c3a9a6033a31ea",
+    "holdout.jsonl": "92c1f6524bb198628aee8567b9718ea5f5fb936f8496e2eadd0b00a3c83a2c24",
+    "q2-prompt.txt": "51eccd1c5671548de13afc3ca32f100b5b796241512ddda4d3acf5175c98a9a2",
+    "q2-quiz.json": "fccc07403f9318c1b3ff846602d2fde42c6c1fbf9b2f1b53c7f6f28054654c21",
+    "q3-prompt.txt": "0ffc691f8c037975b7794b53e0e4fba6228f9e2bbc965d0d932ae94536b0406f",
+    "q3-quiz.json": "532ff58c441a6cf179cd86a15908e04bc28586b2a8c0fa55834ea891d69d5587",
+    "shuffled-prompt.txt": "b86fbc18ef1352ddc4ea0ae7fbe26b80cf9b8d7918aa632c6ee0d51ce7dd23b3",
+    "shuffled-quiz.json": "543251511aac1d1ff6d98e29aff7a6da36b29bc13624b50ed07a11396801540c",
+    "train.jsonl": "d5fd9129bd655f1f2e2d0a70aab8f6f70fb25258ec4e459c929004164cc36043"
+  },
+  "memory": {
+    "memory_guard": "bounded inputs plus 1 GiB RSS checkpoints; macOS rejected RLIMIT_AS",
+    "memory_limit_bytes": null
+  },
+  "model": "qwen/qwen3.8-max-0902",
+  "old_input_hashes": {
+    "holdout": "6663c93e5810c12724dbbf60be16d107881e1d7c3eb9e19497262dde6214884d",
+    "train": "80e69d4a1da122bacebb1d891c57c596633ca29c7f61043d36c525f753e50013"
+  },
+  "peak_rss_bytes": 185352192,
+  "quiz_cases": 40,
+  "quiz_labels": {
+    "edit": 8,
+    "read": 10,
+    "run_command": 10,
+    "run_tests": 6,
+    "search": 6
+  },
+  "revision": "35455389ab51bf5e2306bfd436ef72d0f98bf882",
+  "seed": "context-refresh-v3",
+  "shuffle_changed": 40,
+  "source_sha256": "929b8265bf1432d2602c51cc1d0b993167a3a857e22cdf170f3d6b2ef467ba5a",
+  "taxonomy_sha256": "65f92477eafa31e3ce492ae5e9632d1dc6a05a34f94d3c8fdcbbe9a65f28801f"
+}

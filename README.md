@@ -4,7 +4,7 @@
 
 We’re exploring whether a tiny local model can suggest useful next steps during software work—including testing, Git actions, and project governance—cheaply enough to run alongside a larger coding assistant. We have built and exercised the training/export pipeline, assembled private activity traces, audited their labels, and tested neural and simple statistical predictors. Useful recommendations remain unproven: label noise, a training/serving mismatch, and poor transfer from public coding-agent data have limited results.
 
-Private-trained predictors and a context-aware OpenHands text classifier missed their gates. A seven-model quiz gave Fable 60.0% versus a 46.7% simple baseline on 30 public examples—not a milestone pass. A source audit found two action-classification defects, now corrected, alongside coarse-label ambiguities and context loss. Next is a separately versioned data refresh and bounded follow-up decision; old scores stay frozen. Manual usefulness testing stopped for time burden with no ratings; no human acceptance rate or production-ready Oracle has been established.
+Private-trained predictors and a context-aware OpenHands text classifier missed their gates. A seven-model quiz gave Fable 60.0% versus a 46.7% simple baseline on 30 public examples—not a milestone pass. A source audit found two action-classification defects, now corrected, alongside coarse-label ambiguities and context loss. A versioned context refresh is ready, with a frozen 40-case quiz from previously unevaluated issues; its controlled comparison is next. Old scores stay frozen. Manual usefulness testing stopped for time burden with no ratings; no human acceptance rate or production-ready Oracle has been established.
 
 ## What we have tried and learned
 
@@ -57,7 +57,7 @@ a new branch/PR requires a concrete isolation or integration need.
 
 The findings cleanup and project story (#44/#45), [branch hygiene rules (#46)](https://github.com/HiQS-Labs/Needle-fork/pull/46), [adapter build-safety guard (#8)](https://github.com/HiQS-Labs/Needle-fork/pull/8), and governance stack (#6/#10) are merged into `main`. Integration verification passed: 384 non-slow tests and 11 slow build/finetune tests; six tests were skipped. This validates the engineering changes, not Oracle recommendation usefulness.
 
-1. **Scope the next versioned data refresh:** the [#56 correction](TESTS-RESULTS/2026-09-12-test-runner-mapping/SUMMARY.md) is verified. Resolve the remaining label/context choices before one bounded follow-up; do not overwrite old datasets or rerank the frozen panel. No manual ratings required; old gates remain unchanged.
+1. **Run the bounded context comparison:** [#59 round one](TESTS-RESULTS/2026-09-12-context-refresh/SUMMARY.md) prepared richer observed context and a fresh-issue quiz. Round two tests one fixed model with old, refreshed, and shuffled context; no manual ratings, training, or reranking the old panel.
 2. **Deferred augmentation review (previous step 4):** wait for the operator to release #43's testing hold, then review its results before any integration decision.
 
 Adapter builds with missing or full-precision training provenance now require an explicit

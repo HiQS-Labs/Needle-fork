@@ -283,3 +283,24 @@ score revision. Historical #53 replay belongs at pre-fix f225278; do not update 
 expected old labels to the new mapper. [Receipt](TESTS-RESULTS/2026-09-12-test-runner-mapping/SUMMARY.md).
 Next is a separately scoped/versioned data refresh and bounded follow-up decision;
 remaining directory-view and ad-hoc-verification semantics are not settled by #56.
+
+## 2026-09-12 — versioned context refresh (#59, round one)
+
+Prepared q3 as a bundled, opt-in context change: issue-focused task text, separator
+compaction before observation clipping, and last completed call identity/selected
+arguments. Target/future details remain excluded. Retained mechanical view/read and
+ad-hoc-script/run_command policy; the quiz states it rather than guessing intent.
+
+The verified retained snapshot supplies 10,000 train rows/224 old training issues and
+1,722 eligible rows/40 issues absent from both old partitions. Freeze one target-blind
+transition per fresh issue: command 10, read 10, edit 8, tests 6, search 6, Git 0.
+Both context views use identical corrected targets/histories. The #56 mapper changes
+149 training targets and 1,421 histories, not the frozen old data or its scores.
+
+Full source q2 output stayed byte-equivalent (55,942 transitions); all 13 frozen panel
+hashes unchanged. Repeated preparation matched all 10 generated packet/data hashes.
+Witnessed red/green format tests and failing future-leakage/wrong-join mutations;
+486 non-slow tests passed, 6 skipped. [Receipt and manifest](TESTS-RESULTS/2026-09-12-context-refresh/SUMMARY.md).
+No prediction accuracy yet. Next is one fixed Qwen comparison, tool-free HTTP,
+old/refreshed/shuffled context, <=$1 worst-case token-cost preflight and the operator's
+two-hour total wall bound. No new training, human-acceptance claim or #43 changes.

@@ -8,6 +8,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import shutil
 import sys
 from typing import Iterable
@@ -96,7 +97,10 @@ def _query(request: str, prior: list[str]) -> str:
 
 def trajectory_rows(source: dict, schemas: list[dict], *, context=False, audit=None) -> list[dict]:
     if context:
-        return _context_rows(source, audit if audit is not None else collections.Counter())
+        if context not in (True, "q3"):
+            raise InputError("context must be True (q2) or 'q3'")
+        return _context_rows(source, audit if audit is not None else collections.Counter(),
+                             rich=context == "q3")
     trajectory = _json_value(source.get("trajectory"), "trajectory")
     if not isinstance(trajectory, list) or not trajectory:
         raise InputError("trajectory must be a nonempty list")
@@ -132,8 +136,8 @@ def trajectory_rows(source: dict, schemas: list[dict], *, context=False, audit=N
     return rows
 
 
-def _context_rows(source, audit):
-    """Opt-in q2: emit before the target call, after a matched prior response.
+def _context_rows(source, audit, *, rich=False):
+    """Opt-in q2/q3: emit before the target call, after a matched prior response.
 
     No assistant prose/target arguments/outcome metadata enters the feature object.
     Parallel calls and missing responses reset the observed prefix rather than guessing order.
@@ -151,7 +155,9 @@ def _context_rows(source, audit):
             content = msg.get("content")
             if not isinstance(content, str) or not content.strip():
                 raise InputError("user content must be nonempty text")
-            task = _clean(content, 600)
+            issue = re.search(r"<issue_description>(.*?)</issue_description>", content, re.S) if rich else None
+            task = _clean(issue.group(1) if issue and issue.group(1).strip() else content,
+                          2000 if rich else 600)
             prior, observation, pending = [], "", None
         elif role == "tool":
             content = msg.get("content")
@@ -163,6 +169,11 @@ def _context_rows(source, audit):
                 continue
             prior = (prior + [pending[1]])[-12:]
             observation = " ".join(content[-2000:].split())
+            if rich:
+                # Compact separator padding BEFORE tail clipping, preserving error/test text.
+                compact = re.sub(r"([=\-_*~])\1{9,}", lambda m: m.group(1) * 3, content)
+                observation = (f"PREVIOUS CALL: {pending[3]}\nRESULT: "
+                               + " ".join(compact.split())[-2000:])
             pending = None
         elif role == "assistant":
             calls = _json_value(msg.get("tool_calls"), "tool_calls")
@@ -199,7 +210,14 @@ def _context_rows(source, audit):
                 rows.append({"task": task, "observation": observation,
                              "history": list(prior), "target": label})
                 audit["eligible_rows"] += 1
-            pending = call_id, label, call["function"]["name"]
+            # q3 exposes only a bounded description of the last COMPLETED call. Keeping it
+            # in observation makes the existing feature-signature/overlap contract complete.
+            description = ""
+            if rich:
+                args = _json_value(call["function"].get("arguments", "{}"), "tool arguments")
+                selected = {k: args[k] for k in ("command", "path", "view_range", "insert_line") if k in args}
+                description = _clean(call["function"]["name"] + " " + json.dumps(selected, ensure_ascii=False), 1000)
+            pending = call_id, label, call["function"]["name"], description
     return rows
 
 

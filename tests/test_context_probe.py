@@ -44,6 +44,59 @@ def test_context_excludes_future_and_reasoning():
     assert probe.signature(changed) == probe.signature(rows[0])
 
 
+def test_q3_restores_issue_and_completed_call_without_future_leakage():
+    src = source()
+    src["trajectory"][0]["content"] = (
+        "boilerplate " * 100 + "<issue_description>Fix the actual parser</issue_description>")
+    src["trajectory"][2]["content"] = "test_parser FAILED\n" + "=" * 4000 + "\n1 failed"
+    row = prep.trajectory_rows(src, [], context="q3")[0]
+    assert row["task"] == "Fix the actual parser"
+    assert "cat a.py" in row["observation"]
+    assert "test_parser FAILED" in row["observation"]
+    assert "pytest" not in row["observation"]
+    assert "UNOBSERVED" not in json.dumps(row)
+    changed = copy.deepcopy(src)
+    changed["trajectory"][-1]["content"] = "future poison"
+    changed["trajectory"][-2] = call("b", "git status")
+    new = prep.trajectory_rows(changed, [], context="q3")[0]
+    assert new["target"] == "git"
+    assert probe.signature(new) == probe.signature(row)
+    changed["trajectory"][1] = call("a", "cat different.py")
+    assert probe.signature(prep.trajectory_rows(changed, [], context="q3")[0]) != probe.signature(row)
+
+
+def test_q3_caps_and_q2_unchanged():
+    src = source()
+    src["trajectory"][0]["content"] = "t" * 4000
+    src["trajectory"][1] = call("a", "cat " + "x" * 4000)
+    src["trajectory"][2]["content"] = "o" * 6000
+    q2 = prep.trajectory_rows(src, [], context=True)[0]
+    q3 = prep.trajectory_rows(src, [], context="q3")[0]
+    assert q2 == dict(task="t" * 600, observation="o" * 2000,
+                      history=["read"], target="run_tests")
+    assert len(q3["task"]) == 2000
+    assert len(q3["observation"]) <= 3025
+    assert q3["observation"].endswith("o" * 2000)
+
+
+@pytest.mark.parametrize("context", [True, "q3"])
+@pytest.mark.parametrize("boundary", ["wrong_id", "new_user", "control", "missing", "parallel"])
+def test_q3_uses_same_chronology_resets(context, boundary):
+    src = source()
+    if boundary == "wrong_id":
+        src["trajectory"][2]["tool_call_id"] = "mismatch"
+    elif boundary == "new_user":
+        src["trajectory"].insert(3, {"role": "user", "content": "New task"})
+    elif boundary == "control":
+        src["trajectory"].insert(3, {"role": "assistant", "tool_calls": [{"id": "c",
+            "function": {"name": "think", "arguments": "{}"}}]})
+    elif boundary == "missing":
+        del src["trajectory"][2]
+    else:
+        src["trajectory"][1]["tool_calls"].append(call("extra")["tool_calls"][0])
+    assert prep.trajectory_rows(src, [], context=context) == []
+
+
 @pytest.mark.parametrize("kind", ["wrong_id", "wrong_name", "missing", "empty", "parallel", "control"])
 def test_ambiguous_observation_cannot_supply_context(kind):
     src = source()

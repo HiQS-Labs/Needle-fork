@@ -5,6 +5,15 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-12
 
+### Versioned context refresh prepared (#59, round one)
+
+Added opt-in q3 formatting through the existing chronological extractor and a local-only
+paired-data runner. 10,000 training rows/224 issues; 1,722 fresh eligible rows/40 issues;
+40 target-blind quiz cases. Old q2 behavior and all 13 frozen panel hashes preserved.
+Repeated extraction reproduced all packet/data hashes. Red/green and leakage/join
+mutation checks passed; 486 non-slow tests passed, 6 skipped. No downloads, neural
+training, serving or held #43 changes. One tool-free fixed-model comparison follows.
+
 ### Test-runner classification corrected (#56)
 
 Shared Bash taxonomy recognizes unittest execution and classifies unambiguous
