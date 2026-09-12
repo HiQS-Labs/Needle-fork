@@ -71,10 +71,14 @@ on a voluntarily selected sample; it cannot repair or confirm the previous bench
 - [x] Real trigger, private record shape, missing-data handling and stopping boundary are explicit.
 - [ ] Before the first trial, verify input identity and that no prediction sees future actions;
   missing prefix or mismatched manifest must stop/skip rather than emit a fabricated comparison.
-- [ ] Before collecting ratings, verify one tie and one differing-label display using clearly
+- [x] Before collecting ratings, verify one tie and one differing-label display using clearly
   marked synthetic practice examples; these are not user trials and do not enter the totals.
 - [ ] At closeout, reconcile private log totals and report the operator decision on #49/#1.
 
 Use debug-mantra if a protocol check fails. Do not change features, baselines or presentation based
 on a disappointing first rating; record limitations and stop instead of turning this into tuning.
 An empty log, synthetic practice, or the assistant's own ratings cannot establish user usefulness.
+
+Synthetic practice verified against #48's existing test fixture: prefix `read` gives a shared `read`
+suggestion; prefix `edit, read` gives phase `run_tests` versus repeat-last `read`. One display for a
+tie, equal-format A/B otherwise, no fabricated rating. These are fixture outputs, not private results.
