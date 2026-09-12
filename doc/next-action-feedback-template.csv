@@ -1,0 +1,19 @@
+case_id,question_id,question,your_answer,example_answer,notes
+case_01,task,What were you trying to accomplish?,,Fix the parser rejecting empty input.,Use one short sentence. All examples in this file are fictional and are not collected data.
+case_01,observed_actions,What coding actions had already completed at that moment?,,Read parser.py -> edited the empty-input check -> ran tests.,Oldest to newest. Plain English is fine. Include completed actions rather than requests to an assistant.
+case_01,latest_observation,What did the latest completed action show?,,Tests failed: empty input still raises ValueError.,Paste a short result or describe it. Leave blank if unavailable. Do not include a result that happened later.
+case_01,actual_next_action,What actually happened immediately next?,,Read the failing test.,Fill retrospectively only if known. Leave blank while pending or if you cannot remember. This is the behavior-prediction target.
+case_01,preferred_next_action,Looking back what would you have wanted suggested at that moment?,,Read the failing test before making another edit.,Optional preference; it may differ from what actually happened. None is a valid answer. This is not an observed-action label.
+case_01,reason,Why would that suggestion have helped or not helped?,,It would clarify the expected behavior; another edit would be guessing.,Optional. One sentence is enough. Never paste secrets or credentials.
+case_02,task,What were you trying to accomplish?,,Add a search filter to a product list.,Use one short sentence. Examples are fictional; do not copy them as your answers.
+case_02,observed_actions,What coding actions had already completed at that moment?,,Searched for the list component -> read its props -> edited the filter.,Oldest to newest. Plain English is fine. No need to reconstruct an entire session.
+case_02,latest_observation,What did the latest completed action show?,,The edit applied successfully; tests had not been run.,Describe only what was available at that moment. Leave blank if unavailable.
+case_02,actual_next_action,What actually happened immediately next?,,Ran the component tests.,Observed behavior only; leave blank if unknown or not done yet.
+case_02,preferred_next_action,Looking back what would you have wanted suggested at that moment?,,Run the component tests.,Optional preference. None is valid. A preference is not proof that the action was performed.
+case_02,reason,Why would that suggestion have helped or not helped?,,It would catch a broken prop before I changed more files.,Optional; omit sensitive project details.
+case_03,task,What were you trying to accomplish?,,Investigate an intermittent timeout.,Use one short sentence. Examples are fictional; do not copy them as your answers.
+case_03,observed_actions,What coding actions had already completed at that moment?,,Read the error log -> searched for the timeout setting.,Completed actions only. Plain English is fine.
+case_03,latest_observation,What did the latest completed action show?,,Search found two different timeout settings.,Use the latest already-observed result; leave blank if unavailable.
+case_03,actual_next_action,What actually happened immediately next?,,Read the code around the first setting.,Leave blank if unknown. Do not substitute what you think you should have done.
+case_03,preferred_next_action,Looking back what would you have wanted suggested at that moment?,,None; I already knew what to inspect.,Optional. No useful suggestion is a legitimate preference.
+case_03,reason,Why would that suggestion have helped or not helped?,,A generic read suggestion would add no information.,Optional. You can fill just one case and stop.

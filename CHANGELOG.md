@@ -5,6 +5,14 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-12
 
+### Optional asynchronous feedback CSV added
+
+Added a blank three-case CSV with fictional examples for each question, plus short instructions.
+Actual next actions and preferred suggestions are separate fields; missing answers and examples
+are not data. Operator responses belong in an ignored private copy, never the tracked template.
+This does not reopen manual #49 or change #51's result. Model judgments remain proxy labels,
+not human preferences or observed outcomes. Verified CSV shape and blank response fields.
+
 ### Context-aware result published and probe closed (#51)
 
 One frozen CPU-only run on 10,000 training / 3,000 evaluation actions: context NB 49.67%,
