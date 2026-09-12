@@ -4,11 +4,11 @@
 
 We’re exploring whether a tiny local model can suggest useful next steps during software work—including testing, Git actions, and project governance—cheaply enough to run alongside a larger coding assistant. We have built and exercised the training/export pipeline, assembled private activity traces, audited their labels, and tested neural and simple statistical predictors. Useful recommendations remain unproven: label noise, a training/serving mismatch, and poor transfer from public coding-agent data have limited results.
 
-Training the lightweight predictors on our own sessions improved the phase-aware model to 45.73% versus 43.52% for “repeat the last action,” but it missed the agreed improvement gates. We are stopping these two predictors at the current six-action representation, not expanding training or serving. The next useful collaboration is to choose a narrower, directly valuable assistance task and how users would judge it. No human acceptance rate or production-ready Oracle has been established.
+Training the lightweight predictors on our own sessions improved the phase-aware model to 45.73% versus 43.52% for “repeat the last action,” but it missed the agreed gates. We now test whether task text and the latest completed tool result improve prediction of the same six next-action categories, using a bounded OpenHands sample and automatic offline comparisons. The manual usefulness trial stopped for time burden with no ratings. No human acceptance rate or production-ready Oracle has been established.
 
 ## What we have tried and learned
 
-Status: September 11, 2026. This is HiQS's experimental fork of [Cactus Compute's Needle](https://github.com/cactus-compute/needle). Experimental branches are not all merged into `main`; an implemented tool or passing test does not imply a validated recommendation model.
+Status: September 12, 2026. This is HiQS's experimental fork of [Cactus Compute's Needle](https://github.com/cactus-compute/needle). Experimental branches are not all merged into `main`; an implemented tool or passing test does not imply a validated recommendation model.
 
 | Work | Result and consequence | Evidence |
 |---|---|---|
@@ -27,22 +27,29 @@ Status: September 11, 2026. This is HiQS's experimental fork of [Cactus Compute'
 
 ## Next milestone
 
+**Revised approach: [context-aware next-action prediction #51](https://github.com/HiQS-Labs/Needle-fork/issues/51).** Keep the six labels, add task text and the latest already-completed tool observation, and compare automatically against action-only and shuffled-context controls. A bounded CPU-only experiment comes first; no new manual ratings, neural training campaign, or serving integration. See the [frozen protocol](PROJECT/2-WORKING/CONTEXT-NEXT-ACTION.md).
+
+Manual discovery [#49](https://github.com/HiQS-Labs/Needle-fork/issues/49) stopped for operator time burden after one eligible request and zero ratings. This pivot changes the input representation; it does not relabel earlier failures as passes.
+
+### Previous milestone — completed, not instructions to repeat
+
 **The agreed in-domain milestone ran and failed its gates.** Private training improved phase-backoff over public-data fitting, but not enough to qualify it. See the [result and exact counts](https://github.com/HiQS-Labs/Needle-fork/blob/7f521b449c9d0f8351fdfc32c8c7180a44cbcf9f/TESTS-RESULTS/2026-09-11-private-transitions/SUMMARY.md).
 
 The frozen rule required the same family to beat repeat-last by five points overall and a training-derived conditional destination baseline by ten points. Phase-backoff improved by 2.2012 and 9.9479 points respectively; Markov-1 improved by 0 and 7.1078 points. Neither passed. Ordinary action-change accuracy was 14.06% for phase-backoff and 0% for Markov-1; detailed session distributions remain private.
 
-Per that rule, these two models stop at this representation. A different product experiment requires a new scope decision; serving is not the automatic next step. The evaluation partition is reused development evidence, not fresh confirmation. Conditional destination accuracy assumes a switch occurred; it does not establish detecting switches live. These scores measure agreement with recorded labels, not human acceptance or whether an action was advisable.
+Per that rule, these two models stop at this representation. The operator authorized the different input-representation experiment in #51; serving is not the automatic next step. The evaluation partition is reused development evidence, not fresh confirmation. Conditional destination accuracy assumes a switch occurred; it does not establish detecting switches live. These scores measure agreement with recorded labels, not human acceptance or whether an action was advisable.
 
-The [collaborator briefing](https://github.com/HiQS-Labs/Needle-fork/blob/7f521b449c9d0f8351fdfc32c8c7180a44cbcf9f/doc/oracle-collaborator-summary.md) provides the detailed qualifications and source index. [XYZ-forge #467](https://github.com/HiQS-Labs/XYZ-forge/issues/467) owns the overall arc; [Needle-fork #1](https://github.com/HiQS-Labs/Needle-fork/issues/1) tracks this implementation. [ROADMAP.md](ROADMAP.md) points to current work and [FINDINGS.md](FINDINGS.md) preserves investigation history.
+The [collaborator briefing](doc/oracle-collaborator-summary.md) provides the detailed qualifications and source index. [XYZ-forge #467](https://github.com/HiQS-Labs/XYZ-forge/issues/467) owns the overall arc; [Needle-fork #1](https://github.com/HiQS-Labs/Needle-fork/issues/1) tracks this implementation. [ROADMAP.md](ROADMAP.md) points to current work and [FINDINGS.md](FINDINGS.md) preserves investigation history.
 
 ## Repository readiness and next steps
 
-This README includes #48's result ahead of its merge. Supporting experiment code and updates to
-the other local project docs remain in that PR; the evidence links above pin its published commit.
+Historical #48 evidence links pin its published commit. Current docs are reconciled on main.
+Per operator instruction, new offline work uses scoped, tested commits and pushes directly to main;
+a new branch/PR requires a concrete isolation or integration need.
 
 The findings cleanup and project story (#44/#45), [branch hygiene rules (#46)](https://github.com/HiQS-Labs/Needle-fork/pull/46), [adapter build-safety guard (#8)](https://github.com/HiQS-Labs/Needle-fork/pull/8), and governance stack (#6/#10) are merged into `main`. Integration verification passed: 384 non-slow tests and 11 slow build/finetune tests; six tests were skipped. This validates the engineering changes, not Oracle recommendation usefulness.
 
-1. **Completed experiment (previous step 3):** review [PR #48](https://github.com/HiQS-Labs/Needle-fork/pull/48), which records the failed gates and focused evaluator. Decide on a different user-valued task before further model work. [PR #42](https://github.com/HiQS-Labs/Needle-fork/pull/42) and its MLX base remain parked; no whole-branch promotion.
+1. **Active experiment:** run [#51's context-aware probe](PROJECT/2-WORKING/CONTEXT-NEXT-ACTION.md) on main. Prior [#48](https://github.com/HiQS-Labs/Needle-fork/pull/48) and [#42](https://github.com/HiQS-Labs/Needle-fork/pull/42) remain historical experiment PRs; no whole-branch promotion.
 2. **Deferred augmentation review (previous step 4):** wait for the operator to release #43's testing hold, then review its results before any integration decision.
 
 Adapter builds with missing or full-precision training provenance now require an explicit

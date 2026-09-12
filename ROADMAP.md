@@ -14,7 +14,7 @@
 
 | What was just completed | What's next |
 |---|---|
-| Public-trained six-action pilots completed; the Astra/Fable review identified an untested private-training comparison. | **Run the bounded in-domain baseline round described in the [current arc](doc/oracle-collaborator-summary.md#next-milestone--agreed-not-yet-run) and tracked in [#1](https://github.com/HiQS-Labs/Needle-fork/issues/1).** The stricter #25 lane remains capacity-blocked at 541/1,000 and is deferred in priority. |
+| Private-trained round missed both gates; manual discovery stopped unrated. | **Run the [context-aware next-action probe](PROJECT/2-WORKING/CONTEXT-NEXT-ACTION.md), tracked in [#51](https://github.com/HiQS-Labs/Needle-fork/issues/51).** The stricter #25 lane remains capacity-blocked at 541/1,000 and is deferred in priority. |
 
 > **Corrected 2026-09-09.** This cell previously read *"first `needle finetune` run on JAX/CPU at
 > `--max-len 2048`"*. That was superseded on 2026-09-07 by
@@ -30,6 +30,8 @@
 - No parked intake docs.
 
 ### In progress
+
+- [Context-aware next-action prediction](PROJECT/2-WORKING/CONTEXT-NEXT-ACTION.md) — operator-authorized OpenHands pivot, CPU-only offline comparison on main. ([#51](https://github.com/HiQS-Labs/Needle-fork/issues/51))
 
 - [ZCode mapper recon and qualification](PROJECT/2-WORKING/RECON-ZCODE-MAPPER-CORRECTION.md) — PR #40 merged the scoped corrections; fresh blind qualification remains open in [#37](https://github.com/HiQS-Labs/Needle-fork/issues/37).
 

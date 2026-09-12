@@ -107,6 +107,14 @@ local change.
 
 ### Branch and PR hygiene
 
+- **Operator revision, 2026-09-12:** default to this checkout on `main` with scoped, verified
+  commits and pushes to `origin/main`. Do not create a branch/PR for each offline experiment.
+  Segment work only for a concrete isolation, parallel-writer or risky-integration need; explain
+  that need first. This supersedes the earlier branch-per-task default, not review/test requirements.
+  Existing experimental branches remain preserved; PR #43 stays on its explicit testing hold.
+- Apply SOLID principles proportionally: focused responsibilities and existing extension seams,
+  without speculative abstractions for a small offline experiment.
+
 - Start a bounded task from freshly fetched `origin/main` in an isolated checkout when needed.
   Use another base only for an explicit stack or experiment, and name that dependency.
 - Give each active pushed task branch one linked PR (draft while incomplete) and a tracking issue.

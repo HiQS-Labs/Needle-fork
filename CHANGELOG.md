@@ -3,6 +3,16 @@
 Newest-first, dated end-of-iteration record. One entry per substantive iteration: what changed,
 why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
+## 2026-09-12
+
+### Context-aware next-action pivot documented (#51)
+
+Reconciled the private-trained failure and stopped manual discovery (one request, zero ratings).
+Recorded the operator-authorized task/observation-aware OpenHands probe, fixed offline bounds,
+and direct-main commit/push preference in governance and project docs. Prior results remain
+history, not instructions to rerun; PR #43 stays held. No new score or runtime change in this
+documentation commit. Verification: documentation checks and non-slow suite recorded at commit.
+
 ## 2026-09-11
 
 ### README result published ahead of #48

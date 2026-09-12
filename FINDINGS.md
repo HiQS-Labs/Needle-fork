@@ -129,7 +129,7 @@ for a compact narrative and source links.
 - The separate purpose-classification experiment (#31) and augmentation tooling (#41 / PR #43)
   are not next-action efficacy evidence. Neither supplies a deployment-ready Oracle.
 
-### Agreed next action, not yet measured
+### Historical next action — superseded by the 2026-09-12 entry below
 
 One private-trained round with unchanged Markov-1 and phase-backoff. The same family must beat
 repeat-last by five points overall and the training-derived conditional destination comparator by
@@ -139,10 +139,34 @@ prospective serving-experiment design; partial success supports considering a na
 both failing stops investment in these two models at this representation. These are resource
 decisions, not universal impossibility claims or measured human acceptance rates.
 
-### Publication state
+### Publication state (historical)
 
 The active checkout `audit/23-error-causes` was 50 commits behind freshly fetched `main` and had
 no unique commits. PR #42 targets `spike/mlx-finetune`; its branch differs from current `main`
 across 147 files, including historical divergence. Do not promote that whole branch solely to
 publish this story. This documentation update is based on current `main`; experimental code
 promotion requires a separately scoped integration review.
+
+## 2026-09-12 — context-aware next-action pivot (#51)
+
+The private-trained round previously described as pending completed: phase-backoff scored 45.73%
+overall versus 43.52% repeat-last, below its 48.52% gate; conditional destination accuracy was
+40.81%, below 40.86%. Both gates failed. This is reused development evidence, not acceptance.
+[Retained receipt](https://github.com/HiQS-Labs/Needle-fork/blob/7f521b449c9d0f8351fdfc32c8c7180a44cbcf9f/TESTS-RESULTS/2026-09-11-private-transitions/SUMMARY.md).
+
+Manual discovery #49 stopped at the operator's request because of time burden: one eligible
+request, zero ratings, one missing rating, no skips or ties. This says nothing about preference
+between the suggestions; no rejection or acceptance label is inferred.
+
+The operator authorized [#51](https://github.com/HiQS-Labs/Needle-fork/issues/51): retain the same
+six next-action targets but add task text and the latest completed tool observation. The old
+OpenHands converter retained task text and actions but discarded observations; the transition
+predictor ignored task text too. That loss of context is confirmed in source, but whether restoring
+it improves prediction is a hypothesis, not a finding. The earlier 500/100-action LoRA pilot used
+this exact dataset and already filtered successful trajectories; it did not exhaust the dataset.
+
+Next: one CPU-only text-classifier comparison against same-row action-only baselines and a
+context-shuffle control. See the [protocol](PROJECT/2-WORKING/CONTEXT-NEXT-ACTION.md).
+No manual labeling, model download, neural campaign, deployment claim, or #43 modification.
+Main-first scoped commits/pushes supersede the branch-per-experiment default; old branches are
+preserved, not wholesale merged or deleted.
