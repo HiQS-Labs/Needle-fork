@@ -4,7 +4,7 @@
 
 We’re exploring whether a tiny local model can suggest useful next steps during software work, including testing, Git actions, and project governance, cheaply enough to run alongside a larger coding assistant. We have built and exercised the training/export pipeline, assembled private activity traces, and tested both model-based and simple statistical predictors. The engineering path works, but useful recommendations remain unproven: label noise, a mismatch between training and native serving, and poor transfer from public coding-agent data have limited results.
 
-Private-trained predictors and a context-aware OpenHands text classifier missed their gates. A seven-model quiz gave Fable 60.0% versus a 46.7% simple baseline on 30 public examples—not a milestone pass. A source audit found two action-classification defects, now corrected, alongside coarse-label ambiguities and context loss. A versioned context refresh and 40-case fresh-issue quiz are ready for one controlled comparison, not another panel. The manual trial stopped for time burden with no ratings; usefulness and deployment readiness remain unproven.
+Private-trained predictors and a context-aware OpenHands text classifier missed their gates. A small model panel led to a source audit and two classification fixes. The latest controlled test on 40 previously unevaluated issues scored 52.5% with richer context, versus 57.5% with old context and 60% for simple action baselines; its follow-up rule failed. We are stopping this refresh before training and need to narrow the product objective before another campaign. The manual trial has no ratings; usefulness and deployment readiness remain unproven.
 
 ## The story and evidence
 
@@ -17,14 +17,22 @@ Private-trained predictors and a context-aware OpenHands text classifier missed 
 | Work-purpose classification, a separate side experiment | Frozen ModernBERT features reached 57.5% purpose accuracy on 40 records versus 50% TF-IDF and 42.5% majority; TF-IDF had better purpose macro-F1. Area classification and rejection policies remained inadequate. | Limited signal, no deployment qualification; this is classification of work, not prediction of the next action. [#31](https://github.com/HiQS-Labs/Needle-fork/issues/31). |
 | External data and targeted augmentation | TAWOS did not cover the full eight-purpose taxonomy. A separate PR implements grounded, training-only augmentation tooling, with no measured model gain yet. | Volume alone does not solve domain and label mismatch. [#35](https://github.com/HiQS-Labs/Needle-fork/issues/35), [#41](https://github.com/HiQS-Labs/Needle-fork/issues/41), [PR #43](https://github.com/HiQS-Labs/Needle-fork/pull/43). |
 
-## Current result — context refresh (#59), round one completed
+## Current result — context refresh (#59), both rounds completed
 
 Prepared paired old/richer context using corrected labels: 10,000 training rows,
 1,722 eligible transitions from 40 previously unevaluated issues, and a frozen
 one-case-per-issue quiz. No Git targets in the 40 cases; no full-label coverage claim.
-Old artifacts/scores remain frozen. 486 non-slow tests passed. Next is one tool-free
-Qwen comparison across old/refreshed/shuffled context, within a $1 token-cost ceiling
-and two-hour total wall bound. [Receipt](../TESTS-RESULTS/2026-09-12-context-refresh/SUMMARY.md).
+Old artifacts/scores remain frozen. One tool-free Qwen comparison scored richer
+context 52.5%, old context 57.5%, shuffled 52.5%, strongest simple baselines 60%.
+The binding follow-up threshold was 65%; q3 macro-F1 also regressed. No near-pass.
+493 non-slow tests passed; reported inference cost $0.180610. A required-reasoning
+client fix (#60) and its pre-score protocol adaptation are disclosed in the
+[receipt](../TESTS-RESULTS/2026-09-12-context-refresh/ROUND2.md).
+
+Stop training/prompt-tuning investment in this refresh. Before another model round,
+choose whether the product needs exact recorded-action prediction, action-change
+detection, or a short list of plausible next steps. The alternatives remain untested,
+not validated pivots or instructions to launch another campaign.
 
 ## Previous result — mapper correction (#56) completed
 
@@ -85,4 +93,4 @@ Budget: standard-library tooling, one engineer-hour, no feature search. The eval
 - Needle implementation and experiment history: [Needle-fork #1](https://github.com/HiQS-Labs/Needle-fork/issues/1).
 - Supporting investigation log: [FINDINGS.md](../FINDINGS.md); measurements live in dated `TESTS-RESULTS/` receipts and linked issues.
 
-Status reconciled 2026-09-12 through #59 round one. Experimental code and receipts in PR #42 are on its branch; they are not all present on `main`. The earlier private-trained milestone interpretation incorporated Astra/Fable discussion #743999; its failed gates remain unchanged.
+Status reconciled 2026-09-12 through both #59 rounds and #60. Experimental code and receipts in PR #42 are on its branch; they are not all present on `main`. The earlier private-trained milestone interpretation incorporated Astra/Fable discussion #743999; its failed gates remain unchanged.

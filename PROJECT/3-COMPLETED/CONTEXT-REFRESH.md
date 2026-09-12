@@ -1,6 +1,6 @@
 ---
 title: Versioned context refresh and fresh-issue comparison
-status: In Progress
+status: Shipped
 created: 2026-09-12
 updated: 2026-09-12
 owner: noelsaw1
@@ -16,7 +16,7 @@ Authority: [#59](https://github.com/HiQS-Labs/Needle-fork/issues/59), following 
 
 | What was just completed | What's next |
 |---|---|
-| Round one verified: 10,000 train rows, 1,722 fresh eligible rows, 40 frozen quiz cases; 486 tests passed. | Commit/push round one, then immediately run the fixed Qwen comparison. |
+| Both rounds completed: q3 52.5%, q2 57.5%, strongest baseline 60%; follow-up rule failed. | Stop this refresh's model investment; choose a narrower product objective before another campaign. |
 
 ## Contents
 
@@ -66,7 +66,7 @@ Evidence: [round-one receipt](../../TESTS-RESULTS/2026-09-12-context-refresh/SUM
 
 ## Round two
 
-1. [ ] Run the previously tested `qwen/qwen3.8-max-0902` OpenRouter route in three
+1. [x] Run the previously tested `qwen/qwen3.8-max-0902` OpenRouter route in three
    independent tool-free chat-completion requests: q2, q3, q3 with task/observation shuffled across cases within last-action
    groups (deterministic derangement, histories untouched; report fixed singletons).
    This is one controlled comparison, not three candidates. No answers, scores,
@@ -77,7 +77,7 @@ Evidence: [round-one receipt](../../TESTS-RESULTS/2026-09-12-context-refresh/SUM
    model or token-budget increase. Cap each output at 4,096 tokens, temperature zero.
    Maximum 600 seconds per arm, one infrastructure-only retry before any scoring;
    never retry a valid prediction. Stop for unavailable route or invalid responses.
-2. [ ] Lock all responses before grading. Compare accuracy, six-label macro-F1,
+2. [x] Lock all responses before grading. Compare accuracy, six-label macro-F1,
    per-label support/recall, and change-only accuracy with training-only majority,
    repeat-last, Markov and phase-backoff on the same cases. Report paired wins/losses.
    Exploratory follow-up signal requires q3 accuracy >=5pp over strongest action
@@ -85,7 +85,7 @@ Evidence: [round-one receipt](../../TESTS-RESULTS/2026-09-12-context-refresh/SUM
    This only motivates a larger validation; missing labels preclude full six-action
    coverage claims. A failure stops investment in this context change, not the entire
    project. No post-score gate movement or automatic model promotion.
-3. [ ] Record outcome/next decision, reconcile project story and issue, commit/push
+3. [x] Record outcome/next decision, reconcile project story and issue, commit/push
    round two. On deadline or failed preflight, publish the incomplete/negative receipt,
    not invented model scores. No manual calibration required for this experiment.
 
@@ -126,3 +126,14 @@ validation with provider_name null; no token usage was returned. Corrected-call
 conservative token-cost estimate is $0.667 (under the unchanged $1 ceiling), with
 provider price filters as an additional guard. This is a documented protocol change,
 not hidden retry selection or a new model candidate.
+
+## Outcome
+
+[Round-two receipt](../../TESTS-RESULTS/2026-09-12-context-refresh/ROUND2.md) owns full
+metrics, collection provenance, protocol adaptation and replay. Q3 had zero extra
+correct cases versus q2 and lost two. Shuffled q3 tied its 52.5% accuracy; the strongest
+baseline reached 60%. Fixed follow-up rule failed on every accuracy margin and macro-F1.
+493 tests passed; $0.180610 reported successful inference cost. No further model tuning,
+training, old score revisions or held PR #43 changes. Workhorse/recon kept the change
+in the existing offline extractor; plan review prompted the tool-free transport and
+clearer pool-versus-quiz distinction; debug-mantra exposed and verified the #60 fix.

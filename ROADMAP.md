@@ -14,7 +14,7 @@
 
 | What was just completed | What's next |
 |---|---|
-| [Test runner correction #56](PROJECT/3-COMPLETED/TEST-RUNNER-MAPPING.md) completed and verified; frozen scores unchanged. | Operator authorized [two bounded context-refresh rounds #59](PROJECT/2-WORKING/CONTEXT-REFRESH.md), with per-round commits/pushes and a two-hour maximum. The stricter #25 lane remains capacity-blocked at 541/1,000 and deferred. |
+| [Two context-refresh rounds #59](PROJECT/3-COMPLETED/CONTEXT-REFRESH.md) completed: richer context 52.5%, strongest baseline 60%; follow-up rule failed. | Stop this refresh's model investment; choose a narrower product objective before another campaign. The stricter #25 lane remains capacity-blocked at 541/1,000 and deferred; PR #43 remains held. |
 
 > **Corrected 2026-09-09.** This cell previously read *"first `needle finetune` run on JAX/CPU at
 > `--max-len 2048`"*. That was superseded on 2026-09-07 by
@@ -31,13 +31,13 @@
 
 ### In progress
 
-- [Versioned context refresh and fresh-issue comparison](PROJECT/2-WORKING/CONTEXT-REFRESH.md) — two rounds, no training or new panel. ([#59](https://github.com/HiQS-Labs/Needle-fork/issues/59))
-
 - [ZCode mapper recon and qualification](PROJECT/2-WORKING/RECON-ZCODE-MAPPER-CORRECTION.md) — PR #40 merged the scoped corrections; fresh blind qualification remains open in [#37](https://github.com/HiQS-Labs/Needle-fork/issues/37).
 
 - [Label correctness audit — make the §2 gate trustworthy](PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md) — source identity and disjoint manifests are merged; #25 clears its 30-session floor but remains blocked because the frozen sampler can allocate only 541/1,000 evaluation rows under its label quotas and session cap. ([#20](https://github.com/HiQS-Labs/Needle-fork/issues/20), [#23](https://github.com/HiQS-Labs/Needle-fork/issues/23), [#25](https://github.com/HiQS-Labs/Needle-fork/issues/25))
 
 ### Completed
+
+- [Versioned context refresh and fresh-issue comparison](PROJECT/3-COMPLETED/CONTEXT-REFRESH.md) — both rounds completed; negative fixed-model comparison, verified tool-free client fix, no training. ([#59](https://github.com/HiQS-Labs/Needle-fork/issues/59), [#60](https://github.com/HiQS-Labs/Needle-fork/issues/60))
 
 - [Test runner mapping correction](PROJECT/3-COMPLETED/TEST-RUNNER-MAPPING.md) — unittest execution and unambiguous metadata probes corrected; no old-data writes. ([#56](https://github.com/HiQS-Labs/Needle-fork/issues/56))
 

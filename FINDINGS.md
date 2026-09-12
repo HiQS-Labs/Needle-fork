@@ -304,3 +304,32 @@ Witnessed red/green format tests and failing future-leakage/wrong-join mutations
 No prediction accuracy yet. Next is one fixed Qwen comparison, tool-free HTTP,
 old/refreshed/shuffled context, <=$1 worst-case token-cost preflight and the operator's
 two-hour total wall bound. No new training, human-acceptance claim or #43 changes.
+
+## 2026-09-12 — fresh-issue context comparison (#59, round two)
+
+The bundled context refresh did not qualify. On one transition from each of 40
+previously unevaluated source issues, fixed Qwen scored q3 21/40 (52.5%), q2 23/40
+(57.5%), shuffled q3 21/40 (52.5%). Markov and phase-backoff each scored 24/40 (60%).
+q3 macro-F1 .3983 trailed q2 .4129 and phase .4820. q3 had zero newly correct cases
+versus q2 and lost two. Recall included search 0/6; Git had no support. The binding
+follow-up accuracy threshold was 65%, five cases above q3's result. No near-pass.
+
+Corrected mapper labels/histories were identical between arms; packets and responses
+were locked before scoring. Direct HTTP sends no tool schemas or files and never
+dispatches response text. Two initial requests rejected disabled reasoning (HTTP400);
+filed #60, witnessed its request test fail, enabled low reasoning and publicly amended
+the infrastructure retry bound before any valid predictions. Same model, cases,
+temperature, 4096 total output tokens and decision thresholds; no further retries.
+All three corrected requests completed; reported inference cost $0.180610, 188.02
+seconds total. Validation failures reported no token usage; CLI review dollar cost
+is unavailable. Do not compare this fresh quiz numerically to the old panel as a model
+improvement: samples, prompt policy and inference settings differ.
+
+493 non-slow tests passed, 6 skipped. Replay matched; independent confusion arithmetic
+and retrained action-table vectors matched. Wrong predictions fail the rule; tampered
+locks/packets fail verification. All 13 frozen panel hashes remain unchanged.
+[Receipt, limitations, protocol adaptation and aggregates](TESTS-RESULTS/2026-09-12-context-refresh/ROUND2.md).
+Stop model investment in this exact refresh, not the entire project. Before another
+campaign, decide whether exact observed-action prediction is the right product target;
+action-change detection or plausible-next-step ranking are unvalidated alternatives
+requiring separate scope. No neural training, human acceptance or deployment claim.

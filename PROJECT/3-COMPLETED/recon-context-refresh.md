@@ -34,3 +34,7 @@ Known inventory: 292 issues in old extracted train+holdout; 40 other hash-holdou
 issues yield 1,722 capped eligible rows, before final exact-overlap checks.
 Unknowns: label support in target-blind selected cases, context improvement, and
 transfer outside this source. These are measurements, not reasons to tune selection.
+
+Outcome: [completed experiment](CONTEXT-REFRESH.md). Five labels represented in the
+40-case quiz, Git absent; the bundled context follow-up rule failed. Transfer outside
+this source remains unanswered. This map is historical, not an active work queue.

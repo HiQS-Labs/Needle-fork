@@ -1,5 +1,8 @@
 # #59 round one — context refresh ready
 
+Round two subsequently completed with a negative result: [outcome and replay](ROUND2.md).
+The rest of this page preserves the round-one preparation receipt.
+
 Prepared 10,000 training transitions across 224 issues and a separate eligible pool
 of 1,722 transitions across 40 previously unevaluated holdout issues. The model quiz
 is **40 cases, one per issue**, not all 1,722 rows. No model prediction has been

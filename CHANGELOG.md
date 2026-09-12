@@ -5,6 +5,17 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-12
 
+### Fresh-issue context comparison failed its follow-up rule (#59, round two)
+
+One fixed Qwen route, three tool-free arms on 40 fresh-issue cases: rich context
+52.5%, old context 57.5%, shuffled 52.5%, leading action baselines 60%. No near-pass
+or promotion; stop this refresh's model investment. Reported inference cost $0.180610.
+Two setup requests rejected mandatory-reasoning disablement; filed/fixed #60 and
+disclosed the pre-score infrastructure adaptation, with no output-budget increase.
+493 non-slow tests passed, 6 skipped; score replay, independent confusion arithmetic,
+baseline replay and all 13 frozen panel hashes verified. Docs/issue arc reconciled;
+completed plan archived. No training, runtime or held PR #43 changes.
+
 ### Versioned context refresh prepared (#59, round one)
 
 Added opt-in q3 formatting through the existing chronological extractor and a local-only
