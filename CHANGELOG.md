@@ -5,6 +5,12 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-11
 
+### Manual usefulness follow-up scoped (2026-09-12 UTC, #49)
+
+Prepared a voluntary, ten-request/five-working-day comparison of the frozen ordinary phase predictor
+against repeat-last. No interface, automated prompts or new training campaign; ratings remain private.
+This is product discovery despite #48's failed benchmark, not a revised pass. No user trials have run.
+
 ### README result published ahead of #48
 
 At the operator's request, selected only #48's README update for direct publication on main.
