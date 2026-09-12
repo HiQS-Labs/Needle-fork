@@ -5,6 +5,16 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-12
 
+### Bounded context probe implemented (#51)
+
+Selected the existing OpenHands converter/projection and transition baselines from #42/#48;
+no broad branch merge or neural stack. Added opt-in q2 extraction from completed, matched tool
+responses and a stdlib Naive Bayes comparison with fixed action-only and context-shuffle controls.
+Inputs are issue-separated, capped and overlap-filtered; acquisition and scoring have resource
+ceilings and refuse before accepting incomplete data. Original converter defaults remain intact.
+Witnessed red then green controls for future-output leakage and broken response-ID matching.
+The non-slow suite is required before this implementation commit and real-data scoring.
+
 ### Context-aware next-action pivot documented (#51)
 
 Reconciled the private-trained failure and stopped manual discovery (one request, zero ratings).

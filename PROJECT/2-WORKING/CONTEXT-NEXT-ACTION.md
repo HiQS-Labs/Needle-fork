@@ -14,7 +14,7 @@ reversibility: Easy — offline experiment and scoped main commits only
 
 | What was just completed | What's next |
 |---|---|
-| Operator authorized context-aware pivot and main-first work; previous outcomes reconciled. | Implement and verify bounded extraction, then one frozen offline comparison. |
+| Pivot pushed on main; converter and classifier implemented with witnessed leakage red controls. | Finish verification and run the frozen offline comparison once. |
 
 Authority: [#51](https://github.com/HiQS-Labs/Needle-fork/issues/51), under
 [#1](https://github.com/HiQS-Labs/Needle-fork/issues/1). This supersedes manual discovery #49,
@@ -79,8 +79,9 @@ dependency-free context probe, not a replacement production architecture.
 - [x] Consult degraded: Codex answered; Agy timed out at 120 seconds. No cross-model agreement
   claimed. Codex found no blockers and requested deterministic issue selection and an explicit
   input-signature definition; both are now specified. Review assessed the plan, not working code.
-- [ ] Future leakage, tool matching, split isolation, train-only vocabulary, nonempty checks tested.
-- [ ] Focused red controls witnessed; non-slow suite passes.
+- [x] Future leakage, tool matching, split isolation, train-only vocabulary, nonempty checks tested.
+- [x] Future-output and tool-ID red controls witnessed and restored; non-slow suite passes
+  (434 passed, 6 skipped before the final added CLI/control tests; final count in run receipt).
 - [ ] Bounded real-data run completes or explicit refusal retained; receipt and docs agree.
 
 Execution debugging uses debug-mantra. Reversibility Easy: scoped commits can be reverted without

@@ -1,0 +1,13 @@
+{
+  "label_set_version": "coding-core-v0",
+  "source": "Experimental projection; canonical Oracle v1 remains unchanged.",
+  "labels": ["edit", "git", "read", "run_command", "run_tests", "search"],
+  "schemas": [
+    {"name": "edit", "description": "Edit or create source files.", "parameters": {"type": "object", "properties": {}}},
+    {"name": "git", "description": "Inspect or change Git state.", "parameters": {"type": "object", "properties": {}}},
+    {"name": "read", "description": "Read files or command output.", "parameters": {"type": "object", "properties": {}}},
+    {"name": "run_command", "description": "Run a shell command not covered by another label.", "parameters": {"type": "object", "properties": {}}},
+    {"name": "run_tests", "description": "Run tests, linters, or a build verification.", "parameters": {"type": "object", "properties": {}}},
+    {"name": "search", "description": "Search code or find files.", "parameters": {"type": "object", "properties": {}}}
+  ]
+}
