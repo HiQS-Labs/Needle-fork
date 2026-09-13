@@ -64,6 +64,12 @@ folder: `relay-system/2026-09-10/`; new QA may use the same root with today's da
 
 ## Boundaries and rollback
 
+Existing `utils/hooks/oracle_stop_hook.py` is a Claude-only query logger, using
+the old serializer and `data/hook-log.jsonl`, with no prediction display. Preserve
+that contract; a Codex event dispatcher has a different input/display contract
+and should reuse taxonomy/ranking helpers, not redirect the old logger. This
+additional source check was completed by the producer after Agy's plan review.
+
 Additive app integration only: no training/export/quantization/runtime SDK changes,
 no release configuration changes, no old receipts or CSV rewrites. A small hook
 dispatcher plus focused tests and project-local config is the intended boundary.

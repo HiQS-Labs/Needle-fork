@@ -3,6 +3,19 @@
 Newest-first, dated end-of-iteration record. One entry per substantive iteration: what changed,
 why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
+## 2026-09-13
+
+### Plan an automatic Codex app feedback loop (#63)
+
+Recorded the operator's app-only, automatic-after-turn, separate want/did requirements.
+Reuse the simple Markov shortlist; preserve #62's failed gate. Grounded native hook
+and existing transcript paths; made actual app display a blocking first proof and
+private collection a later phase. Agy Gemini 3.1 Pro High approved the plan, but
+the relay rejected its verdict capitalization (exit 8); saved review, no clean
+automation claim. Model-list incompatibility filed as #64. 510 project tests and
+62 Agy-shim checks passed; document structure checks passed. No hooks installed,
+feedback collected, model training or PR #43 change.
+
 ## 2026-09-12
 
 ### Shortlist round completed; fixed lift gate failed (#62)

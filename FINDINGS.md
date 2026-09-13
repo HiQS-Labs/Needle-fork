@@ -390,3 +390,27 @@ prototype. Broader product usefulness remains unproven; reopening requires a
 separate concrete product question and explicit authorization, not another score
 on this development set. This is learning where further complexity is not yet
 justified, not a claim that all next-action ideas are impossible.
+
+## 2026-09-13 — separate Codex app feedback plan (#63)
+
+The operator requested a low-burden interaction around the simpler baseline:
+automatic three-choice output in this Codex app, ordinary work text unchanged,
+separate intended and user-reported completed actions. This changes the next
+product question, not the historical #62 result. No new score or usefulness claim.
+
+Source trace found that current Codex hooks document UI/event-stream warnings,
+but actual app rendering remains unverified. Stop continuation would create a
+new prompt, so the plan excludes it. The existing Codex transcript adapter records
+calls, not completion proof. XYZ's collector copies ordinary ignored subfolders;
+private feedback therefore needs a hidden direct-child store plus explicit ignore
+and a real collector exclusion test. None of these proposed acceptance tests ran.
+
+Agy Gemini 3.1 Pro High reviewed and approved the plan through the actual isolated
+relay. Its saved verdict used mixed-case `Verdict:`, failing the harness's required
+uppercase field (exit 8). Preserve this as advisory approval, not automated success.
+An earlier model-validation failure was reproduced and filed as #64; exact listed
+model passed through supported flags on retry, no model substitution. 510 project
+tests, 62 Agy-shim checks and document structure checks passed. No hook installation,
+feedback collection, training, old score changes or held PR #43 edits.
+[Plan](PROJECT/2-WORKING/CODEX-NEEDLE-FEEDBACK.md) ·
+[Agy review](relay-system/2026-09-13/needle-63-agy-plan-qa.md).

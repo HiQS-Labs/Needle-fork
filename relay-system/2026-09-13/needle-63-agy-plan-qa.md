@@ -4,8 +4,8 @@
   Scaffolded by relay-automation/new-relay.sh on 2026-09-13.
 -->
 
-NEXT: Reviewer
-STATUS: Open
+NEXT: Producer
+STATUS: Approved
 ROUND: 1 / 2
 
 ## ▶ TAKE YOUR TURN — read this first (works for ANY agent: Claude, Codex, agy)
@@ -44,7 +44,7 @@ ROUND: 1 / 2
   `relay-drive.sh --artifact-file PROJECT/2-WORKING/CODEX-NEEDLE-FEEDBACK.md` seeds into the isolated worktree (read it there; do NOT edit it).
 - Reviewer: agy   ·   Producer: codex-producer
 - Started: 2026-09-13
-- Definition of Done: Review the entire proposed plan, not implementation. Are the confirmed requirements (this Codex app, automatic display every completed turn, separate want/did feedback) preserved? Check app hook feasibility without continuation loops, hidden private storage versus the inspected XYZ collector, session/choice identity, context leakage and lean scope. The first phase explicitly blocks implementation until app rendering is proved: do not mistake that planned proof for a claimed result. Read PROJECT/2-WORKING/RECON-CODEX-FEEDBACK.md as supporting evidence. Cite concrete issues, distinguish blockers from optional future work. Do not install hooks, run experiments, publish private data or edit other files.
+- Definition of Done: Review the entire proposed plan, not implementation. Are the confirmed requirements (this Codex app, automatic display every completed turn, separate want/did feedback) preserved? Check app hook feasibility without continuation loops, hidden private storage versus the inspected XYZ collector, session/choice identity, context leakage and lean scope. The first phase explicitly blocks implementation until app rendering is proved: do not mistake that planned proof for a claimed result. Read PROJECT/2-WORKING/RECON-CODEX-FEEDBACK.md as supporting evidence. Cite concrete issues, distinguish blockers from optional future work. Do not install hooks, run experiments, publish private data or edit other files.  [Unverified — no citation]
 
 ## Ground rules
 1. This file is the single source of truth. The agents never share memory — read the whole file.
@@ -55,5 +55,21 @@ ROUND: 1 / 2
 6. The relay ends on **Approved** (Reviewer only). End each turn by committing just this file; no push.
 
 ## Log
+
+### agy (Reviewer) - Approved
+
+swept file: yes
+
+- `[Pass]` Confirmed requirements (Codex app, automatic display, separate want/did): Preserved per lines 33-34 ("this Codex app/chat, automatically after every completed turn", "separate intended and completed feedback").
+- `[Pass]` App hook feasibility without continuation loops: Addressed in lines 76-77 ("Prefer JSON systemMessage ... without decision:block") and lines 89-90 ("no extra model continuation, repeated hook loop").
+- `[Pass]` Hidden private storage vs XYZ collector: Addressed in lines 110-111 ("Store append-only events in `relay-system/.needle-feedback.jsonl`, with a hidden lock beside it") and lines 129-130 ("Test actual XYZ collector with synthetic private markers → none copied").
+- `[Pass]` Session/choice identity: Covered by line 83 ("stable session/turn identity") and lines 115-117 ("Each suggestion records session/turn/suggestion ID ... Each feedback event records its own ID, referenced suggestion").
+- `[Pass]` Context leakage and lean scope: Bounded correctly in lines 105-106 ("Bound hook runtime to two seconds and context to the latest 32 KiB").
+- `[Pass]` Blocking implementation until app rendering is proved: Respected in line 95 ("Only after Phase 1 passes, add one small stdlib dispatcher").
+- `[Pass]` No planned proof mistaken for claimed result: Status explicitly says "Review plan, then separately authorize the app connection proof. No hooks installed." (line 16).
+
+Verdict: Approved
+
+relay closed (Approved), no further turn needed.
 
 <!-- ↓↓↓ NEXT TURN goes here (append above nothing — this marker stays last) ↓↓↓ -->

@@ -8,7 +8,7 @@ Private-trained predictors and richer-context models missed their gates. A final
 
 ## What we have tried and learned
 
-Status: September 12, 2026. This is HiQS's experimental fork of [Cactus Compute's Needle](https://github.com/cactus-compute/needle). Experimental branches are not all merged into `main`; an implemented tool or passing test does not imply a validated recommendation model.
+Status: September 13, 2026. This is HiQS's experimental fork of [Cactus Compute's Needle](https://github.com/cactus-compute/needle). Experimental branches are not all merged into `main`; an implemented tool or passing test does not imply a validated recommendation model.
 
 | Work | Result and consequence | Evidence |
 |---|---|---|
@@ -34,6 +34,8 @@ Status: September 12, 2026. This is HiQS's experimental fork of [Cactus Compute'
 | Top-three shortlist kill test | On all 1,722 reused development actions, phase issue-macro hit@3 89.38% vs Markov 85.12%. +4.26pp missed +5pp; macro recall and issue-win gates passed. Park without tuning or prototype. | [#62 result and replay](TESTS-RESULTS/2026-09-12-shortlist/SUMMARY.md) |
 
 ## Current result and next decision
+
+**New operator-requested direction: [#63 Codex app feedback plan](PROJECT/2-WORKING/CODEX-NEEDLE-FEEDBACK.md).** Try the simpler three-choice baseline as a low-burden interaction, with separate “what I want” and “what I did” feedback. Agy approved the plan; no hooks are installed. First prove automatic display works in this app. This does not reverse #62's failed gate or establish personal usefulness.
 
 **[#62's shortlist check completed and failed its fixed lift gate](TESTS-RESULTS/2026-09-12-shortlist/SUMMARY.md).** Phase-aware counts reached 89.38% issue-macro hit@3 versus Markov 85.12%; +4.26pp was below +5pp. Macro recall improved and 34 issues improved / 3 tied / 3 worsened, but edit recall fell 8.54pp. This is evidence of coarse ranking signal, not human usefulness. Park the count-based shortlist; no tuning, new model campaign or automatic prototype.
 
@@ -63,7 +65,7 @@ a new branch/PR requires a concrete isolation or integration need.
 
 The findings cleanup and project story (#44/#45), [branch hygiene rules (#46)](https://github.com/HiQS-Labs/Needle-fork/pull/46), [adapter build-safety guard (#8)](https://github.com/HiQS-Labs/Needle-fork/pull/8), and governance stack (#6/#10) are merged into `main`. Integration verification passed: 384 non-slow tests and 11 slow build/finetune tests; six tests were skipped. This validates the engineering changes, not Oracle recommendation usefulness.
 
-1. **Park the completed [#62 count-based shortlist](PROJECT/3-COMPLETED/SHORTLIST-FEASIBILITY.md):** the fixed rule failed. Any future product study needs a separately authorized, concrete usefulness question and low-burden observation method; no automatic more-data, model-panel, training or manual-calibration task. The failed #59 refresh also stays stopped.
+1. **Prove the [#63 app connection](PROJECT/2-WORKING/CODEX-NEEDLE-FEEDBACK.md), after implementation authorization:** the operator requested this separate low-burden feedback plan. Keep #62's failed gate and #59's stopped experiment unchanged; no new training or mandatory manual-calibration task.
 2. **Deferred augmentation review (previous step 4):** wait for the operator to release #43's testing hold, then review its results before any integration decision.
 
 Adapter builds with missing or full-precision training provenance now require an explicit

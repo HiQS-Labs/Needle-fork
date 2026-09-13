@@ -13,7 +13,7 @@ related: [1, 49, 62]
 
 | What was just completed | What's next |
 |---|---|
-| Operator requirements confirmed; source recon complete; Agy QA pending. | Review plan, then separately authorize the app connection proof. No hooks installed. |
+| Operator requirements confirmed; source recon complete; Agy approved the plan (relay formatting failure disclosed below). | Separately authorize the app connection proof. No hooks installed. |
 
 ## Table of contents
 
@@ -147,6 +147,14 @@ Review usefulness after a short voluntary trial: was it easy to ignore/use, were
 choices relevant, and did it save effort? User can stop at any time; no mandatory
 rating quota and no numerical product-success claim based on sparse feedback.
 
-Planning QA: pending Agy via the shipped relay harness. Review the whole plan for
-app feasibility, privacy/collector behavior, feedback pairing, leakage, failure
-paths and unnecessary complexity. Approval of the plan is not a working-app claim.
+Planning QA: Agy Gemini 3.1 Pro High approved the whole plan with cited findings
+and no requested changes. [Review transcript](../../relay-system/2026-09-13/needle-63-agy-plan-qa.md).
+The real isolated relay ran, but final structural validation exited 8 because
+the reviewer wrote `Verdict:` rather than required `VERDICT:`. Its text survived;
+this is advisory approval, not a clean automated completion. The first launch
+also exposed model-list format incompatibility, filed as #64; retry used the
+manually verified exact model ID through supported `AGY_FLAGS`, no substitution.
+No paid rerun solely to repair capitalization. Producer checked cited content
+against the plan; source tests: 510 passed, 6 skipped; Agy shim: 62 passed;
+document frontmatter/status/roadmap checks passed. App and collector acceptance
+checks remain unexecuted. Approval of the plan is not a working-app claim.
