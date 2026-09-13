@@ -14,7 +14,7 @@
 
 | What was just completed | What's next |
 |---|---|
-| [#62 shortlist check](PROJECT/3-COMPLETED/SHORTLIST-FEASIBILITY.md) completed: +4.26pp over Markov missed +5pp; parked. | No automatic model or prototype work. #25 remains capacity-blocked at 541/1,000; PR #43 waits for operator hold release. |
+| [#62 shortlist check](PROJECT/3-COMPLETED/SHORTLIST-FEASIBILITY.md) completed: +4.26pp over Markov missed +5pp; parked. | Operator requested [#63 app feedback plan](PROJECT/2-WORKING/CODEX-NEEDLE-FEEDBACK.md), a separate simple-baseline usability trial; no implementation yet. PR #43 remains held. |
 
 > **Corrected 2026-09-09.** This cell previously read *"first `needle finetune` run on JAX/CPU at
 > `--max-len 2048`"*. That was superseded on 2026-09-07 by
@@ -30,6 +30,8 @@
 - No parked intake docs.
 
 ### In progress
+
+- [Codex app shortlist and optional feedback](PROJECT/2-WORKING/CODEX-NEEDLE-FEEDBACK.md) — #63 planning and Agy QA; app connection proof must precede implementation. [Source recon](PROJECT/2-WORKING/RECON-CODEX-FEEDBACK.md).
 
 - [ZCode mapper recon and qualification](PROJECT/2-WORKING/RECON-ZCODE-MAPPER-CORRECTION.md) — PR #40 merged the scoped corrections; fresh blind qualification remains open in [#37](https://github.com/HiQS-Labs/Needle-fork/issues/37).
 
