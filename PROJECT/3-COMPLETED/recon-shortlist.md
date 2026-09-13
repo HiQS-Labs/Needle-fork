@@ -14,7 +14,7 @@ roadmap_exempt: true
 
 | What was just completed | What's next |
 |---|---|
-| Counter and data seams traced; source unchanged for #62 execution. | Follow the owning shortlist plan; no runtime integration in scope. |
+| Counter and data seams traced; #62 executed through the additive offline adapter. | Historical map only; follow the completed shortlist result, no runtime integration. |
 
 Read-only local trace at `bf6c196`; no graph service used, no delegated exploration.
 Scope: one proposed offline count-ranking evaluator; no package/runtime integration.
@@ -48,7 +48,13 @@ original artifacts unchanged. New-only output prevents accidental overwrite.
 Rollback: revert only the additive evaluator/docs commit; private generated run
 can remain ignored. No service/state migration involved (Easy).
 
-Unknowns: hit@3 lift has NOT been computed; shortlist usefulness cannot be inferred
+Pre-implementation unknowns: hit@3 lift had NOT been computed; shortlist usefulness cannot be inferred
 from these labels. No live integration seam traced because no integration is in
 scope. Consult may advise against the proposed round or recommend a separate
 interaction question; that would require a new explicit execution decision.
+
+## Lessons Learned (For Future Agents)
+
+The additive adapter preserved all old ordinary top-one outputs. Existing hash,
+split and memory checks were reusable; no runtime integration was needed to answer
+the bounded offline question. See [completed outcome](SHORTLIST-FEASIBILITY.md#outcome).

@@ -14,7 +14,7 @@
 
 | What was just completed | What's next |
 |---|---|
-| #62 input preflight and synthetic checks passed; operator authorized the bounded round. | Run the [frozen shortlist check](PROJECT/2-WORKING/SHORTLIST-FEASIBILITY.md); no demo. #59 remains failed, #25 capacity-blocked at 541/1,000, and PR #43 held. |
+| [#62 shortlist check](PROJECT/3-COMPLETED/SHORTLIST-FEASIBILITY.md) completed: +4.26pp over Markov missed +5pp; parked. | No automatic model or prototype work. #25 remains capacity-blocked at 541/1,000; PR #43 waits for operator hold release. |
 
 > **Corrected 2026-09-09.** This cell previously read *"first `needle finetune` run on JAX/CPU at
 > `--max-len 2048`"*. That was superseded on 2026-09-07 by
@@ -31,13 +31,13 @@
 
 ### In progress
 
-- [Top-three shortlist feasibility](PROJECT/2-WORKING/SHORTLIST-FEASIBILITY.md) — #62 one-hour offline round authorized; no model campaign or prototype.
-
 - [ZCode mapper recon and qualification](PROJECT/2-WORKING/RECON-ZCODE-MAPPER-CORRECTION.md) — PR #40 merged the scoped corrections; fresh blind qualification remains open in [#37](https://github.com/HiQS-Labs/Needle-fork/issues/37).
 
 - [Label correctness audit — make the §2 gate trustworthy](PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md) — source identity and disjoint manifests are merged; #25 clears its 30-session floor but remains blocked because the frozen sampler can allocate only 541/1,000 evaluation rows under its label quotas and session cap. ([#20](https://github.com/HiQS-Labs/Needle-fork/issues/20), [#23](https://github.com/HiQS-Labs/Needle-fork/issues/23), [#25](https://github.com/HiQS-Labs/Needle-fork/issues/25))
 
 ### Completed
+
+- [Top-three shortlist feasibility](PROJECT/3-COMPLETED/SHORTLIST-FEASIBILITY.md) — #62 failed fixed lift gate despite better coverage; park count-based shortlist, no prototype.
 
 - [Private-trained transition comparison](PROJECT/3-COMPLETED/PRIVATE-TRANSITIONS.md) — historical failed gates preserved from #48 without reimporting code; [preservation receipt](TESTS-RESULTS/2026-09-11-private-transitions/PRESERVATION.md).
 

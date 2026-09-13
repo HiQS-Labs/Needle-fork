@@ -5,6 +5,16 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-12
 
+### Shortlist round completed; fixed lift gate failed (#62)
+
+One frozen run: phase issue-macro hit@3 89.38%, Markov 85.12%; +4.26pp missed
+the required +5pp. Macro recall and issue wins gates passed; edit recall regressed.
+Park the count-based shortlist, no tuning or prototype. Published aggregate
+receipts and replay path, preserved prediction locks privately, archived the plan,
+and synchronized docs/issues. 510 tests passed; independent arithmetic, rejecting
+tamper controls and 23 historical artifact hashes verified. No old score changes,
+model calls, training, user ratings or held #43 changes. Invocation 1.733s / 197.4 MiB.
+
 ### Shortlist evaluator frozen before scoring (#62)
 
 Operator authorized the one-hour offline round. Added a local adapter over existing

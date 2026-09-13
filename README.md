@@ -4,7 +4,7 @@
 
 We’re exploring whether a tiny local model can suggest useful next steps during software work—including testing, Git actions, and project governance—cheaply enough to run alongside a larger coding assistant. We have built and exercised the training/export pipeline, assembled private activity traces, audited their labels, and tested neural and simple statistical predictors. Useful recommendations remain unproven: label noise, a training/serving mismatch, and poor transfer from public coding-agent data have limited results.
 
-Private-trained predictors and a context-aware OpenHands text classifier missed their gates. A small model panel led to a source audit and two classification fixes. The latest controlled test on 40 previously unevaluated issues scored 52.5% with richer context, versus 57.5% with old context and 60% for simple action baselines; its follow-up rule failed. We are stopping investment in this refresh before training and need to narrow the product objective before another campaign. Manual testing stopped with no ratings; no human acceptance rate or production-ready Oracle has been established.
+Private-trained predictors and richer-context models missed their gates. A final cheap top-three check found a narrow ranking signal: 89.38% issue-averaged coverage versus 85.12% for a simple Markov baseline on 1,722 actions across 40 reused issues. Its +4.26-point gain missed the fixed +5-point investment rule, so this count-based approach is parked without tuning or a prototype. We have learned where simple baselines are strong and where extra complexity has not earned its cost; useful personal recommendations remain unproven. Manual testing stopped with no ratings, and no human acceptance rate or production-ready Oracle exists.
 
 ## What we have tried and learned
 
@@ -31,8 +31,13 @@ Status: September 12, 2026. This is HiQS's experimental fork of [Cactus Compute'
 | Twelve-event source audit | All source/chronology checks passed; unittest execution and pytest metadata queries expose two classification defects. Context loss and taxonomy ambiguities also occur. No retroactive relabeling. | [#53 receipt](TESTS-RESULTS/2026-09-12-panel-source-audit/SUMMARY.md) |
 | Scoped mapper correction | Fixed unittest execution and unambiguous runner metadata probes. 468 non-slow tests passed; no dataset regeneration or score revision. | [#56 receipt](TESTS-RESULTS/2026-09-12-test-runner-mapping/SUMMARY.md) |
 | Versioned context refresh and fresh-issue comparison | Prepared 10,000 training rows and 1,722 fresh eligible transitions; model-scored one case per each of 40 issues. Qwen rich context 52.5%, old context 57.5%, shuffled 52.5%, strongest action baselines 60%. Follow-up rule failed; no training. | [#59 two-round receipt](TESTS-RESULTS/2026-09-12-context-refresh/ROUND2.md) |
+| Top-three shortlist kill test | On all 1,722 reused development actions, phase issue-macro hit@3 89.38% vs Markov 85.12%. +4.26pp missed +5pp; macro recall and issue-win gates passed. Park without tuning or prototype. | [#62 result and replay](TESTS-RESULTS/2026-09-12-shortlist/SUMMARY.md) |
 
 ## Current result and next decision
+
+**[#62's shortlist check completed and failed its fixed lift gate](TESTS-RESULTS/2026-09-12-shortlist/SUMMARY.md).** Phase-aware counts reached 89.38% issue-macro hit@3 versus Markov 85.12%; +4.26pp was below +5pp. Macro recall improved and 34 issues improved / 3 tied / 3 worsened, but edit recall fell 8.54pp. This is evidence of coarse ranking signal, not human usefulness. Park the count-based shortlist; no tuning, new model campaign or automatic prototype.
+
+### Previous result — context refresh
 
 **[#59's two-round context experiment is complete and negative](TESTS-RESULTS/2026-09-12-context-refresh/ROUND2.md).** Rich context fell below old context and the same-case baselines, and tied shuffled context. Its 52.5% accuracy missed the binding 65% follow-up threshold by five cases out of 40; macro-F1 also regressed. This is not a near-pass, a human usefulness score, or proof that all next-action approaches fail. The quiz contains no Git targets.
 
@@ -58,7 +63,7 @@ a new branch/PR requires a concrete isolation or integration need.
 
 The findings cleanup and project story (#44/#45), [branch hygiene rules (#46)](https://github.com/HiQS-Labs/Needle-fork/pull/46), [adapter build-safety guard (#8)](https://github.com/HiQS-Labs/Needle-fork/pull/8), and governance stack (#6/#10) are merged into `main`. Integration verification passed: 384 non-slow tests and 11 slow build/finetune tests; six tests were skipped. This validates the engineering changes, not Oracle recommendation usefulness.
 
-1. **Run the authorized [#62 shortlist check](PROJECT/2-WORKING/SHORTLIST-FEASIBILITY.md):** one CPU-only hour, fixed strong controls and stopping rule, no demo or model campaign. [Consult reconciliation](doc/shortlist-prototype-consult.md) preceded operator approval. An offline pass would not establish usefulness. The failed #59 refresh stays stopped; no manual calibration assignment.
+1. **Park the completed [#62 count-based shortlist](PROJECT/3-COMPLETED/SHORTLIST-FEASIBILITY.md):** the fixed rule failed. Any future product study needs a separately authorized, concrete usefulness question and low-burden observation method; no automatic more-data, model-panel, training or manual-calibration task. The failed #59 refresh also stays stopped.
 2. **Deferred augmentation review (previous step 4):** wait for the operator to release #43's testing hold, then review its results before any integration decision.
 
 Adapter builds with missing or full-precision training provenance now require an explicit

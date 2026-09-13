@@ -360,5 +360,33 @@ training/model campaign; execution still awaits operator decision. A pass could
 only reopen discussion of a separately scoped interaction study, not qualify an
 Oracle. Skills influenced this by requiring a grounded, additive scope and an
 explicitly reconciled disagreement, not a claimed model consensus.
-[Scope](PROJECT/2-WORKING/SHORTLIST-FEASIBILITY.md) and
+[Scope](PROJECT/3-COMPLETED/SHORTLIST-FEASIBILITY.md) and
 [consult provenance, limitations and adjudication](doc/shortlist-prototype-consult.md).
+
+## 2026-09-12 — top-three shortlist check (#62) completed, park
+
+Operator authorized the recommended one-hour check. Implementation froze at
+`06b3bfb` before one count fit and locked prediction/score run on 10,000 training
+rows / 224 issues and 1,722 development rows / 40 reused issues. Phase achieved
+89.3789% issue-macro hit@3 versus strongest control Markov 85.1211%; +4.2578pp
+missed the fixed +5pp rule by 0.7422pp. Macro recall improved 2.8824pp, with
+34 issue wins / 3 ties / 3 losses. Two gates passed, but overall decision is park.
+
+Pooled hit@3: phase 1,540/1,722 (89.43%), Markov 1,469/1,722 (85.31%), static
+69.05%, repeat-plus-priors 75.03%, permuted-history phase 61.50%. History has a
+narrow ranking signal; extra phase detail did not clear the chosen investment
+margin. Edit recall fell from 98.58% to 90.04%; Git change coverage was 1/21.
+High aggregate coverage is neither human acceptance nor a concrete next-step plan.
+
+17 focused / 510 non-slow tests passed, 6 skipped; five in-memory mutations
+witnessed red then green. Trusted input checks, old top-one parity, lock replay,
+independent row/label/issue arithmetic and tamper controls passed. All 13 old
+panel hashes and 10 #59 artifact hashes unchanged. Runtime 1.733 seconds; peak
+RSS 197.4 MiB. No training, model API calls, manual calibration or PR #43 change.
+[Receipt and reproducible locked-score replay](TESTS-RESULTS/2026-09-12-shortlist/SUMMARY.md).
+
+Follow the frozen stop: park this count-based shortlist, no retuning or automatic
+prototype. Broader product usefulness remains unproven; reopening requires a
+separate concrete product question and explicit authorization, not another score
+on this development set. This is learning where further complexity is not yet
+justified, not a claim that all next-action ideas are impossible.

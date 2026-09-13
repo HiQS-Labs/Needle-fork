@@ -1,0 +1,18 @@
+{
+  "code_sha256": {
+    "baselines.py": "fc8ae7364a53f43f26eb315092f3fffa5b2f15c3b5ef83d6b6527028678f8487",
+    "context_probe.py": "648af7bd9dbf5b896d00df96d8627163acdb47bbd585ff219836b4a569121679",
+    "context_refresh.py": "188fe71d4f9f4d5640c9a0dec51e254aa77e9204080fa53130c978f1b8d68b04",
+    "shortlist_eval.py": "72bab2f3e9abbefbfe5035b306fba8e62f76af6011bf107066464e80ef4affe2"
+  },
+  "manifest_sha256": "6af8de99ff4722d512470bb85469b400e652d9e5298e5b5c39bac88ed4902a0a",
+  "memory": {
+    "memory_guard": "bounded inputs plus 1 GiB RSS checkpoints; macOS rejected RLIMIT_AS",
+    "memory_limit_bytes": null
+  },
+  "predictions_sha256": "e0b51a6d794938652cccd8d6777a6bf2ede6d0cfdfd4a6cf71c100eac2659bbc",
+  "rank_one_parity": true,
+  "rows": 1722,
+  "shuffle_changed": 1717,
+  "shuffle_seed": "shortlist-v1"
+}

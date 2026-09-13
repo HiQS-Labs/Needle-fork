@@ -8,9 +8,11 @@ campaign. The advisors disagree about whether even that is worth doing; neither
 endorses a demo now, and useful recommendations remain unproven.
 
 Authority: [#62](https://github.com/HiQS-Labs/Needle-fork/issues/62), under #1.
-[Scope and subsequent execution status](../PROJECT/2-WORKING/SHORTLIST-FEASIBILITY.md).
+[Scope and subsequent execution status](../PROJECT/3-COMPLETED/SHORTLIST-FEASIBILITY.md).
 This consultation predates execution; the operator subsequently authorized its
-recommended bounded check, not a prototype. Advice below remains historical.
+recommended bounded check, not a prototype. The check subsequently failed its
+fixed lift gate; [result](../TESTS-RESULTS/2026-09-12-shortlist/SUMMARY.md). The
+count-based shortlist is now parked. Advice below remains historical.
 
 ## Disagree — and adjudication
 

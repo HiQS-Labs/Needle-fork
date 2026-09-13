@@ -4,15 +4,14 @@
 
 We’re exploring whether a tiny local model can suggest useful next steps during software work, including testing, Git actions, and project governance, cheaply enough to run alongside a larger coding assistant. We have built and exercised the training/export pipeline, assembled private activity traces, and tested both model-based and simple statistical predictors. The engineering path works, but useful recommendations remain unproven: label noise, a mismatch between training and native serving, and poor transfer from public coding-agent data have limited results.
 
-Private-trained predictors and a context-aware OpenHands text classifier missed their gates. A small model panel led to a source audit and two classification fixes. The latest controlled test on 40 previously unevaluated issues scored 52.5% with richer context, versus 57.5% with old context and 60% for simple action baselines; its follow-up rule failed. We are stopping this refresh before training and need to narrow the product objective before another campaign. The manual trial has no ratings; usefulness and deployment readiness remain unproven.
+Private-trained predictors and richer-context models missed their gates. A final cheap top-three check found a narrow ranking signal: 89.38% issue-averaged coverage versus 85.12% for Markov on 1,722 actions across 40 reused issues. Its +4.26-point gain missed the fixed +5-point investment rule, so the count-based approach is parked without tuning or a prototype. We now know simple history baselines already capture much of this coarse task; additional complexity has not qualified. The manual trial has no ratings, and usefulness and deployment readiness remain unproven.
 
 ## The story and evidence
 
 Latest decision work: #48's negative evidence is preserved on main and its PR closed
-without merge. [#62](https://github.com/HiQS-Labs/Needle-fork/issues/62) scopes one
-cheap top-three check, not executed. Sol High recommends the check; Agy recommends
-stopping. [Our reconciliation](shortlist-prototype-consult.md) favors a one-hour
-diagnostic but no demo yet. This adds decision clarity, not validated product value.
+without merge. Sol High recommended a cheap top-three check; Agy recommended
+stopping. [Our reconciliation](shortlist-prototype-consult.md) led to the authorized
+#62 diagnostic below. Its failed rule now parks the count-based shortlist.
 
 | Attempt | What we learned | Consequence |
 |---|---|---|
@@ -23,7 +22,21 @@ diagnostic but no demo yet. This adds decision clarity, not validated product va
 | Work-purpose classification, a separate side experiment | Frozen ModernBERT features reached 57.5% purpose accuracy on 40 records versus 50% TF-IDF and 42.5% majority; TF-IDF had better purpose macro-F1. Area classification and rejection policies remained inadequate. | Limited signal, no deployment qualification; this is classification of work, not prediction of the next action. [#31](https://github.com/HiQS-Labs/Needle-fork/issues/31). |
 | External data and targeted augmentation | TAWOS did not cover the full eight-purpose taxonomy. A separate PR implements grounded, training-only augmentation tooling, with no measured model gain yet. | Volume alone does not solve domain and label mismatch. [#35](https://github.com/HiQS-Labs/Needle-fork/issues/35), [#41](https://github.com/HiQS-Labs/Needle-fork/issues/41), [PR #43](https://github.com/HiQS-Labs/Needle-fork/pull/43). |
 
-## Current result — context refresh (#59), both rounds completed
+## Current result — shortlist check (#62), completed and parked
+
+One count-based round, 10,000 training rows / 224 issues, all 1,722 reused development
+rows / 40 issues. Phase issue-macro hit@3 89.38% versus Markov 85.12% missed the
+required +5pp margin. Macro recall rose 2.88pp and issues improved/tied/worsened
+34/3/3, but edit recall fell 8.54pp; Git change coverage was 1/21. No rounded-up
+pass, retuning or automatic prototype. 510 tests passed; locked replay and independent
+arithmetic verified. [Receipt](../TESTS-RESULTS/2026-09-12-shortlist/SUMMARY.md).
+
+This clarifies where extra predictor complexity has not earned further investment.
+It does not establish useful recommendations. Any new product study needs a
+separate explicit question and low-burden way to observe its value—not another
+automatic model/data campaign or a return to mandatory rating forms.
+
+## Previous result — context refresh (#59), both rounds completed
 
 Prepared paired old/richer context using corrected labels: 10,000 training rows,
 1,722 eligible transitions from 40 previously unevaluated issues, and a frozen
@@ -35,10 +48,10 @@ The binding follow-up threshold was 65%; q3 macro-F1 also regressed. No near-pas
 client fix (#60) and its pre-score protocol adaptation are disclosed in the
 [receipt](../TESTS-RESULTS/2026-09-12-context-refresh/ROUND2.md).
 
-Stop training/prompt-tuning investment in this refresh. Before another model round,
-choose whether the product needs exact recorded-action prediction, action-change
-detection, or a short list of plausible next steps. The alternatives remain untested,
-not validated pivots or instructions to launch another campaign.
+Stop training/prompt-tuning investment in this refresh. Its proposed shortlist
+alternative was subsequently tested as a separate endpoint in #62 above and
+failed that round's rule. Action-change detection remains untested; neither is
+an instruction to launch another campaign.
 
 ## Previous result — mapper correction (#56) completed
 

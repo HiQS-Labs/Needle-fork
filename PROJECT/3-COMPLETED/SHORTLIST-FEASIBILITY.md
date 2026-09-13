@@ -1,6 +1,6 @@
 ---
 title: Top-three shortlist feasibility and prototype decision
-status: In Progress
+status: Shipped
 created: 2026-09-12
 updated: 2026-09-12
 owner: noelsaw1
@@ -9,7 +9,7 @@ gh_issue: 62
 reversibility: Easy — additive offline scope, no runtime or original-score changes
 ---
 
-# Top-three shortlist — authorized bounded round
+# Top-three shortlist — completed, gate failed
 
 Authority: [#62](https://github.com/HiQS-Labs/Needle-fork/issues/62), under
 [#1](https://github.com/HiQS-Labs/Needle-fork/issues/1). Operator initially authorized
@@ -20,14 +20,15 @@ build. Start 2026-09-13 02:35:25 UTC; absolute stop 03:35:25 UTC (one hour).
 
 | What was just completed | What's next |
 |---|---|
-| Trusted inputs verified; additive evaluator and 17 focused tests pass, five in-memory test mutations witnessed red/green. | Freeze and commit implementation before one locked prediction/score run. |
+| One frozen round completed: phase 89.38% issue-macro hit@3 vs Markov 85.12%; +4.26pp missed +5pp gate. | Park this count-based shortlist; no tuning or prototype. Any new product study requires a separate decision. |
 
 ## Table of contents
 
 - [Decision and boundaries](#decision-and-boundaries)
-- [Proposed single round](#proposed-single-round)
+- [Frozen single round](#frozen-single-round)
 - [QA and stopping rule](#qa-and-stopping-rule)
 - [Consult](#consult)
+- [Outcome](#outcome)
 
 ## Decision and boundaries
 
@@ -51,7 +52,9 @@ taxonomy changes, manual CSV work, UI, hooks, server, execution suggestions or P
 changes. Inputs read-only; new ignored output directory; sanitized aggregates only.
 No model-fitting search: reuse fixed count fitting once. See [Recon Map](recon-shortlist.md).
 
-## Proposed single round
+## Frozen single round
+
+Completed protocol retained as history, not instructions to run another round.
 
 1. [x] Verify retained #59 paired train/holdout against the committed
    [manifest](../../TESTS-RESULTS/2026-09-12-context-refresh/manifest.json), not a
@@ -69,13 +72,13 @@ No model-fitting search: reuse fixed count fitting once. See [Recon Map](recon-s
    fill to exactly three distinct labels using global rank, skipping duplicates.
    Never exclude the previous action or consult whether a switch actually happened.
    Rank one must match ordinary `phase_backoff` prediction for every scored row.
-3. [ ] On identical rows, score static global-frequency top three, Markov top three
+3. [x] On identical rows, score static global-frequency top three, Markov top three
    with the same ranking/fill rule, and repeat-last followed by global-frequency
    fill. No fitted cutoff or abstention. A deterministic history-permutation null
    uses seed `shortlist-v1` to SHA-sort row indices and cyclically assign another
    row's history without moving targets; report changed-history coverage. This
    is a history-association diagnostic, not a causal claim or promotion control.
-4. [ ] Freeze outputs before reading scores. Primary metric: issue-macro hit@3
+4. [x] Freeze outputs before reading scores. Primary metric: issue-macro hit@3
    (mean of each issue's hit fraction); also pooled hit@1/hit@3, six-label recall@3
    and its unweighted mean, ordinary action-change slice, and paired issue
    wins/ties/losses against each control. No conditional future-switch exclusions.
@@ -83,7 +86,7 @@ No model-fitting search: reuse fixed count fitting once. See [Recon Map](recon-s
 
 ## QA and stopping rule
 
-Proposed engineering go/no-go heuristic, fixed before any scores: candidate must
+Frozen engineering go/no-go heuristic, fixed before any scores: candidate must
 beat the strongest of the three unshuffled controls by >=5 absolute points on
 issue-macro hit@3, with no decrease in six-label macro recall@3 against that
 same control (choose the higher macro recall control on a primary-score tie).
@@ -100,8 +103,8 @@ cross-split issue identity, duplicate/unknown shortlist labels, same-size target
 substitution and score arithmetic tampering. Prove target/future-field edits
 cannot change predictions, deterministic ties/fallbacks, rank-one parity, and
 issue-macro arithmetic on an intentionally uneven synthetic fixture. The test
-mutation must fail before trusting the check. These controls are PLANNED, not
-claimed complete. Full non-slow suite, old artifact hashes and fresh-output
+mutation must fail before trusting the check. These controls were planned before
+implementation and are now verified in the outcome receipt. Full non-slow suite, old artifact hashes and fresh-output
 no-overwrite checks must pass; publish all outcomes to #62 and #1. No retries
 of valid scores, newly chosen label groupings, or larger follow-on campaign.
 
@@ -129,3 +132,26 @@ empty data, overlap, duplicate identities/shortlist labels, wrong labels/views,
 locked-output mutation and score tampering. Five deliberate source mutations in
 memory fail tests (ranking, pooled-for-issue averaging, each of the three gates),
 then pass after restoration. Real predictions remain uncomputed at this checkpoint.
+
+## Outcome
+
+Implementation frozen at `06b3bfb`; one valid fit/predict/score invocation took
+1.733 seconds, 197.4 MiB peak RSS. Primary lift +4.2578pp failed the +5pp rule;
+macro recall improved +2.8824pp and issue comparison was 34 wins / 3 ties / 3 losses.
+Pooled hit@3 was 1,540/1,722 (89.43%) versus Markov 1,469/1,722 (85.31%). Edit
+recall regressed 8.54pp; Git change recall was only 1/21. Those limitations survive
+the attractive overall rate. Stop/park, not a rounded-up pass or prototype approval.
+
+[Full receipt, per-label controls and replay](../../TESTS-RESULTS/2026-09-12-shortlist/SUMMARY.md).
+All four old rank-one vectors match. Locked-score replay and independent arithmetic
+match; tampered count/false-pass controls reject. 510 non-slow tests passed, 6 skipped;
+13 old panel hashes and 10 #59 artifact hashes unchanged. No runtime, training,
+new API prediction call, manual calibration or held #43 change. The result narrows
+where to stop spending, but does not establish personal recommendation usefulness.
+
+## Lessons Learned (For Future Agents)
+
+Top-three coverage of six labels is generous: static already covers 69.05% pooled,
+and Markov 85.31%. Compare the strongest same-case control, not the most flattering
+one. A real, consistent improvement can still fail a predeclared investment margin;
+retain both facts instead of claiming no signal or quietly relaxing the bar.
