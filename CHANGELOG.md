@@ -5,6 +5,14 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-13
 
+### Codex-only skill deployment requirement (#63)
+
+Added the operator's post-build packaging order: repo-owned skill and Codex-only
+README, commit/push first, then managed installation into the existing Deployed
+Skills collection using a `-codex-only` folder name. No placeholder installed;
+automatic app behavior still requires the connection proof. Documentation-only
+addendum, after Agy's reviewed revision; no runtime changes.
+
 ### Plan an automatic Codex app feedback loop (#63)
 
 Recorded the operator's app-only, automatic-after-turn, separate want/did requirements.

@@ -21,6 +21,7 @@ related: [1, 49, 62]
 - [Phase 1 — prove the app connection](#phase-1--prove-the-app-connection)
 - [Phase 2 — connect the predictor and private feedback](#phase-2--connect-the-predictor-and-private-feedback)
 - [Later training and review](#later-training-and-review)
+- [Deployment addendum — Codex only](#deployment-addendum--codex-only)
 
 ## Scope and interaction
 
@@ -158,3 +159,23 @@ No paid rerun solely to repair capitalization. Producer checked cited content
 against the plan; source tests: 510 passed, 6 skipped; Agy shim: 62 passed;
 document frontmatter/status/roadmap checks passed. App and collector acceptance
 checks remain unexecuted. Approval of the plan is not a working-app claim.
+
+## Deployment addendum — Codex only
+
+Operator requirement added after the Agy-reviewed revision: once the script is
+written and verified, distribute its instructions as a skill. Do not install a
+placeholder or treat a skill file alone as an automatic hook.
+
+8. Keep the canonical skill at `skills/needle-feedback-codex-only/SKILL.md`,
+   with matching frontmatter name and a `README.md` prominently stating
+   **Codex only**. Document the real script location, runtime requirements,
+   activation and disable procedure without duplicating predictor code or
+   bundling private data. Validate the skill, then commit and push to `origin/main`.
+9. Preview and apply the existing Skills Army HQ intake workflow to copy the
+   whole `needle-feedback-codex-only` folder into the operator-selected
+   `Documents/Deployed Skills` collection. The exact absolute destination belongs
+   in machine-local deployment metadata, not public project docs. Verify source
+   and deployed payload hashes. Preserve foreign/conflicting entries; do not
+   broadly sync the skill into Claude, Agy or other apps. Report collection
+   installation separately from Codex discovery and hook activation; a copied
+   skill does not prove the app has loaded it or displays choices automatically.
