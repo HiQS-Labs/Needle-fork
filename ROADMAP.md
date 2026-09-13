@@ -14,7 +14,7 @@
 
 | What was just completed | What's next |
 |---|---|
-| [Two context-refresh rounds #59](PROJECT/3-COMPLETED/CONTEXT-REFRESH.md) completed: richer context 52.5%, strongest baseline 60%; follow-up rule failed. | Stop this refresh's model investment; choose a narrower product objective before another campaign. The stricter #25 lane remains capacity-blocked at 541/1,000 and deferred; PR #43 remains held. |
+| #48 evidence preserved and PR closed; [#62 shortlist scope and consult](PROJECT/1-INBOX/SHORTLIST-FEASIBILITY.md) completed without execution. | Decide on one capped offline shortlist check; no demo recommended yet. #59 remains failed, #25 capacity-blocked at 541/1,000, and PR #43 held. |
 
 > **Corrected 2026-09-09.** This cell previously read *"first `needle finetune` run on JAX/CPU at
 > `--max-len 2048`"*. That was superseded on 2026-09-07 by
@@ -27,7 +27,7 @@
 
 ### Queue / parked intake
 
-- No parked intake docs.
+- [Top-three shortlist feasibility / prototype decision](PROJECT/1-INBOX/SHORTLIST-FEASIBILITY.md) — #62 scope and independent consult only; no benchmark or build authorized.
 
 ### In progress
 

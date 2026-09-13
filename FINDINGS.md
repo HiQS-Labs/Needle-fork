@@ -333,3 +333,32 @@ Stop model investment in this exact refresh, not the entire project. Before anot
 campaign, decide whether exact observed-action prediction is the right product target;
 action-change detection or plausible-next-step ranking are unvalidated alternatives
 requiring separate scope. No neural training, human acceptance or deployment claim.
+
+## 2026-09-12 — evidence preservation and prototype decision (#48 / #62)
+
+Preserved #48's historical plan and two aggregate receipts on main at `bf6c196`,
+with byte-identical summary/metrics and only two explicit archival plan annotations.
+All four files, including the preservation receipt, were fetched at the landing
+SHA through GitHub and matched local bytes. Nonempty counts/percentages verified;
+altered-count, empty-group and false-pass controls rejected. Predictor/test blobs
+already matched main. 493 non-slow tests passed, 6 skipped. Closed #48 without
+merge or branch deletion; #43 remains the sole open PR, unchanged and held.
+[Preservation receipt](TESTS-RESULTS/2026-09-11-private-transitions/PRESERVATION.md).
+
+Scoped, but did not run, a one-hour top-three count-based comparison using #59's
+10,000 training rows and 1,722 development rows across 40 reused issues. This is
+a different exploratory endpoint, not a retroactive pass or human usefulness test.
+One-shot consult returned 2/2: Codex CLI Sol High favors the check before a demo;
+Agy favors parking entirely. Both advise against a demo now. Corrected Agy's
+40-case versus 1,722-row misread and its equation of label-space coverage with
+observed hit rate; retained its legitimate proxy-value concern. Rejected the
+inference that no time for ratings proves no capacity to benefit from suggestions.
+
+Coordinator recommends one capped kill test, adopting issue wins > losses while
+keeping the one-hour bound. No shadow daemon, new data collection or expanded
+training/model campaign; execution still awaits operator decision. A pass could
+only reopen discussion of a separately scoped interaction study, not qualify an
+Oracle. Skills influenced this by requiring a grounded, additive scope and an
+explicitly reconciled disagreement, not a claimed model consensus.
+[Scope](PROJECT/1-INBOX/SHORTLIST-FEASIBILITY.md) and
+[consult provenance, limitations and adjudication](doc/shortlist-prototype-consult.md).

@@ -5,6 +5,16 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-12
 
+### Shortlist scope and prototype-value consult (#62)
+
+Scoped one CPU-only top-three check on reused #59 development data; no evaluation
+or build executed. Sol High recommended the check; Agy recommended parking it.
+Recorded disagreement, corrected Agy's 40-case/1,722-row misread, and retained the
+usefulness caveat. Recommend one hour maximum, stronger same-case controls and
+issue wins-over-losses before considering a separately authorized interaction study.
+No model tuning, new daemon, ratings task or PR #43 changes. Both advisors answered;
+source grounding, document links/privacy and correctly rooted PDDA checks verified.
+
 ### Preserve PR #48's negative evidence on main
 
 Copied only its historical plan and two aggregate receipts from pinned `e05b4d6`;

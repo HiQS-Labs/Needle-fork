@@ -52,13 +52,13 @@ The [collaborator briefing](doc/oracle-collaborator-summary.md) provides the det
 
 ## Repository readiness and next steps
 
-Historical #48 evidence links pin its published commit. Current docs are reconciled on main.
+Historical #48 evidence is now [preserved on main](TESTS-RESULTS/2026-09-11-private-transitions/PRESERVATION.md); its PR closed without merging or changing failed scores. Current docs are reconciled on main.
 Per operator instruction, new offline work uses scoped, tested commits and pushes directly to main;
 a new branch/PR requires a concrete isolation or integration need.
 
 The findings cleanup and project story (#44/#45), [branch hygiene rules (#46)](https://github.com/HiQS-Labs/Needle-fork/pull/46), [adapter build-safety guard (#8)](https://github.com/HiQS-Labs/Needle-fork/pull/8), and governance stack (#6/#10) are merged into `main`. Integration verification passed: 384 non-slow tests and 11 slow build/finetune tests; six tests were skipped. This validates the engineering changes, not Oracle recommendation usefulness.
 
-1. **Choose a narrower product objective before another model campaign:** stop training/prompt-tuning investment in the failed [#59 context refresh](TESTS-RESULTS/2026-09-12-context-refresh/ROUND2.md). Exact recorded-action prediction, action-change detection, and a short list of plausible next steps are different tasks; the latter two are options to scope, not validated pivots. No automatic new experiment or manual calibration assignment.
+1. **Decide on the scoped [#62 shortlist check](PROJECT/1-INBOX/SHORTLIST-FEASIBILITY.md):** Sol High recommends one cheap offline round; Agy recommends parking the idea. [Reconciliation](doc/shortlist-prototype-consult.md) recommends a one-hour check, not a demo or model campaign. No benchmark or prototype has run; an offline pass would not establish usefulness. The failed #59 refresh stays stopped; no manual calibration assignment.
 2. **Deferred augmentation review (previous step 4):** wait for the operator to release #43's testing hold, then review its results before any integration decision.
 
 Adapter builds with missing or full-precision training provenance now require an explicit

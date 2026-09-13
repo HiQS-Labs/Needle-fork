@@ -8,6 +8,12 @@ Private-trained predictors and a context-aware OpenHands text classifier missed 
 
 ## The story and evidence
 
+Latest decision work: #48's negative evidence is preserved on main and its PR closed
+without merge. [#62](https://github.com/HiQS-Labs/Needle-fork/issues/62) scopes one
+cheap top-three check, not executed. Sol High recommends the check; Agy recommends
+stopping. [Our reconciliation](shortlist-prototype-consult.md) favors a one-hour
+diagnostic but no demo yet. This adds decision clarity, not validated product value.
+
 | Attempt | What we learned | Consequence |
 |---|---|---|
 | A 44-action SDLC Oracle, including project-governance actions | We built the taxonomy, trace extraction, and an MLX training/export path. Early ranking scores did not establish useful native behavior; the native engine retrieved only five of 44 declared tools in the tested contract. | Separate training, ranking, and actual serving claims. [#1](https://github.com/HiQS-Labs/Needle-fork/issues/1), [#5](https://github.com/HiQS-Labs/Needle-fork/issues/5), [#12](https://github.com/HiQS-Labs/Needle-fork/issues/12). |
