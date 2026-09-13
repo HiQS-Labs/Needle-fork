@@ -5,6 +5,17 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-13
 
+### Begin native app connection proof (#63)
+
+Implemented a bounded synthetic-only hook probe and three tests; locally configured
+its Stop/UserPromptSubmit hooks without replacing existing configuration. No
+predictor, feedback logging or skill deployment yet: actual app display/trust is
+the remaining first gate. 513 tests passed, 6 skipped; continuation mutation
+rejected. Agy approved the probe, but relay validation exited 8. Corrected earlier
+attribution: validator expects PASS/FAIL/PARKED plus Basis, while the scaffold
+requests Approved; capitalization itself was not the cause. Private config stays
+Git-excluded. Git Pulse Sync destination awaits operator clarification.
+
 ### Codex-only skill deployment requirement (#63)
 
 Added the operator's post-build packaging order: repo-owned skill and Codex-only

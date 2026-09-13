@@ -1,6 +1,6 @@
 ---
 title: Automatic Codex app shortlist and optional feedback
-status: planning
+status: in-progress
 created: 2026-09-13
 updated: 2026-09-13
 owner: Codex
@@ -13,7 +13,7 @@ related: [1, 49, 62]
 
 | What was just completed | What's next |
 |---|---|
-| Operator requirements confirmed; source recon complete; Agy approved the plan (relay formatting failure disclosed below). | Separately authorize the app connection proof. No hooks installed. |
+| Build authorized; synthetic connection probe implemented and locally configured; Agy approved its code. | User-visible app display/trust check. Predictor, collection and skill deployment remain pending this gate. |
 
 ## Table of contents
 
@@ -151,7 +151,10 @@ rating quota and no numerical product-success claim based on sparse feedback.
 Planning QA: Agy Gemini 3.1 Pro High approved the whole plan with cited findings
 and no requested changes. [Review transcript](../../relay-system/2026-09-13/needle-63-agy-plan-qa.md).
 The real isolated relay ran, but final structural validation exited 8 because
-the reviewer wrote `Verdict:` rather than required `VERDICT:`. Its text survived;
+the reviewer used the template's `Approved` value rather than the validator's
+`PASS/FAIL/PARKED` vocabulary and omitted its required `Basis:` field. Initial
+attribution to capitalization was incorrect: the validator is case-insensitive.
+Its text survived;
 this is advisory approval, not a clean automated completion. The first launch
 also exposed model-list format incompatibility, filed as #64; retry used the
 manually verified exact model ID through supported `AGY_FLAGS`, no substitution.
@@ -179,3 +182,26 @@ placeholder or treat a skill file alone as an automatic hook.
    broadly sync the skill into Claude, Agy or other apps. Report collection
    installation separately from Codex discovery and hook activation; a copied
    skill does not prove the app has loaded it or displays choices automatically.
+
+## Phase 1 implementation checkpoint
+
+`utils/hooks/codex_connection_probe.py` emits explicitly synthetic test choices
+as a warning, with no predictor, file writes, transcript reads or continuation.
+It acknowledges only the exact synthetic prompt `Needle connection test` followed
+by `#needle want 2`. Three focused tests passed; a deliberately substituted
+continuation response failed the warning-only test, then the original passed.
+Full suite: 513 passed, 6 skipped, 11 deselected. No actual app rendering claim.
+
+Configured a machine-local, Git-excluded `.codex/hooks.json` with two-second
+timeouts. No existing hook file was replaced. Hook trust and app reload may be
+needed; actual visibility needs operator observation. Disable this probe by
+disabling its two hooks in Codex's hook controls, or removing only these two
+definitions from the local file. Never delete an existing mixed hook config.
+
+Agy approved the prerequisite probe via the actual isolated relay, but automation
+exited 8 on the template/validator vocabulary mismatch described above.
+[Probe review](../../relay-system/2026-09-13/needle-63-probe-qa.md).
+The requested completed skill QA and installation are not yet done. Git Pulse
+Sync destination was requested from the operator. Local manager sync currently
+fans every skill into every enabled app; do not use it to broadly deploy this
+Codex-only skill. Keep Phase 2 blocked until the native display check passes.
