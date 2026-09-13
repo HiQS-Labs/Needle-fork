@@ -414,3 +414,16 @@ tests, 62 Agy-shim checks and document structure checks passed. No hook installa
 feedback collection, training, old score changes or held PR #43 edits.
 [Plan](PROJECT/2-WORKING/CODEX-NEEDLE-FEEDBACK.md) ·
 [Agy review](relay-system/2026-09-13/needle-63-agy-plan-qa.md).
+
+## 2026-09-13 — native app probe implemented; visible check pending
+
+Implementation authorized. Added the synthetic-only connection probe and local
+Git-excluded hook config; 513 non-slow tests passed, 6 skipped. A continuation
+mutation failed the focused guard and the original passed. Agy approved the probe,
+but relay automation exited 8. Correction to the preceding entry: the validator
+is case-insensitive; it requires PASS/FAIL/PARKED and Basis, while the scaffold
+asks for Approved. Capitalization was not the cause. Review preserved without a
+clean-automation claim. Actual app trust/loading/display still needs observation;
+full skill build, skill QA and local/Git Pulse Sync deployment are pending.
+No predictor output, private collection or training occurred.
+[Probe receipt](TESTS-RESULTS/2026-09-13-codex-feedback/PROBE.md).

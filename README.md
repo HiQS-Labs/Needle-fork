@@ -35,7 +35,7 @@ Status: September 13, 2026. This is HiQS's experimental fork of [Cactus Compute'
 
 ## Current result and next decision
 
-**New operator-requested direction: [#63 Codex app feedback plan](PROJECT/2-WORKING/CODEX-NEEDLE-FEEDBACK.md).** Try the simpler three-choice baseline as a low-burden interaction, with separate “what I want” and “what I did” feedback. Agy approved the plan; no hooks are installed. First prove automatic display works in this app. This does not reverse #62's failed gate or establish personal usefulness.
+**New operator-requested direction: [#63 Codex app feedback plan](PROJECT/2-WORKING/CODEX-NEEDLE-FEEDBACK.md).** Try the simpler three-choice baseline as a low-burden interaction, with separate “what I want” and “what I did” feedback. Agy approved the plan and a synthetic connection probe; that probe is locally configured, but actual app display remains unverified. The predictor, collector and deployable skill are not built yet. This does not reverse #62's failed gate or establish personal usefulness.
 
 **[#62's shortlist check completed and failed its fixed lift gate](TESTS-RESULTS/2026-09-12-shortlist/SUMMARY.md).** Phase-aware counts reached 89.38% issue-macro hit@3 versus Markov 85.12%; +4.26pp was below +5pp. Macro recall improved and 34 issues improved / 3 tied / 3 worsened, but edit recall fell 8.54pp. This is evidence of coarse ranking signal, not human usefulness. Park the count-based shortlist; no tuning, new model campaign or automatic prototype.
 
