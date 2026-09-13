@@ -5,6 +5,14 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-12
 
+### Preserve PR #48's negative evidence on main
+
+Copied only its historical plan and two aggregate receipts from pinned `e05b4d6`;
+scores/gates unchanged, predictor/test blobs already identical on main. Verified
+byte equality (plan except two explicit archival annotations), nonempty counts,
+receipt arithmetic and three rejecting negative controls. No benchmark rerun,
+private data, branch deletion, full experimental merge or PR #43 change.
+
 ### Fresh-issue context comparison failed its follow-up rule (#59, round two)
 
 One fixed Qwen route, three tool-free arms on 40 fresh-issue cases: rich context

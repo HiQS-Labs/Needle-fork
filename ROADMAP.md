@@ -37,6 +37,8 @@
 
 ### Completed
 
+- [Private-trained transition comparison](PROJECT/3-COMPLETED/PRIVATE-TRANSITIONS.md) — historical failed gates preserved from #48 without reimporting code; [preservation receipt](TESTS-RESULTS/2026-09-11-private-transitions/PRESERVATION.md).
+
 - [Versioned context refresh and fresh-issue comparison](PROJECT/3-COMPLETED/CONTEXT-REFRESH.md) — both rounds completed; negative fixed-model comparison, verified tool-free client fix, no training. ([#59](https://github.com/HiQS-Labs/Needle-fork/issues/59), [#60](https://github.com/HiQS-Labs/Needle-fork/issues/60))
 
 - [Test runner mapping correction](PROJECT/3-COMPLETED/TEST-RUNNER-MAPPING.md) — unittest execution and unambiguous metadata probes corrected; no old-data writes. ([#56](https://github.com/HiQS-Labs/Needle-fork/issues/56))
