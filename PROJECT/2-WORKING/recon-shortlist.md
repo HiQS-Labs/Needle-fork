@@ -10,6 +10,12 @@ roadmap_exempt: true
 
 # Recon Map — shortlist feasibility
 
+## Status
+
+| What was just completed | What's next |
+|---|---|
+| Counter and data seams traced; source unchanged for #62 execution. | Follow the owning shortlist plan; no runtime integration in scope. |
+
 Read-only local trace at `bf6c196`; no graph service used, no delegated exploration.
 Scope: one proposed offline count-ranking evaluator; no package/runtime integration.
 Issue [#62](https://github.com/HiQS-Labs/Needle-fork/issues/62).

@@ -14,7 +14,7 @@
 
 | What was just completed | What's next |
 |---|---|
-| #48 evidence preserved and PR closed; [#62 shortlist scope and consult](PROJECT/1-INBOX/SHORTLIST-FEASIBILITY.md) completed without execution. | Decide on one capped offline shortlist check; no demo recommended yet. #59 remains failed, #25 capacity-blocked at 541/1,000, and PR #43 held. |
+| #62 input preflight and synthetic checks passed; operator authorized the bounded round. | Run the [frozen shortlist check](PROJECT/2-WORKING/SHORTLIST-FEASIBILITY.md); no demo. #59 remains failed, #25 capacity-blocked at 541/1,000, and PR #43 held. |
 
 > **Corrected 2026-09-09.** This cell previously read *"first `needle finetune` run on JAX/CPU at
 > `--max-len 2048`"*. That was superseded on 2026-09-07 by
@@ -27,9 +27,11 @@
 
 ### Queue / parked intake
 
-- [Top-three shortlist feasibility / prototype decision](PROJECT/1-INBOX/SHORTLIST-FEASIBILITY.md) — #62 scope and independent consult only; no benchmark or build authorized.
+- No parked intake docs.
 
 ### In progress
+
+- [Top-three shortlist feasibility](PROJECT/2-WORKING/SHORTLIST-FEASIBILITY.md) — #62 one-hour offline round authorized; no model campaign or prototype.
 
 - [ZCode mapper recon and qualification](PROJECT/2-WORKING/RECON-ZCODE-MAPPER-CORRECTION.md) — PR #40 merged the scoped corrections; fresh blind qualification remains open in [#37](https://github.com/HiQS-Labs/Needle-fork/issues/37).
 

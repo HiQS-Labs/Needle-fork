@@ -360,5 +360,5 @@ training/model campaign; execution still awaits operator decision. A pass could
 only reopen discussion of a separately scoped interaction study, not qualify an
 Oracle. Skills influenced this by requiring a grounded, additive scope and an
 explicitly reconciled disagreement, not a claimed model consensus.
-[Scope](PROJECT/1-INBOX/SHORTLIST-FEASIBILITY.md) and
+[Scope](PROJECT/2-WORKING/SHORTLIST-FEASIBILITY.md) and
 [consult provenance, limitations and adjudication](doc/shortlist-prototype-consult.md).

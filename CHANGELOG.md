@@ -5,6 +5,15 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-12
 
+### Shortlist evaluator frozen before scoring (#62)
+
+Operator authorized the one-hour offline round. Added a local adapter over existing
+count fitting, deterministic three-label lists, strong same-case controls, locked
+predictions and exact-fraction issue-macro gates; old predictors remain unchanged.
+Trusted retained input preflight passed (10,000 / 1,722 rows); 17 focused tests and
+510 non-slow tests passed, 6 skipped. Witnessed five synthetic in-memory mutations
+red then green. No benchmark score at this checkpoint, model call or prototype.
+
 ### Shortlist scope and prototype-value consult (#62)
 
 Scoped one CPU-only top-three check on reused #59 development data; no evaluation

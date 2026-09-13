@@ -8,7 +8,9 @@ campaign. The advisors disagree about whether even that is worth doing; neither
 endorses a demo now, and useful recommendations remain unproven.
 
 Authority: [#62](https://github.com/HiQS-Labs/Needle-fork/issues/62), under #1.
-[Proposed scope](../PROJECT/1-INBOX/SHORTLIST-FEASIBILITY.md); not executed.
+[Scope and subsequent execution status](../PROJECT/2-WORKING/SHORTLIST-FEASIBILITY.md).
+This consultation predates execution; the operator subsequently authorized its
+recommended bounded check, not a prototype. Advice below remains historical.
 
 ## Disagree — and adjudication
 

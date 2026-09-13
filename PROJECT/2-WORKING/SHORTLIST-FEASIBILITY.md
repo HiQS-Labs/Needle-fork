@@ -1,6 +1,6 @@
 ---
 title: Top-three shortlist feasibility and prototype decision
-status: Proposed
+status: In Progress
 created: 2026-09-12
 updated: 2026-09-12
 owner: noelsaw1
@@ -9,17 +9,18 @@ gh_issue: 62
 reversibility: Easy — additive offline scope, no runtime or original-score changes
 ---
 
-# Top-three shortlist — proposed, not executed
+# Top-three shortlist — authorized bounded round
 
 Authority: [#62](https://github.com/HiQS-Labs/Needle-fork/issues/62), under
-[#1](https://github.com/HiQS-Labs/Needle-fork/issues/1). Operator authorized scoping
-and an Agy / Codex CLI Sol High consult, not execution or a prototype build.
+[#1](https://github.com/HiQS-Labs/Needle-fork/issues/1). Operator initially authorized
+scope and consult only; now authorized the recommended offline round. No prototype
+build. Start 2026-09-13 02:35:25 UTC; absolute stop 03:35:25 UTC (one hour).
 
 ## Status
 
 | What was just completed | What's next |
 |---|---|
-| #48 evidence preserved; Agy / Sol High consult completed and reconciled. | Recommend one capped offline check, not a prototype; awaiting operator execution decision. |
+| Trusted inputs verified; additive evaluator and 17 focused tests pass, five in-memory test mutations witnessed red/green. | Freeze and commit implementation before one locked prediction/score run. |
 
 ## Table of contents
 
@@ -52,7 +53,7 @@ No model-fitting search: reuse fixed count fitting once. See [Recon Map](recon-s
 
 ## Proposed single round
 
-1. [ ] Verify retained #59 paired train/holdout against the committed
+1. [x] Verify retained #59 paired train/holdout against the committed
    [manifest](../../TESTS-RESULTS/2026-09-12-context-refresh/manifest.json), not a
    newly generated expected digest. Use all 10,000 training rows / 224 issues and
    all 1,722 development rows / 40 issues, NOT only the 40-case model quiz.
@@ -60,7 +61,7 @@ No model-fitting search: reuse fixed count fitting once. See [Recon Map](recon-s
    all six labels, history/target schema, issue disjointness, exact row identity,
    paired-view alignment and unchanged membership. Git support is only 33 rows.
    These 40 issues were already used in #59: call them reused development data.
-2. [ ] Add one offline evaluator plus focused tests, importing `baselines.fit`,
+2. [x] Add one offline evaluator plus focused tests, importing `baselines.fit`,
    `phase_keys`, `MIN_CONTEXT_SUPPORT`; do not change `baselines.predict` or old
    evaluators. Candidate: choose the first fine/coarse counter with support >=2,
    else last-action transition counter, else global training targets. Rank observed
@@ -119,4 +120,12 @@ tests for the new ranking/scoring seam and witness the listed failures. If that
 does not fit the hour, stop with no score rather than building more infrastructure
 or weakening guards after seeing results. Passing would not remove the separate
 need to define what a future interaction study could learn without a ratings task.
-No human trial, benchmark, or prototype has run in #62. Advice is not evidence.
+Pre-run verification: inputs total 47,989,092 bytes; validation process peak RSS
+177,782,784 bytes. Exact trusted hashes/counts, paired views, row identities,
+issue/feature separation and all six labels pass. Planned memory allowance is
+bounded input plus parsed rows/counters (<1 GiB tripwire); no GPU arrays or weights.
+Synthetic-only tests reject bad hashes/counts, same-size target replacement,
+empty data, overlap, duplicate identities/shortlist labels, wrong labels/views,
+locked-output mutation and score tampering. Five deliberate source mutations in
+memory fail tests (ranking, pooled-for-issue averaging, each of the three gates),
+then pass after restoration. Real predictions remain uncomputed at this checkpoint.
