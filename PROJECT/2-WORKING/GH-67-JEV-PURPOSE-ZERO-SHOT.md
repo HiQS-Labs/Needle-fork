@@ -21,7 +21,7 @@ phases: 1
 
 | What was just completed | What's next |
 |---|---|
-| Plan QA round 1 (agy; Codex out of quota): 2 blockers + 3 shoulds dispositioned — sklearn dropped for plain-Python metrics, `holdout.json` hash pinned, validation mode removed, full taxonomy bullets as criteria, labels parsed only after the run. | Plan QA round 2, then implement `spike/work_classification/jev_zero_shot.py` + test, run once on the holdout, write `TESTS-RESULTS/2026-09-18-jev-purpose-zero-shot/`, post to #67. |
+| Plan QA round 2 (agy): all r1 dispositions verified; one wording inconsistency in the acceptance red control fixed (uses `--cache-dir`, no `--hashes` flag). | Plan QA round 3 (expected approval), then implement `spike/work_classification/jev_zero_shot.py` + test, run once on the holdout, write `TESTS-RESULTS/2026-09-18-jev-purpose-zero-shot/`, post to #67. |
 
 ## Observed problem
 
@@ -77,5 +77,5 @@ phases: 1
 ## Acceptance checks
 
 - `pytest tests/test_jev_zero_shot.py` fails if the scorer miscounts the fixture or accepts an empty list (red control: mutate one expected count in the fixture and confirm the test fails, then restore).
-- `--dry-run` exits non-zero on a hash mismatch (red control: run with `--hashes` pointing at a tampered manifest).
+- `--dry-run` exits non-zero on a hash mismatch (red control: copy the cache to a temp dir, tamper `taxonomy.md`, run `--dry-run --cache-dir <temp>`; the hashes are hardcoded constants, there is no `--hashes` flag).
 - `results.json` has 40 purpose predictions, 38 area truths counted, a `model` value of `jev-1.13.0` on every response, and request/response hash lists of length 40.
