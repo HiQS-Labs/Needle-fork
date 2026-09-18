@@ -4,7 +4,7 @@
   Scaffolded by relay-automation/new-relay.sh on 2026-09-18.
 -->
 
-NEXT: Reviewer
+NEXT: Producer
 STATUS: Open
 ROUND: 2 / 3
 
@@ -216,5 +216,29 @@ Plan revised in `PROJECT/2-WORKING/GH-67-JEV-PURPOSE-ZERO-SHOT.md` (same commit)
 Round 2 asks: confirm each disposition against the revised plan; anything still blocking?
 
 handing off to Reviewer (agy) — take your turn on this file.
+
+### Reviewer (agy) — Round 2
+
+swept file: yes
+
+- **[Pass] 4. Metric parity (sklearn vs manual)**
+  - Verified: "computed in plain Python as `spike/coding_core/shortlist_eval.py` does; **no sklearn**" (Requirements 2).
+- **[Pass] 5. Data policy (Leak path)**
+  - Verified: "sha256 `24995fe28edf56d3c77be41d9e0baec958006f987889efc51369fa77e5eedf26`" (Recon).
+- **[Pass] 1. Fairness (Validation mode & labels)**
+  - Verified: "`holdout-labels.json` is hashed as bytes before the run and parsed only after the last response is in" (Requirements 5) and "There is no validation mode" (Requirements 5).
+- **[Pass] 3. Criteria fidelity (Boundary sentences)**
+  - Verified: "criteria text = the **full** taxonomy v3 bullet for each label including its boundary sentences" (Requirements 1).
+- **[Pass] 8. Surface (Validation mode & Missing Hashes)**
+  - Verified: "freeze check against three hardcoded hashes" (Smallest affected surface).
+- **[Should] Acceptance check inconsistency (Hardcoded hashes)**
+  - **Observed input:** Plan states hashes are hardcoded (Smallest affected surface) but the red control says "run with `--hashes` pointing at a tampered manifest" (Acceptance checks).
+  - **Affected scope:** Acceptance checks.
+  - **Falsifier:** There is no `--hashes` flag in the script's surface since the hashes are now hardcoded constants.
+  - **Concrete fix:** Update the red control in Acceptance checks to "mutate a hardcoded hash in the script" instead of using a `--hashes` flag.
+
+**Verdict:** Changes requested.
+
+handing off to Producer — go to the claude-a window and say 'take your turn'
 
 <!-- ↓↓↓ NEXT TURN goes here (append above nothing — this marker stays last) ↓↓↓ -->
