@@ -1,0 +1,76 @@
+# eval-config.yaml — single source of truth for every evaluation round.
+# Copy this file into the round directory (results/R00X/eval-config.yaml) and
+# This is a DRAFT: resolve placeholders, freeze manifests and the GPQA prompt,
+# and obtain protocol review before calls. After freezing, changes define a new protocol.
+
+protocol:
+  id: "tbx-gpqa-v1"
+  frozen: false
+  status: "draft — unresolved pins, manifests and prompt; no campaign authorized"
+  date_pinned: "2026-09-17"
+
+  benchmark_1:  # agentic / terminal ability
+    name: "Terminal-Bench"
+    # Pin the exact dataset tag you will use for ALL rounds (e.g. terminal-bench-core 0.1.1,
+    # or terminal-bench@<tag> via Harbor Hub). Changing the tag invalidates comparison.
+    dataset: "terminal-bench-core"
+    dataset_version: "0.1.1"
+    harness: "terminal-bench CLI (tb) or Harbor, pinned to a git commit you record here"
+    harness_commit: "<record git sha of harness repo>"
+    # Slice for local feasibility: every Nth task from the pinned set, deterministic.
+    # With ~100-200 tasks this keeps rounds under ~1 GPU-day per model at 4 attempts.
+    slice: "every 2nd task, deterministic ordering"
+    n_attempts: 4          # four independent attempts for reliability pass^4, not pass@k
+    max_seconds_per_attempt: 1800
+    n_concurrent: 2
+    agent: "terminus"       # the harness's built-in agent; identical for all models
+    metric: "pass^4 (all-attempts-passed fraction), reported alongside accuracy"  # see report template
+    container_engine: "docker"
+
+  benchmark_2:  # reasoning ability
+    name: "GPQA Diamond"
+    n_questions: 198
+    source: "https://github.com/idavidrein/gpqa (official repo; dataset.zip, password in README)"
+    hf_mirror: "https://huggingface.co/datasets/idavidrein/gpqa"
+    paper: "https://arxiv.org/abs/2311.12022"
+    prompt_policy: "zero-shot chain-of-thought, fixed prompt template in prompts/gpqa_prompt.txt"
+    answer_extraction: "first occurrence of 'Answer: <letter>' in final message, else mark no-answer"
+    shuffle_seed: 0          # fixed answer-choice order shuffling seed, identical across models
+    max_tokens: 8192
+    thinking_budget_note: "record whether thinking is on; same policy for all models"
+
+  inference:
+    backend: "llama.cpp"          # llama.cpp / MLX-LM / vLLM — pin one, same for all models
+    backend_version: "<pin>"
+    quantization: "Q4_K_M"        # or Q5_K_M / Q8_0 / bf16 — same for all models, record file size
+    context_window: 32768         # minimum all candidate models must support
+    temperature: 0.2              # low but nonzero; record per-model sampling defaults if they differ
+    top_p: 0.9
+    seed: 42
+    thinking_mode: "native / forced / off — record what the model supports and apply uniformly"
+
+  hardware:
+    machine: "<e.g. Mac Studio M5 Max 128GB>"
+    os: "<record>"
+    memory_pressure_note: "close other apps; record max RSS if available"
+
+models:
+  - name: "Qwen3.8-27B"
+    hf_repo: "<gguf repo, e.g. unsloth/Qwen3.8-27B-GGUF>"
+    gguf_file: "<Q4_K_M file name>"
+    notes: "strongest reported 27B SWE evidence per benchlm.ai aggregation (unverified vendor-run)"
+  - name: "Gemma 4 31B"
+    hf_repo: "<gguf repo>"
+    gguf_file: "<file>"
+    notes: "no public SWE-bench Pro figure surfaced; multimodal — run text-only mode for comparability"
+  - name: "Bonsai 27B"
+    hf_repo: "<gguf repo>"
+    gguf_file: "<file>"
+    notes: "no credible public SWE/TB/GPQA figure surfaced; including it fills that gap yourself"
+  - name: "<add/swap candidates here>"
+
+meta_grade:
+  formula: "geometric_mean(TB_pass^4, GPQA_acc)"
+  rationale: "geometric mean penalizes lopsided profiles; arithmetic mean can hide a total failure on one benchmark"
+  # Do NOT average across rounds yet — 4 attempts already smooths per-run noise.
+  report_z_scores_per_benchmark: true   # context for the meta grade, see meta_score.py

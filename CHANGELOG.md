@@ -3,6 +3,20 @@
 Newest-first, dated end-of-iteration record. One entry per substantive iteration: what changed,
 why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
+## 2026-09-17
+
+### Review and publish benchmark scaffolding (#65)
+
+Rebased onto origin/main without conflicts, preserving local PDDA edits. Added
+draft Terminal-Bench/GPQA config, schema, report template and a standard-library
+scorer. Review corrected schema insert crashes, inflated incomplete-attempt pass⁴,
+zero-score handling, unpaired/duplicate data, missing-path DB creation and aggregate
+atomicity. Unresolved pins, manifests and GPQA prompt explicitly block campaigns;
+no model benchmark or quality claim. 538 non-slow tests passed, 6 skipped, 11
+deselected; 25 focused controls passed with original scorer failures witnessed.
+PDDA changelog parsing accepts bracketless version headings, with real-checker
+regression/mutation controls. No package/runtime/numerics/release-version changes.
+
 ## 2026-09-13
 
 ### Begin native app connection proof (#63)

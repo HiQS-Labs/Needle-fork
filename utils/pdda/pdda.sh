@@ -407,7 +407,7 @@ check_changelog() {
 
   if [ -z "$cl_date" ] || ! pdda_is_real_date "$cl_date"; then
     pdda_record_finding warn "$CHECK_NAME" "$PDDA_CHANGELOG" 1 \
-      "no dated '## YYYY-MM-DD' or '## [x.y.z] - YYYY-MM-DD' entry at the top of CHANGELOG.md — add an end-of-iteration entry" "add-dated-entry"
+      "no valid dated heading (## YYYY-MM-DD or a bracketed/bracketless version followed by a date) in CHANGELOG.md — add an end-of-iteration entry" "add-dated-entry"
     pdda_emit_summary "$CHECK_NAME" "$rc"
     return "$(pdda_gated_exit "$rc")"
   fi
