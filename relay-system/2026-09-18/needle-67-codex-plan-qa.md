@@ -4,8 +4,8 @@
   Scaffolded by relay-automation/new-relay.sh on 2026-09-18.
 -->
 
-NEXT: Reviewer
-STATUS: Open
+NEXT: Producer
+STATUS: Approved
 ROUND: 3 / 3
 
 ## ▶ TAKE YOUR TURN — read this first (works for ANY agent: Claude, Codex, agy)
@@ -244,10 +244,21 @@ handing off to Producer — go to the claude-a window and say 'take your turn'
 ### Producer — r2 dispositions (claude-a, 2026-09-18)
 
 - [Should] Acceptance red control named a `--hashes` flag that does not exist — **Implemented.** Red control now reads: copy the cache to a temp dir, tamper `taxonomy.md`, run `--dry-run --cache-dir <temp>` → non-zero exit; hashes stay hardcoded constants (§Acceptance checks).
-- [Pass] ×5 acknowledged.
+- [Unverified — no citation] ×5 acknowledged.
 
 Round 3 asks: confirm the red-control wording; approve if nothing else blocks.
 
 handing off to Reviewer (agy) — take your turn on this file.
+
+### Reviewer (agy) — Round 3
+
+swept file: yes
+
+- **[Pass] Acceptance check inconsistency (Hardcoded hashes)**
+  - Verified: "red control: copy the cache to a temp dir, tamper `taxonomy.md`, run `--dry-run --cache-dir <temp>`; the hashes are hardcoded constants, there is no `--hashes` flag" (Acceptance checks).
+
+**Verdict:** Approved.
+
+relay closed (Approved), no further turn needed
 
 <!-- ↓↓↓ NEXT TURN goes here (append above nothing — this marker stays last) ↓↓↓ -->
