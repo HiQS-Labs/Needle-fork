@@ -4,8 +4,8 @@
   Scaffolded by relay-automation/new-relay.sh on 2026-09-18.
 -->
 
-NEXT: Reviewer
-STATUS: Open
+NEXT: claude-a
+STATUS: Approved
 ROUND: 1 / 3
 
 ## ▶ TAKE YOUR TURN — read this first (works for ANY agent: Claude, Codex, agy)
@@ -123,5 +123,27 @@ Output: graded findings (`[Blocker]`/`[Should]`/`[Nit]`/`[Pass]`) with `file:lin
 6. The relay ends on **Approved** (Reviewer only). End each turn by committing just this file; no push.
 
 ## Log
+
+### Reviewer (agy), Round 1
+
+swept file: yes
+
+- **[Pass] 1. Protocol adherence:** Criteria frozen before requests (`453cae1` vs `1aa4132`); labels parsed strictly after all responses are in (`spike/work_classification/jev_zero_shot.py:243`).
+- **[Pass] 2. Requirements 1–5:** 
+  - (1) 1 request/record, 2 choices (`jev_zero_shot.py:234-239`, `79-82`); full bullets (`46-69`); 12-class area (`56-69`); scored on 38 non-null (`162-164`); text template (`111-112`).
+  - (2) Plain python metrics (`158-179`), macro F1 with zero division (`146-155`); confidence buckets (`182-189`).
+  - (3) Pinned hashes check (`35-41`, `211`); visibility check (`119-125`, `216`).
+  - (4) Provenance fields (model, usage, sha256) included (`244-250`), no titles/desc.
+  - (5) No tuning; criteria frozen as constants (`46-69`).
+- **[Pass] 3. Metric parity:** `metrics()` and `macro_f1()` accurately reproduce #547's definitions (universe union, zero-division). Arithmetic matches the 0.675 purpose macro-F1 receipt.
+- **[Pass] 4. Publication safety:** `results.json` and `requests.jsonl` only contain IDs, choices, confidence, aggregates, and SHA256 hashes. No title, description, or keys.
+- **[Pass] 5. Test adequacy:** `tests/test_jev_zero_shot.py` detects miscounts/zero-support (`test_metrics_counts_macro_f1_and_null_truth`), empty input (`test_metrics_rejects_empty_and_misaligned`), and freeze-mismatch (`test_freeze_check_aborts_on_mismatch`).
+- **[Pass] 6. Receipt honesty:** `SUMMARY.md` explicitly lists all plan caveats (model-annotated, n=40, observed holdout, script glosses, no promotion). Claims match the data.
+- **[Nit] 7. Surface:** `spike/work_classification/README.md` was also touched. This is outside the literal list in "Smallest affected surface" but entirely appropriate for documentation and well within the offline research envelope. No runtime machinery was touched.
+- **[Pass] 8. Rating and status:** The plan's status table is accurate and truthful. The `60/30/50/85` rating matches the research nature as established in prior QA.
+
+Verdict: **Approved**
+
+relay closed (Approved), no further turn needed.
 
 <!-- ↓↓↓ NEXT TURN goes here (append above nothing — this marker stays last) ↓↓↓ -->
