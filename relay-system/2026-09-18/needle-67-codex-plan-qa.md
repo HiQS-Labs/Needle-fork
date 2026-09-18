@@ -41,7 +41,7 @@ ROUND: 1 / 3
 
 ## Setup
 - Artifact under review: **GH-67-JEV-PURPOSE-ZERO-SHOT.md** (embedded below — read it here).
-- Reviewer: codex   ·   Producer: claude-a
+- Reviewer: agy   ·   Producer: claude-a
 - Started: 2026-09-18
 
 ### Artifact — GH-67-JEV-PURPOSE-ZERO-SHOT.md
