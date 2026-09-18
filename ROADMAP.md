@@ -27,7 +27,7 @@
 
 ### Queue / parked intake
 
-- No parked intake docs.
+- [GH-67: Jev zero-shot rerun of the #31 purpose/area holdout](PROJECT/1-INBOX/GH-67-JEV-PURPOSE-ZERO-SHOT.md) — queued 2026-09-18; Lane A of [XYZ-forge #709](https://github.com/HiQS-Labs/XYZ-forge/issues/709). ([#67](https://github.com/HiQS-Labs/Needle-fork/issues/67))
 
 ### In progress
 
