@@ -4,9 +4,9 @@
   Scaffolded by relay-automation/new-relay.sh on 2026-09-18.
 -->
 
-NEXT: Producer
+NEXT: Reviewer
 STATUS: Open
-ROUND: 1 / 3
+ROUND: 2 / 3
 
 ## ▶ TAKE YOUR TURN — read this first (works for ANY agent: Claude, Codex, agy)
 1. **Read this whole file** (header, Setup, Ground rules, every block in the Log).
@@ -201,5 +201,20 @@ swept file: yes
 **Verdict:** Changes requested.
 
 handing off to Producer — go to the claude-a window and say 'take your turn'
+
+### Producer — r1 dispositions (claude-a, 2026-09-18)
+
+Plan revised in `PROJECT/2-WORKING/GH-67-JEV-PURPOSE-ZERO-SHOT.md` (same commit).
+
+- [Blocker] 4 sklearn — **Implemented.** Metrics are plain Python (`correct`, `raw_accuracy`, `macro_f1` over the class∪truth universe, zero-division → 0, confusion), as `shortlist_eval.py` does; sklearn removed from Requirements, Dependencies and the test (§Requirements 2, §Dependencies).
+- [Blocker] 5 `holdout.json` hash — **Implemented.** Pinned sha256 `24995fe2…edf26` (the operator's verified 2026-09-18 snapshot) beside the two #547 manifest hashes; all three are constants in the script and the freeze check aborts before any request on mismatch (§Recon, §Requirements 3).
+- [Should] 1 fairness — **Implemented.** Validation mode removed entirely; `holdout-labels.json` is hashed as bytes before the run and parsed only after the last response (§Requirements 5).
+- [Should] 3 criteria fidelity — **Implemented.** Criteria carry the full taxonomy bullet per label including boundary sentences; the three labels the taxonomy leaves undefined (`ci_cd`, `skills`, `ui`) get one-line glosses recorded in provenance (§Requirements 1).
+- [Should] 8 surface — **Implemented.** `--validation` removed; hashes hardcoded (§Smallest affected surface).
+- [Pass] 2 area design — **Acknowledged**, kept the 12-class forced choice on 38 rows (§Requirements 1). [Pass] 6 provenance — hashes already in `results.json`. [Pass] 7 — test now includes a zero-support/zero-prediction class case (§Smallest affected surface). [Pass] 9 rating — unchanged.
+
+Round 2 asks: confirm each disposition against the revised plan; anything still blocking?
+
+handing off to Reviewer (agy) — take your turn on this file.
 
 <!-- ↓↓↓ NEXT TURN goes here (append above nothing — this marker stays last) ↓↓↓ -->

@@ -21,7 +21,7 @@ phases: 1
 
 | What was just completed | What's next |
 |---|---|
-| Intake parked and promoted; recon of the #547 scoring code, holdout shape and data policy done; plan drafted. | Codex relay plan QA, then implement `spike/work_classification/jev_zero_shot.py` + test, run once on the holdout, write `TESTS-RESULTS/2026-09-18-jev-purpose-zero-shot/`, post to #67. |
+| Plan QA round 1 (agy; Codex out of quota): 2 blockers + 3 shoulds dispositioned — sklearn dropped for plain-Python metrics, `holdout.json` hash pinned, validation mode removed, full taxonomy bullets as criteria, labels parsed only after the run. | Plan QA round 2, then implement `spike/work_classification/jev_zero_shot.py` + test, run once on the holdout, write `TESTS-RESULTS/2026-09-18-jev-purpose-zero-shot/`, post to #67. |
 
 ## Observed problem
 
@@ -31,18 +31,18 @@ phases: 1
 
 - Scoring source of truth: XYZ-forge `TESTS-RESULTS/2026-09-10+GH-547-calibrated/run.py` at `430f432`. Text template `texts()`: `'Project: '+repo+'\nTitle: '+title+'\nDescription: '+description`. Metrics `metrics()`: `correct`, `raw_accuracy`, `macro_f1` (sklearn, `labels=` union of class list and truth, `average='macro'`, `zero_division=0`), confusion over that universe; area scored on records whose truth is non-null (38).
 - Baselines from `results.json`: purpose tfidf 20/40 mF1 0.430, modernbert 23/40 mF1 0.370; area tfidf 12/38 mF1 0.206, modernbert 10/38 mF1 0.221. Majority purpose 17/40, area 4/38.
-- Local data: `~/.cache/xyz-modernbert-calibrated/` — `holdout.json` (40 records: `id, repo, number, title, description, description_truncated, split, source_type, created_at`), `holdout-labels.json` (40: `purpose_primary`, `area_primary`, `confidence`, …), `taxonomy.md`, `validation.json` (32). `input-hashes.json` in the #547 dir carries sha256 for `holdout-labels.json` (`70aa61d4…`) and `taxonomy.md` (`2a373c3b…`); `holdout.json` itself is not in the manifest, so the runner also records its sha256 and the holdout `id` list hash.
+- Local data: `~/.cache/xyz-modernbert-calibrated/` — `holdout.json` (40 records: `id, repo, number, title, description, description_truncated, split, source_type, created_at`), `holdout-labels.json` (40: `purpose_primary`, `area_primary`, `confidence`, …), `taxonomy.md`. `input-hashes.json` in the #547 dir carries sha256 for `holdout-labels.json` (`70aa61d4…`) and `taxonomy.md` (`2a373c3b…`); `holdout.json` itself is not in that manifest, so this plan pins it too: sha256 `24995fe28edf56d3c77be41d9e0baec958006f987889efc51369fa77e5eedf26` (the operator's local snapshot as verified on 2026-09-18). All three hashes are constants in the script (QA r1).
 - Repos in the holdout, all `PUBLIC` on 2026-09-18: XYZ-forge 22, rebalanceOS 5, Needle-fork 5, AEGIS-Sleuth-Slackbot 2, Orion-fork 2, XYZ-code-RAG 2, Model-catalog 2.
 - Jev contract (docs, verified with one live call): `POST https://api.typesafe.ai/v1/systemone`, bearer key, body `{state, model, questions}`; Choice answer has `choice`, `probabilities`, `confidence`; response `model` is the versioned ID; `usage.input_tokens`. Limits: 32k state + longest question; max description here is 1,800 chars, so no truncation needed. Jaggedness relevant here: literal reading and indirection — the criteria must carry the taxonomy's boundary sentences, not just the label names.
 - Existing conventions: research scripts live in `spike/<topic>/`, tests in `tests/test_*.py`, HTTP via `urllib.request` (`spike/coding_core/context_probe.py`), results in `TESTS-RESULTS/<date>-<slug>/`. No `requests` dependency in `requirements.txt`.
 
 ## Requirements
 
-1. Score `jev-1.13.0` zero-shot on the 40 holdout records with one request per record carrying two Choice questions (`purpose`, `area`); criteria text = taxonomy v3 definitions verbatim (label → its definition sentence), state = the `texts()` string.
-2. Same metrics as #547 for both axes, plus per-record `confidence` and a table of accuracy by confidence bucket (`<0.5`, `0.5–0.8`, `≥0.8`).
-3. Freeze checks before the first request: sha256 of `holdout-labels.json` and `taxonomy.md` must equal `input-hashes.json`; every record's `repo` must be `PUBLIC` via `gh repo view --json visibility` (skipped records are reported, never sent).
+1. Score `jev-1.13.0` zero-shot on the 40 holdout records with one request per record carrying two Choice questions (`purpose`, `area`); criteria text = the **full** taxonomy v3 bullet for each label including its boundary sentences (e.g. "A comparison plan is this, not planning just because it says plan"), not a first sentence (QA r1). `ci_cd`, `skills` and `ui` carry no definition in the taxonomy beyond "operator confirmed"; their one-line glosses are the script's and are recorded in the results provenance. Area keeps the 12-class forced choice with no `none` option and is scored on the 38 non-null rows, the same denominator as #547 (QA r1). State = the `texts()` string.
+2. Same metrics as #547 for both axes — `correct`, `raw_accuracy`, `macro_f1` over the union of taxonomy classes and truth labels with zero-division → 0, confusion — computed in plain Python as `spike/coding_core/shortlist_eval.py` does; **no sklearn** (QA r1). Plus per-record `confidence` and a table of accuracy by confidence bucket (`<0.5`, `0.5–0.8`, `≥0.8`).
+3. Freeze checks before the first request: sha256 of `holdout.json`, `holdout-labels.json` and `taxonomy.md` must equal the pinned constants (so the bytes sent are exactly the verified public snapshot — QA r1); every record's `repo` must be `PUBLIC` via `gh repo view --json visibility` (skipped records are reported, never sent).
 4. Provenance: pinned model ID from each response, `usage.input_tokens` sum, sha256 of every request and response body, run UTC, script sha256. Published files contain aggregates, per-record predictions keyed by `id`, and hashes — no titles or descriptions.
-5. No tuning on the holdout: the criteria strings are committed before the run; any wording change after a holdout request invalidates the run and requires a new results directory.
+5. No tuning on the holdout: the criteria strings are committed before the run; any wording change after a holdout request invalidates the run and requires a new results directory. `holdout-labels.json` is hashed as bytes before the run and parsed only after the last response is in (QA r1). There is no validation mode; wording is frozen as committed.
 
 ## Non-goals
 
@@ -53,8 +53,8 @@ phases: 1
 
 ## Smallest affected surface
 
-- New: `spike/work_classification/jev_zero_shot.py` (~200 lines: freeze check, visibility check, request builder, scorer, writer; `--dry-run` builds requests and scores nothing; `--validation` targets `validation.json` for an optional wording check that must be recorded if used).
-- New: `tests/test_jev_zero_shot.py` (scorer math on a fixture: 3-record case with one wrong purpose and one null area → expected counts and macro-F1; empty input rejected; criteria-string freeze hash asserted).
+- New: `spike/work_classification/jev_zero_shot.py` (~200 lines: freeze check against three hardcoded hashes, visibility check, request builder, plain-Python scorer, writer; `--dry-run` runs the checks and builds requests without sending). No validation mode (QA r1).
+- New: `tests/test_jev_zero_shot.py` (scorer math on a fixture: one wrong purpose, one null area, and one class with zero support and zero predictions → expected counts, macro-F1 with that class scoring 0; empty input rejected; the `texts()` template and the freeze check's mismatch path asserted).
 - New: `TESTS-RESULTS/2026-09-18-jev-purpose-zero-shot/{SUMMARY.md,results.json,requests.jsonl (hashes only)}`.
 - Touched: `ROADMAP.md` pointer (promotion), `CHANGELOG.md` at iteration end.
 - Nothing else. No existing writer is extended because no existing subsystem scores work-purpose in this repo; #547's `run.py` is in XYZ-forge and stays there.
@@ -63,7 +63,6 @@ phases: 1
 
 - Key: the operator's local secrets file, read at run time from `TYPESAFE_API_KEY` or `--key-file`; never logged. Risk: 429 under dynamic limits → retry with backoff honoring `retry-after`, max 5 attempts, then abort the run (partial results are not published).
 - `gh` must be authenticated for the visibility check; if unavailable the run refuses.
-- macro-F1 needs sklearn; it is already in the test environment (`requirements-train.txt`). The scorer imports it lazily and the unit test skips if absent, matching `test_shortlist_eval.py`.
 - Rollback: delete the results directory and the two new files; nothing else changes.
 
 ## Ordered implementation
