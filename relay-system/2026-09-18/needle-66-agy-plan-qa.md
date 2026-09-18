@@ -6,7 +6,7 @@
 
 NEXT: Reviewer
 STATUS: Open
-ROUND: 1 / 2
+ROUND: 2 / 2
 
 ## ▶ TAKE YOUR TURN — read this first (works for ANY agent: Claude, Codex, agy)
 1. **Read this whole file** (header, Setup, Ground rules, every block in the Log).
@@ -452,5 +452,74 @@ only candidate signal that transferred.
 6. The relay ends on **Approved** (Reviewer only). End each turn by committing just this file; no push.
 
 ## Log
+
+## agy (Reviewer) — QA Findings
+
+swept file: yes
+
+*   **[Blocker]** Parameter count and model sizes are conflated and unsupported.
+    *   **Observed input:** The plan claims Needle 3 has "29-121M parameters" (line 69) and proposes a second rung "nearest 45M" (line 103).
+    *   **Affected scope:** "Why now" and "Second rung" sections.
+    *   **Falsifier:** Correct the conflation. Appendix A1 states "The whole model is a single 8-29 MB binary" (line 137) and references the "121M model" (line 145), but does not support 29M or 45M parameter sizes.
+*   **[Pass]** The plan reproduces #42's data, split, holdout, labels, and baselines. All changed variables (answer shape, engine-native eval, 4-bit vs 2-bit, top-1 only) are explicitly named in the plan and receipt requirements (lines 84-89, 101-102).
+*   **[Pass]** Every step's gate is falsifiable in advance (e.g., `pytest -q -m "not slow"` green [line 95], validation loss falls [line 100], and all 100 rows scored [line 102]). The 42% pass line and the step-time gate (line 99) are concrete and appropriate.
+*   **[Should]** Preflight is missing data health assertions required by SOP Step 2.
+    *   **Observed input:** Preflight checks only holdout label support (line 86) and token length (line 89).
+    *   **Affected scope:** "Frozen comparison contract" section and step 3 gate.
+    *   **Falsifier:** Add preflight assertions for training split per-label support, abstention rows, and boilerplate fraction.
+*   **[Nit]** The receipt deliverables (line 104) rely on the vague "in the #42 format" to inherit the CC BY 4.0 attribution requirement. Explicitly name the CC BY 4.0 attribution link requirement in step 10 to ensure compliance with the repository rules.
+*   **[Should]** Blindly taking upstream `needle/` wholesale on merge conflicts is unsafe.
+    *   **Observed input:** "...if the merge conflicts inside `needle/`, take upstream's `needle/` wholesale for this branch" (line 95).
+    *   **Affected scope:** Step 1 branch and merge plan.
+    *   **Falsifier:** Provide an explicit list of known fork changes under `needle/` to review before dropping conflicts, to prevent silent loss of other fork-specific fixes.
+*   **[Unverified — no citation]** No scope creep or overbuild detected. The plan stays within the bounded CPU envelope and handles load-bearing requirements cleanly (reusing verbatim context [line 117] and explicitly scoring empty/out-of-enum answers as misses [line 88]).
+
+**Verdict:** Changes requested
+
+handing off to Producer — go to the other window and say 'take your turn'
+
+### claude-a (Producer) — round 1 dispositions, round 2 opened
+
+The revised artifact is the live body of issue #66 and is seeded read-only in your worktree at
+`.relay-artifacts/GH-66-needle3-pilot-plan.md`. **Read that file; it supersedes the embedded
+round-1 copy above.** Its Appendix A now carries the sources the round-1 review could not see
+(A0 `llms.txt` lines 1-4, A4 the 3.0.1 `finetune`/`build` parsers, A5 `rung()` and its call site,
+A6 the Needle 2 parameter count, A7 the fork's exact delta under `needle/`).
+
+- `[Blocker]` parameter figures conflated/unsourced — **Implemented.** "Why now" now cites each figure:
+  "29-121M parameter" is `llms.txt` line 3 (Appendix A0); "starting at 29M parameters" is the README
+  Customisation section (A1); "the 121M model" is the README architecture paragraph (A1); the
+  "8-29 MB binary" is named as file size at ~2.1 bits/weight, not a parameter count; 45M is Needle 2's
+  count from this fork's README (A6). Step 9 no longer guesses 8 layers: the rung is the depth whose
+  parameter count, computed from the checkpoint via `rung()`/`ladder_slice`/`ladder_config` (A5), is
+  nearest 45M, recorded with its neighbours in the receipt. It also states that in 3.0.1 `--layers` is a
+  build-time slice called from `build_main` and that the `finetune` parser has no `--layers` despite the
+  CLI banner (A4, A5), so the rung is exported from the step-6 adapter.
+- `[Should]` preflight missing training-split support, abstention rows, boilerplate fraction —
+  **Implemented.** Three new bullets in "Frozen comparison contract": training per-label support
+  recorded, zero-row label = preflight failure, `git` reported not gated; abstention rows expected 0
+  (the projection has no abstain label and `prepare_openhands.py` ends sequences at think/task/finish
+  calls), converter refuses unlabeled rows, nonzero = failure; boilerplate fraction measured with
+  `render_example`, reported min/median/max, caveat in the receipt above 50% of the median row.
+- `[Should]` "take upstream `needle/` wholesale" unsafe — **Implemented.** Step 1 now measures the fork's
+  delta under `needle/` against merge base `b5e2943`: exactly two hunks, 24 added lines, both the #8
+  guard (`cli.py` `--allow-numerics-mismatch` +3; `finetune.py` `build_main` provenance detection and
+  `ValueError` +21; Appendix A7). Rule: upstream's side of every `needle/` conflict, then re-port the two
+  hunks by hand; the guard's `--qat-bits auto` remedy text no longer matches 3.0.1 (no such flag, A4), so
+  if 3.0.1 adapters carry no provenance keys the build runs with `--allow-numerics-mismatch` and the
+  receipt says so. Gate adds: `git diff upstream/main -- needle/` shows those two hunks and nothing else.
+  The "Risks" line that referenced the wholesale rule is updated to match.
+- `[Nit]` CC BY 4.0 attribution inherited from "the #42 format" — **Implemented.** Step 10 spells out
+  dataset id, revision, licence, dataset-card link, authors as the card names them, and a "derived
+  projection" statement.
+- `[Unverified — no citation]` no scope creep — no change requested; the two load-bearing items it
+  names (verbatim context reuse, empty/out-of-enum scored as miss) are unchanged.
+
+No gate, decision or scope changed; a "Revised 2026-09-18" note at the top of the issue says so.
+
+Round 2 ask: re-grade the revised artifact against the same Definition of Done. Verdict Approved if
+no `[Blocker]` remains.
+
+handing off to Reviewer — agy, take your turn
 
 <!-- ↓↓↓ NEXT TURN goes here (append above nothing — this marker stays last) ↓↓↓ -->
