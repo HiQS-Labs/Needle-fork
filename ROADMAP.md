@@ -27,10 +27,11 @@
 
 ### Queue / parked intake
 
-- [GH-67: Jev zero-shot rerun of the #31 purpose/area holdout](PROJECT/1-INBOX/GH-67-JEV-PURPOSE-ZERO-SHOT.md) — queued 2026-09-18; Lane A of [XYZ-forge #709](https://github.com/HiQS-Labs/XYZ-forge/issues/709). ([#67](https://github.com/HiQS-Labs/Needle-fork/issues/67))
+- No parked intake docs.
 
 ### In progress
 
+- [GH-67: Jev zero-shot rerun of the #31 purpose/area holdout](PROJECT/2-WORKING/GH-67-JEV-PURPOSE-ZERO-SHOT.md) — active 2026-09-18; Lane A of [XYZ-forge #709](https://github.com/HiQS-Labs/XYZ-forge/issues/709). ([#67](https://github.com/HiQS-Labs/Needle-fork/issues/67))
 - [Codex app shortlist and optional feedback](PROJECT/2-WORKING/CODEX-NEEDLE-FEEDBACK.md) — #63 planning and Agy QA; app connection proof must precede implementation. [Source recon](PROJECT/2-WORKING/RECON-CODEX-FEEDBACK.md).
 
 - [ZCode mapper recon and qualification](PROJECT/2-WORKING/RECON-ZCODE-MAPPER-CORRECTION.md) — PR #40 merged the scoped corrections; fresh blind qualification remains open in [#37](https://github.com/HiQS-Labs/Needle-fork/issues/37).
