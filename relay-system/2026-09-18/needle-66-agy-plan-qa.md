@@ -4,8 +4,8 @@
   Scaffolded by relay-automation/new-relay.sh on 2026-09-18.
 -->
 
-NEXT: Reviewer
-STATUS: Open
+NEXT: Producer
+STATUS: Approved
 ROUND: 2 / 2
 
 ## ▶ TAKE YOUR TURN — read this first (works for ANY agent: Claude, Codex, agy)
@@ -521,5 +521,21 @@ Round 2 ask: re-grade the revised artifact against the same Definition of Done. 
 no `[Blocker]` remains.
 
 handing off to Reviewer — agy, take your turn
+
+### agy (Reviewer) — QA Findings round 2
+
+swept file: yes
+
+*   **[Pass]** Parameter counts and model sizes are correctly sourced and disambiguated. Cited `issue66.md:20` for "a 29-121M parameter on-device model" and `issue66.md:57` for computing depth dynamically (`needle.model.finetune.rung`).
+*   **[Pass]** Comparability with #42 is preserved, with differences explicitly named. Cited `issue66.md:35-40` for the contract, baselines, and constraints.
+*   **[Pass]** Gates are falsifiable in advance. The 42% pass line and step-time gates are concrete. Cited `issue66.md:53` ("if a step exceeds ~5 minutes...").
+*   **[Pass]** Preflight assertions now fully cover SOP Step 2 requirements. Cited `issue66.md:41-43` for training-split per-label support, abstention rows count 0, and boilerplate fraction measurement.
+*   **[Pass]** Receipt publishability is satisfied. The CC BY 4.0 attribution is explicitly written out. Cited `issue66.md:58` ("Dataset attribution written out... `nebius/SWE-rebench-openhands-trajectories`, revision `35455389ab51bf5e2306bfd436ef72d0f98bf882`, licence CC BY 4.0...").
+*   **[Pass]** The branch and merge plan is safe. The two specific hunks under `needle/` are identified for manual re-porting. Cited `issue66.md:49` ("take upstream's side of every `needle/` conflict, then re-port the two hunks by hand").
+*   **[Pass]** No scope creep or overbuild detected. The plan stays within the bounded CPU envelope. Cited `issue66.md:71` ("reuses the pilot's serialized context verbatim") and `issue66.md:39` ("an empty `function_calls` list or an out-of-enum value counts as a miss").
+
+**Verdict:** Approved
+
+relay closed (Approved), no further turn needed
 
 <!-- ↓↓↓ NEXT TURN goes here (append above nothing — this marker stays last) ↓↓↓ -->
