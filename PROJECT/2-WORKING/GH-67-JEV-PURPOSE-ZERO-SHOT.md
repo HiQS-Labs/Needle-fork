@@ -21,7 +21,7 @@ phases: 1
 
 | What was just completed | What's next |
 |---|---|
-| Plan QA round 2 (agy): all r1 dispositions verified; one wording inconsistency in the acceptance red control fixed (uses `--cache-dir`, no `--hashes` flag). | Plan QA round 3 (expected approval), then implement `spike/work_classification/jev_zero_shot.py` + test, run once on the holdout, write `TESTS-RESULTS/2026-09-18-jev-purpose-zero-shot/`, post to #67. |
+| Plan approved r3 (agy). Runner frozen at `453cae1`, one live run: **purpose 37/40 (92.5%, mF1 0.675) vs ModernBERT 23/40; area 32/38 (84.2%, mF1 0.696) vs TF-IDF 12/38**; every prediction at confidence ≥ 0.8 correct. [Receipt](../../TESTS-RESULTS/2026-09-18-jev-purpose-zero-shot/SUMMARY.md). | Final relay QA on the diff + receipt, non-slow tests + pdda, CHANGELOG, push to `main`, post to #67 / XYZ-forge #709. Any follow-up (fresh human-adjudicated sample, confidence gate) is a new issue. |
 
 ## Observed problem
 

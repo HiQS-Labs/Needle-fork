@@ -3,6 +3,24 @@
 Newest-first, dated end-of-iteration record. One entry per substantive iteration: what changed,
 why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
+## 2026-09-18
+
+### Jev zero-shot rerun of the #31 purpose/area holdout (#67)
+
+Lane A of [XYZ-forge #709](https://github.com/HiQS-Labs/XYZ-forge/issues/709). Added
+`spike/work_classification/jev_zero_shot.py` (stdlib only): pinned hashes for the local #31
+holdout snapshot, per-repo `PUBLIC` visibility gate, taxonomy v3 criteria as two Choice questions,
+the #547 `texts()` template and metric definitions in plain Python, labels parsed only after the
+last response. Criteria frozen at `453cae1` before the single live run. Result
+(`TESTS-RESULTS/2026-09-18-jev-purpose-zero-shot/SUMMARY.md`, 40 `jev-1.13.0` requests, 55,579
+input tokens): purpose 37/40 (92.5%, macro-F1 0.675) vs ModernBERT 23/40 and TF-IDF 20/40; area
+32/38 (84.2%, macro-F1 0.696) vs TF-IDF 12/38; every prediction at confidence ≥ 0.8 correct on
+both axes. Holdout labels remain model-annotated and the holdout was already observed by #31, so
+this is a comparison, not a promotion; a fresh human-adjudicated sample is a separate decision.
+Verification: `tests/test_jev_zero_shot.py` 7 passed / 1 skipped; 545 non-slow tests passed,
+7 skipped, 11 deselected; `pdda.sh run` zero errors. Plan QA: agy (Codex out of quota), approved
+r3. No `needle` runtime, Oracle label, or #62/#59 gate change.
+
 ## 2026-09-17
 
 ### Review and publish benchmark scaffolding (#65)
