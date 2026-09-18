@@ -4,7 +4,7 @@
   Scaffolded by relay-automation/new-relay.sh on 2026-09-18.
 -->
 
-NEXT: Reviewer
+NEXT: Producer
 STATUS: Open
 ROUND: 1 / 3
 
@@ -162,5 +162,44 @@ Output: graded findings (`[Blocker]`/`[Should]`/`[Nit]`/`[Pass]`), each with a c
 6. The relay ends on **Approved** (Reviewer only). End each turn by committing just this file; no push.
 
 ## Log
+
+### Reviewer (agy) — Round 1
+
+swept file: yes
+
+- **[Blocker] 4. Metric parity (sklearn vs manual)**
+  - **Observed input:** Plan claims "macro-F1 needs sklearn... The scorer imports it lazily and the unit test skips if absent, matching `tests/test_shortlist_eval.py`."
+  - **Affected scope:** Dependencies and tests (`jev_zero_shot.py`).
+  - **Falsifier:** `tests/test_shortlist_eval.py` does not import or use `sklearn`; it relies on `spike/coding_core/shortlist_eval.py` which computes macro metrics manually using standard Python.
+  - **Concrete fix:** Remove `sklearn` from the plan. Compute `macro_f1` manually without adding a new dependency, exactly as `shortlist_eval.py` does.
+- **[Blocker] 5. Data policy (Leak path)**
+  - **Observed input:** Visibility gate checks `gh repo view --json visibility == PUBLIC`, but `holdout.json` is not in the frozen manifest.
+  - **Affected scope:** Data policy and security.
+  - **Falsifier:** A tampered `holdout.json` could contain injected/redacted sensitive text in its `description` field. The visibility gate only checks the `repo` string, allowing the tampered description to be exfiltrated to the API.
+  - **Concrete fix:** The protocol must explicitly assert the sha256 hash of `holdout.json` against a known-good hardcoded hash before making any requests, ensuring the text sent is exactly the agreed-upon public snapshot.
+- **[Should] 1. Fairness (Validation mode & labels)**
+  - **Observed input:** Plan allows `--validation` mode for wording checks and reads `holdout-labels.json` for hashing.
+  - **Affected scope:** Fairness protocol.
+  - **Concrete fix:** Explicitly forbid running `--validation` *after* any holdout call to prevent post-hoc tuning. Specify that `holdout-labels.json` must NOT be parsed into memory for logic until all API requests are complete (only hash it as bytes).
+- **[Should] 3. Criteria fidelity (Boundary sentences)**
+  - **Observed input:** "criteria text = taxonomy v3 definitions verbatim (label → its definition sentence)"
+  - **Affected scope:** Request builder.
+  - **Concrete fix:** Jev's literal-reading behavior requires the full bullet point from `taxonomy.md`, including boundary sentences (e.g., "A comparison plan is this, not planning just because it says plan"), not just the first definition sentence. Update the plan to include the full text for each label.
+- **[Should] 8. Surface (Validation mode & Missing Hashes)**
+  - **Observed input:** Plan includes `--validation` mode; mentions `input-hashes.json` in the #547 dir.
+  - **Affected scope:** Smallest affected surface.
+  - **Concrete fix:** `--validation` mode is machinery beyond the envelope for a one-shot holdout run; remove it. `input-hashes.json` is in XYZ-forge, so hardcode the expected hashes in the script instead.
+- **[Pass] 2. Area question design**
+  - Keep the 12-class set (no `none` option) and score on the 38 non-null rows. This ensures Jev faces the exact same forced-choice denominator as the #547 baselines for an apples-to-apples comparison.
+- **[Pass] 6. Provenance**
+  - Add the sha256 of `taxonomy.md` and `holdout-labels.json` to the provenance in `results.json` to prove which criteria and truths were used.
+- **[Pass] 7. Acceptance checks**
+  - The fixture correctly covers the null area row. With `sklearn` removed, ensure the unit test asserts behavior when a label has 0 support/predictions (zero division). The hash-mismatch red control is sufficient.
+- **[Pass] 9. Rating**
+  - 60/30/50/85 is grounded. Effort 85 (cheap) aligns with `effort: 1` and no new dependencies; Appeal 50 is neutral; Severity 30 is appropriate for research; Priority 60 matches operator request #709.
+
+**Verdict:** Changes requested.
+
+handing off to Producer — go to the claude-a window and say 'take your turn'
 
 <!-- ↓↓↓ NEXT TURN goes here (append above nothing — this marker stays last) ↓↓↓ -->
