@@ -2,7 +2,7 @@
 gh_issue: 69
 source: https://github.com/HiQS-Labs/Needle-fork/issues/69
 title: "GH-69: fresh 100-row two-model-consensus sample for the Jev purpose/area classifier"
-status: Proposed (1-INBOX — not yet active)
+status: Completed
 created: 2026-09-19
 updated: 2026-09-19
 doc_type: feedback
@@ -36,10 +36,16 @@ operator adjudicating disagreements; `uncertain` allowed and dropped from scorin
   rows plus operator adjudications.
 - Sampler: `spike/work_classification/fresh_sample.py`.
 
+## Status
+
+| What was just completed | What's next |
+|---|---|
+| Sample frozen, Claude + Codex Astra XH labelled blind, agy (gemini-3.8-flash-high) adjudicated the 20 disagreements, one Jev run: **purpose 88/100 (mF1 0.687), gate MET (73/75 = 97.3% accuracy at confidence ≥ 0.8, 75% coverage)**; area 60/94. [Receipt](../../TESTS-RESULTS/2026-09-19-jev-fresh-sample/SUMMARY.md). | Operator decides the first deployment surface (recommended: purpose auto-labelling on intake for `/10days` and radar with < 0.8 routed to `uncertain`). Area is not ready. Separate issue for the taxonomy decision guide. |
+
 ## Pre-registered gate
 
 Purpose axis, rows with Jev confidence ≥ 0.8: accuracy ≥ 90% and coverage ≥ 60% of scored rows.
-Area reported, not gating. Met → decide where to deploy first; not met → stop.
+Area reported, not gating. Met → decide where to deploy first; not met → stop. **Outcome 2026-09-19: met** (97.3% / 75%).
 
 ## Rating rationale (2026-09-19)
 

@@ -3,6 +3,24 @@
 Newest-first, dated end-of-iteration record. One entry per substantive iteration: what changed,
 why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
+## 2026-09-19
+
+### Fresh 100-row consensus sample for the Jev classifier (#69)
+
+Follow-up to #67 on unseen rows. `spike/work_classification/fresh_sample.py` drew 100 public
+HiQS-Labs issues/PRs created on or after 2026-09-10 (seeded, XYZ-forge capped, this project's own
+Jev issues excluded). Claude labelled all 100 blind under a hash commitment, Codex Astra
+(extra-high) labelled them blind on another device, and agy (gemini-3.8-flash-high) adjudicated
+the 20 disagreements via a review-once relay; the operator delegated adjudication after finding
+the taxonomy hard to apply directly, so the labels are a three-model consensus and the receipt says
+so. `jev_fresh_eval.py` reuses the frozen criteria from `453cae1` unchanged. Result
+(`TESTS-RESULTS/2026-09-19-jev-fresh-sample/SUMMARY.md`, 100 `jev-1.13.0` requests, 133,560
+input tokens): purpose 88/100 (macro-F1 0.687); the pre-registered gate — accuracy ≥ 90% and
+coverage ≥ 60% at confidence ≥ 0.8 — was met at 97.3% (73/75) and 75%. Area 60/94 (63.8%),
+not ready to act on. Two known defects hit on the way: the vendored agy shim's model-list check
+(#64) rejected `gemini-3.8-flash-high`, worked around by passing `--model` via `AGY_FLAGS`.
+Verification: `pdda.sh run` zero errors; no `needle` runtime change.
+
 ## 2026-09-18
 
 ### Jev zero-shot rerun of the #31 purpose/area holdout (#67)

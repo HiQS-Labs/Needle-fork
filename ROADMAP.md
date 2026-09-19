@@ -27,7 +27,7 @@
 
 ### Queue / parked intake
 
-- [GH-69: fresh 100-row two-model-consensus sample for the Jev classifier](PROJECT/1-INBOX/GH-69-JEV-FRESH-SAMPLE.md) — queued 2026-09-19; follow-up to #67 on branch `exp/gh69-jev-fresh-sample`. ([#69](https://github.com/HiQS-Labs/Needle-fork/issues/69))
+- No parked intake docs.
 
 ### In progress
 
@@ -40,6 +40,7 @@
 
 ### Completed
 
+- [GH-69: fresh 100-row consensus sample for the Jev classifier](PROJECT/3-COMPLETED/GH-69-JEV-FRESH-SAMPLE.md) — purpose 88/100, pre-registered confidence gate met (97.3% at ≥ 0.8, 75% coverage); area 60/94, not ready. Three-model consensus labels, no human gold. ([#69](https://github.com/HiQS-Labs/Needle-fork/issues/69))
 - [Top-three shortlist feasibility](PROJECT/3-COMPLETED/SHORTLIST-FEASIBILITY.md) — #62 failed fixed lift gate despite better coverage; park count-based shortlist, no prototype.
 
 - [Private-trained transition comparison](PROJECT/3-COMPLETED/PRIVATE-TRANSITIONS.md) — historical failed gates preserved from #48 without reimporting code; [preservation receipt](TESTS-RESULTS/2026-09-11-private-transitions/PRESERVATION.md).
