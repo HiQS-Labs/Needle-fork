@@ -27,7 +27,7 @@
 
 ### Queue / parked intake
 
-- No parked intake docs.
+- [GH-69: fresh 100-row two-model-consensus sample for the Jev classifier](PROJECT/1-INBOX/GH-69-JEV-FRESH-SAMPLE.md) — queued 2026-09-19; follow-up to #67 on branch `exp/gh69-jev-fresh-sample`. ([#69](https://github.com/HiQS-Labs/Needle-fork/issues/69))
 
 ### In progress
 
