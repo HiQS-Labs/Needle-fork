@@ -1,0 +1,36 @@
+{
+  "train_rows": 500,
+  "holdout_rows": 100,
+  "majority_label": "run_command",
+  "transition_states": 6,
+  "metrics": {
+    "majority": {
+      "correct": 26,
+      "accuracy_pct": 26.0
+    },
+    "repeat_last": {
+      "correct": 22,
+      "accuracy_pct": 22.0
+    },
+    "markov_1": {
+      "correct": 37,
+      "accuracy_pct": 37.0
+    },
+    "phase_backoff": {
+      "correct": 42,
+      "accuracy_pct": 42.0
+    }
+  },
+  "promotion": {
+    "candidate": "phase_backoff",
+    "gate_accuracy_pct": 42.0,
+    "passed": true
+  },
+  "evaluation": {
+    "kind": "coding_core_jsonl"
+  },
+  "inputs": {
+    "train_sha256": "733f93d0cde117b808ec21046787d1348a5b3f3681bbc6e8c2cb34decb2bf776",
+    "holdout_sha256": "f016551eda2f9912c2ab81887669281452777ac103737f6e9b092044064a8587"
+  }
+}

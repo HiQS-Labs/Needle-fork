@@ -40,6 +40,7 @@
 
 ### Completed
 
+- [GH-66: Needle 3 six-action pilot with enum extraction](PROJECT/3-COMPLETED/GH-66-NEEDLE3-PILOT.md) — Needle 3 L20 LoRA 28/100 vs Markov-1 37; falsifier (< 42%) triggered, arm stopped. Rung L7 27, untuned base 20, Jev zero-shot 21 on the same rows. Branch `experiment/needle3-pilot`, nothing lands on `main`. ([#66](https://github.com/HiQS-Labs/Needle-fork/issues/66))
 - [GH-69: fresh 100-row consensus sample for the Jev classifier](PROJECT/3-COMPLETED/GH-69-JEV-FRESH-SAMPLE.md) — purpose 88/100, pre-registered confidence gate met (97.3% at ≥ 0.8, 75% coverage); area 60/94, not ready. Three-model consensus labels, no human gold. ([#69](https://github.com/HiQS-Labs/Needle-fork/issues/69))
 - [Top-three shortlist feasibility](PROJECT/3-COMPLETED/SHORTLIST-FEASIBILITY.md) — #62 failed fixed lift gate despite better coverage; park count-based shortlist, no prototype.
 

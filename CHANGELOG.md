@@ -3,6 +3,29 @@
 Newest-first, dated end-of-iteration record. One entry per substantive iteration: what changed,
 why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
+## 2026-09-20
+
+### Needle 3 six-action pilot: falsifier triggered; Jev zero-shot on the same rows (#66)
+
+Operator go on the 2026-09-18 plan. On branch `experiment/needle3-pilot` (fresh clone; nothing
+lands on `main`): merged upstream `cactus-compute/needle` `94df999` (3.0.1) so `needle/` is
+upstream plus the fork's two #8 hunks re-ported onto 3.0.1's `build_main` (34 lines; the guard's
+tests re-ported onto 3.0.1 fixtures and watched red→green). Added `spike/coding_core/to_needle3.py`
+(pilot rows → one `next_action` enum tool, refuses unknown labels and abstentions, preflight.json
+with token lengths and boilerplate share), `eval_needle3.py` (native engine, one `complete()` per
+row, empties are misses) and `jev_next_action.py` (the #68 zero-shot baseline on the same rows).
+Preflight reproduced #42 exactly (500/11 · 100/2; Markov-1 37%); step-time probe 101–105 s/step
+at batch 16 × seq 1024, peak RSS 10.9 GB, gate met. Result
+(`TESTS-RESULTS/2026-09-20-needle3-coding-core-pilot/SUMMARY.md`): **Needle 3 20-layer LoRA
+28/100**, 7-layer rung 27, untuned base 20, Jev `jev-1.13.0` 21 (macro-F1 0.142, 68 rows under
+0.5 confidence) — all below Markov-1 37 and the 42% falsifier; arm stopped, no tuning. Training
+1 h 53 min wall (6,790.6 s) on the M4 Pro, validation loss 2.72 → 2.37 → 2.31. Deviations posted on
+#66 before the run: host is the MBP (2026-09-07 decision), Python 3.11; the re-ported guard refuses
+every native 3.0.1 adapter (no `qat_bits` provenance) so the build passed
+`--allow-numerics-mismatch` as the plan anticipated — follow-up candidate: record `qat_bits` in
+`write_adapter`. Verification: `pytest -m "not slow"` 581 passed / 7 skipped; `-m slow` 18 passed;
+`test_to_needle3.py` 12 passed; `pdda.sh run` clean.
+
 ## 2026-09-19
 
 ### Fresh 100-row consensus sample for the Jev classifier (#69)
