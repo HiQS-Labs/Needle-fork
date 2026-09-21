@@ -3,6 +3,24 @@
 Newest-first, dated end-of-iteration record. One entry per substantive iteration: what changed,
 why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
+## 2026-09-21
+
+### Jev next-action follow-ups: noise floor, wording, richer state (#77)
+
+The three measurements proposed on Jev-unofficial-toolkit #21 after its verification round found
+a fresh replay of the #66 requests at 18/100 instead of 21. `jev_next_action.py` gained
+`--wording` and `--state` (defaults unchanged, question hash `e97bc1c4…`); `q3_rows.py` replays
+the pilot's selection and projects the same 13 instances with `context="q3"`, giving 500/100 rows
+whose gold and history match the q1 rows 100/100, with the #48 baselines refitted on them;
+`jev_runs_summary.py` reports range and per-row stability. Result
+(`TESTS-RESULTS/2026-09-21-jev-next-action-followups/SUMMARY.md`, 16 runs, 1,600 requests,
+≈ $0.05): A — byte-identical requests to pinned `jev-1.13.0` score 18, 19, 20, 19, 19, with 17/100
+rows changing answer across replays; B — descriptive wording 18.8 mean vs 19.0, no effect (but 0
+rows at ≥ 0.8 confidence vs 5–6); C — the real issue description lifts top-1 to 27–29 on the same
+100 calls, the last tool result to 28–32; Markov-1 is 37 on those rows. Jev-rich and Markov-1 are
+nearly disjoint in what they get right (union 65) — recorded, not acted on. Verification:
+`tests/test_jev_next_action.py` 5 passed; non-slow suite green; `pdda.sh run` no errors.
+
 ## 2026-09-20
 
 ### Needle 3 six-action pilot: falsifier triggered; Jev zero-shot on the same rows (#66)

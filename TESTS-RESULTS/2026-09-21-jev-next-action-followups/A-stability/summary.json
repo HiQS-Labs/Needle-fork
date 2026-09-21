@@ -1,0 +1,106 @@
+{
+ "holdout_sha256": "fbdd97aca39322fa4920865da209ee3f137577aba1a30aea235d37a54e961483",
+ "label": "A-stability (prescriptive, q1 state)",
+ "macro_f1": {
+  "max": 0.1336,
+  "mean": 0.1264,
+  "min": 0.1234
+ },
+ "majority_vote_top1": 20,
+ "per_run": [
+  {
+   "high_conf_correct": 1,
+   "high_conf_rows": 5,
+   "input_tokens": 66528,
+   "macro_f1": 0.1236,
+   "path": "TESTS-RESULTS/2026-09-21-jev-next-action-followups/A-stability/run-1/results.json",
+   "top1": 18,
+   "utc_started": "2026-09-21T19:05:06.709490+00:00"
+  },
+  {
+   "high_conf_correct": 1,
+   "high_conf_rows": 5,
+   "input_tokens": 66528,
+   "macro_f1": 0.124,
+   "path": "TESTS-RESULTS/2026-09-21-jev-next-action-followups/A-stability/run-2/results.json",
+   "top1": 19,
+   "utc_started": "2026-09-21T19:05:33.079028+00:00"
+  },
+  {
+   "high_conf_correct": 1,
+   "high_conf_rows": 6,
+   "input_tokens": 66528,
+   "macro_f1": 0.1336,
+   "path": "TESTS-RESULTS/2026-09-21-jev-next-action-followups/A-stability/run-3/results.json",
+   "top1": 20,
+   "utc_started": "2026-09-21T19:06:01.446426+00:00"
+  },
+  {
+   "high_conf_correct": 1,
+   "high_conf_rows": 6,
+   "input_tokens": 66528,
+   "macro_f1": 0.1234,
+   "path": "TESTS-RESULTS/2026-09-21-jev-next-action-followups/A-stability/run-4/results.json",
+   "top1": 19,
+   "utc_started": "2026-09-21T19:06:29.175703+00:00"
+  },
+  {
+   "high_conf_correct": 1,
+   "high_conf_rows": 5,
+   "input_tokens": 66528,
+   "macro_f1": 0.1275,
+   "path": "TESTS-RESULTS/2026-09-21-jev-next-action-followups/A-stability/run-5/results.json",
+   "top1": 19,
+   "utc_started": "2026-09-21T19:06:55.414727+00:00"
+  }
+ ],
+ "prediction_counts_mean": {
+  "edit": 8,
+  "read": 28.4,
+  "run_command": 5,
+  "run_tests": 35.4,
+  "search": 23.2
+ },
+ "questions_sha256": [
+  "e97bc1c49bb2d983a8c997ce60e4dd35d26074a8a68397816684d4e56931f737"
+ ],
+ "reference": {
+  "path": "TESTS-RESULTS/2026-09-20-needle3-coding-core-pilot/jev/results.json",
+  "same_choice_as_reference_per_run": [
+   94,
+   91,
+   90,
+   88,
+   88
+  ],
+  "top1": 21,
+  "top1_range_including_reference": [
+   18,
+   21
+  ]
+ },
+ "rows": 100,
+ "runs": 5,
+ "stability": {
+  "distinct_answers_per_row": {
+   "1": 83,
+   "2": 17
+  },
+  "rows_always_correct": 14,
+  "rows_ever_correct": 23,
+  "rows_stable": 83,
+  "rows_with_any_change": 17
+ },
+ "state": [
+  "q1"
+ ],
+ "top1": {
+  "max": 20,
+  "mean": 19,
+  "min": 18,
+  "range": 2
+ },
+ "wording": [
+  "prescriptive"
+ ]
+}

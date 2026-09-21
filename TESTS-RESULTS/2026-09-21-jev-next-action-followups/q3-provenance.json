@@ -1,0 +1,76 @@
+{
+ "dataset": "nebius/SWE-rebench-openhands-trajectories",
+ "dataset_revision": "35455389ab51bf5e2306bfd436ef72d0f98bf882",
+ "format_version": "coding-core-q3",
+ "instances": {
+  "holdout": 2,
+  "train": 11
+ },
+ "outputs": {
+  "holdout": {
+   "path": "q3-holdout.jsonl",
+   "sha256": "a99312f59df127aacb2f83c2540ceab47e1271ee270e7338dda48a15094b6049"
+  },
+  "train": {
+   "path": "q3-train.jsonl",
+   "sha256": "db60885f0d8a60a865e7c14fc373f1dc68250fa2b54ec30a3a15f7090b7249f0"
+  }
+ },
+ "q3_audit": {
+  "coding_calls": 676,
+  "control_resets": 51,
+  "eligible_rows": 636,
+  "unmatched_or_empty_results": 38
+ },
+ "q3_rows": {
+  "holdout": 100,
+  "train": 500
+ },
+ "q3_rows_before_cap": {
+  "holdout": 105,
+  "train": 531
+ },
+ "selection": {
+  "caps": {
+   "holdout": 100,
+   "train": 500
+  },
+  "holdout_pct": 20,
+  "max_trajectories": 100,
+  "q1_replay_counts": {
+   "rows_holdout": 100,
+   "rows_train": 500,
+   "trajectories_seen": 34,
+   "unresolved_skipped": 17
+  }
+ },
+ "state_chars": {
+  "holdout": {
+   "observation_max": 2332,
+   "observation_median": 786,
+   "task_max": 597
+  },
+  "train": {
+   "observation_max": 3024,
+   "observation_median": 1031,
+   "task_max": 2000
+  }
+ },
+ "support": {
+  "holdout": {
+   "edit": 19,
+   "read": 29,
+   "run_command": 26,
+   "run_tests": 7,
+   "search": 19
+  },
+  "train": {
+   "edit": 73,
+   "git": 11,
+   "read": 123,
+   "run_command": 138,
+   "run_tests": 67,
+   "search": 88
+  }
+ }
+}

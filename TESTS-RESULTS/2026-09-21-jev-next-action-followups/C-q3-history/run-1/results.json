@@ -1,0 +1,1664 @@
+{
+ "arm": "C-q3-history-run-1",
+ "confidence_buckets": [
+  {
+   "accuracy": 0.288135593220339,
+   "bucket": "<0.5",
+   "correct": 17,
+   "n": 59
+  },
+  {
+   "accuracy": 0.2647058823529412,
+   "bucket": "0.5-0.8",
+   "correct": 9,
+   "n": 34
+  },
+  {
+   "accuracy": 0.14285714285714285,
+   "bucket": ">=0.8",
+   "correct": 1,
+   "n": 7
+  }
+ ],
+ "holdout_sha256": "a99312f59df127aacb2f83c2540ceab47e1271ee270e7338dda48a15094b6049",
+ "input_tokens": 60501,
+ "metrics": {
+  "confusion": [
+   [
+    1,
+    0,
+    3,
+    0,
+    2,
+    13
+   ],
+   [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   [
+    0,
+    0,
+    13,
+    1,
+    1,
+    14
+   ],
+   [
+    0,
+    0,
+    3,
+    0,
+    11,
+    12
+   ],
+   [
+    0,
+    0,
+    3,
+    0,
+    1,
+    3
+   ],
+   [
+    0,
+    0,
+    6,
+    0,
+    1,
+    12
+   ]
+  ],
+  "confusion_labels": [
+   "edit",
+   "git",
+   "read",
+   "run_command",
+   "run_tests",
+   "search"
+  ],
+  "correct": 27,
+  "labeled_n": 100,
+  "macro_f1": 0.16197733265066575,
+  "raw_accuracy": 0.27,
+  "uncertain_truth_n": 0
+ },
+ "model_requested": "jev-1.13.0",
+ "models_seen": [
+  "jev-1.13.0"
+ ],
+ "out_of_enum": 0,
+ "per_label": {
+  "edit": {
+   "predicted": 1,
+   "recall": 0.05263157894736842,
+   "recall_correct": 1,
+   "support": 19
+  },
+  "git": {
+   "predicted": 0,
+   "recall": null,
+   "recall_correct": 0,
+   "support": 0
+  },
+  "read": {
+   "predicted": 28,
+   "recall": 0.4482758620689655,
+   "recall_correct": 13,
+   "support": 29
+  },
+  "run_command": {
+   "predicted": 1,
+   "recall": 0.0,
+   "recall_correct": 0,
+   "support": 26
+  },
+  "run_tests": {
+   "predicted": 16,
+   "recall": 0.14285714285714285,
+   "recall_correct": 1,
+   "support": 7
+  },
+  "search": {
+   "predicted": 54,
+   "recall": 0.631578947368421,
+   "recall_correct": 12,
+   "support": 19
+  }
+ },
+ "prediction_counts": {
+  "edit": 1,
+  "read": 28,
+  "run_command": 1,
+  "run_tests": 16,
+  "search": 54
+ },
+ "predictions": [
+  {
+   "choice": "search",
+   "confidence": 0.97,
+   "gold": "read",
+   "index": 0,
+   "probabilities": {
+    "edit": 0.01,
+    "git": 0.0,
+    "read": 0.01,
+    "run_command": 0.0,
+    "run_tests": 0.0,
+    "search": 0.98
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.97,
+   "gold": "read",
+   "index": 1,
+   "probabilities": {
+    "edit": 0.01,
+    "git": 0.0,
+    "read": 0.01,
+    "run_command": 0.0,
+    "run_tests": 0.0,
+    "search": 0.98
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.96,
+   "gold": "search",
+   "index": 2,
+   "probabilities": {
+    "edit": 0.02,
+    "git": 0.0,
+    "read": 0.01,
+    "run_command": 0.0,
+    "run_tests": 0.0,
+    "search": 0.97
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "read",
+   "confidence": 0.56,
+   "gold": "read",
+   "index": 3,
+   "probabilities": {
+    "edit": 0.25,
+    "git": 0.0,
+    "read": 0.64,
+    "run_command": 0.01,
+    "run_tests": 0.01,
+    "search": 0.09
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.6,
+   "gold": "run_tests",
+   "index": 4,
+   "probabilities": {
+    "edit": 0.28,
+    "git": 0.0,
+    "read": 0.03,
+    "run_command": 0.01,
+    "run_tests": 0.01,
+    "search": 0.67
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.57,
+   "gold": "run_command",
+   "index": 5,
+   "probabilities": {
+    "edit": 0.18,
+    "git": 0.01,
+    "read": 0.14,
+    "run_command": 0.01,
+    "run_tests": 0.01,
+    "search": 0.65
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.38,
+   "gold": "search",
+   "index": 6,
+   "probabilities": {
+    "edit": 0.17,
+    "git": 0.01,
+    "read": 0.29,
+    "run_command": 0.02,
+    "run_tests": 0.03,
+    "search": 0.48
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "read",
+   "confidence": 0.51,
+   "gold": "read",
+   "index": 7,
+   "probabilities": {
+    "edit": 0.26,
+    "git": 0.0,
+    "read": 0.59,
+    "run_command": 0.02,
+    "run_tests": 0.02,
+    "search": 0.11
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.59,
+   "gold": "search",
+   "index": 8,
+   "probabilities": {
+    "edit": 0.24,
+    "git": 0.01,
+    "read": 0.05,
+    "run_command": 0.01,
+    "run_tests": 0.03,
+    "search": 0.66
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "read",
+   "confidence": 0.53,
+   "gold": "read",
+   "index": 9,
+   "probabilities": {
+    "edit": 0.21,
+    "git": 0.0,
+    "read": 0.62,
+    "run_command": 0.01,
+    "run_tests": 0.02,
+    "search": 0.14
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.6,
+   "gold": "read",
+   "index": 10,
+   "probabilities": {
+    "edit": 0.24,
+    "git": 0.0,
+    "read": 0.03,
+    "run_command": 0.02,
+    "run_tests": 0.04,
+    "search": 0.67
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.66,
+   "gold": "read",
+   "index": 11,
+   "probabilities": {
+    "edit": 0.21,
+    "git": 0.0,
+    "read": 0.02,
+    "run_command": 0.01,
+    "run_tests": 0.03,
+    "search": 0.73
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.62,
+   "gold": "search",
+   "index": 12,
+   "probabilities": {
+    "edit": 0.23,
+    "git": 0.01,
+    "read": 0.02,
+    "run_command": 0.02,
+    "run_tests": 0.04,
+    "search": 0.6799999999999999
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "read",
+   "confidence": 0.52,
+   "gold": "search",
+   "index": 13,
+   "probabilities": {
+    "edit": 0.22,
+    "git": 0.0,
+    "read": 0.6,
+    "run_command": 0.01,
+    "run_tests": 0.02,
+    "search": 0.15
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "read",
+   "confidence": 0.73,
+   "gold": "search",
+   "index": 14,
+   "probabilities": {
+    "edit": 0.09,
+    "git": 0.0,
+    "read": 0.77,
+    "run_command": 0.01,
+    "run_tests": 0.02,
+    "search": 0.11
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "read",
+   "confidence": 0.54,
+   "gold": "read",
+   "index": 15,
+   "probabilities": {
+    "edit": 0.22,
+    "git": 0.0,
+    "read": 0.62,
+    "run_command": 0.01,
+    "run_tests": 0.02,
+    "search": 0.13
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.97,
+   "gold": "edit",
+   "index": 16,
+   "probabilities": {
+    "edit": 0.01,
+    "git": 0.0,
+    "read": 0.01,
+    "run_command": 0.0,
+    "run_tests": 0.0,
+    "search": 0.98
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.65,
+   "gold": "run_command",
+   "index": 17,
+   "probabilities": {
+    "edit": 0.09,
+    "git": 0.0,
+    "read": 0.1,
+    "run_command": 0.0,
+    "run_tests": 0.1,
+    "search": 0.71
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.87,
+   "gold": "edit",
+   "index": 18,
+   "probabilities": {
+    "edit": 0.02,
+    "git": 0.0,
+    "read": 0.07,
+    "run_command": 0.0,
+    "run_tests": 0.01,
+    "search": 0.9
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.56,
+   "gold": "run_command",
+   "index": 19,
+   "probabilities": {
+    "edit": 0.05,
+    "git": 0.0,
+    "read": 0.08,
+    "run_command": 0.02,
+    "run_tests": 0.21,
+    "search": 0.64
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.72,
+   "gold": "read",
+   "index": 20,
+   "probabilities": {
+    "edit": 0.05,
+    "git": 0.0,
+    "read": 0.12,
+    "run_command": 0.01,
+    "run_tests": 0.05,
+    "search": 0.77
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.88,
+   "gold": "read",
+   "index": 21,
+   "probabilities": {
+    "edit": 0.07,
+    "git": 0.0,
+    "read": 0.02,
+    "run_command": 0.01,
+    "run_tests": 0.0,
+    "search": 0.9
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.85,
+   "gold": "edit",
+   "index": 22,
+   "probabilities": {
+    "edit": 0.09,
+    "git": 0.0,
+    "read": 0.01,
+    "run_command": 0.01,
+    "run_tests": 0.0,
+    "search": 0.89
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.45,
+   "gold": "run_command",
+   "index": 23,
+   "probabilities": {
+    "edit": 0.03,
+    "git": 0.0,
+    "read": 0.09,
+    "run_command": 0.08,
+    "run_tests": 0.26,
+    "search": 0.54
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.57,
+   "gold": "search",
+   "index": 24,
+   "probabilities": {
+    "edit": 0.03,
+    "git": 0.0,
+    "read": 0.24,
+    "run_command": 0.02,
+    "run_tests": 0.07,
+    "search": 0.64
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "read",
+   "confidence": 0.5,
+   "gold": "search",
+   "index": 25,
+   "probabilities": {
+    "edit": 0.28,
+    "git": 0.0,
+    "read": 0.59,
+    "run_command": 0.02,
+    "run_tests": 0.01,
+    "search": 0.1
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "read",
+   "confidence": 0.34,
+   "gold": "read",
+   "index": 26,
+   "probabilities": {
+    "edit": 0.36,
+    "git": 0.0,
+    "read": 0.45,
+    "run_command": 0.02,
+    "run_tests": 0.02,
+    "search": 0.15
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.6,
+   "gold": "edit",
+   "index": 27,
+   "probabilities": {
+    "edit": 0.26,
+    "git": 0.0,
+    "read": 0.03,
+    "run_command": 0.02,
+    "run_tests": 0.02,
+    "search": 0.67
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.23,
+   "gold": "run_command",
+   "index": 28,
+   "probabilities": {
+    "edit": 0.03,
+    "git": 0.0,
+    "read": 0.22,
+    "run_command": 0.06,
+    "run_tests": 0.33,
+    "search": 0.36
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "read",
+   "confidence": 0.32,
+   "gold": "read",
+   "index": 29,
+   "probabilities": {
+    "edit": 0.08,
+    "git": 0.0,
+    "read": 0.44,
+    "run_command": 0.02,
+    "run_tests": 0.09,
+    "search": 0.37
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.54,
+   "gold": "read",
+   "index": 30,
+   "probabilities": {
+    "edit": 0.31,
+    "git": 0.0,
+    "read": 0.03,
+    "run_command": 0.02,
+    "run_tests": 0.02,
+    "search": 0.62
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.45,
+   "gold": "edit",
+   "index": 31,
+   "probabilities": {
+    "edit": 0.37,
+    "git": 0.0,
+    "read": 0.04,
+    "run_command": 0.01,
+    "run_tests": 0.04,
+    "search": 0.54
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "run_tests",
+   "confidence": 0.27,
+   "gold": "edit",
+   "index": 32,
+   "probabilities": {
+    "edit": 0.04,
+    "git": 0.0,
+    "read": 0.11,
+    "run_command": 0.07,
+    "run_tests": 0.4,
+    "search": 0.38
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "run_tests",
+   "confidence": 0.38,
+   "gold": "run_command",
+   "index": 33,
+   "probabilities": {
+    "edit": 0.03,
+    "git": 0.0,
+    "read": 0.12,
+    "run_command": 0.05,
+    "run_tests": 0.48,
+    "search": 0.32
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.3,
+   "gold": "read",
+   "index": 34,
+   "probabilities": {
+    "edit": 0.05,
+    "git": 0.0,
+    "read": 0.33,
+    "run_command": 0.01,
+    "run_tests": 0.19,
+    "search": 0.42
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.31,
+   "gold": "search",
+   "index": 35,
+   "probabilities": {
+    "edit": 0.37,
+    "git": 0.0,
+    "read": 0.05,
+    "run_command": 0.02,
+    "run_tests": 0.13,
+    "search": 0.43
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "read",
+   "confidence": 0.6,
+   "gold": "read",
+   "index": 36,
+   "probabilities": {
+    "edit": 0.1,
+    "git": 0.0,
+    "read": 0.67,
+    "run_command": 0.01,
+    "run_tests": 0.01,
+    "search": 0.2
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "edit",
+   "confidence": 0.46,
+   "gold": "edit",
+   "index": 37,
+   "probabilities": {
+    "edit": 0.55,
+    "git": 0.0,
+    "read": 0.04,
+    "run_command": 0.02,
+    "run_tests": 0.05,
+    "search": 0.34
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "run_tests",
+   "confidence": 0.35,
+   "gold": "run_command",
+   "index": 38,
+   "probabilities": {
+    "edit": 0.05,
+    "git": 0.0,
+    "read": 0.1,
+    "run_command": 0.03,
+    "run_tests": 0.47000000000000003,
+    "search": 0.35
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.45,
+   "gold": "run_command",
+   "index": 39,
+   "probabilities": {
+    "edit": 0.1,
+    "git": 0.0,
+    "read": 0.27,
+    "run_command": 0.01,
+    "run_tests": 0.07,
+    "search": 0.54
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.41,
+   "gold": "edit",
+   "index": 40,
+   "probabilities": {
+    "edit": 0.11,
+    "git": 0.0,
+    "read": 0.25,
+    "run_command": 0.02,
+    "run_tests": 0.11,
+    "search": 0.51
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "run_tests",
+   "confidence": 0.31,
+   "gold": "run_command",
+   "index": 41,
+   "probabilities": {
+    "edit": 0.05,
+    "git": 0.0,
+    "read": 0.08,
+    "run_command": 0.12,
+    "run_tests": 0.43,
+    "search": 0.32
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.24,
+   "gold": "run_tests",
+   "index": 42,
+   "probabilities": {
+    "edit": 0.07,
+    "git": 0.0,
+    "read": 0.29,
+    "run_command": 0.03,
+    "run_tests": 0.25,
+    "search": 0.36
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.39,
+   "gold": "run_command",
+   "index": 43,
+   "probabilities": {
+    "edit": 0.08,
+    "git": 0.01,
+    "read": 0.36,
+    "run_command": 0.01,
+    "run_tests": 0.05,
+    "search": 0.49
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.27,
+   "gold": "edit",
+   "index": 44,
+   "probabilities": {
+    "edit": 0.05,
+    "git": 0.01,
+    "read": 0.36,
+    "run_command": 0.04,
+    "run_tests": 0.14,
+    "search": 0.4
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "run_tests",
+   "confidence": 0.72,
+   "gold": "run_command",
+   "index": 45,
+   "probabilities": {
+    "edit": 0.01,
+    "git": 0.0,
+    "read": 0.04,
+    "run_command": 0.01,
+    "run_tests": 0.77,
+    "search": 0.17
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "run_tests",
+   "confidence": 0.49,
+   "gold": "search",
+   "index": 46,
+   "probabilities": {
+    "edit": 0.04,
+    "git": 0.01,
+    "read": 0.22,
+    "run_command": 0.03,
+    "run_tests": 0.57,
+    "search": 0.13
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "read",
+   "confidence": 0.7,
+   "gold": "read",
+   "index": 47,
+   "probabilities": {
+    "edit": 0.09,
+    "git": 0.0,
+    "read": 0.75,
+    "run_command": 0.01,
+    "run_tests": 0.02,
+    "search": 0.13
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.66,
+   "gold": "edit",
+   "index": 48,
+   "probabilities": {
+    "edit": 0.19,
+    "git": 0.0,
+    "read": 0.04,
+    "run_command": 0.01,
+    "run_tests": 0.04,
+    "search": 0.72
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.4,
+   "gold": "run_command",
+   "index": 49,
+   "probabilities": {
+    "edit": 0.03,
+    "git": 0.0,
+    "read": 0.15,
+    "run_command": 0.01,
+    "run_tests": 0.3,
+    "search": 0.51
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.46,
+   "gold": "run_tests",
+   "index": 50,
+   "probabilities": {
+    "edit": 0.07,
+    "git": 0.0,
+    "read": 0.27,
+    "run_command": 0.02,
+    "run_tests": 0.09,
+    "search": 0.55
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.51,
+   "gold": "edit",
+   "index": 51,
+   "probabilities": {
+    "edit": 0.1,
+    "git": 0.0,
+    "read": 0.24,
+    "run_command": 0.01,
+    "run_tests": 0.06,
+    "search": 0.59
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "run_tests",
+   "confidence": 0.6,
+   "gold": "run_command",
+   "index": 52,
+   "probabilities": {
+    "edit": 0.02,
+    "git": 0.0,
+    "read": 0.07,
+    "run_command": 0.01,
+    "run_tests": 0.66,
+    "search": 0.24
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.46,
+   "gold": "edit",
+   "index": 53,
+   "probabilities": {
+    "edit": 0.06,
+    "git": 0.0,
+    "read": 0.16,
+    "run_command": 0.01,
+    "run_tests": 0.23,
+    "search": 0.54
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "run_tests",
+   "confidence": 0.55,
+   "gold": "run_command",
+   "index": 54,
+   "probabilities": {
+    "edit": 0.02,
+    "git": 0.0,
+    "read": 0.07,
+    "run_command": 0.01,
+    "run_tests": 0.62,
+    "search": 0.28
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.25,
+   "gold": "read",
+   "index": 55,
+   "probabilities": {
+    "edit": 0.05,
+    "git": 0.0,
+    "read": 0.25,
+    "run_command": 0.02,
+    "run_tests": 0.29,
+    "search": 0.39
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.54,
+   "gold": "edit",
+   "index": 56,
+   "probabilities": {
+    "edit": 0.26,
+    "git": 0.0,
+    "read": 0.03,
+    "run_command": 0.01,
+    "run_tests": 0.08,
+    "search": 0.62
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "run_tests",
+   "confidence": 0.79,
+   "gold": "run_command",
+   "index": 57,
+   "probabilities": {
+    "edit": 0.01,
+    "git": 0.0,
+    "read": 0.04,
+    "run_command": 0.01,
+    "run_tests": 0.82,
+    "search": 0.12
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "run_tests",
+   "confidence": 0.51,
+   "gold": "edit",
+   "index": 58,
+   "probabilities": {
+    "edit": 0.02,
+    "git": 0.01,
+    "read": 0.24,
+    "run_command": 0.01,
+    "run_tests": 0.6,
+    "search": 0.12
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "run_tests",
+   "confidence": 0.65,
+   "gold": "run_command",
+   "index": 59,
+   "probabilities": {
+    "edit": 0.01,
+    "git": 0.0,
+    "read": 0.04,
+    "run_command": 0.01,
+    "run_tests": 0.72,
+    "search": 0.22
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.53,
+   "gold": "run_command",
+   "index": 60,
+   "probabilities": {
+    "edit": 0.03,
+    "git": 0.0,
+    "read": 0.22,
+    "run_command": 0.01,
+    "run_tests": 0.13,
+    "search": 0.61
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.52,
+   "gold": "run_command",
+   "index": 61,
+   "probabilities": {
+    "edit": 0.03,
+    "git": 0.0,
+    "read": 0.06,
+    "run_command": 0.15,
+    "run_tests": 0.16,
+    "search": 0.6
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.51,
+   "gold": "read",
+   "index": 62,
+   "probabilities": {
+    "edit": 0.04,
+    "git": 0.0,
+    "read": 0.24,
+    "run_command": 0.09,
+    "run_tests": 0.03,
+    "search": 0.6
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.47,
+   "gold": "read",
+   "index": 63,
+   "probabilities": {
+    "edit": 0.05,
+    "git": 0.0,
+    "read": 0.1,
+    "run_command": 0.22,
+    "run_tests": 0.07,
+    "search": 0.56
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.44,
+   "gold": "search",
+   "index": 64,
+   "probabilities": {
+    "edit": 0.08,
+    "git": 0.0,
+    "read": 0.1,
+    "run_command": 0.24,
+    "run_tests": 0.05,
+    "search": 0.53
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "read",
+   "confidence": 0.26,
+   "gold": "run_command",
+   "index": 65,
+   "probabilities": {
+    "edit": 0.21,
+    "git": 0.0,
+    "read": 0.38,
+    "run_command": 0.19,
+    "run_tests": 0.06,
+    "search": 0.16
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.26,
+   "gold": "run_command",
+   "index": 66,
+   "probabilities": {
+    "edit": 0.09,
+    "git": 0.0,
+    "read": 0.38,
+    "run_command": 0.08,
+    "run_tests": 0.06,
+    "search": 0.39
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "read",
+   "confidence": 0.31,
+   "gold": "search",
+   "index": 67,
+   "probabilities": {
+    "edit": 0.07,
+    "git": 0.0,
+    "read": 0.42,
+    "run_command": 0.08,
+    "run_tests": 0.05,
+    "search": 0.38
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "read",
+   "confidence": 0.24,
+   "gold": "read",
+   "index": 68,
+   "probabilities": {
+    "edit": 0.2,
+    "git": 0.0,
+    "read": 0.37,
+    "run_command": 0.23,
+    "run_tests": 0.04,
+    "search": 0.16
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.44,
+   "gold": "read",
+   "index": 69,
+   "probabilities": {
+    "edit": 0.13,
+    "git": 0.0,
+    "read": 0.11,
+    "run_command": 0.14,
+    "run_tests": 0.08,
+    "search": 0.54
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.41,
+   "gold": "search",
+   "index": 70,
+   "probabilities": {
+    "edit": 0.1,
+    "git": 0.0,
+    "read": 0.13,
+    "run_command": 0.2,
+    "run_tests": 0.07,
+    "search": 0.5
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "read",
+   "confidence": 0.28,
+   "gold": "read",
+   "index": 71,
+   "probabilities": {
+    "edit": 0.18,
+    "git": 0.0,
+    "read": 0.41000000000000003,
+    "run_command": 0.22,
+    "run_tests": 0.04,
+    "search": 0.15
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.47,
+   "gold": "search",
+   "index": 72,
+   "probabilities": {
+    "edit": 0.1,
+    "git": 0.0,
+    "read": 0.1,
+    "run_command": 0.18,
+    "run_tests": 0.07,
+    "search": 0.55
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "run_command",
+   "confidence": 0.23,
+   "gold": "read",
+   "index": 73,
+   "probabilities": {
+    "edit": 0.16,
+    "git": 0.0,
+    "read": 0.31,
+    "run_command": 0.36,
+    "run_tests": 0.05,
+    "search": 0.12
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.35,
+   "gold": "run_command",
+   "index": 74,
+   "probabilities": {
+    "edit": 0.09,
+    "git": 0.0,
+    "read": 0.08,
+    "run_command": 0.3,
+    "run_tests": 0.07,
+    "search": 0.46
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "read",
+   "confidence": 0.35,
+   "gold": "read",
+   "index": 75,
+   "probabilities": {
+    "edit": 0.08,
+    "git": 0.0,
+    "read": 0.46,
+    "run_command": 0.1,
+    "run_tests": 0.09,
+    "search": 0.27
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.25,
+   "gold": "search",
+   "index": 76,
+   "probabilities": {
+    "edit": 0.19,
+    "git": 0.0,
+    "read": 0.1,
+    "run_command": 0.25,
+    "run_tests": 0.09,
+    "search": 0.37
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "read",
+   "confidence": 0.32,
+   "gold": "search",
+   "index": 77,
+   "probabilities": {
+    "edit": 0.19,
+    "git": 0.0,
+    "read": 0.43,
+    "run_command": 0.19,
+    "run_tests": 0.04,
+    "search": 0.15
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "read",
+   "confidence": 0.31,
+   "gold": "search",
+   "index": 78,
+   "probabilities": {
+    "edit": 0.18,
+    "git": 0.0,
+    "read": 0.42,
+    "run_command": 0.18,
+    "run_tests": 0.05,
+    "search": 0.17
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "read",
+   "confidence": 0.28,
+   "gold": "read",
+   "index": 79,
+   "probabilities": {
+    "edit": 0.09,
+    "git": 0.0,
+    "read": 0.4,
+    "run_command": 0.3,
+    "run_tests": 0.07,
+    "search": 0.14
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.23,
+   "gold": "search",
+   "index": 80,
+   "probabilities": {
+    "edit": 0.13,
+    "git": 0.0,
+    "read": 0.11,
+    "run_command": 0.26,
+    "run_tests": 0.14,
+    "search": 0.36
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "read",
+   "confidence": 0.31,
+   "gold": "edit",
+   "index": 81,
+   "probabilities": {
+    "edit": 0.14,
+    "git": 0.0,
+    "read": 0.43,
+    "run_command": 0.26,
+    "run_tests": 0.05,
+    "search": 0.12
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "run_tests",
+   "confidence": 0.42,
+   "gold": "run_command",
+   "index": 82,
+   "probabilities": {
+    "edit": 0.07,
+    "git": 0.01,
+    "read": 0.23,
+    "run_command": 0.09,
+    "run_tests": 0.51,
+    "search": 0.09
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.52,
+   "gold": "read",
+   "index": 83,
+   "probabilities": {
+    "edit": 0.03,
+    "git": 0.0,
+    "read": 0.05,
+    "run_command": 0.14,
+    "run_tests": 0.17,
+    "search": 0.61
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.47,
+   "gold": "search",
+   "index": 84,
+   "probabilities": {
+    "edit": 0.05,
+    "git": 0.0,
+    "read": 0.08,
+    "run_command": 0.16,
+    "run_tests": 0.14,
+    "search": 0.56
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "read",
+   "confidence": 0.27,
+   "gold": "read",
+   "index": 85,
+   "probabilities": {
+    "edit": 0.17,
+    "git": 0.0,
+    "read": 0.38,
+    "run_command": 0.21,
+    "run_tests": 0.12,
+    "search": 0.12
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.41,
+   "gold": "edit",
+   "index": 86,
+   "probabilities": {
+    "edit": 0.11,
+    "git": 0.0,
+    "read": 0.08,
+    "run_command": 0.16,
+    "run_tests": 0.14,
+    "search": 0.51
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "run_tests",
+   "confidence": 0.25,
+   "gold": "run_command",
+   "index": 87,
+   "probabilities": {
+    "edit": 0.12,
+    "git": 0.0,
+    "read": 0.29,
+    "run_command": 0.06,
+    "run_tests": 0.37,
+    "search": 0.16
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "read",
+   "confidence": 0.46,
+   "gold": "edit",
+   "index": 88,
+   "probabilities": {
+    "edit": 0.09,
+    "git": 0.0,
+    "read": 0.55,
+    "run_command": 0.06,
+    "run_tests": 0.08,
+    "search": 0.22
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "run_tests",
+   "confidence": 0.18,
+   "gold": "run_command",
+   "index": 89,
+   "probabilities": {
+    "edit": 0.11,
+    "git": 0.0,
+    "read": 0.23,
+    "run_command": 0.21,
+    "run_tests": 0.32,
+    "search": 0.13
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "read",
+   "confidence": 0.42,
+   "gold": "run_command",
+   "index": 90,
+   "probabilities": {
+    "edit": 0.09,
+    "git": 0.0,
+    "read": 0.52,
+    "run_command": 0.09,
+    "run_tests": 0.12,
+    "search": 0.18
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "read",
+   "confidence": 0.44,
+   "gold": "run_tests",
+   "index": 91,
+   "probabilities": {
+    "edit": 0.1,
+    "git": 0.01,
+    "read": 0.54,
+    "run_command": 0.1,
+    "run_tests": 0.09,
+    "search": 0.16
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "read",
+   "confidence": 0.46,
+   "gold": "run_tests",
+   "index": 92,
+   "probabilities": {
+    "edit": 0.1,
+    "git": 0.03,
+    "read": 0.54,
+    "run_command": 0.04,
+    "run_tests": 0.14,
+    "search": 0.15
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "read",
+   "confidence": 0.34,
+   "gold": "run_tests",
+   "index": 93,
+   "probabilities": {
+    "edit": 0.13,
+    "git": 0.02,
+    "read": 0.45,
+    "run_command": 0.05,
+    "run_tests": 0.16,
+    "search": 0.19
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "read",
+   "confidence": 0.37,
+   "gold": "run_command",
+   "index": 94,
+   "probabilities": {
+    "edit": 0.13,
+    "git": 0.02,
+    "read": 0.47,
+    "run_command": 0.03,
+    "run_tests": 0.19,
+    "search": 0.16
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "run_tests",
+   "confidence": 0.22,
+   "gold": "read",
+   "index": 95,
+   "probabilities": {
+    "edit": 0.06,
+    "git": 0.01,
+    "read": 0.35,
+    "run_command": 0.07,
+    "run_tests": 0.36,
+    "search": 0.15
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.22,
+   "gold": "read",
+   "index": 96,
+   "probabilities": {
+    "edit": 0.2,
+    "git": 0.01,
+    "read": 0.15,
+    "run_command": 0.12,
+    "run_tests": 0.18,
+    "search": 0.33999999999999997
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "search",
+   "confidence": 0.45,
+   "gold": "edit",
+   "index": 97,
+   "probabilities": {
+    "edit": 0.15,
+    "git": 0.0,
+    "read": 0.11,
+    "run_command": 0.13,
+    "run_tests": 0.07,
+    "search": 0.54
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "run_tests",
+   "confidence": 0.31,
+   "gold": "run_tests",
+   "index": 98,
+   "probabilities": {
+    "edit": 0.09,
+    "git": 0.0,
+    "read": 0.23,
+    "run_command": 0.12,
+    "run_tests": 0.42,
+    "search": 0.14
+   },
+   "type": "choice"
+  },
+  {
+   "choice": "read",
+   "confidence": 0.26,
+   "gold": "edit",
+   "index": 99,
+   "probabilities": {
+    "edit": 0.12,
+    "git": 0.01,
+    "read": 0.38,
+    "run_command": 0.05,
+    "run_tests": 0.12,
+    "search": 0.32
+   },
+   "type": "choice"
+  }
+ ],
+ "questions_sha256": "e97bc1c49bb2d983a8c997ce60e4dd35d26074a8a68397816684d4e56931f737",
+ "rows": 100,
+ "scored": 100,
+ "script_sha256": {
+  "jev_next_action.py": "919380563ac360bfd9000e4f51affd340805eaa5a0ed69b31ef40feb9af6d69c",
+  "jev_zero_shot.py": "0740582603468547081f4fd0ee3883e5c1331d1b1056522e7652c9e4cca6a643"
+ },
+ "skipped": 0,
+ "state": "history",
+ "timing": {
+  "per_row_s": {
+   "max": 4.341,
+   "median": 0.306,
+   "min": 0.17
+  },
+  "wall_s_total": 40.2
+ },
+ "top1_accuracy_pct": 27.0,
+ "top1_correct": 27,
+ "utc_finished": "2026-09-21T19:10:47.630808+00:00",
+ "utc_started": "2026-09-21T19:10:07.412065+00:00",
+ "wording": "prescriptive"
+}
