@@ -479,7 +479,19 @@ def build_main(args):
         # quantisation-aware is always deployed into numerics it never saw.
         # That used to happen silently, which is strictly worse than the
         # bit-width mismatch a few lines up -- which raises.
-        if args.lora and not getattr(args, "allow_numerics_mismatch", False):
+        adapter_qat_bits = adapter.get("qat_bits") if adapter else None
+        adapter_qat_bits_map = adapter.get("qat_bits_map") if adapter else None
+        if adapter_qat_bits_map is not None:
+            raise ValueError(
+                "adapter was trained for a mixed CQ bit map, but this build would "
+                f"deploy CQ W{WEIGHT_BITS} and different numerics")
+        elif adapter_qat_bits is not None:
+            if int(adapter_qat_bits) != int(WEIGHT_BITS):
+                raise ValueError(
+                    f"adapter was trained for CQ W{adapter_qat_bits}, but this build "
+                    f"would deploy CQ W{WEIGHT_BITS} and different numerics")
+            print(f"  {'scheme':<9} CQ W{WEIGHT_BITS} from QAT adapter metadata")
+        elif args.lora and not getattr(args, "allow_numerics_mismatch", False):
             provenance = ("was trained at full precision"
                           if adapter_declared else
                           "does not declare its training numerics")

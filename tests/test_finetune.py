@@ -66,7 +66,8 @@ def test_finetune_then_build_merges(tiny_checkpoint, tmp_path, published_base):
 
     out = str(tmp_path / "merged.cact")
     build_main(types.SimpleNamespace(checkpoint=tiny_checkpoint, lora=str(adapter),
-                                     out=out, upload=False))
+                                     out=out, upload=False,
+                                     allow_numerics_mismatch=True))  # fork #8 guard, see #66
     assert os.path.exists(out)
     header, _ = read_export(out)
     assert header["num_tensors"] > 0
@@ -82,7 +83,8 @@ def test_build_without_a_checkpoint_uses_the_adapter_base(tiny_checkpoint, tmp_p
     finetune_local(_finetune_args(data, tiny_checkpoint, adapter, tmp_path / "ck"))
     out = str(tmp_path / "from_adapter.cact")
     build_main(types.SimpleNamespace(checkpoint=None, lora=str(adapter), out=out,
-                                     upload=False))
+                                     upload=False,
+                                     allow_numerics_mismatch=True))  # fork #8 guard, see #66
     header, _ = read_export(out)
     assert header["num_layers"] == 4
 
@@ -145,6 +147,7 @@ def test_finetune_adapter_defaults_to_safetensors_and_builds(tiny_checkpoint_saf
 
     out = str(tmp_path / "merged_st.cact")
     build_main(types.SimpleNamespace(checkpoint=tiny_checkpoint_safetensors,
-                                     lora=str(adapter_path), out=out, upload=False))
+                                     lora=str(adapter_path), out=out, upload=False,
+                                     allow_numerics_mismatch=True))  # fork #8 guard, see #66
     header, _ = read_export(out)
     assert header["num_tensors"] > 0
