@@ -1,0 +1,826 @@
+{
+ "holdout_rows": 100,
+ "holdout_sha256": "a99312f59df127aacb2f83c2540ceab47e1271ee270e7338dda48a15094b6049",
+ "metrics": {
+  "majority": {
+   "accuracy_pct": 26.0,
+   "correct": 26
+  },
+  "markov_1": {
+   "accuracy_pct": 37.0,
+   "correct": 37
+  },
+  "phase_backoff": {
+   "accuracy_pct": 42.0,
+   "correct": 42
+  },
+  "repeat_last": {
+   "accuracy_pct": 22.0,
+   "correct": 22
+  }
+ },
+ "predictions": [
+  {
+   "gold": "read",
+   "index": 0,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "read",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "read",
+   "index": 1,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "read",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "search",
+   "index": 2,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "read",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "read",
+   "index": 3,
+   "majority": "run_command",
+   "markov_1": "search",
+   "phase_backoff": "search",
+   "repeat_last": "search"
+  },
+  {
+   "gold": "run_tests",
+   "index": 4,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "read",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "run_command",
+   "index": 5,
+   "majority": "run_command",
+   "markov_1": "run_tests",
+   "phase_backoff": "read",
+   "repeat_last": "run_tests"
+  },
+  {
+   "gold": "search",
+   "index": 6,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "run_tests",
+   "repeat_last": "run_command"
+  },
+  {
+   "gold": "read",
+   "index": 7,
+   "majority": "run_command",
+   "markov_1": "search",
+   "phase_backoff": "read",
+   "repeat_last": "search"
+  },
+  {
+   "gold": "search",
+   "index": 8,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "read",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "read",
+   "index": 9,
+   "majority": "run_command",
+   "markov_1": "search",
+   "phase_backoff": "search",
+   "repeat_last": "search"
+  },
+  {
+   "gold": "read",
+   "index": 10,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "read",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "read",
+   "index": 11,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "read",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "search",
+   "index": 12,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "read",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "search",
+   "index": 13,
+   "majority": "run_command",
+   "markov_1": "search",
+   "phase_backoff": "search",
+   "repeat_last": "search"
+  },
+  {
+   "gold": "search",
+   "index": 14,
+   "majority": "run_command",
+   "markov_1": "search",
+   "phase_backoff": "read",
+   "repeat_last": "search"
+  },
+  {
+   "gold": "read",
+   "index": 15,
+   "majority": "run_command",
+   "markov_1": "search",
+   "phase_backoff": "read",
+   "repeat_last": "search"
+  },
+  {
+   "gold": "edit",
+   "index": 16,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "read",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "run_command",
+   "index": 17,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "run_command",
+   "repeat_last": "edit"
+  },
+  {
+   "gold": "edit",
+   "index": 18,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "edit",
+   "repeat_last": "run_command"
+  },
+  {
+   "gold": "run_command",
+   "index": 19,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "run_command",
+   "repeat_last": "edit"
+  },
+  {
+   "gold": "read",
+   "index": 20,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "edit",
+   "repeat_last": "run_command"
+  },
+  {
+   "gold": "read",
+   "index": 21,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "run_command",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "edit",
+   "index": 22,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "read",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "run_command",
+   "index": 23,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "run_command",
+   "repeat_last": "edit"
+  },
+  {
+   "gold": "search",
+   "index": 24,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "edit",
+   "repeat_last": "run_command"
+  },
+  {
+   "gold": "search",
+   "index": 25,
+   "majority": "run_command",
+   "markov_1": "search",
+   "phase_backoff": "search",
+   "repeat_last": "search"
+  },
+  {
+   "gold": "read",
+   "index": 26,
+   "majority": "run_command",
+   "markov_1": "search",
+   "phase_backoff": "run_command",
+   "repeat_last": "search"
+  },
+  {
+   "gold": "edit",
+   "index": 27,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "edit",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "run_command",
+   "index": 28,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "run_command",
+   "repeat_last": "edit"
+  },
+  {
+   "gold": "read",
+   "index": 29,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "edit",
+   "repeat_last": "run_command"
+  },
+  {
+   "gold": "read",
+   "index": 30,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "run_command",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "edit",
+   "index": 31,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "read",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "edit",
+   "index": 32,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "run_command",
+   "repeat_last": "edit"
+  },
+  {
+   "gold": "run_command",
+   "index": 33,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "run_command",
+   "repeat_last": "edit"
+  },
+  {
+   "gold": "read",
+   "index": 34,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "edit",
+   "repeat_last": "run_command"
+  },
+  {
+   "gold": "search",
+   "index": 35,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "run_command",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "read",
+   "index": 36,
+   "majority": "run_command",
+   "markov_1": "search",
+   "phase_backoff": "search",
+   "repeat_last": "search"
+  },
+  {
+   "gold": "edit",
+   "index": 37,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "edit",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "run_command",
+   "index": 38,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "run_command",
+   "repeat_last": "edit"
+  },
+  {
+   "gold": "run_command",
+   "index": 39,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "edit",
+   "repeat_last": "run_command"
+  },
+  {
+   "gold": "edit",
+   "index": 40,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "edit",
+   "repeat_last": "run_command"
+  },
+  {
+   "gold": "run_command",
+   "index": 41,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "run_command",
+   "repeat_last": "edit"
+  },
+  {
+   "gold": "run_tests",
+   "index": 42,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "edit",
+   "repeat_last": "run_command"
+  },
+  {
+   "gold": "run_command",
+   "index": 43,
+   "majority": "run_command",
+   "markov_1": "run_tests",
+   "phase_backoff": "run_tests",
+   "repeat_last": "run_tests"
+  },
+  {
+   "gold": "edit",
+   "index": 44,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "edit",
+   "repeat_last": "run_command"
+  },
+  {
+   "gold": "run_command",
+   "index": 45,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "run_command",
+   "repeat_last": "edit"
+  },
+  {
+   "gold": "search",
+   "index": 46,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "edit",
+   "repeat_last": "run_command"
+  },
+  {
+   "gold": "read",
+   "index": 47,
+   "majority": "run_command",
+   "markov_1": "search",
+   "phase_backoff": "search",
+   "repeat_last": "search"
+  },
+  {
+   "gold": "edit",
+   "index": 48,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "edit",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "run_command",
+   "index": 49,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "run_command",
+   "repeat_last": "edit"
+  },
+  {
+   "gold": "run_tests",
+   "index": 50,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "edit",
+   "repeat_last": "run_command"
+  },
+  {
+   "gold": "edit",
+   "index": 51,
+   "majority": "run_command",
+   "markov_1": "run_tests",
+   "phase_backoff": "run_tests",
+   "repeat_last": "run_tests"
+  },
+  {
+   "gold": "run_command",
+   "index": 52,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "run_command",
+   "repeat_last": "edit"
+  },
+  {
+   "gold": "edit",
+   "index": 53,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "edit",
+   "repeat_last": "run_command"
+  },
+  {
+   "gold": "run_command",
+   "index": 54,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "run_command",
+   "repeat_last": "edit"
+  },
+  {
+   "gold": "read",
+   "index": 55,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "edit",
+   "repeat_last": "run_command"
+  },
+  {
+   "gold": "edit",
+   "index": 56,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "run_command",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "run_command",
+   "index": 57,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "run_command",
+   "repeat_last": "edit"
+  },
+  {
+   "gold": "edit",
+   "index": 58,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "edit",
+   "repeat_last": "run_command"
+  },
+  {
+   "gold": "run_command",
+   "index": 59,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "run_command",
+   "repeat_last": "edit"
+  },
+  {
+   "gold": "run_command",
+   "index": 60,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "edit",
+   "repeat_last": "run_command"
+  },
+  {
+   "gold": "run_command",
+   "index": 61,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "read",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "read",
+   "index": 62,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "run_command",
+   "repeat_last": "run_command"
+  },
+  {
+   "gold": "read",
+   "index": 63,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "search",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "search",
+   "index": 64,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "read",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "run_command",
+   "index": 65,
+   "majority": "run_command",
+   "markov_1": "search",
+   "phase_backoff": "search",
+   "repeat_last": "search"
+  },
+  {
+   "gold": "run_command",
+   "index": 66,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "run_command",
+   "repeat_last": "run_command"
+  },
+  {
+   "gold": "search",
+   "index": 67,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "run_command",
+   "repeat_last": "run_command"
+  },
+  {
+   "gold": "read",
+   "index": 68,
+   "majority": "run_command",
+   "markov_1": "search",
+   "phase_backoff": "read",
+   "repeat_last": "search"
+  },
+  {
+   "gold": "read",
+   "index": 69,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "read",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "search",
+   "index": 70,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "read",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "read",
+   "index": 71,
+   "majority": "run_command",
+   "markov_1": "search",
+   "phase_backoff": "search",
+   "repeat_last": "search"
+  },
+  {
+   "gold": "search",
+   "index": 72,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "read",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "read",
+   "index": 73,
+   "majority": "run_command",
+   "markov_1": "search",
+   "phase_backoff": "search",
+   "repeat_last": "search"
+  },
+  {
+   "gold": "run_command",
+   "index": 74,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "read",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "read",
+   "index": 75,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "run_command",
+   "repeat_last": "run_command"
+  },
+  {
+   "gold": "search",
+   "index": 76,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "search",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "search",
+   "index": 77,
+   "majority": "run_command",
+   "markov_1": "search",
+   "phase_backoff": "search",
+   "repeat_last": "search"
+  },
+  {
+   "gold": "search",
+   "index": 78,
+   "majority": "run_command",
+   "markov_1": "search",
+   "phase_backoff": "read",
+   "repeat_last": "search"
+  },
+  {
+   "gold": "read",
+   "index": 79,
+   "majority": "run_command",
+   "markov_1": "search",
+   "phase_backoff": "read",
+   "repeat_last": "search"
+  },
+  {
+   "gold": "search",
+   "index": 80,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "read",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "edit",
+   "index": 81,
+   "majority": "run_command",
+   "markov_1": "search",
+   "phase_backoff": "search",
+   "repeat_last": "search"
+  },
+  {
+   "gold": "run_command",
+   "index": 82,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "run_command",
+   "repeat_last": "edit"
+  },
+  {
+   "gold": "read",
+   "index": 83,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "read",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "search",
+   "index": 84,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "read",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "read",
+   "index": 85,
+   "majority": "run_command",
+   "markov_1": "search",
+   "phase_backoff": "search",
+   "repeat_last": "search"
+  },
+  {
+   "gold": "edit",
+   "index": 86,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "read",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "run_command",
+   "index": 87,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "run_command",
+   "repeat_last": "edit"
+  },
+  {
+   "gold": "edit",
+   "index": 88,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "edit",
+   "repeat_last": "run_command"
+  },
+  {
+   "gold": "run_command",
+   "index": 89,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "run_command",
+   "repeat_last": "edit"
+  },
+  {
+   "gold": "run_command",
+   "index": 90,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "edit",
+   "repeat_last": "run_command"
+  },
+  {
+   "gold": "run_tests",
+   "index": 91,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "edit",
+   "repeat_last": "run_command"
+  },
+  {
+   "gold": "run_tests",
+   "index": 92,
+   "majority": "run_command",
+   "markov_1": "run_tests",
+   "phase_backoff": "run_tests",
+   "repeat_last": "run_tests"
+  },
+  {
+   "gold": "run_tests",
+   "index": 93,
+   "majority": "run_command",
+   "markov_1": "run_tests",
+   "phase_backoff": "run_tests",
+   "repeat_last": "run_tests"
+  },
+  {
+   "gold": "run_command",
+   "index": 94,
+   "majority": "run_command",
+   "markov_1": "run_tests",
+   "phase_backoff": "run_tests",
+   "repeat_last": "run_tests"
+  },
+  {
+   "gold": "read",
+   "index": 95,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "edit",
+   "repeat_last": "run_command"
+  },
+  {
+   "gold": "read",
+   "index": 96,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "run_command",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "edit",
+   "index": 97,
+   "majority": "run_command",
+   "markov_1": "read",
+   "phase_backoff": "read",
+   "repeat_last": "read"
+  },
+  {
+   "gold": "run_tests",
+   "index": 98,
+   "majority": "run_command",
+   "markov_1": "run_command",
+   "phase_backoff": "run_command",
+   "repeat_last": "edit"
+  },
+  {
+   "gold": "edit",
+   "index": 99,
+   "majority": "run_command",
+   "markov_1": "run_tests",
+   "phase_backoff": "run_tests",
+   "repeat_last": "run_tests"
+  }
+ ],
+ "train_rows": 500,
+ "train_sha256": "db60885f0d8a60a865e7c14fc373f1dc68250fa2b54ec30a3a15f7090b7249f0"
+}

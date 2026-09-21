@@ -3,6 +3,47 @@
 Newest-first, dated end-of-iteration record. One entry per substantive iteration: what changed,
 why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
+## 2026-09-21
+
+### Jev next-action follow-ups: noise floor, wording, richer state (#77)
+
+The three measurements proposed on Jev-unofficial-toolkit #21 after its verification round found
+a fresh replay of the #66 requests at 18/100 instead of 21. `jev_next_action.py` gained
+`--wording` and `--state` (defaults unchanged, question hash `e97bc1c4…`); `q3_rows.py` replays
+the pilot's selection and projects the same 13 instances with `context="q3"`, giving 500/100 rows
+whose gold and history match the q1 rows 100/100, with the #48 baselines refitted on them;
+`jev_runs_summary.py` reports range and per-row stability. Result
+(`TESTS-RESULTS/2026-09-21-jev-next-action-followups/SUMMARY.md`, 16 runs, 1,600 requests,
+≈ $0.05): A — byte-identical requests to pinned `jev-1.13.0` score 18, 19, 20, 19, 19, with 17/100
+rows changing answer across replays; B — descriptive wording 18.8 mean vs 19.0, no effect (but 0
+rows at ≥ 0.8 confidence vs 5–6); C — the real issue description lifts top-1 to 27–29 on the same
+100 calls, the last tool result to 28–32; Markov-1 is 37 on those rows. Jev-rich and Markov-1 are
+nearly disjoint in what they get right (union 65) — recorded, not acted on. Verification:
+`tests/test_jev_next_action.py` 5 passed; non-slow suite green; `pdda.sh run` no errors.
+
+## 2026-09-20
+
+### Needle 3 six-action pilot: falsifier triggered; Jev zero-shot on the same rows (#66)
+
+Operator go on the 2026-09-18 plan. On branch `experiment/needle3-pilot` (fresh clone; nothing
+lands on `main`): merged upstream `cactus-compute/needle` `94df999` (3.0.1) so `needle/` is
+upstream plus the fork's two #8 hunks re-ported onto 3.0.1's `build_main` (34 lines; the guard's
+tests re-ported onto 3.0.1 fixtures and watched red→green). Added `spike/coding_core/to_needle3.py`
+(pilot rows → one `next_action` enum tool, refuses unknown labels and abstentions, preflight.json
+with token lengths and boilerplate share), `eval_needle3.py` (native engine, one `complete()` per
+row, empties are misses) and `jev_next_action.py` (the #68 zero-shot baseline on the same rows).
+Preflight reproduced #42 exactly (500/11 · 100/2; Markov-1 37%); step-time probe 101–105 s/step
+at batch 16 × seq 1024, peak RSS 10.9 GB, gate met. Result
+(`TESTS-RESULTS/2026-09-20-needle3-coding-core-pilot/SUMMARY.md`): **Needle 3 20-layer LoRA
+28/100**, 7-layer rung 27, untuned base 20, Jev `jev-1.13.0` 21 (macro-F1 0.142, 68 rows under
+0.5 confidence) — all below Markov-1 37 and the 42% falsifier; arm stopped, no tuning. Training
+1 h 53 min wall (6,790.6 s) on the M4 Pro, validation loss 2.72 → 2.37 → 2.31. Deviations posted on
+#66 before the run: host is the MBP (2026-09-07 decision), Python 3.11; the re-ported guard refuses
+every native 3.0.1 adapter (no `qat_bits` provenance) so the build passed
+`--allow-numerics-mismatch` as the plan anticipated — follow-up candidate: record `qat_bits` in
+`write_adapter`. Verification: `pytest -m "not slow"` 581 passed / 7 skipped; `-m slow` 18 passed;
+`test_to_needle3.py` 12 passed; `pdda.sh run` clean.
+
 ## 2026-09-19
 
 ### Fresh 100-row consensus sample for the Jev classifier (#69)
