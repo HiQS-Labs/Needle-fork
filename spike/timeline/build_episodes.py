@@ -152,12 +152,18 @@ def condense_replies(replies, cap=120):
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--all", action="store_true", help="emit every session (episodes_all.jsonl)")
+    ap.add_argument("--sessions-file", default="sessions.jsonl",
+                    help="input sessions file inside --out (default sessions.jsonl)")
+    ap.add_argument("--request-file", default="gh_request.json",
+                    help="subset/enrichment request file inside --out (default gh_request.json)")
+    ap.add_argument("--out-name", default=None,
+                    help="override output filename (default episodes.jsonl / episodes_all.jsonl)")
     add_out_arg(ap)
     a = ap.parse_args(argv)
     OUT = resolve_out(a.out); allmode = a.all
-    sessions = {json.loads(l)["session_id"]: json.loads(l) for l in open(os.path.join(OUT, "sessions.jsonl"))}
+    sessions = {json.loads(l)["session_id"]: json.loads(l) for l in open(os.path.join(OUT, a.sessions_file))}
     meta = json.load(open(os.path.join(OUT, "gh_meta.json"))) if os.path.exists(os.path.join(OUT, "gh_meta.json")) else {}
-    req = json.load(open(os.path.join(OUT, "gh_request.json")))
+    req = json.load(open(os.path.join(OUT, a.request_file)))
     subset = {s["session_id"] for s in req["sessions"]}
     ids = list(sessions) if allmode else [s["session_id"] for s in req["sessions"]]
     eps = []; st = collections.Counter(); dist = {"purpose": collections.Counter(), "area": collections.Counter(),
@@ -194,7 +200,7 @@ def main(argv=None):
         if comp: st["completion"] += 1; dist["completion"][comp["value"]] += 1
         if stages: st["stage_seq"] += 1
         for x in stages: dist["stage"][x["stage"]] += 1
-    name = "episodes_all.jsonl" if allmode else "episodes.jsonl"
+    name = a.out_name or ("episodes_all.jsonl" if allmode else "episodes.jsonl")
     dump_jsonl(os.path.join(OUT, name), eps)
     rep = {"file": name, **st, "distributions": {k: dict(v.most_common()) for k, v in dist.items()}}
     json.dump(rep, open(os.path.join(OUT, name.replace(".jsonl", "_stats.json")), "w"), indent=1)
