@@ -7,6 +7,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "spike/timeline"))
 import build_sessions as bs  # noqa: E402
 import build_episodes as be  # noqa: E402
 import segment_episodes as se  # noqa: E402
+import validate_links as vl  # noqa: E402
 
 LOG = """# Agent Prompt Log
 <!-- CLIO:ENTRIES -->
@@ -248,6 +249,108 @@ def test_segment_relay_paste_does_not_anchor():
                           "From Agy: Ran command: `git remote set-url ...` and see GH-99 for context")])
     eps = se.segment_session(s, 2.0, 0.5)
     assert len(eps) == 1
+
+
+# ------------------------------------------------------------------ link validation
+def _episode(links=(), end="2026-01-02T11:00:00Z"):
+    return {"session_id": "aa#1", "parent_session_id": "aa", "episode_index": 1, "n_episodes": 1,
+            "start_reasons": ["session_start"], "project": "DEMO", "repo": "example-org/demo-repo",
+            "repo_source": "t", "start_ts": "2026-01-02T10:00:00Z", "end_ts": end,
+            "machines": ["laptop"], "tool": "claude-code", "tool_source": "t", "branches": [],
+            "transcript": None, "prompts": [{"ts": "2026-01-02T10:00:00Z", "text": "x"}],
+            "n_prompts": 1, "replies": [], "n_replies": 0, "links": list(links)}
+
+
+def _link(n, sources=("prompt:#N",), conf=0.3, first_ts="2026-01-02T10:00:00Z"):
+    return {"repo": "example-org/demo-repo", "number": n, "kind": None, "sources": list(sources),
+            "confidence": conf, "first_ts": first_ts, "mentions": 1}
+
+
+class _FakeGH:
+    """items: {'owner/repo#n': {...} | 'missing'}; repos: {'owner/repo': visibility | 'missing'}"""
+    def __init__(self, items, repos):
+        self.items, self.repos = items, repos
+        self.item_calls, self.repo_calls = [], []
+
+    def item(self, repo, number):
+        self.item_calls.append((repo, number))
+        it = self.items.get(f"{repo}#{number}", "missing")
+        if it == "missing":
+            return {"status": "not_found"}
+        return {"status": "ok", "created_at": it["created_at"], "kind": it.get("kind", "issue"),
+                "title": it.get("title", "t")}
+
+    def repo_info(self, repo):
+        self.repo_calls.append(repo)
+        v = self.repos.get(repo, "missing")
+        if v == "missing":
+            return {"status": "not_found"}
+        return {"status": "ok", "visibility": v}
+
+
+def test_validate_drops_404_and_keeps_existing(tmp_path):
+    fake = _FakeGH(items={"example-org/demo-repo#5": {"created_at": "2026-01-01T00:00:00Z"}},
+                   repos={"example-org/demo-repo": "public"})
+    eps = vl.validate_episodes([_episode(links=[_link(5), _link(404)])], fake, {})
+    kept = eps[0]["links"]
+    assert [l["number"] for l in kept] == [5]
+    assert kept[0]["repo_visibility"] == "public"
+    assert [(d["number"], d["reason"]) for d in eps[0]["links_dropped"]] == [(404, "not_found")]
+
+
+def test_validate_weak_link_created_after_episode_end_dropped():
+    # episode ends 2026-01-02T11:00Z; +1 day slack -> item created 2026-01-04 is too late
+    fake = _FakeGH(items={"example-org/demo-repo#7": {"created_at": "2026-01-04T00:00:00Z"}},
+                   repos={"example-org/demo-repo": "public"})
+    eps = vl.validate_episodes([_episode(links=[_link(7)])], fake, {})
+    assert eps[0]["links"] == [] and eps[0]["links_dropped"][0]["reason"] == "created_after_episode_end"
+    # created inside the +1d slack -> kept
+    fake2 = _FakeGH(items={"example-org/demo-repo#7": {"created_at": "2026-01-03T10:59:00Z"}},
+                    repos={"example-org/demo-repo": "public"})
+    assert vl.validate_episodes([_episode(links=[_link(7)])], fake2, {})[0]["links"]
+
+
+def test_validate_preferred_sources_skip_created_at_check():
+    fake = _FakeGH(items={"example-org/demo-repo#9": {"created_at": "2026-06-01T00:00:00Z"}},
+                   repos={"example-org/demo-repo": "public"})
+    url_link = _link(9, sources=("prompt:url",), conf=0.7)
+    mixed_link = _link(9, sources=("prompt:#N", "prompt:url"))
+    nos_ts_link = _link(9, sources=("claude_pr_link",), conf=0.9, first_ts=None)
+    eps = vl.validate_episodes([_episode(links=[url_link, mixed_link, nos_ts_link])], fake, {})
+    assert len(eps[0]["links"]) == 3 and not eps[0].get("links_dropped")
+
+
+def test_validate_public_only_filters_private_repos():
+    fake = _FakeGH(items={"example-org/demo-repo#1": {"created_at": "2026-01-01T00:00:00Z"},
+                          "other-org/priv#2": {"created_at": "2026-01-01T00:00:00Z"}},
+                   repos={"example-org/demo-repo": "public", "other-org/priv": "private"})
+    priv = _link(2); priv["repo"] = "other-org/priv"
+    eps = vl.validate_episodes([_episode(links=[_link(1), priv])], fake, {})
+    pub = vl.public_only(eps)
+    assert [l["number"] for l in pub[0]["links"]] == [1]
+    assert all(l["repo_visibility"] == "public" for e in pub for l in e["links"])
+
+
+def test_validate_unresolved_and_resumability():
+    class Flaky(_FakeGH):
+        def item(self, repo, number):
+            if number == 8:
+                return {"status": "error", "detail": "HTTP 502"}
+            return super().item(repo, number)
+
+    fake = Flaky(items={"example-org/demo-repo#5": {"created_at": "2026-01-01T00:00:00Z"}},
+                 repos={"example-org/demo-repo": "public"})
+    eps = vl.validate_episodes([_episode(links=[_link(5), _link(8)])], fake, {})
+    # an errored lookup is unresolved: link kept aside, not silently dropped
+    assert [l["number"] for l in eps[0]["links"]] == [5]
+    assert eps[0]["links_unresolved"][0]["number"] == 8
+
+
+def test_validate_reuses_meta_cache_without_api():
+    fake = _FakeGH(items={}, repos={"example-org/demo-repo": "public"})
+    meta = {"example-org/demo-repo#5": {"created_at": "2026-01-01T00:00:00Z", "kind": "issue"}}
+    vl.validate_episodes([_episode(links=[_link(5)])], fake, meta)
+    assert fake.item_calls == []  # served from gh_meta, no API call
 
 
 def test_build_episodes_flag_overrides(tmp_path):

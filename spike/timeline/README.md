@@ -51,6 +51,10 @@ export NEEDLE_TL_OUT="/path/to/private/needle-timeline/out"   # outside any repo
 python3 build_sessions.py        # stage 1  -> sessions.jsonl, link_candidates.json, stage1_stats.json
 python3 segment_episodes.py      # stage 1b -> sessions_segmented.jsonl, gh_request_segmented.json,
                                  #            segmentation_report.json, boundary_spotcheck_20.json
+python3 validate_links.py --public-only \
+                                 # stage 1c -> sessions_validated.jsonl (+ _public variant),
+                                 #            link_validity.json, repo_visibility.json,
+                                 #            validation_report.json (read-only API, resumable)
 python3 select_subset.py 50      # stage 2a -> gh_request.json (prototype subset, <=10 per repo)
 python3 fetch_github.py "$NEEDLE_TL_OUT/gh_request.json" "$NEEDLE_TL_OUT/gh_meta.json"   # stage 2b, resumable
 python3 build_episodes.py        # stage 3 -> episodes.jsonl (+ _stats.json)
@@ -106,6 +110,14 @@ Tests use synthetic data only: `pytest -q tests/test_timeline_pipeline.py`.
   branch data is collapsed in stage 1, so branch switches are only visible through gh-N link
   mentions; re-running stage 1 to add per-prompt branches would grow the frozen dataset and is
   deferred.
+- **`validate_links.py`** validates episode links against GitHub, read-only and resumable
+  (XYZ-forge#709 task 2). Every link's item must exist (404 → dropped); a `#N`/`GH-N`-only
+  link is accepted only if the item was created at or before the episode end + 1 day (a prompt
+  cannot refer to a later item); links carrying a preferred source (URL, `pr-link`, gh-N
+  branch) get the existence check only. Failed lookups (rate limit, 5xx) stay *unresolved* and
+  are re-fetched on the next run; every kept link is tagged `repo_visibility` and every repo's
+  visibility is cached in `repo_visibility.json`. `--public-only` writes a variant restricted
+  to public-repo links. Existing `gh_meta.json` entries are reused without API calls.
 - **`fetch_github.py`** fetches title, state, state_reason and labels; for PRs it adds merged,
   base/head, changed file paths and commit subjects.
 - **`build_episodes.py`** builds the episode records and their weak labels:
