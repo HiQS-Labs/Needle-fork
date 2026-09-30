@@ -31,6 +31,8 @@
 
 ### In progress
 
+- [GH-80: GPT 6 Luna Phase 2 replication](PROJECT/2-WORKING/GH-80-LUNA6-PHASE2.md) — latest Luna benchmark; complete frozen 12-case Git/PR packet, compared with #13.
+
 - [GH-67: Jev zero-shot rerun of the #31 purpose/area holdout](PROJECT/2-WORKING/GH-67-JEV-PURPOSE-ZERO-SHOT.md) — active 2026-09-18; Lane A of [XYZ-forge #709](https://github.com/HiQS-Labs/XYZ-forge/issues/709). ([#67](https://github.com/HiQS-Labs/Needle-fork/issues/67))
 - [Codex app shortlist and optional feedback](PROJECT/2-WORKING/CODEX-NEEDLE-FEEDBACK.md) — #63 planning and Agy QA; app connection proof must precede implementation. [Source recon](PROJECT/2-WORKING/RECON-CODEX-FEEDBACK.md).
 
