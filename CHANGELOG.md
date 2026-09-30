@@ -3,6 +3,20 @@
 Newest-first, dated end-of-iteration record. One entry per substantive iteration: what changed,
 why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
+## 2026-09-29
+
+### GPT 6 Luna frozen Phase 2 comparison (#80)
+
+Repeated the unchanged 12-case Git/PR analyst packet twice with GPT 6 Luna Medium. Final
+scores 43/48 and 41/48 (87.50%, B) versus historical GPT 5.6 Luna 44/43 (90.625%, B): no
+observed quality improvement. Retained raw events, identical explicit prompts, original key/grader,
+usage/timing receipts, independent anonymized review and per-case coordinator adjudication under
+`TESTS-RESULTS/2026-09-29-gh80-luna6-phase2/`. Ambient CLI/project context differs, so this is
+not a controlled model-only estimate. G05 sensitivity preserves the conclusion. No critical false
+SUPPORTED verdict or candidate tool event. Verification: 545 passed, 7 skipped, 11 deselected;
+original positive/six negative grader controls, frozen hashes, distinct threads and raw/parsed
+answer equality. No runtime, numerics, package or release-configuration changes.
+
 ## 2026-09-19
 
 ### Fresh 100-row consensus sample for the Jev classifier (#69)

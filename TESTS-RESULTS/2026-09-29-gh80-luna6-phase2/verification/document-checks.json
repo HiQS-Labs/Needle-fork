@@ -1,0 +1,22 @@
+{
+  "frontmatter": {
+    "errors": 0,
+    "warns": 0
+  },
+  "status_table": {
+    "errors": 0,
+    "warns": 0
+  },
+  "roadmap_coverage": {
+    "errors": 0,
+    "warns": 0,
+    "info": 1,
+    "note": "existing RECON-CODEX-FEEDBACK roadmap_exempt"
+  },
+  "changelog": {
+    "errors": 0,
+    "warns": 0
+  },
+  "diff_check": "passed",
+  "scope": "Existing PDDA deterministic checks; no new gate added."
+}

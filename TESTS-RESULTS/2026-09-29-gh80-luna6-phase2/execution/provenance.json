@@ -1,0 +1,28 @@
+{
+  "date_local": "2026-09-29 America/Los_Angeles",
+  "date_utc": "2026-09-30",
+  "input_freeze_commits": [
+    "714628a",
+    "59809eb"
+  ],
+  "base_commit": "f7c7047011aa30577a694b2f31b69bed88a2f81e",
+  "codex_cli_version": "codex-cli 0.159.1",
+  "python_version": "Python 3.14.7",
+  "harness_sha256": {
+    "relay-automation/consult.sh": "ab340d30fb5b39433e469da5b514d31820c8e04dac99fccea3ac46241304c249",
+    "utils/py/consult.py": "ce04917543dab7cb79e5e85615eead7fe503a0369ec11f8283ea2a02b3aa1227"
+  },
+  "candidate_cwd_contents": [
+    "QUESTIONS.md",
+    "packet.json"
+  ],
+  "candidate_model_calls": 2,
+  "review_model_calls": 1,
+  "review_requested_model": "gpt-6-astra",
+  "review_requested_effort": "medium",
+  "backend_attestation": null,
+  "actual_billed_cost": null,
+  "historical_explicit_prompt_identical": true,
+  "ambient_context_identical": false,
+  "isolation_note": "Minimal candidate checkout, historical XYZ project instructions absent. --ignore-user-config does not claim removal of all system/global agent context."
+}

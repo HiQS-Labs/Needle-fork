@@ -1,0 +1,35 @@
+Using Python 3.12.13 environment at: temp/test-venv
+Resolved 50 packages in 381ms
+   Building cactus-needle @ file:///Users/noelsaw/marathon-clones/needle-gh80-luna6
+Downloading orbax-checkpoint (1.3MiB)
+ Downloaded orbax-checkpoint
+      Built cactus-needle @ file:///Users/noelsaw/marathon-clones/needle-gh80-luna6
+Prepared 4 packages in 525ms
+Uninstalled 1 package in 0.93ms
+Installed 26 packages in 157ms
+ + absl-py==2.5.0
+ + aiofiles==25.1.0
+ ~ cactus-needle==2.0.12 (from file:///Users/noelsaw/marathon-clones/needle-gh80-luna6)
+ + etils==1.14.0
+ + flax==0.12.10
+ + humanize==4.16.0
+ + jax==0.11.2
+ + jaxlib==0.11.2
+ + markdown-it-py==4.2.0
+ + mdurl==0.1.2
+ + ml-dtypes==0.6.0
+ + msgpack==1.2.3
+ + opt-einsum==3.4.0
+ + optax==0.2.8
+ + orbax-checkpoint==0.12.6
+ + prometheus-client==0.26.0
+ + protobuf==7.36.2
+ + psutil==7.2.2
+ + rich==15.0.0
+ + scipy==1.18.1
+ + sentencepiece==0.2.2
+ + simplejson==4.1.2
+ + tensorstore==0.1.85
+ + treescope==0.1.10
+ + uvloop==0.22.1
+ + zipp==4.1.0

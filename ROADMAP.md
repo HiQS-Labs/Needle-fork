@@ -7,6 +7,8 @@
 
 # Roadmap
 
+> **Latest Luna comparison:** [#80](https://github.com/HiQS-Labs/Needle-fork/issues/80) — [results](TESTS-RESULTS/2026-09-29-gh80-luna6-phase2/SUMMARY.md), September 29, 2026.
+
 > **Pointer/ledger only — not a plan body.** Execution detail (phase checklists, build steps, QA
 > gates, deep notes) lives in the linked `PROJECT/**` docs; keep it there. See the contract banner above.
 
@@ -31,8 +33,6 @@
 
 ### In progress
 
-- [GH-80: GPT 6 Luna Phase 2 replication](PROJECT/2-WORKING/GH-80-LUNA6-PHASE2.md) — latest Luna benchmark; complete frozen 12-case Git/PR packet, compared with #13.
-
 - [GH-67: Jev zero-shot rerun of the #31 purpose/area holdout](PROJECT/2-WORKING/GH-67-JEV-PURPOSE-ZERO-SHOT.md) — active 2026-09-18; Lane A of [XYZ-forge #709](https://github.com/HiQS-Labs/XYZ-forge/issues/709). ([#67](https://github.com/HiQS-Labs/Needle-fork/issues/67))
 - [Codex app shortlist and optional feedback](PROJECT/2-WORKING/CODEX-NEEDLE-FEEDBACK.md) — #63 planning and Agy QA; app connection proof must precede implementation. [Source recon](PROJECT/2-WORKING/RECON-CODEX-FEEDBACK.md).
 
@@ -41,6 +41,8 @@
 - [Label correctness audit — make the §2 gate trustworthy](PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md) — source identity and disjoint manifests are merged; #25 clears its 30-session floor but remains blocked because the frozen sampler can allocate only 541/1,000 evaluation rows under its label quotas and session cap. ([#20](https://github.com/HiQS-Labs/Needle-fork/issues/20), [#23](https://github.com/HiQS-Labs/Needle-fork/issues/23), [#25](https://github.com/HiQS-Labs/Needle-fork/issues/25))
 
 ### Completed
+
+- [GH-80: latest Luna benchmark](PROJECT/3-COMPLETED/GH-80-LUNA6-PHASE2.md) — GPT 6 Luna Medium 43/41 (87.50%, B) vs GPT 5.6 Luna 44/43 (90.625%, B); no improvement on frozen Phase 2 packet.
 
 - [GH-69: fresh 100-row consensus sample for the Jev classifier](PROJECT/3-COMPLETED/GH-69-JEV-FRESH-SAMPLE.md) — purpose 88/100, pre-registered confidence gate met (97.3% at ≥ 0.8, 75% coverage); area 60/94, not ready. Three-model consensus labels, no human gold. ([#69](https://github.com/HiQS-Labs/Needle-fork/issues/69))
 - [Top-three shortlist feasibility](PROJECT/3-COMPLETED/SHORTLIST-FEASIBILITY.md) — #62 failed fixed lift gate despite better coverage; park count-based shortlist, no prototype.
