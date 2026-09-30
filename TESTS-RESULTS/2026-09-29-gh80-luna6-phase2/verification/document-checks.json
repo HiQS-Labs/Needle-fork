@@ -17,6 +17,9 @@
     "errors": 0,
     "warns": 0
   },
-  "diff_check": "passed",
+  "diff_check": {
+    "authored_files": "passed against f7c7047",
+    "raw_preflight_log": "trailing whitespace preserved verbatim in captured pytest traceback; full diff --check reports it"
+  },
   "scope": "Existing PDDA deterministic checks; no new gate added."
 }

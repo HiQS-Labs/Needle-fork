@@ -57,7 +57,7 @@
     "runs/r2-stderr.txt": "7b39e72170ba50667303c8145af7084a1907ba68b139e33a8642440779ebc6eb",
     "verification/artifacts.json": "ecddeb71a26d5ccb1c9e26a576d8a08f52e64c9eb4e618044b31e1c3ce071df4",
     "verification/credential-scan.json": "21aab2e5b2a5f3794024877a71661314b963e668864b507b2e2bee49d662eac9",
-    "verification/document-checks.json": "f65b56b2c67176f2ba0427e74f12bfff60a45ec10da95106d7d744e51939b49d",
+    "verification/document-checks.json": "73a865679265976ea9753aedef70acb672d874abc9b46caf8e43e342d46a6456",
     "verification/environment-notes.md": "a884b67a9542677242e45390750e4924edcd7a1f068a83b808bad841190e289e",
     "verification/grader-controls.json": "abd118f7904c44ceae1dde7a3868f5cd5c8dbd29f24be389347c4c7219a18da5",
     "verification/preflight-pytest.log": "b1c542c5d296499f08849e6f0a031b280053c2b5dd7a8f115f27b0c4d06eb4ff",
