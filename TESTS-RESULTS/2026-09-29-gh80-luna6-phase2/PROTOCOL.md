@@ -9,3 +9,5 @@ Exactly two sequential fresh gpt-6-luna / Medium calls, unchanged September 9 ex
 Validate original hashes and grader positive/six negative controls, commit inputs before inference, retain raw events and request timing. Report tool observability, selection-vs-backend identity, CLI/system context differences, fixture exposure and scoring subjectivity. No private corpus, product/runtime changes or production readiness claims. Billed cost unavailable; no price estimate without current verified rates.
 
 Reversibility Easy: append corrections to evidence; no deployed state. Evidence lives here; project/roadmap/graph records link to the issue and summary.
+
+Candidate isolation: consult runs against a separate two-file Git repository containing only QUESTIONS.md and packet.json. No key, prior results, or protocol is present in that checkout. This removes historical ambient project instructions and is a disclosed harness-context difference; the explicit candidate prompt remains byte-identical. The source adapter is unchanged except for gpt-5.6-luna → gpt-6-luna.

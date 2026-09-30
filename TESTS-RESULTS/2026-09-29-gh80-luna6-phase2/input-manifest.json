@@ -9,7 +9,7 @@
     "QUESTIONS.md": "ea2818c77d9cffa40f0afc34076c8d594a5c8ee2bf0a058781291034e66b862b",
     "packet.json": "dc19001fd5d1b4ad68f96516edb4c9b4538364689410450c5d33513e8ee5431b",
     "adapters/luna-medium.py": "e97b87ad5401fd8866a204d763f06381a92ccde280766444c6cda9abe574db54",
-    "PROTOCOL.md": "88acdbf8afb18bfd5c36b59ebe096a437f0b95326a5e449a055711ce4e7bb030"
+    "PROTOCOL.md": "f21ac56a4c9f73ab05e499ad5d148dbd9301ef97b839eb2489f1c8ee4af4849e"
   },
   "offline_key_sha256": "66c294176789cdddc3578e1975a689e4ffaa6a650693261c9a62cd4303ae8fef",
   "offline_grader_sha256": "35cdc2d2c966e9677c3df278d6d59e13a741a1835405c3a17b11093f6d589b2f"
