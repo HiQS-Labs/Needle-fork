@@ -20,7 +20,7 @@ phases: 1
 
 | What was just completed | What's next |
 |---|---|
-| Two frozen GPT 6 Luna Medium calls completed; final 43/41, grade B, below historical 44/43. Evidence and review reconciled. | No further model runs or promotion authorized; retain this negative comparison as the current Luna benchmark. |
+| Two frozen GPT 6 Luna Medium calls completed; final 43/41, grade B, below historical 44/43. Evidence and review reconciled. | Revised 2026-09-29: operator authorized Sonnet 5.5 and Luna High follow-up in [#81](https://github.com/HiQS-Labs/Needle-fork/issues/81); this remains the completed Medium baseline. |
 
 ## Execution and acceptance
 

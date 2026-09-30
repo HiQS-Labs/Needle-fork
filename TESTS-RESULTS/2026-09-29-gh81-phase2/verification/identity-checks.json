@@ -1,0 +1,11 @@
+{
+  "distinct_sessions": 4,
+  "assessment_count": 48,
+  "raw_parsed_equal": true,
+  "input_hashes_match_gh80": true,
+  "prompt_sha256": "1863e246efa8215d944cf4c8a49753a3b0b8710ad6a5ee1b3c1bbfe51f472003",
+  "freeze_commits": [
+    "9dd1339",
+    "5c9d089"
+  ]
+}

@@ -1,0 +1,258 @@
+{
+  "runs": [
+    {
+      "run": "A",
+      "rows": [
+        {
+          "id": "G01",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            0,
+            0
+          ],
+          "reason": "Omits issue2/retired CPU direction and does not request current blocker state."
+        },
+        {
+          "id": "G02",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            0,
+            1
+          ],
+          "reason": "Mentions positional classification but does not explain invocation versus argument text and wrappers; focused case verification earns second point."
+        },
+        {
+          "id": "G03",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            0
+          ],
+          "reason": "Correct open/unmerged; omits primary-checkout review and AgentChorus scope."
+        },
+        {
+          "id": "G04",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both frozen requirements by semantic equivalence."
+        },
+        {
+          "id": "G05",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both frozen requirements by semantic equivalence."
+        },
+        {
+          "id": "G06",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both frozen requirements by semantic equivalence."
+        },
+        {
+          "id": "G07",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both frozen requirements by semantic equivalence."
+        },
+        {
+          "id": "G08",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both frozen requirements by semantic equivalence."
+        },
+        {
+          "id": "G09",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both frozen requirements by semantic equivalence."
+        },
+        {
+          "id": "G10",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both frozen requirements by semantic equivalence."
+        },
+        {
+          "id": "G11",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both frozen requirements by semantic equivalence."
+        },
+        {
+          "id": "G12",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both frozen requirements by semantic equivalence."
+        }
+      ],
+      "total": 44,
+      "critical_errors": []
+    },
+    {
+      "run": "B",
+      "rows": [
+        {
+          "id": "G01",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            0,
+            0
+          ],
+          "reason": "Omits issue2/retired CPU direction and does not request current blocker state."
+        },
+        {
+          "id": "G02",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            0,
+            1
+          ],
+          "reason": "Mentions positional classification but does not explain invocation versus argument text and wrappers; focused case verification earns second point."
+        },
+        {
+          "id": "G03",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            0
+          ],
+          "reason": "Correct open/unmerged; omits primary-checkout review and AgentChorus scope."
+        },
+        {
+          "id": "G04",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both frozen requirements by semantic equivalence."
+        },
+        {
+          "id": "G05",
+          "verdict": 0,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both frozen requirements by semantic equivalence."
+        },
+        {
+          "id": "G06",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both frozen requirements by semantic equivalence."
+        },
+        {
+          "id": "G07",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both frozen requirements by semantic equivalence."
+        },
+        {
+          "id": "G08",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both frozen requirements by semantic equivalence."
+        },
+        {
+          "id": "G09",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both frozen requirements by semantic equivalence."
+        },
+        {
+          "id": "G10",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both frozen requirements by semantic equivalence."
+        },
+        {
+          "id": "G11",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both frozen requirements by semantic equivalence."
+        },
+        {
+          "id": "G12",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both frozen requirements by semantic equivalence."
+        }
+      ],
+      "total": 43,
+      "critical_errors": []
+    }
+  ]
+}

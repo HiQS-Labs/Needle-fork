@@ -1,0 +1,10 @@
+{
+  "harness_sha256": {
+    "/Users/noelsaw/Documents/GH Repos/needle-fork/.xyz/relay-automation/consult.sh": "ab340d30fb5b39433e469da5b514d31820c8e04dac99fccea3ac46241304c249",
+    "/Users/noelsaw/Documents/GH Repos/needle-fork/.xyz/utils/py/consult.py": "ce04917543dab7cb79e5e85615eead7fe503a0369ec11f8283ea2a02b3aa1227"
+  },
+  "codex_cli": "codex-cli 0.159.1",
+  "claude_cli": "2.1.284 (Claude Code)",
+  "full_prompt_bytes": 28403,
+  "note": "transport slot codex is not model identity; driver absolute paths are execution receipts and require adaptation after clone cleanup"
+}

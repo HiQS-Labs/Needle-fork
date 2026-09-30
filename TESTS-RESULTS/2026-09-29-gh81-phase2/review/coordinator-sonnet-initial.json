@@ -1,0 +1,258 @@
+{
+  "runs": [
+    {
+      "run": "C",
+      "rows": [
+        {
+          "id": "G01",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            0
+          ],
+          "reason": "C names issue2 and retired CPU path but no current blocker check; D omits those material details and checks pointer resolution only."
+        },
+        {
+          "id": "G02",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            0,
+            1
+          ],
+          "reason": "Lists command-position/wrappers without explaining invocation versus argument classification; execution verification is explicit."
+        },
+        {
+          "id": "G03",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            0
+          ],
+          "reason": "Omits primary-checkout review/AgentChorus change scope."
+        },
+        {
+          "id": "G04",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both requirements by semantic equivalence."
+        },
+        {
+          "id": "G05",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both requirements by semantic equivalence."
+        },
+        {
+          "id": "G06",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both requirements by semantic equivalence."
+        },
+        {
+          "id": "G07",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both requirements by semantic equivalence."
+        },
+        {
+          "id": "G08",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both requirements by semantic equivalence."
+        },
+        {
+          "id": "G09",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both requirements by semantic equivalence."
+        },
+        {
+          "id": "G10",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both requirements by semantic equivalence."
+        },
+        {
+          "id": "G11",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both requirements by semantic equivalence."
+        },
+        {
+          "id": "G12",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both requirements by semantic equivalence."
+        }
+      ],
+      "total": 45,
+      "critical_errors": []
+    },
+    {
+      "run": "D",
+      "rows": [
+        {
+          "id": "G01",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            0,
+            0
+          ],
+          "reason": "C names issue2 and retired CPU path but no current blocker check; D omits those material details and checks pointer resolution only."
+        },
+        {
+          "id": "G02",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both requirements by semantic equivalence."
+        },
+        {
+          "id": "G03",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            0
+          ],
+          "reason": "Omits primary-checkout review/AgentChorus change scope."
+        },
+        {
+          "id": "G04",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            0
+          ],
+          "reason": "Does not state PR is open at snapshot."
+        },
+        {
+          "id": "G05",
+          "verdict": 0,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both requirements by semantic equivalence."
+        },
+        {
+          "id": "G06",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both requirements by semantic equivalence."
+        },
+        {
+          "id": "G07",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            0
+          ],
+          "reason": "Suggests re-landing enablement before checking why reverted; noting reason is not investigating before recommendation."
+        },
+        {
+          "id": "G08",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both requirements by semantic equivalence."
+        },
+        {
+          "id": "G09",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both requirements by semantic equivalence."
+        },
+        {
+          "id": "G10",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both requirements by semantic equivalence."
+        },
+        {
+          "id": "G11",
+          "verdict": 1,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both requirements by semantic equivalence."
+        },
+        {
+          "id": "G12",
+          "verdict": 0,
+          "evidence": 1,
+          "semantic_requirements": [
+            1,
+            1
+          ],
+          "reason": "Meets both requirements by semantic equivalence."
+        }
+      ],
+      "total": 41,
+      "critical_errors": []
+    }
+  ]
+}

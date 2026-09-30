@@ -7,7 +7,9 @@
 
 # Roadmap
 
-> **Latest Luna comparison:** [#80](https://github.com/HiQS-Labs/Needle-fork/issues/80) — [results](TESTS-RESULTS/2026-09-29-gh80-luna6-phase2/SUMMARY.md), September 29, 2026.
+> **Current Phase 2 follow-up:** [#81](https://github.com/HiQS-Labs/Needle-fork/issues/81) — [Sonnet 5.5 and Luna High](PROJECT/3-COMPLETED/GH-81-PHASE2-FOLLOWUP.md), completed; [results and pricing](TESTS-RESULTS/2026-09-29-gh81-phase2/SUMMARY.md).
+
+> **Previous Luna comparison:** [#80](https://github.com/HiQS-Labs/Needle-fork/issues/80) — [results](TESTS-RESULTS/2026-09-29-gh80-luna6-phase2/SUMMARY.md), September 29, 2026.
 
 > **Pointer/ledger only — not a plan body.** Execution detail (phase checklists, build steps, QA
 > gates, deep notes) lives in the linked `PROJECT/**` docs; keep it there. See the contract banner above.

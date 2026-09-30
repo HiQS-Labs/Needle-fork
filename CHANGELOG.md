@@ -5,6 +5,18 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-09-29
 
+### Sonnet 5.5 and GPT 6 Luna High follow-up (#81)
+
+Two frozen Phase 2 calls each: Luna High 44/43 (90.625%, B), Sonnet Medium 44/40 (87.50%, B).
+High recovers the earlier Medium shortfall, tying historical Luna 5.6; two calls do not establish
+general superiority. Retained raw responses, usage/timing, unchanged prompt/key/grader, strict
+independent review and historically calibrated coordinator adjudication, including disagreements.
+Full-roster API pricing separates standard, dated promotions and contractual/gateway differences.
+Verification: 545 passed, 7 skipped, 11 deselected; grader positive/six negative controls,
+matching input/prompt hashes, four distinct sessions, 48 nonempty assessments, raw/parsed equality
+and zero observed candidate tool actions. Evidence: `TESTS-RESULTS/2026-09-29-gh81-phase2/`.
+No runtime/numerics/package changes; #80 remains the Medium baseline; #81 is the latest pointer.
+
 ### GPT 6 Luna frozen Phase 2 comparison (#80)
 
 Repeated the unchanged 12-case Git/PR analyst packet twice with GPT 6 Luna Medium. Final

@@ -1,0 +1,57 @@
+{
+  "schema": "needle13/git-analyst-terra-cli-spike@1",
+  "run": "r1",
+  "status": "complete",
+  "started_at": "2026-09-30T04:56:39.632554+00:00",
+  "requested_model": "gpt-6-luna",
+  "requested_effort": "high",
+  "prompt_sha256": "1863e246efa8215d944cf4c8a49753a3b0b8710ad6a5ee1b3c1bbfe51f472003",
+  "source_packet_sha256": "dc19001fd5d1b4ad68f96516edb4c9b4538364689410450c5d33513e8ee5431b",
+  "flags": [
+    "exec",
+    "-m",
+    "gpt-6-luna",
+    "-c",
+    "model_reasoning_effort=\"high\"",
+    "-c",
+    "approval_policy=\"never\"",
+    "-s",
+    "read-only",
+    "--ephemeral",
+    "--ignore-user-config",
+    "--json",
+    "--color",
+    "never",
+    "-o",
+    "/Users/noelsaw/marathon-clones/needle-gh81-model-eval/TESTS-RESULTS/2026-09-29-gh81-phase2/luna-high/r1-answer.md",
+    "-"
+  ],
+  "cwd": "/private/var/folders/69/3l_82qtj7fzglnt_jjg07jh40000gn/T/consult-wt-76338-dqzv1anj",
+  "wall_cap_seconds": 900,
+  "subprocess_timeout_seconds": 870,
+  "system_prompt_is_user_prefix": true,
+  "temperature": null,
+  "max_output_tokens": null,
+  "backend_model_attestation": null,
+  "exit_code": 0,
+  "event_types": [
+    "item.completed",
+    "thread.started",
+    "turn.completed",
+    "turn.started"
+  ],
+  "usage": [
+    {
+      "input_tokens": 27893,
+      "cached_input_tokens": 7936,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 1832,
+      "reasoning_output_tokens": 475
+    }
+  ],
+  "thread_ids": [
+    "01a0f0ac-02e4-78d1-b6d4-471b2ab27f44"
+  ],
+  "errors": [],
+  "full_request_wall_seconds": 38.236288833024446
+}
