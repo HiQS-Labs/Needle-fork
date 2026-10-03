@@ -1,0 +1,3 @@
+# Outputs contain raw prompts, transcripts excerpts and private repo metadata. Never commit.
+out/
+*.jsonl
