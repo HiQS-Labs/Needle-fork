@@ -5,6 +5,16 @@ why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
 ## 2026-10-02
 
+### Claude Fable 5.1 Low Phase 2 retest (#13)
+
+Two fresh calls on the same frozen 12-case Git/PR analyst packet scored provisional 43/48 and
+42/48 (88.542%, B), versus 42/42 for GPT 6.1 Sol Low. The one-point mean edge is a coordinator
+semantic judgment without independent second review. Both Fable runs made the same G05
+CI-uncertainty label error as Sol. Prompt, packet, key and grader hashes match; original positive
+and six negative controls passed. Repository preflight: 545 passed, 7 skipped, 11 deselected.
+Raw answers, model/effort receipts, CLI cost telemetry, per-case review and limitations are in
+`TESTS-RESULTS/2026-10-02-gh13-fable51-low-phase2/`. No product/runtime or release changes.
+
 ### GPT 6.1 Sol Low Phase 2 retest (#13)
 
 Two fresh calls on the unchanged 12-case Git/PR analyst packet scored a provisional 42/48 each

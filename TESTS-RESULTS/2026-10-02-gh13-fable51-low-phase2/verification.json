@@ -1,0 +1,38 @@
+{
+  "date_local": "2026-10-02 America/Los_Angeles",
+  "source_revision": "67cc8fccd117490a2e8496886de4a441257aa9a6",
+  "input_hashes": {
+    "QUESTIONS.md": "ea2818c77d9cffa40f0afc34076c8d594a5c8ee2bf0a058781291034e66b862b",
+    "packet.json": "dc19001fd5d1b4ad68f96516edb4c9b4538364689410450c5d33513e8ee5431b",
+    "expected.json": "66c294176789cdddc3578e1975a689e4ffaa6a650693261c9a62cd4303ae8fef",
+    "grade.py": "35cdc2d2c966e9677c3df278d6d59e13a741a1835405c3a17b11093f6d589b2f"
+  },
+  "grader_controls": {
+    "positive": true,
+    "negative_controls": {
+      "empty": true,
+      "duplicate": true,
+      "missing": true,
+      "flipped": true,
+      "invented_citation": true,
+      "critical_false_support": true
+    }
+  },
+  "preflight": "NEEDLE_TELEMETRY=0 Python 3.12.14 pytest -q -m not slow: 545 passed, 7 skipped, 11 deselected in 9.11s",
+  "run_checks": {
+    "complete": true,
+    "distinct_sessions": true,
+    "same_prompt": true,
+    "same_packet": true,
+    "nonempty_answers": true,
+    "raw_parsed_equal": true,
+    "no_observed_tool_events": true,
+    "no_spawned_agents": true,
+    "no_critical_false_support": true
+  },
+  "limitations": [
+    "No independent semantic reviewer; coordinator grades are provisional.",
+    "Returned Claude Code model metadata is not independent backend attestation.",
+    "Historical CLI and ambient contexts differ."
+  ]
+}

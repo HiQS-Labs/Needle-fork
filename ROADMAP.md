@@ -7,7 +7,7 @@
 
 # Roadmap
 
-> **Latest Phase 2 retest:** [#13](https://github.com/HiQS-Labs/Needle-fork/issues/13) — [GPT 6.1 Sol Low provisional results](TESTS-RESULTS/2026-10-02-gh13-sol61-low-phase2/SUMMARY.md), October 2, 2026.
+> **Latest Phase 2 retests:** [#13](https://github.com/HiQS-Labs/Needle-fork/issues/13) — [GPT 6.1 Sol Low](TESTS-RESULTS/2026-10-02-gh13-sol61-low-phase2/SUMMARY.md) and [Claude Fable 5.1 Low](TESTS-RESULTS/2026-10-02-gh13-fable51-low-phase2/SUMMARY.md), October 2, 2026.
 
 > **Current Phase 2 follow-up:** [#81](https://github.com/HiQS-Labs/Needle-fork/issues/81) — [Sonnet 5.5 and Luna High](PROJECT/3-COMPLETED/GH-81-PHASE2-FOLLOWUP.md), completed; [results and pricing](TESTS-RESULTS/2026-09-29-gh81-phase2/SUMMARY.md).
 

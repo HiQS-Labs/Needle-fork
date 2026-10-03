@@ -1,0 +1,19 @@
+{
+  "SUMMARY.md": "6ee6471c4c877ec3bf38594aaec831d9328909cb06a5cc2694f1ae61250eb43e",
+  "review.json": "6055f53bfb0e05ca3855d76922bb242659c8fa7130ee0dc78bfb7f1711ce0798",
+  "runs/r1-answer.json": "3237790f8bb04977ff5cdcb5fb07fd553019307fd4d4e65a1bd03ef8d758b78f",
+  "runs/r1-answer.md": "7dbc27785ef848b11d137ca5ab05dd168484ff89cc228e68c22d9de9827e5e1c",
+  "runs/r1-events.jsonl": "0bdd98e6da9e20fb3928fda69dcdc02e93f71324dc96907cdb9e2ba5151da135",
+  "runs/r1-prompt.txt": "1863e246efa8215d944cf4c8a49753a3b0b8710ad6a5ee1b3c1bbfe51f472003",
+  "runs/r1-receipt.json": "a0bceba41d78d42fc61fc818f291f4f1857db23d279f0cb8654c1e11b6c9f75f",
+  "runs/r1-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "runs/r1-structural.json": "0c18cda1ba6c06977afdd1dd9daf10a4c36dba15728f986edfee42c2b241222d",
+  "runs/r2-answer.json": "4e943cda2abf6600f63a45dec2b4cf7b778cb371e8f5b230ae0b85cf8d5f413f",
+  "runs/r2-answer.md": "77fb7701126f08859ea3dbe5745e19182cef9ecae97220d9d6d2bfb59034cd01",
+  "runs/r2-events.jsonl": "0333068dc3e8add80d4a00baaec9083aefc28266cfa6ed98f77ab587711d5ddb",
+  "runs/r2-prompt.txt": "1863e246efa8215d944cf4c8a49753a3b0b8710ad6a5ee1b3c1bbfe51f472003",
+  "runs/r2-receipt.json": "902de508e50cd63e9945eab99d7a7c31ae2a8ce847d43287e83729a3c40bfe6f",
+  "runs/r2-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "runs/r2-structural.json": "0c18cda1ba6c06977afdd1dd9daf10a4c36dba15728f986edfee42c2b241222d",
+  "verification.json": "3c777fa87031f4c6b430ed6ca79bbf1da733e07dabcba3df807549bcb1015a0b"
+}

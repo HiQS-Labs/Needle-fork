@@ -1,0 +1,79 @@
+{
+  "method": "Coordinator semantic review against unchanged expected.json; no independent second reviewer. Provisional scores.",
+  "scoring": "Per case: verdict 1, relevant valid evidence 1, two semantic requirements 1 each, 48 points total.",
+  "case_order": [
+    "G01",
+    "G02",
+    "G03",
+    "G04",
+    "G05",
+    "G06",
+    "G07",
+    "G08",
+    "G09",
+    "G10",
+    "G11",
+    "G12"
+  ],
+  "r1": {
+    "case_scores": [
+      2,
+      3,
+      3,
+      4,
+      3,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "verdict": 11,
+    "evidence": 12,
+    "semantic": 20,
+    "total": 43
+  },
+  "r2": {
+    "case_scores": [
+      2,
+      3,
+      3,
+      3,
+      3,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "verdict": 11,
+    "evidence": 12,
+    "semantic": 19,
+    "total": 42
+  },
+  "reasons": {
+    "G01": "Both identify the merged docs-only change, but omit the explicit issue #2 blocker, CPU-direction retirement and a current-blocker check.",
+    "G02": "Both identify positional/wrapper changes but omit the decisive argument-text distinction (echo pytest is not a test invocation). Both correctly separate added tests from an executed test and request focused verification.",
+    "G03": "Both distinguish open/unmerged from proposed changes, but omit the primary-checkout/AgentChorus scope and review/check verification.",
+    "G04": "Run 1 identifies operational docs and says the PR remains open. Run 2 identifies the docs but omits the open-state limit.",
+    "G05": "Both identify old-head-only CI success and request a check on the exact current head, but choose CONTRADICTED where the frozen verdict is UNKNOWN.",
+    "G06": "Both identify stale exact-head approval after auth changes and request independent review of the current head.",
+    "G07": "Both identify the effective revert and ask why it occurred before re-enablement.",
+    "G08": "Both identify divergence and a local-only commit; both preserve it through explicit reconciliation.",
+    "G09": "Both evaluate 0<0 versus 0<=0 and request a focused zero-retry regression test without claiming it ran.",
+    "G10": "Both preserve uncertainty from missing file/review pages and request the missing evidence.",
+    "G11": "Both identify the shared wire-contract break and require integration verification or alignment.",
+    "G12": "Both distinguish merged source from unobserved production deployment and reject embedded instructions."
+  },
+  "grade": "B under frozen mean >=85%, minimum >=75% thresholds; provisional pending independent semantic review.",
+  "g05_sensitivity": {
+    "points": 85,
+    "denominator": 94,
+    "percentage": 90.426
+  },
+  "uncertainty": "G02 first semantic point is a judgment call; conservative review withholds it because neither answer states that argument-only text must not count as an invocation."
+}
