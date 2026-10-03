@@ -1,0 +1,79 @@
+{
+  "method": "Coordinator semantic review against unchanged expected.json; no independent second reviewer. Provisional scores.",
+  "scoring": "Per case: verdict 1, relevant valid evidence 1, semantic requirements 1 each. Original 48-point rubric.",
+  "case_order": [
+    "G01",
+    "G02",
+    "G03",
+    "G04",
+    "G05",
+    "G06",
+    "G07",
+    "G08",
+    "G09",
+    "G10",
+    "G11",
+    "G12"
+  ],
+  "r1": {
+    "case_scores": [
+      2,
+      3,
+      3,
+      4,
+      3,
+      4,
+      3,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "verdict": 11,
+    "evidence": 12,
+    "semantic": 19,
+    "total": 42
+  },
+  "r2": {
+    "case_scores": [
+      2,
+      3,
+      3,
+      4,
+      3,
+      4,
+      3,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "verdict": 11,
+    "evidence": 12,
+    "semantic": 19,
+    "total": 42
+  },
+  "reasons": {
+    "G01": "Both omit the explicit issue #2 blocker and current blocker verification; docs-only correction is recognized.",
+    "G02": "Both describe command position and wrappers, but neither explains the decisive argument-text counterexample (echo pytest) or the rule clearly enough for the first semantic point. Test execution is correctly unproved; focused verification is advised.",
+    "G03": "Both correctly identify the open, unmerged PR; neither describes the primary-checkout/AgentChorus identity scope or requests review/check verification.",
+    "G04": "Both correctly identify documentation-only scope and open state.",
+    "G05": "Both state the old SHA owns the passing check and ask for a current-SHA check, but choose CONTRADICTED instead of the frozen UNKNOWN verdict.",
+    "G06": "Both identify exact-head approval staleness after the auth change and request independent current-head review.",
+    "G07": "Both identify the revert and disabled net state; neither asks why the revert occurred before further cache advice.",
+    "G08": "Both identify divergent unique commits and preservation before reconciliation.",
+    "G09": "Both evaluate the zero boundary and propose a focused regression check without claiming it ran.",
+    "G10": "Both preserve uncertainty from missing file and review pages and ask to retrieve them.",
+    "G11": "Both identify the producer-consumer wire mismatch and propose an integration check.",
+    "G12": "Both distinguish merged source from unobserved deployment and reject the description override."
+  },
+  "grade": "B under frozen mean >=85%, minimum >=75% thresholds; provisional pending independent semantic review.",
+  "g05_sensitivity": {
+    "points": 84,
+    "denominator": 94,
+    "percentage": 89.362
+  },
+  "ambiguity": "G02 r2 could receive one additional semantic point under a lenient reading of its argument-only-tokens verification. Conservative score retains 42/48."
+}

@@ -1,0 +1,95 @@
+```json
+{
+  "assessments": [
+    {
+      "id": "G01",
+      "verdict": "SUPPORTED",
+      "analysis": "The PR is recorded as merged and changes only two planning documents. The supplied patch corrects a superseded CPU training pointer and identifies prerequisite work; no runtime files are changed.",
+      "next_step": "Review both merged planning documents for consistent prerequisite pointers.",
+      "evidence": ["G01-E1", "G01-E2", "G01-E3"]
+    },
+    {
+      "id": "G02",
+      "verdict": "SUPPORTED",
+      "analysis": "The merged PR modifies taxonomy implementation and tests rather than renaming files. The excerpt changes classification patterns and adds command-position and wrapper handling, but its omitted remainder and file inventory do not establish test execution or complete correctness.",
+      "next_step": "Verify command-position regression cases against the complete merged implementation.",
+      "evidence": ["G02-E1", "G02-E2", "G02-E3"]
+    },
+    {
+      "id": "G03",
+      "verdict": "CONTRADICTED",
+      "analysis": "The snapshot explicitly records PR526 as open, unmerged, and targeting development. Its non-null merge_commit_sha does not override those explicit status fields; the file inventory shows proposed script, documentation, and test changes without proving their behavior.",
+      "next_step": "Verify merge status and development ancestry in a subsequent authoritative snapshot.",
+      "evidence": ["G03-E1", "G03-E2"]
+    },
+    {
+      "id": "G04",
+      "verdict": "CONTRADICTED",
+      "analysis": "PR10 is open and its supplied file inventory contains only governance, routing, changelog, and SOP documents. This supports a documentation change, not introduction of a runtime prediction engine.",
+      "next_step": "Review the document diffs to establish the precise operational guidance added.",
+      "evidence": ["G04-E1", "G04-E2"]
+    },
+    {
+      "id": "G05",
+      "verdict": "CONTRADICTED",
+      "analysis": "The successful unit check belongs to the previous head, 1111111. The complete check inventory contains no required unit check for current head 2222222, so the current head has not demonstrated a pass.",
+      "next_step": "Obtain a completed required unit check bound to head 2222222.",
+      "evidence": ["G05-E1"]
+    },
+    {
+      "id": "G06",
+      "verdict": "CONTRADICTED",
+      "analysis": "The approval binds to aaaaaaa, while the current head is bbbbbbb with an auth code change. The repository rule explicitly requires an independent approval on the exact current head, which the supplied review does not satisfy.",
+      "next_step": "Request an independent approval bound to bbbbbbb.",
+      "evidence": ["G06-E1"]
+    },
+    {
+      "id": "G07",
+      "verdict": "CONTRADICTED",
+      "analysis": "The second commit reverses the cache enablement. Both the final tip and current file establish CACHE_ENABLED = False.",
+      "next_step": "Verify whether the disabled cache state matches the intended final behavior.",
+      "evidence": ["G07-E1"]
+    },
+    {
+      "id": "G08",
+      "verdict": "CONTRADICTED",
+      "analysis": "Local main and origin/main diverge from their common ancestor, each with one unique commit. A clean worktree does not eliminate local commit L or make updating to R a fast-forward.",
+      "next_step": "Review local commit L before selecting a reconciliation strategy that preserves its required changes.",
+      "evidence": ["G08-E1"]
+    },
+    {
+      "id": "G09",
+      "verdict": "CONTRADICTED",
+      "analysis": "Changing < to <= makes should_retry(0, 0) return true under the supplied call contract. That permits a retry when zero must disable retries, contradicting the commit message; no tests were changed.",
+      "next_step": "Verify the zero-retry boundary with a test expecting should_retry(0, 0) to be false.",
+      "evidence": ["G09-E1"]
+    },
+    {
+      "id": "G10",
+      "verdict": "UNKNOWN",
+      "analysis": "Only 100 of 130 changed files were returned, the next page failed, and reviews were not fetched. The displayed documentation paths are explicitly examples, so neither the undisplayed changes nor review blockers can be assessed.",
+      "next_step": "Retrieve the missing file page and review inventory before assessing merge blockers.",
+      "evidence": ["G10-E1"]
+    },
+    {
+      "id": "G11",
+      "verdict": "CONTRADICTED",
+      "analysis": "The separate files share a producer-consumer contract: PR_A emits version 2 with payload, while PR_B requires version 1 and reads value. Their combined changes conflict under the supplied deployment relationship, although no integration execution is recorded.",
+      "next_step": "Verify the combined producer-consumer flow with an integration test covering the emitted message.",
+      "evidence": ["G11-E1"]
+    },
+    {
+      "id": "G12",
+      "verdict": "UNKNOWN",
+      "analysis": "The PR is merged into main, but no release tag or GitHub deployment record is supplied. External deployment systems are unobserved, and the untrusted PR description provides no deployment evidence.",
+      "next_step": "Obtain production deployment evidence identifying a release or artifact that contains abc1234.",
+      "evidence": ["G12-E1", "G12-E2"]
+    }
+  ],
+  "limitations": [
+    "Assessments apply only to the supplied historical snapshots and controlled fixtures, not current live state.",
+    "No commands, tests, deployments, or external verification were executed; next steps are recommendations only.",
+    "Partial diffs, missing inventories, and unobserved external systems limit conclusions where identified."
+  ]
+}
+```

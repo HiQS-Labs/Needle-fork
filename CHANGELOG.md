@@ -3,6 +3,18 @@
 Newest-first, dated end-of-iteration record. One entry per substantive iteration: what changed,
 why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
+## 2026-10-02
+
+### GPT 6.1 Sol Low Phase 2 retest (#13)
+
+Two fresh calls on the unchanged 12-case Git/PR analyst packet scored a provisional 42/48 each
+(87.50%, B) under coordinator semantic review, without an independent second reviewer. Both
+misclassified missing current-head CI evidence as CONTRADICTED instead of UNKNOWN. Frozen prompt,
+packet, key and grader hashes match #80/#81; original positive/six negative grader controls and
+repository preflight (545 passed, 7 skipped, 11 deselected) passed. Raw answers, usage/timing,
+receipts, review deductions and limitations are retained in
+`TESTS-RESULTS/2026-10-02-gh13-sol61-low-phase2/`. No product/runtime or release changes.
+
 ## 2026-09-29
 
 ### Sonnet 5.5 and GPT 6 Luna High follow-up (#81)
