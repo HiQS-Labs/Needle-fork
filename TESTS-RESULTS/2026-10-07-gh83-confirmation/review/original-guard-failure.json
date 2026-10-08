@@ -1,0 +1,9 @@
+{
+  "utc": "2026-10-08T07:26:19.735149+00:00",
+  "original_frozen_guard_result": "FAIL",
+  "exception": "ambient input drift: ~/.codex/config.toml",
+  "ignored_file_mtime_utc": "2026-10-08T06:21:44.188445+00:00",
+  "frozen_fingerprint": "4cb9252fd6550fcd48b0b2402eb63536f7ac6ab2d246ab329dae9ec49596454c",
+  "current_fingerprint": "6a38fb63158dc4c259b44e50c6d05e4f232e9812f92ee58202f1a8b557135b08",
+  "scope": "read-only observation; no global file edits; frozen guard unchanged"
+}

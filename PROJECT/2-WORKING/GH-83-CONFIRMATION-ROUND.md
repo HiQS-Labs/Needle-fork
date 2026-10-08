@@ -2,7 +2,7 @@
 title: Consolidated Medium-effort Git/PR analyst confirmation — protocol v2
 status: In progress
 created: 2026-10-07
-updated: 2026-10-07
+updated: 2026-10-08
 owner: Codex and operator
 goal: Compare eight requested configurations with fresh balanced evidence-analysis cases and auditable grading.
 gh_issue: 83
@@ -21,7 +21,7 @@ reversibility: Easy — isolated public/synthetic benchmark artifacts; no produc
 
 | What was just completed | What's next |
 |---|---|
-| All96 candidate cells complete/valid; independent blind grading started. An unsafe-reset canary exposed interpretation/next-step ambiguity. | Astra finishes remaining scheduled reviews; unattempted Fable groups await12:40am Pacific quota reset. Failed calls stay failed. Then finish anonymous adjudication, lock marks and final QA. |
+| All96 candidate cells complete/valid; independent blind grading started. An unsafe-reset canary exposed interpretation/next-step ambiguity. | All32 Astra reviews complete; unattempted Fable B023–B032 await12:40am Pacific quota reset. Failed calls stay failed. Then finish anonymous adjudication, lock marks and final QA. |
 
 ## Table of contents
 
@@ -180,4 +180,4 @@ Phase 4 interim finding: Astra B003 rejected both I and N for the unsafe-reset c
 
 Phase 4 execution deviation: native Claude five-hour quota rejected Fable B018–B022 (five terminal transport failures, never retried). The coordinator SIGINT drained the final in-flight B022 without pending receipts; unattempted Fable groups are held until the reported reset. Astra may finish its remaining scheduled requests during that window; the same64 maximum unique requests and prompts remain fixed. Raw quota rejection and scheduling record are retained.
 
-Ignored-file environment exception: after candidate capture completed, the Codex user configuration hash changed at06:21:44Z during grading. The original frozen verify_inputs correctly rejects that changed fingerprint; it is not claimed green. Native `codex exec --help` states `--ignore-user-config` does not load config.toml, and every frozen Codex invocation includes that flag plus explicit model/effort. Other ambient fingerprints and all24 frozen files still match. Artifact-local continuation.py records this ignored-file delta and permits only grading/offline analysis; it verifies every frozen file, all other ambient fingerprints, every preissued receipt hash and all32 blind prompt hashes. It cannot dispatch candidates or reissue a pending request. No user file was modified and no frozen code, rubric, key or prompt changed. Final independent QA must assess this disclosed nonmaterial-review-input exception; it does not silently rewrite the original protocol.
+Ignored-file environment exception: Codex user configuration fingerprint drift was observed during grading; its filesystem modification timestamp is06:21:44Z, after candidate capture completed. The timestamp is not attribution of who changed it. The original frozen verify_inputs correctly rejects that changed fingerprint; it is not claimed green. Native `codex exec --help` states `--ignore-user-config` does not load config.toml, and every frozen Codex invocation includes that flag plus explicit model/effort. Other ambient fingerprints and all24 frozen files still match. Artifact-local continuation.py records this ignored-file delta and permits only grading/offline analysis; it verifies every frozen file, all other ambient fingerprints, every preissued receipt hash and all32 blind prompt hashes. It cannot dispatch candidates or reissue a pending request. The coordinator did not edit user configuration; its change cause is unverified. No frozen code, rubric, key or prompt changed. Final independent QA must assess this disclosed nonmaterial-review-input exception; it does not silently rewrite the original protocol.
