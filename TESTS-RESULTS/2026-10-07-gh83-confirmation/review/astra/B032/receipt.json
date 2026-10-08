@@ -1,0 +1,72 @@
+{
+  "schema": "needle/confirmation-run@2",
+  "kind": "review",
+  "status": "complete",
+  "started_at": "2026-10-08T07:04:42.667263+00:00",
+  "cli": "codex",
+  "cli_version": "codex-cli 0.159.1",
+  "requested_model": "gpt-6-astra",
+  "requested_effort": "medium",
+  "flags": [
+    "exec",
+    "-m",
+    "gpt-6-astra",
+    "-c",
+    "model_reasoning_effort=\"medium\"",
+    "-c",
+    "approval_policy=\"never\"",
+    "-s",
+    "read-only",
+    "--ephemeral",
+    "--ignore-user-config",
+    "--json",
+    "--color",
+    "never",
+    "-o",
+    "/private/tmp/needle-confirmation-x87ufg0r/TESTS-RESULTS/2026-10-07-gh83-confirmation/review/astra/B032/answer.md",
+    "-"
+  ],
+  "cwd": "/private/tmp/needle-gh83-cell-s9hzuqk_",
+  "candidate_cwd_files": [
+    "QUESTIONS.md",
+    "packet.json"
+  ],
+  "prompt_sha256": "914219fdc01fb82ad29be8b9e1d7bd83f806af1902e4b5f53115ebb95f9db719",
+  "packet_sha256": null,
+  "timeout_seconds": 870,
+  "retries": 0,
+  "tool_use": [],
+  "temperature": null,
+  "metadata": null,
+  "system_prompt_is_user_prefix": true,
+  "backend_attestation": "CLI returned metadata only; may be absent",
+  "exit_code": 0,
+  "event_types": [
+    "item.completed",
+    "thread.started",
+    "turn.completed",
+    "turn.started"
+  ],
+  "usage": [
+    {
+      "input_tokens": 38421,
+      "cached_input_tokens": 7168,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 3033,
+      "reasoning_output_tokens": 193
+    }
+  ],
+  "errors": [],
+  "raw_answer_equal": true,
+  "returned_models": [],
+  "tool_enforcement": "read-only sandbox and no-tool instruction; tools still exposed",
+  "finished_at": "2026-10-08T07:06:29.745101+00:00",
+  "wall_seconds": 107.07694175001234,
+  "answer_sha256": "2a359f9e03cf25c48c057ce7501119992448e1d6786246f5cb25702e7670c9f5",
+  "retained_hashes": {
+    "prompt.txt": "914219fdc01fb82ad29be8b9e1d7bd83f806af1902e4b5f53115ebb95f9db719",
+    "events.jsonl": "f27572a35ff44f3f1b6c35fc3297c522c4c97a13bd29ac79f55e42f798b9ddd6",
+    "stderr.txt": "4eb84b84953c812c614b24662d58c5301ead506e719d3cf7a7de5af77dc602f0",
+    "answer.md": "2a359f9e03cf25c48c057ce7501119992448e1d6786246f5cb25702e7670c9f5"
+  }
+}

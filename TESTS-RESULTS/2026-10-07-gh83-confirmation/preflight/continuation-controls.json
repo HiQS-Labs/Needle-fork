@@ -1,0 +1,50 @@
+{
+  "utc": "2026-10-08T06:58:44.515985+00:00",
+  "kind": "manual continuation controls, no provider/model requests",
+  "scope": "isolated copy of24 frozen input files and32 blind prompts; fake B000 receipt and synthetic nonignored fingerprint; no real candidate mapping read or user file changed",
+  "source_sha256": "9cbb4cab7fac3b0fd951688ac3e09fec568b05a328f9370c67d70c54ac1ff77a",
+  "checks": [
+    {
+      "control": "unaltered copy with disclosed ignored-config delta",
+      "expected": "PASS",
+      "observed": "PASS",
+      "detail": "all24 frozen files, other ambient fingerprints and32 blind prompt hashes match"
+    },
+    {
+      "control": "one frozen prompt byte change",
+      "expected": "FAIL",
+      "observed": "FAIL",
+      "detail": "frozen input drift: inputs/fresh1/QUESTIONS.md"
+    },
+    {
+      "control": "one blind bundle byte change",
+      "expected": "FAIL",
+      "observed": "FAIL",
+      "detail": "blind prompt drift"
+    },
+    {
+      "control": "different nonignored ambient expected fingerprint in synthetic manifest",
+      "expected": "FAIL",
+      "observed": "FAIL",
+      "detail": "ambient input drift: ~/.codex/AGENTS.md"
+    },
+    {
+      "control": "ambiguous pending review",
+      "expected": "FAIL",
+      "observed": "FAIL",
+      "detail": "ambiguous pending request; do not reissue"
+    },
+    {
+      "control": "changed retained review answer",
+      "expected": "FAIL",
+      "observed": "FAIL",
+      "detail": "review artifact drift"
+    },
+    {
+      "control": "all own control mutations restored from saved bytes",
+      "expected": "PASS",
+      "observed": "PASS",
+      "detail": "all24 frozen files, other ambient fingerprints and32 blind prompt hashes match"
+    }
+  ]
+}

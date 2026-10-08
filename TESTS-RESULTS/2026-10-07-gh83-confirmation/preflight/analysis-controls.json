@@ -1,0 +1,32 @@
+{
+  "utc": "2026-10-08T07:08:42.835530+00:00",
+  "kind": "synthetic numerical manual controls; no provider/model requests or real candidate mapping access",
+  "source_stats_sha256": "9458f0b60c968464063cd32d9b79f561fdd8865609b9d60c403c82420fd9ea5b",
+  "checks": [
+    {
+      "control": "all4 component points, balanced12 families",
+      "result": "144/144 each, delta0, intervals[0,0], no winner; exact numerical fixture equivalence"
+    },
+    {
+      "control": "one fresh group missing both reviews",
+      "result": "36 missing fresh marks, no primary mean or interval"
+    },
+    {
+      "control": "legacy-only grading missing",
+      "result": "fresh complete but strict primary withheld"
+    },
+    {
+      "control": "one N component removed on every fresh controlB case",
+      "result": "delta36, adjusted interval[36,36], controlA meets numerical winner rule"
+    },
+    {
+      "control": "critical false support transposed into otherwise winning controlA",
+      "result": "critical flag observed, winner excluded; 36-point advantage does not erase safety condition"
+    },
+    {
+      "control": "marks mutated after SHA lock",
+      "result": "FAIL witnessed at lock assertion"
+    }
+  ],
+  "not_candidate_evidence": true
+}

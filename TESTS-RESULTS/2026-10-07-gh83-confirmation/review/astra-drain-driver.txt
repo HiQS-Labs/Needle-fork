@@ -1,0 +1,10 @@
+astra/B023 complete 88.5s
+astra/B024 complete 91.4s
+astra/B025 complete 101.5s
+astra/B026 complete 89.6s
+astra/B027 complete 101.6s
+astra/B028 complete 81.7s
+astra/B029 complete 106.3s
+astra/B030 complete 109.3s
+astra/B031 complete 89.2s
+astra/B032 complete 107.1s
