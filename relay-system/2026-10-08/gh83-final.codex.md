@@ -131,4 +131,12 @@ All artifact paths below are relative to TESTS-RESULTS/2026-10-07-gh83-confirmat
 
 Relay closed (Approved), no further reviewer turn needed. Handing the completed review to coordinator for the harness gate, publication/issue reconciliation and preservation-checked cleanup.
 
+
+### Attestation · relay-drive — 2026-10-08T08:19:39Z
+task: RELAY-GH83-FINAL
+reviewer: codex-reviewer
+status: Approved
+reviewed-head: b0ba035f966b1f463f07635e410653c99f29364c
+added-range: 11271+10409
+added-sha256: b1dfa5e7e0be4f35a088bfde7a7f2bee9998695ed1ee6c29c8e053bafe790a43
 <!-- ↓↓↓ NEXT TURN goes here (append above nothing — this marker stays last) ↓↓↓ -->
