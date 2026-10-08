@@ -1,0 +1,62 @@
+{
+  "schema": "needle13/git-analyst-terra-cli-spike@1",
+  "issue": 82,
+  "lane": "luna-medium",
+  "run": "r1",
+  "status": "complete",
+  "started_at": "2026-10-08T00:47:32.688887+00:00",
+  "requested_model": "gpt-6-luna",
+  "requested_effort": "medium",
+  "cli": "codex",
+  "cli_version": "codex-cli 0.159.1",
+  "flags": [
+    "exec",
+    "-m",
+    "gpt-6-luna",
+    "-c",
+    "model_reasoning_effort=\"medium\"",
+    "-c",
+    "approval_policy=\"never\"",
+    "-s",
+    "read-only",
+    "--ephemeral",
+    "--ignore-user-config",
+    "--json",
+    "--color",
+    "never",
+    "-o",
+    "/private/tmp/claude-501/needle-gh-haiku/TESTS-RESULTS/2026-10-07-gh82-3way-phase2/runs/luna-medium/r1-answer.md",
+    "-"
+  ],
+  "cwd": "/var/folders/69/3l_82qtj7fzglnt_jjg07jh40000gn/T/needle-gh82-luna-medium-r1-6l3h5ylm/candidate",
+  "prompt_sha256": "1863e246efa8215d944cf4c8a49753a3b0b8710ad6a5ee1b3c1bbfe51f472003",
+  "packet_sha256": "dc19001fd5d1b4ad68f96516edb4c9b4538364689410450c5d33513e8ee5431b",
+  "subprocess_timeout_seconds": 870,
+  "system_prompt_is_user_prefix": true,
+  "temperature": null,
+  "retries": 0,
+  "backend_model_attestation": "returned CLI metadata only",
+  "exit_code": 0,
+  "event_types": [
+    "item.completed",
+    "thread.started",
+    "turn.completed",
+    "turn.started"
+  ],
+  "usage": [
+    {
+      "input_tokens": 27922,
+      "cached_input_tokens": 12032,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 1394,
+      "reasoning_output_tokens": 0
+    }
+  ],
+  "thread_ids": [
+    "01a118fa-cffa-7d01-ae46-ef34f3be7d31"
+  ],
+  "errors": [],
+  "tool_use": [],
+  "wall_seconds": 13.561914165999042,
+  "answer_sha256": "9efec1ec8c472d4a6fe8e9f00ebf34135e437a1d2a95541162fcdc5493288809"
+}

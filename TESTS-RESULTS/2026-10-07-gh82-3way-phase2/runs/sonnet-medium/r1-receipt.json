@@ -1,0 +1,128 @@
+{
+  "schema": "needle13/git-analyst-terra-cli-spike@1",
+  "issue": 82,
+  "lane": "sonnet-medium",
+  "run": "r1",
+  "status": "complete",
+  "started_at": "2026-10-08T00:47:46.324103+00:00",
+  "requested_model": "claude-sonnet-5-5",
+  "requested_effort": "medium",
+  "cli": "claude",
+  "cli_version": "2.1.289 (Claude Code)",
+  "flags": [
+    "-p",
+    "--model",
+    "claude-sonnet-5-5",
+    "--effort",
+    "medium",
+    "--output-format",
+    "stream-json",
+    "--verbose",
+    "--tools",
+    "",
+    "--strict-mcp-config",
+    "--mcp-config",
+    "{\"mcpServers\":{}}",
+    "--disable-slash-commands",
+    "--no-session-persistence",
+    "--setting-sources",
+    "",
+    "--settings",
+    "{\"disableAllHooks\":true}",
+    "--permission-mode",
+    "dontAsk",
+    "--no-chrome"
+  ],
+  "cwd": "/var/folders/69/3l_82qtj7fzglnt_jjg07jh40000gn/T/needle-gh82-sonnet-medium-r1-ffm7pcmn/candidate",
+  "prompt_sha256": "1863e246efa8215d944cf4c8a49753a3b0b8710ad6a5ee1b3c1bbfe51f472003",
+  "packet_sha256": "dc19001fd5d1b4ad68f96516edb4c9b4538364689410450c5d33513e8ee5431b",
+  "subprocess_timeout_seconds": 870,
+  "system_prompt_is_user_prefix": true,
+  "temperature": null,
+  "retries": 0,
+  "backend_model_attestation": "returned CLI metadata only",
+  "exit_code": 0,
+  "event_types": [
+    "assistant",
+    "rate_limit_event",
+    "result",
+    "system"
+  ],
+  "tool_use": [],
+  "returned_models": [
+    "claude-sonnet-5-5"
+  ],
+  "usage": [
+    {
+      "input_tokens": 2,
+      "cache_creation_input_tokens": 14917,
+      "cache_read_input_tokens": 535,
+      "output_tokens": 2334,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 14917,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 2334,
+          "cache_read_input_tokens": 535,
+          "cache_creation_input_tokens": 14917,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 14917
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard",
+      "fallback_credit": null
+    }
+  ],
+  "model_usage": [
+    {
+      "claude-haiku-4-5-20251001": {
+        "inputTokens": 10617,
+        "outputTokens": 15,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 0,
+        "webSearchRequests": 0,
+        "costUSD": 0.010692,
+        "contextWindow": 200000,
+        "maxOutputTokens": 32000,
+        "thinkingTokens": 0,
+        "canonicalModel": "claude-haiku-4-5",
+        "provider": "firstParty",
+        "costBasis": "list"
+      },
+      "claude-sonnet-5-5": {
+        "inputTokens": 2,
+        "outputTokens": 2334,
+        "cacheReadInputTokens": 535,
+        "cacheCreationInputTokens": 14917,
+        "webSearchRequests": 0,
+        "costUSD": 0.083119,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 128000,
+        "thinkingTokens": 0,
+        "canonicalModel": "claude-sonnet-5-5",
+        "provider": "firstParty",
+        "costBasis": "list"
+      }
+    }
+  ],
+  "total_cost_usd_cli_estimate": [
+    0.093811
+  ],
+  "wall_seconds": 17.80327475001104,
+  "answer_sha256": "bc8dccdc7b072df4610f5db035f0d98dd65d043600db61252be6e157554059b6"
+}

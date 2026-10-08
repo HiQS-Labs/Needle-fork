@@ -1,0 +1,122 @@
+{
+  "assessments": [
+    {
+      "id": "G01",
+      "verdict": "SUPPORTED",
+      "analysis": "PR15 is recorded as merged, and the supplied diff corrects planning pointers in ROADMAP.md and a phase document. The listed changed files are both documentation paths, so the supplied evidence supports no runtime-code change in this PR.",
+      "next_step": "If runtime scope needs confirmation beyond the snapshot, inspect the complete merged diff.",
+      "evidence": [
+        "G01-E1",
+        "G01-E2",
+        "G01-E3"
+      ]
+    },
+    {
+      "id": "G02",
+      "verdict": "SUPPORTED",
+      "analysis": "PR16 is recorded as merged, and the supplied taxonomy diff changes command-matching rules and positional classification logic. The patch excerpt is partial, so it supports a behavioral change but does not establish the full change set.",
+      "next_step": "Review the complete merged taxonomy diff to confirm the behavior across all changed rules.",
+      "evidence": [
+        "G02-E1",
+        "G02-E2",
+        "G02-E3"
+      ]
+    },
+    {
+      "id": "G03",
+      "verdict": "CONTRADICTED",
+      "analysis": "At the recorded snapshot, PR526 is open and `merged` is false. The non-null merge commit SHA does not establish that this PR has merged.",
+      "next_step": "Check the PR's merge status and target branch again before treating it as landed.",
+      "evidence": [
+        "G03-E1"
+      ]
+    },
+    {
+      "id": "G04",
+      "verdict": "CONTRADICTED",
+      "analysis": "PR10 is open and its listed changes are AGENTS.md, CHANGELOG.md, ROUTER.md, and SOP.md. The supplied evidence supports operational documentation and routing changes, not the introduction of a runtime prediction engine.",
+      "next_step": "Inspect the complete PR diff for executable code if runtime behavior is in question.",
+      "evidence": [
+        "G04-E1",
+        "G04-E2"
+      ]
+    },
+    {
+      "id": "G05",
+      "verdict": "CONTRADICTED",
+      "analysis": "The required `unit` check succeeded for head `1111111`, but the current PR head is `2222222` after a new code commit. The supplied complete check inventory contains no passing required check bound to the current head.",
+      "next_step": "Run or retrieve the required `unit` check for head `2222222`.",
+      "evidence": [
+        "G05-E1"
+      ]
+    },
+    {
+      "id": "G06",
+      "verdict": "CONTRADICTED",
+      "analysis": "The policy requires an APPROVED review bound exactly to current head `bbbbbbb`. The supplied approval is bound to `aaaaaaa`, the parent commit, so it does not satisfy the stated rule for the current head.",
+      "next_step": "Obtain an independent approval bound to `bbbbbbb`.",
+      "evidence": [
+        "G06-E1"
+      ]
+    },
+    {
+      "id": "G07",
+      "verdict": "CONTRADICTED",
+      "analysis": "The ordered commits show the cache enabled and then reverted. At final tip `c2`, the current file sets `CACHE_ENABLED = False`.",
+      "next_step": "Verify the effective cache setting at the branch tip before relying on cache behavior.",
+      "evidence": [
+        "G07-E1"
+      ]
+    },
+    {
+      "id": "G08",
+      "verdict": "CONTRADICTED",
+      "analysis": "Local `main` and `origin/main` diverge: each has one commit absent from the other. A clean worktree does not make this a fast-forward or show that local-only commits are safe to discard.",
+      "next_step": "Inspect the two unique commits and choose a reconciliation that preserves any needed local work.",
+      "evidence": [
+        "G08-E1"
+      ]
+    },
+    {
+      "id": "G09",
+      "verdict": "CONTRADICTED",
+      "analysis": "With `attempt` starting at 0 and `max_retries=0`, the supplied change to `attempt <= max_retries` returns true on the initial attempt. That contradicts the stated contract that zero means no retries; no tests were changed, and no test execution is shown.",
+      "next_step": "Correct the retry boundary and verify the zero-retry case against the supplied call contract.",
+      "evidence": [
+        "G09-E1"
+      ]
+    },
+    {
+      "id": "G10",
+      "verdict": "UNKNOWN",
+      "analysis": "The first page contains only 100 of 130 changed files, the next-page request returned 503, and review inventory was not fetched. The evidence cannot establish whether undisplayed files or reviews contain blockers.",
+      "next_step": "Fetch the remaining changed-file page and review inventory, then assess blockers.",
+      "evidence": [
+        "G10-E1"
+      ]
+    },
+    {
+      "id": "G11",
+      "verdict": "CONTRADICTED",
+      "analysis": "The PRs change different files, but the supplied patches alter producer and consumer expectations for the same message: the producer writes version 2 with `payload`, while the consumer asserts version 1 and reads `value`. The fixture says these components are connected, and integration results are absent, so path non-overlap alone cannot establish compatibility.",
+      "next_step": "Run a bounded integration check of the producer output against the consumer before treating the PRs as compatible.",
+      "evidence": [
+        "G11-E1"
+      ]
+    },
+    {
+      "id": "G12",
+      "verdict": "UNKNOWN",
+      "analysis": "The PR is merged, but the complete GitHub deployment-record inventory is empty and there is no release tag. This does not show a production deployment; external deployment systems are outside the evidence scope, so deployment status remains unknown.",
+      "next_step": "Check the authoritative production deployment record, including any external deployment system.",
+      "evidence": [
+        "G12-E1"
+      ]
+    }
+  ],
+  "limitations": [
+    "All observations are frozen at 2026-09-09T21:01:25.763163+00:00; they do not establish current state after that timestamp.",
+    "PR10's file inventory does not include source excerpts, and PR16's supplied patch is explicitly partial.",
+    "The deployment evidence covers GitHub deployment records only; external deployment systems are not observed."
+  ]
+}

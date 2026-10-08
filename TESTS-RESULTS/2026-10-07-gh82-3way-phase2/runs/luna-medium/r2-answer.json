@@ -1,0 +1,122 @@
+{
+  "assessments": [
+    {
+      "id": "G01",
+      "verdict": "SUPPORTED",
+      "analysis": "PR15 is recorded as merged, and the supplied file list contains only ROADMAP.md and a planning document. The diff corrects a superseded CPU-run pointer and clarifies sequencing; the evidence supports a planning-only change, though it does not show the complete PR diff.",
+      "next_step": "If runtime scope must be confirmed exhaustively, inspect the complete merged diff.",
+      "evidence": [
+        "G01-E1",
+        "G01-E2",
+        "G01-E3"
+      ]
+    },
+    {
+      "id": "G02",
+      "verdict": "SUPPORTED",
+      "analysis": "PR16 is recorded as merged, and the supplied taxonomy patch changes matching rules for Git commands, tests, package management, and command-position classification. This is behavioral logic, not merely file renaming; the excerpt is partial, so it does not establish every effective behavior in the full PR.",
+      "next_step": "Review the full merged diff and its relevant classification cases to confirm the intended behavior.",
+      "evidence": [
+        "G02-E1",
+        "G02-E2",
+        "G02-E3"
+      ]
+    },
+    {
+      "id": "G03",
+      "verdict": "CONTRADICTED",
+      "analysis": "The snapshot records PR526 as open with merged=false and merged_at=null, despite a non-null merge_commit_sha field. The supplied status fields contradict the claim that it has already merged.",
+      "next_step": "Check the PR's authoritative merge status and base branch history before treating it as merged.",
+      "evidence": [
+        "G03-E1"
+      ]
+    },
+    {
+      "id": "G04",
+      "verdict": "CONTRADICTED",
+      "analysis": "PR10 is open and its changed-file list contains only AGENTS.md, CHANGELOG.md, ROUTER.md, and SOP.md. The supplied evidence shows documentation and operational-rail changes, not a runtime prediction engine.",
+      "next_step": "Inspect the full PR diff if confirming the absence of runtime code is necessary.",
+      "evidence": [
+        "G04-E1",
+        "G04-E2"
+      ]
+    },
+    {
+      "id": "G05",
+      "verdict": "CONTRADICTED",
+      "analysis": "The PR head is 2222222, but the only supplied successful required check is for 1111111. Since the head changed and no check result is shown for the current SHA, the claim that the current head passes its required check is unsupported by this snapshot.",
+      "next_step": "Obtain a completed successful unit check bound to head SHA 2222222.",
+      "evidence": [
+        "G05-E1"
+      ]
+    },
+    {
+      "id": "G06",
+      "verdict": "CONTRADICTED",
+      "analysis": "The stated policy requires an APPROVED review bound exactly to the current head bbbbbbb. The only supplied approval is bound to aaaaaaa, the parent commit, so it does not satisfy that rule for the current head.",
+      "next_step": "Request or fetch an independent approval tied to bbbbbbb.",
+      "evidence": [
+        "G06-E1"
+      ]
+    },
+    {
+      "id": "G07",
+      "verdict": "CONTRADICTED",
+      "analysis": "The ordered commits enable the cache in c1 and then revert it in c2. The final tip is c2 and the supplied current file sets CACHE_ENABLED to false.",
+      "next_step": "Verify the cache setting at the branch tip before relying on cache behavior.",
+      "evidence": [
+        "G07-E1"
+      ]
+    },
+    {
+      "id": "G08",
+      "verdict": "CONTRADICTED",
+      "analysis": "Local main and origin/main each have one commit absent from the other, branching from A. The clean worktree does not remove local-only commit L; updating by fast-forward would not preserve this divergence automatically.",
+      "next_step": "Inspect the two unique commits and choose how to preserve or reconcile L before updating local main.",
+      "evidence": [
+        "G08-E1"
+      ]
+    },
+    {
+      "id": "G09",
+      "verdict": "CONTRADICTED",
+      "analysis": "The diff changes the predicate from attempt < max_retries to attempt <= max_retries. Under the supplied contract, with attempt starting at 0 and max_retries=0, the new predicate is true, so zero does not disable retries. The commit subject does not override the diff's behavior.",
+      "next_step": "Correct the retry boundary and add or run a case verifying zero retries.",
+      "evidence": [
+        "G09-E1"
+      ]
+    },
+    {
+      "id": "G10",
+      "verdict": "UNKNOWN",
+      "analysis": "Only 100 of 130 changed files were returned, the next page request failed with 503, and review inventory was not fetched. The displayed paths are examples, so this evidence cannot establish whether undisplayed files or reviews contain blockers.",
+      "next_step": "Retry fetching the remaining changed-file page and review inventory.",
+      "evidence": [
+        "G10-E1"
+      ]
+    },
+    {
+      "id": "G11",
+      "verdict": "CONTRADICTED",
+      "analysis": "The PRs change different files but alter opposite sides of a shared wire contract: the producer emits version 2 with payload, while the consumer asserts version 1 and reads value. The fixture says producer output feeds consumer input and they should deploy together; path non-overlap alone does not establish compatibility. Integration results are absent.",
+      "next_step": "Run an integration check using the producer's new output with the consumer before considering the pair compatible.",
+      "evidence": [
+        "G11-E1"
+      ]
+    },
+    {
+      "id": "G12",
+      "verdict": "UNKNOWN",
+      "analysis": "The PR is merged, but the complete GitHub deployment inventory supplied is empty and no release tag is recorded. The inventory explicitly excludes external deployment systems, so it neither supports production deployment nor rules it out.",
+      "next_step": "Verify the release against the production deployment system's records.",
+      "evidence": [
+        "G12-E1"
+      ]
+    }
+  ],
+  "limitations": [
+    "These are frozen snapshots as of 2026-09-09T21:01:25.763163+00:00, not live state.",
+    "PR15 and PR16 evidence includes partial diffs; conclusions about their full scope are limited to the supplied file lists and excerpts.",
+    "G12 deployment evidence covers GitHub deployment records only; external deployment systems are unobserved."
+  ]
+}

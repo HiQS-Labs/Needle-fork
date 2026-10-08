@@ -3,6 +3,20 @@
 Newest-first, dated end-of-iteration record. One entry per substantive iteration: what changed,
 why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
+## 2026-10-07
+
+### Haiku 5.5 vs GPT 6 Luna vs Sonnet 5.5 three-way Phase 2 challenge (#82)
+
+Two fresh calls each on the same frozen 12-case Git/PR analyst packet, all at medium effort.
+Sonnet 5.5 scored 42/43 (88.542%, B), GPT 6 Luna 42/42 (87.50%, B), and Claude Haiku 5.5
+41/42 (86.458%, B). Haiku spent 4–7k thinking tokens per call and twice Sonnet's wall time.
+GPT 6.1 Luna is unavailable on ChatGPT-account Codex, so GPT 6 Luna was substituted before
+inference. Final scores reconcile a coordinator review with a blind independent review, with
+two disagreements recorded. Prompt, packet, key and grader hashes match; controls passed.
+Repository preflight: 545 passed, 7 skipped, 11 deselected. Raw answers, receipts, reviews and
+limitations are in `TESTS-RESULTS/2026-10-07-gh82-3way-phase2/`. No product/runtime or release
+changes.
+
 ## 2026-10-02
 
 ### Claude Fable 5.1 Low Phase 2 retest (#13)
