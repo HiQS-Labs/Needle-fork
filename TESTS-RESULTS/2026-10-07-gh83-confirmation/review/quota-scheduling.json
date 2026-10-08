@@ -1,0 +1,17 @@
+{
+  "utc": "2026-10-08T06:41:53.329864+00:00",
+  "cause": "Claude five_hour rate limit, native 429, reset 2026-10-08T07:40:00Z",
+  "action": "SIGINT to coordinator only; ThreadPoolExecutor drains current native calls before exit. No child kill or retry. Remaining Astra requests run once while unattempted Fable groups await reset, then original frozen driver resumes terminal skips.",
+  "failed_groups_not_retried": [
+    "B018",
+    "B020",
+    "B021",
+    "B019",
+    "B022"
+  ],
+  "caps_unchanged": true,
+  "grading_order_deviation": "Provider-resource scheduling only; same opaque groups/prompts/pinned reviewers/efforts, no additional calls or candidate reinference.",
+  "drained_final_group": "B022",
+  "interrupted_driver_exit": 130,
+  "pending_after_drain": []
+}

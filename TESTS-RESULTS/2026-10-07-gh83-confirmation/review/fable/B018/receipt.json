@@ -1,0 +1,98 @@
+{
+  "schema": "needle/confirmation-run@2",
+  "kind": "review",
+  "status": "transport_error",
+  "started_at": "2026-10-08T06:35:20.084733+00:00",
+  "cli": "claude",
+  "cli_version": "2.1.289 (Claude Code)",
+  "requested_model": "claude-fable-5-1",
+  "requested_effort": "high",
+  "flags": [
+    "-p",
+    "--model",
+    "claude-fable-5-1",
+    "--effort",
+    "high",
+    "--output-format",
+    "stream-json",
+    "--verbose",
+    "--tools",
+    "",
+    "--strict-mcp-config",
+    "--mcp-config",
+    "{\"mcpServers\":{}}",
+    "--disable-slash-commands",
+    "--no-session-persistence",
+    "--setting-sources",
+    "",
+    "--settings",
+    "{\"disableAllHooks\":true}",
+    "--permission-mode",
+    "dontAsk",
+    "--no-chrome"
+  ],
+  "cwd": "/private/tmp/needle-gh83-cell-qk2698s2",
+  "candidate_cwd_files": [
+    "QUESTIONS.md",
+    "packet.json"
+  ],
+  "prompt_sha256": "9a55fe4df55d1222b2ad71b8df3539ff8c4588dc4c87974cf017c6ccb3c640b5",
+  "packet_sha256": null,
+  "timeout_seconds": 870,
+  "retries": 0,
+  "tool_use": [],
+  "temperature": null,
+  "metadata": null,
+  "system_prompt_is_user_prefix": true,
+  "backend_attestation": "CLI returned metadata only; may be absent",
+  "exit_code": 1,
+  "event_types": [
+    "assistant",
+    "rate_limit_event",
+    "result",
+    "system"
+  ],
+  "returned_models": [
+    "<synthetic>"
+  ],
+  "model_usage": [
+    {}
+  ],
+  "usage": [
+    {
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "input_tokens": 0,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "output_tokens": 0,
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 0,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "",
+      "iterations": [],
+      "speed": "standard",
+      "fallback_credit": null
+    }
+  ],
+  "cost_usd_cli_estimate": [
+    0
+  ],
+  "tool_enforcement": "tools/MCP/skills/hooks disabled by flags",
+  "finished_at": "2026-10-08T06:35:21.568408+00:00",
+  "wall_seconds": 1.4830765000078827,
+  "answer_sha256": "200cd6921e29869e64f49a302d04e75124da72a741bc3dfa40efa7830099c2e9",
+  "retained_hashes": {
+    "prompt.txt": "9a55fe4df55d1222b2ad71b8df3539ff8c4588dc4c87974cf017c6ccb3c640b5",
+    "events.jsonl": "f0db1bc475cbe07b44e05e4ff0b71bc44e994ca385b8832e2cd7538635ce426e",
+    "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "answer.md": "200cd6921e29869e64f49a302d04e75124da72a741bc3dfa40efa7830099c2e9"
+  }
+}

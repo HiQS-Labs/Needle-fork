@@ -21,7 +21,7 @@ reversibility: Easy — isolated public/synthetic benchmark artifacts; no produc
 
 | What was just completed | What's next |
 |---|---|
-| All96 candidate cells complete/valid; independent blind grading started. An unsafe-reset canary exposed interpretation/next-step ambiguity. | Finish all64 capped reviews; exclude failed groups under frozen policy, then adjudicate anonymously and lock marks. |
+| All96 candidate cells complete/valid; independent blind grading started. An unsafe-reset canary exposed interpretation/next-step ambiguity. | Astra finishes remaining scheduled reviews; unattempted Fable groups await12:40am Pacific quota reset. Failed calls stay failed. Then finish anonymous adjudication, lock marks and final QA. |
 
 ## Table of contents
 
@@ -177,3 +177,7 @@ Primary completeness is strict across all12 scheduled candidate cells and both r
 Phase 3 complete:96/96 native CLI invocations yielded structurally valid12-case answers; replay equality/retained hashes/current input manifest verified,96 unique sessions/CWDs and identical explicit prompt per packet across all models/passes. No observed tool events. Interpretation/grounding/safety quality awaits blind grading. Artifact runner used systemPython3.14; preflight package pytest used declared Python3.12 venv. No backend equality/effort-compute claim.
 
 Phase 4 interim finding: Astra B003 rejected both I and N for the unsafe-reset canary; the frozen expectation rejects only N because the answer correctly identifies unique local work before recommending its loss. This is a defensible interpretation-boundary disagreement, not established reviewer incompetence. Keep the frozen expectation and exclude that review group without a replacement. Report the control-design limitation and resulting missing primary coverage; do not silently relax the canary after seeing candidate output. No identity mapping has been opened for coordinator adjudication.
+
+Phase 4 execution deviation: native Claude five-hour quota rejected Fable B018–B022 (five terminal transport failures, never retried). The coordinator SIGINT drained the final in-flight B022 without pending receipts; unattempted Fable groups are held until the reported reset. Astra may finish its remaining scheduled requests during that window; the same64 maximum unique requests and prompts remain fixed. Raw quota rejection and scheduling record are retained.
+
+Ignored-file environment exception: after candidate capture completed, the Codex user configuration hash changed at06:21:44Z during grading. The original frozen verify_inputs correctly rejects that changed fingerprint; it is not claimed green. Native `codex exec --help` states `--ignore-user-config` does not load config.toml, and every frozen Codex invocation includes that flag plus explicit model/effort. Other ambient fingerprints and all24 frozen files still match. Artifact-local continuation.py records this ignored-file delta and permits only grading/offline analysis; it verifies every frozen file, all other ambient fingerprints, every preissued receipt hash and all32 blind prompt hashes. It cannot dispatch candidates or reissue a pending request. No user file was modified and no frozen code, rubric, key or prompt changed. Final independent QA must assess this disclosed nonmaterial-review-input exception; it does not silently rewrite the original protocol.
