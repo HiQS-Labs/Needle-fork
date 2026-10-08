@@ -1,4 +1,21 @@
+---
+title: GH-83 confirmation recon
+status: In progress
+created: 2026-10-07
+updated: 2026-10-07
+owner: Codex
+goal: Ground the artifact-local protocol extension.
+gh_issue: 83
+roadmap_exempt: true
+---
+
 # Recon Map — GH-83 confirmation
+
+## Status
+
+| What was just completed | What's next |
+|---|---|
+| GH82 runner, grader and evidence seams traced. | Apply the reviewed protocol within the same artifact boundary. |
 
 Commit: baeb588ec1ec01b88d5663ed74244c7420af2fca · Mode: graph+source fallback · Lanes: A/B/C/D contained in parent.
 
