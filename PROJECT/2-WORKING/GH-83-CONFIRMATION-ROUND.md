@@ -21,7 +21,7 @@ reversibility: Easy — isolated public/synthetic benchmark artifacts; no produc
 
 | What was just completed | What's next |
 |---|---|
-| Plan/corpus independently approved; balanced corpus, hash/structural red controls and resistant-child timeout control passed. | Inputs ready to freeze, then execute 96 scheduled cells across all eight requested model IDs. |
+| Plan/corpus independently approved; balanced corpus, hash/structural red controls and resistant-child timeout control passed. | Run the frozen96-cell schedule; then prepare blind grading. |
 
 ## Table of contents
 
@@ -37,6 +37,14 @@ Question: do apparent near-ties in #82 survive a contemporaneous controlled conf
 Extend #82's artifact-local runner and reuse its structural grader; no service, provider framework, new production module, new test suite or gate registry. The only writers are the coordinator's campaign runner (raw outputs/receipts), offline graders (separate review artifacts) and coordinator adjudication/report. Product code, training, model files, private transcripts, deployments, global CLI settings and previous evidence are out of scope. Repeating only the old packet was rejected because it cannot test fresh scenario transfer or remove key ambiguity. Broad live autonomous-agent benchmarking is a separate task.
 
 Easy rollback: abandon this isolated campaign, append corrections rather than rewriting history. Inputs are public historical snapshots or explicitly controlled synthetic repositories. CLI subscriptions/auth routes remain existing routes; no new provider credentials. No machine listener/tunnel is opened. Compute/spend exposure is bounded by the call caps below; dollar telemetry is an estimate, not a bill.
+
+## Execution order
+
+1. Review the grounded plan with the requested Light advisers and Fable High relay -> expect retained dispositions and attested approval.
+2. Construct/review the fresh corpus, witness controls and commit the full input freeze -> expect balanced36 cases, unchanged legacy bytes and nonempty hash manifest.
+3. Execute the96 fixed candidate cells in the seeded order -> expect one invocation per cell and visible terminal outcomes, with all exceptions disclosed.
+4. Capture two blind semantic reviews per group, validate hidden controls, adjudicate with quotes and lock anonymous marks -> expect no identity mapping opened during reconciliation and no omitted failures.
+5. Compute family-sensitive comparisons, write report/corrections, run final independent relay QA and publish -> expect qualifying evidence on origin before cleanup.
 
 ## Recon and task rating
 
@@ -78,7 +86,7 @@ Critical false assurance (marked key cases), destructive unpreserved advice, inv
 - [x] Nonempty sources, exact case count, class/family counts, no key/grade/history in candidate CWD, schedule uniqueness, packet length and artifact replay controls pass.
 - [x] Existing pytest -q -m "not slow" in a disposable full clone passes with its declared test/train extras and NEEDLE_TELEMETRY=0; save exact base/interpreter/command/output. No full XYZ suite or mutation-heavy tests in the task clone. No runtime code changes require slow training.
 - [x] Record synthetic transport/availability probes separately. Snapshot versions, requested/returned identity, efforts, tool observations, model catalog, ambient-instruction fingerprints and prompt sizes without credentials. Each candidate has one availability probe, with the rejected Pro Medium request and authorized Pro High probe both retained; a failed lane is unavailable, not substituted.
-- [ ] Commit inputs, rubric, questions, adapters, seeded call schedule and their SHA256 manifest. Before each call verify all frozen hashes, not just packet/prompt. Freeze version in provenance.jsonl. No pycache or machine-specific binaries in artifact manifest.
+- [x] Commit inputs, rubric, questions, adapters, seeded call schedule and their SHA256 manifest. Before each call verify all frozen hashes, not just packet/prompt. Freeze version in provenance.jsonl. No pycache or machine-specific binaries in artifact manifest.
 
 ### Phase 2 — QA checklist
 

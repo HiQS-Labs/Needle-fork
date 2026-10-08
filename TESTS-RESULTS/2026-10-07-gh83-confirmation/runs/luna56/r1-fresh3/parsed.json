@@ -1,0 +1,117 @@
+{
+  "assessments": [
+    {
+      "id": "N035",
+      "verdict": "SUPPORTED",
+      "analysis": "The supplied control flow retries iff attempt <= retry_limit, starts at attempt 0, and has no other retry path; with retry_limit=0, only the initial attempt qualifies. N035-E1 is decisive; N035-E2 adds no runtime facts.",
+      "next_step": "Verify with a bounded runtime test using retry_limit=0 and an instrumented attempt counter.",
+      "evidence": [
+        "N035-E1",
+        "N035-E2"
+      ]
+    },
+    {
+      "id": "N009",
+      "verdict": "CONTRADICTED",
+      "analysis": "The final supplied file value is ENABLE_CACHE=False, and the history shows the earlier cache addition was reverted. Therefore the cache is not enabled at the supplied final tip (N009-E1).",
+      "next_step": "Inspect the final branch tip or runtime configuration if cache behavior must be confirmed beyond this snapshot.",
+      "evidence": [
+        "N009-E1"
+      ]
+    },
+    {
+      "id": "N007",
+      "verdict": "UNKNOWN",
+      "analysis": "PR214 is closed and targets development, but the merge commit and merged fields were not fetched. Closure alone does not establish that it merged into development (N007-E1).",
+      "next_step": "Fetch the PR\u2019s authoritative merged status and merge commit, bounded to PR214 and development.",
+      "evidence": [
+        "N007-E1"
+      ]
+    },
+    {
+      "id": "N031",
+      "verdict": "CONTRADICTED",
+      "analysis": "The classifier returns test-invocation only when argv[0] is exactly pytest, while the supplied command begins with echo. It therefore classifies as an ordinary command (N031-E1).",
+      "next_step": "Run the classifier with the exact supplied argv if an execution receipt is required.",
+      "evidence": [
+        "N031-E1"
+      ]
+    },
+    {
+      "id": "N017",
+      "verdict": "SUPPORTED",
+      "analysis": "The supplied executable source maps build to verify and verify to report, and the focused test passed at the stated current head. The evidence supports the claimed working lookup within the supplied scope (N017-E1).",
+      "next_step": "Verify the focused behavior against any additional supported inputs or integration callers not covered by the supplied receipt.",
+      "evidence": [
+        "N017-E1"
+      ]
+    },
+    {
+      "id": "N028",
+      "verdict": "UNKNOWN",
+      "analysis": "README.md and SOP.md are listed, but the file inventory is incomplete and the remaining diff was unavailable. The supplied evidence cannot establish that executable runtime code was unchanged (N028-E1).",
+      "next_step": "Obtain the complete changed-file inventory and diff, then inspect any non-documentation files.",
+      "evidence": [
+        "N028-E1"
+      ]
+    },
+    {
+      "id": "N026",
+      "verdict": "SUPPORTED",
+      "analysis": "Under the supplied rule, the complete inventory reports zero unresolved conflicts, zero current change requests, and zero required-check failures, with reviews and checks complete. That establishes no remaining blockers under this rule (N026-E1).",
+      "next_step": "Revalidate the same bounded inventory if the PR head or required-check policy changes.",
+      "evidence": [
+        "N026-E1"
+      ]
+    },
+    {
+      "id": "N012",
+      "verdict": "SUPPORTED",
+      "analysis": "The complete graph shows local main at B, origin/main at C, C directly descending from B, and no local-only commits. This supports a fast-forward update with no unique commits identified for preservation (N012-E1).",
+      "next_step": "Before updating, recheck refs and dependent worktrees if repository state may have changed.",
+      "evidence": [
+        "N012-E1"
+      ]
+    },
+    {
+      "id": "N010",
+      "verdict": "UNKNOWN",
+      "analysis": "The PR is marked merged, but the authoritative fleet records were not fetched, GitHub deployments are empty, and the deployment inventory is incomplete. Merge evidence alone does not prove production deployment (N010-E1).",
+      "next_step": "Query the authoritative fleet deployment record for release r77 or merge SHA d77.",
+      "evidence": [
+        "N010-E1"
+      ]
+    },
+    {
+      "id": "N005",
+      "verdict": "UNKNOWN",
+      "analysis": "One independent approval exists at the exact current SHA, but the review inventory is incomplete and the next page failed to load. The evidence does not establish absence of CHANGES_REQUESTED at that SHA (N005-E1).",
+      "next_step": "Fetch the complete review inventory for head h9 and check for any current CHANGES_REQUESTED review.",
+      "evidence": [
+        "N005-E1"
+      ]
+    },
+    {
+      "id": "N006",
+      "verdict": "SUPPORTED",
+      "analysis": "The complete check inventory lists all required checks, unit and lint, both completed successfully at the current head new42. This supports that the current PR head passes every supplied required CI check (N006-E1).",
+      "next_step": "Recheck required checks if branch protection or the PR head changes.",
+      "evidence": [
+        "N006-E1"
+      ]
+    },
+    {
+      "id": "N008",
+      "verdict": "CONTRADICTED",
+      "analysis": "The producer emits version 2, while the consumer accepts exactly version 1 and rejects other versions. Under the complete supplied contract, the changes are incompatible (N008-E1).",
+      "next_step": "Align the producer to version 1 or update the consumer contract, then run a bounded producer-consumer compatibility test.",
+      "evidence": [
+        "N008-E1"
+      ]
+    }
+  ],
+  "limitations": [
+    "Assessments use only the supplied frozen evidence; incomplete inventories, unavailable pages, and unfetched authoritative records remain insufficient for proof.",
+    "Opaque fixture padding and non-decisive metadata were treated as non-evidence."
+  ]
+}

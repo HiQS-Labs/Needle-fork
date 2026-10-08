@@ -1,0 +1,115 @@
+{
+  "assessments": [
+    {
+      "id": "N004",
+      "verdict": "UNKNOWN",
+      "analysis": "The supplied history shows a cache-enabling change, but the final tip and later history were not fetched, so persistence at the final branch tip is unproven.",
+      "next_step": "Verify the final branch tip and inspect subsequent history for the cache setting.",
+      "evidence": [
+        "N004-E1"
+      ]
+    },
+    {
+      "id": "N024",
+      "verdict": "SUPPORTED",
+      "analysis": "The authoritative deployment record marks release r77, including merge SHA d77, as successfully deployed to production, and the PR is recorded as merged.",
+      "next_step": "No further verification is required for the supplied snapshot; optionally confirm the production record remains current.",
+      "evidence": [
+        "N024-E1"
+      ]
+    },
+    {
+      "id": "N023",
+      "verdict": "CONTRADICTED",
+      "analysis": "The current head new42 has a completed unit check with conclusion failure, while unit is required; therefore every required check does not pass.",
+      "next_step": "Investigate and resolve the unit failure, then obtain a complete passing receipt for new42 or its replacement head.",
+      "evidence": [
+        "N023-E1"
+      ]
+    },
+    {
+      "id": "N013",
+      "verdict": "SUPPORTED",
+      "analysis": "The supplied record states that PR214 is merged, closed, and contained in development at merge commit m214.",
+      "next_step": "No additional verification is needed within this snapshot; confirm ancestry only if acting on a newer repository state.",
+      "evidence": [
+        "N013-E1"
+      ]
+    },
+    {
+      "id": "N034",
+      "verdict": "UNKNOWN",
+      "analysis": "The retry condition is supplied, but the effective limit and mapping from retry_limit are omitted, so the behavior of retry_limit=0 cannot be established.",
+      "next_step": "Inspect the implementation and configuration mapping that derive selected_limit from retry_limit, then test the zero case.",
+      "evidence": [
+        "N034-E1"
+      ]
+    },
+    {
+      "id": "N033",
+      "verdict": "CONTRADICTED",
+      "analysis": "The inventory reports one unresolved conflict, and the supplied rule explicitly defines an unresolved conflict as a blocker; zero failed checks and complete reviews do not remove it.",
+      "next_step": "Resolve the unresolved conflict and refresh the complete blocker inventory.",
+      "evidence": [
+        "N033-E1"
+      ]
+    },
+    {
+      "id": "N019",
+      "verdict": "UNKNOWN",
+      "analysis": "Compatibility cannot be established because the contract is incomplete and the consumer implementation is not supplied; producer output alone is insufficient.",
+      "next_step": "Compare the producer and consumer implementations against a complete versioned wire contract.",
+      "evidence": [
+        "N019-E1"
+      ]
+    },
+    {
+      "id": "N018",
+      "verdict": "CONTRADICTED",
+      "analysis": "The supplied changed files are documentation only, and the complete diff explicitly says no runtime module was added, conflicting with the claim of an executable working lookup.",
+      "next_step": "Inspect the diff for executable runtime changes and add or verify an executable prediction lookup with tests if required.",
+      "evidence": [
+        "N018-E1"
+      ]
+    },
+    {
+      "id": "N016",
+      "verdict": "SUPPORTED",
+      "analysis": "There is one independent APPROVED review at the exact current head h9, reviews are complete, and no CHANGES_REQUESTED review is reported at that SHA.",
+      "next_step": "No further review verification is required for the supplied head; recheck approvals if the head changes.",
+      "evidence": [
+        "N016-E1"
+      ]
+    },
+    {
+      "id": "N011",
+      "verdict": "UNKNOWN",
+      "analysis": "The classifier delegates to normalize_wrapper, but that implementation is not supplied, so the final classification of the command cannot be determined.",
+      "next_step": "Inspect normalize_wrapper and execute the classifier logic against the supplied command in a controlled verification environment.",
+      "evidence": [
+        "N011-E1"
+      ]
+    },
+    {
+      "id": "N015",
+      "verdict": "CONTRADICTED",
+      "analysis": "The graph shows local main has unique local commit L while origin/main is R, so updating is not a fast-forward with no unique commits to preserve; a clean working tree does not change that.",
+      "next_step": "Preserve or review local commit L, then determine whether an explicit rebase, merge, or other update is appropriate.",
+      "evidence": [
+        "N015-E1"
+      ]
+    },
+    {
+      "id": "N020",
+      "verdict": "SUPPORTED",
+      "analysis": "The complete diff contains only README.md and SOP.md changes and reports no executable sections, supporting documentation-only changes with runtime code unchanged.",
+      "next_step": "No further verification is needed within the supplied complete diff; recheck if additional files or commits are added.",
+      "evidence": [
+        "N020-E1"
+      ]
+    }
+  ],
+  "limitations": [
+    "Assessments rely only on the supplied frozen controlled observations; audit metadata and opaque padding provide no substantive evidence, and recommendations are not executed."
+  ]
+}

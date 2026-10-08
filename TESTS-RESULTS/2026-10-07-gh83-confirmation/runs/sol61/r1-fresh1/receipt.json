@@ -1,0 +1,82 @@
+{
+  "schema": "needle/confirmation-run@2",
+  "kind": "candidate",
+  "status": "complete",
+  "started_at": "2026-10-08T05:16:55.150785+00:00",
+  "cli": "codex",
+  "cli_version": "codex-cli 0.159.1",
+  "requested_model": "gpt-6.1-sol",
+  "requested_effort": "medium",
+  "flags": [
+    "exec",
+    "-m",
+    "gpt-6.1-sol",
+    "-c",
+    "model_reasoning_effort=\"medium\"",
+    "-c",
+    "approval_policy=\"never\"",
+    "-s",
+    "read-only",
+    "--ephemeral",
+    "--ignore-user-config",
+    "--json",
+    "--color",
+    "never",
+    "-o",
+    "/private/tmp/needle-confirmation-x87ufg0r/TESTS-RESULTS/2026-10-07-gh83-confirmation/runs/sol61/r1-fresh1/answer.md",
+    "-"
+  ],
+  "cwd": "/private/tmp/needle-gh83-cell-x7cfz0b0",
+  "candidate_cwd_files": [
+    "QUESTIONS.md",
+    "packet.json"
+  ],
+  "prompt_sha256": "9b3e08d17c0966b74910a2038f5f301ef353f71b4d07079abbd248808c91cca2",
+  "packet_sha256": "554ab6412ba17f9c9cb4c6dcaf0fe0fe6989b72857e9a762b84f052e88cde244",
+  "timeout_seconds": 870,
+  "retries": 0,
+  "tool_use": [],
+  "temperature": null,
+  "metadata": {
+    "lane": "sol61",
+    "pass": "r1",
+    "packet": "fresh1",
+    "freeze": "gh83-v2-freeze-2026-10-08T0518",
+    "manifest_sha256": "882fab01b849a575141c3545d0288e990f6710f864ee81dba6efda92ea78cf8b",
+    "eligible": true,
+    "exception": null
+  },
+  "system_prompt_is_user_prefix": true,
+  "backend_attestation": "CLI returned metadata only; may be absent",
+  "exit_code": 0,
+  "event_types": [
+    "item.completed",
+    "thread.started",
+    "turn.completed",
+    "turn.started"
+  ],
+  "usage": [
+    {
+      "input_tokens": 22684,
+      "cached_input_tokens": 12800,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 1279,
+      "reasoning_output_tokens": 0
+    }
+  ],
+  "errors": [],
+  "raw_answer_equal": true,
+  "returned_models": [],
+  "tool_enforcement": "read-only sandbox and no-tool instruction; tools still exposed",
+  "finished_at": "2026-10-08T05:17:27.929453+00:00",
+  "wall_seconds": 32.77821458299877,
+  "answer_sha256": "c1e599902694d82e4d7e3b92bff60d814ef1def43dbce355b71d2daa012d01df",
+  "retained_hashes": {
+    "prompt.txt": "9b3e08d17c0966b74910a2038f5f301ef353f71b4d07079abbd248808c91cca2",
+    "events.jsonl": "f7d135024ef0b8bf00026bdf51badd74cc07856befee816ed559fc760266493d",
+    "stderr.txt": "c6436049fb61981f5a5010ecdb04e27ab11f24253b9f631e27661d4b7ea641fc",
+    "answer.md": "c1e599902694d82e4d7e3b92bff60d814ef1def43dbce355b71d2daa012d01df",
+    "parsed.json": "22dc27c6b9e5e09fa72b71551f85b80ee27f511da359978704c0fc1b5146ffd1",
+    "structural.json": "0a93fcb70b61f0c93d0ece595e790b774a0d185b9656a8e118e7bfc845f34e70"
+  }
+}

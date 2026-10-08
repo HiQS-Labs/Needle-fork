@@ -1,0 +1,117 @@
+{
+  "assessments": [
+    {
+      "id": "N004",
+      "verdict": "UNKNOWN",
+      "analysis": "Source N004-E1 records an earlier commit introducing ENABLE_CACHE=True, but explicitly notes that final_tip_file and later_history were not fetched. Because intermediate or subsequent changes at the branch tip are missing from the evidence, whether the cache remains enabled cannot be determined.",
+      "next_step": "Recommend inspecting the commit log and configuration file content at the actual branch tip to verify if the cache setting persists.",
+      "evidence": [
+        "N004-E1"
+      ]
+    },
+    {
+      "id": "N024",
+      "verdict": "SUPPORTED",
+      "analysis": "Source N024-E1 provides an authoritative fleet deployment record showing PR merge commit d77 included in release r77, which completed successfully in production under a complete record inventory. Text in N024-E2 is non-decisive fixture content and does not alter the recorded deployment record.",
+      "next_step": "Recommend checking production service health metrics or fleet deployment telemetry for release r77.",
+      "evidence": [
+        "N024-E1"
+      ]
+    },
+    {
+      "id": "N023",
+      "verdict": "CONTRADICTED",
+      "analysis": "Source N023-E1 provides a complete check run inventory for current head new42 where the required checks are unit and lint. The unit check run completed with a conclusion of failure, directly contradicting the claim that every required check passed.",
+      "next_step": "Recommend reviewing the unit test run failure output on commit new42 to diagnose and fix the failing assertions.",
+      "evidence": [
+        "N023-E1"
+      ]
+    },
+    {
+      "id": "N013",
+      "verdict": "SUPPORTED",
+      "analysis": "Source N013-E1 explicitly reports that PR 214 has merged into base branch development via merge commit m214 and is closed. Furthermore, development_contains_m214 is confirmed as true in the repository state.",
+      "next_step": "Recommend reviewing subsequent development commit history to ensure no immediate reverts affected commit m214.",
+      "evidence": [
+        "N013-E1"
+      ]
+    },
+    {
+      "id": "N034",
+      "verdict": "UNKNOWN",
+      "analysis": "Source N034-E1 specifies that retries execute while attempt < selected_limit(config) starting at 0, but the implementation and mapping from retry_limit to selected_limit is omitted. Because effective_retry_limit is not supplied, it is impossible to evaluate whether retry_limit=0 evaluates to 0 attempts or triggers an unhandled fallback.",
+      "next_step": "Recommend inspecting the definition of selected_limit(config) in the runtime code to check how retry_limit=0 is parsed.",
+      "evidence": [
+        "N034-E1"
+      ]
+    },
+    {
+      "id": "N033",
+      "verdict": "CONTRADICTED",
+      "analysis": "Under the supplied blocker rule in N033-E1, an unresolved conflict constitutes an active merge blocker. The complete inventory records unresolved_conflicts as 1, which directly contradicts the claim that there are no remaining merge blockers.",
+      "next_step": "Recommend identifying and resolving the single merge conflict between the PR branch and its target base branch.",
+      "evidence": [
+        "N033-E1"
+      ]
+    },
+    {
+      "id": "N019",
+      "verdict": "UNKNOWN",
+      "analysis": "Source N019-E1 shows the producer emits version 2 text payloads, but complete_contract is false and consumer_accepts implementation is not supplied. The available evidence is insufficient to verify compatibility between the producer and consumer.",
+      "next_step": "Recommend inspecting consumer parsing logic in read.py to confirm whether schema version 2 is accepted.",
+      "evidence": [
+        "N019-E1"
+      ]
+    },
+    {
+      "id": "N018",
+      "verdict": "CONTRADICTED",
+      "analysis": "Source N018-E1 indicates that the complete diff is restricted to ROUTER.md and SOP.md documentation mentioning potential future engine development. No runtime modules or executable lookup code were added in this PR, contradicting the claim.",
+      "next_step": "Recommend drafting or reviewing an implementation PR that introduces the executable prediction engine module.",
+      "evidence": [
+        "N018-E1"
+      ]
+    },
+    {
+      "id": "N016",
+      "verdict": "SUPPORTED",
+      "analysis": "Source N016-E1 specifies an approval policy requiring at least one independent APPROVED review at the current SHA without changes requested. The complete review inventory records an independent approval from peer on exact head SHA h9 and zero changes requested, satisfying the policy.",
+      "next_step": "Recommend validating that branch protection rules permit merging following this approved review state.",
+      "evidence": [
+        "N016-E1"
+      ]
+    },
+    {
+      "id": "N011",
+      "verdict": "UNKNOWN",
+      "analysis": "Source N011-E1 indicates that the entrypoint delegates to normalize_wrapper(argv) before classifying argv[0], but the wrapper normalization implementation is not supplied. Without knowing how normalize_wrapper handles env and MODE=ci, the resulting classification cannot be established.",
+      "next_step": "Recommend reading the normalize_wrapper implementation to verify how wrapper prefixes are processed before classification.",
+      "evidence": [
+        "N011-E1"
+      ]
+    },
+    {
+      "id": "N015",
+      "verdict": "CONTRADICTED",
+      "analysis": "Source N015-E1 demonstrates that local main L and origin/main R diverge from common parent A, and local_only_commits contains commit L. A fast-forward update is impossible because origin/main is not a descendant of local main, and unique local commit L exists.",
+      "next_step": "Recommend rebasing local commit L onto origin/main or executing a merge to preserve local work.",
+      "evidence": [
+        "N015-E1"
+      ]
+    },
+    {
+      "id": "N020",
+      "verdict": "SUPPORTED",
+      "analysis": "Source N020-E1 confirms that the complete file list is limited to README.md and SOP.md, containing only wording and pointer edits without executable sections. This confirms the change is purely documentation and leaves runtime code unaffected.",
+      "next_step": "Recommend verifying standard markdown formatting and links in README.md and SOP.md prior to merging.",
+      "evidence": [
+        "N020-E1"
+      ]
+    }
+  ],
+  "limitations": [
+    "Assessments rely strictly on frozen synthetic snapshot inputs without live Git repository access, network connectivity, or runtime tool execution.",
+    "Omitted implementation bodies, unsupplied contracts, and un-fetched tip contents preclude definitive validation for UNKNOWN verdicts.",
+    "Opaque padding and unverified repository metadata notes were treated as non-decisive data."
+  ]
+}

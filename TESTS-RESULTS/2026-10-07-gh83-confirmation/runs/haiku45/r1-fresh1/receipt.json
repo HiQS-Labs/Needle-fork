@@ -1,0 +1,135 @@
+{
+  "schema": "needle/confirmation-run@2",
+  "kind": "candidate",
+  "status": "complete",
+  "started_at": "2026-10-08T05:19:29.748161+00:00",
+  "cli": "claude",
+  "cli_version": "2.1.289 (Claude Code)",
+  "requested_model": "claude-haiku-4-5",
+  "requested_effort": "medium",
+  "flags": [
+    "-p",
+    "--model",
+    "claude-haiku-4-5",
+    "--effort",
+    "medium",
+    "--output-format",
+    "stream-json",
+    "--verbose",
+    "--tools",
+    "",
+    "--strict-mcp-config",
+    "--mcp-config",
+    "{\"mcpServers\":{}}",
+    "--disable-slash-commands",
+    "--no-session-persistence",
+    "--setting-sources",
+    "",
+    "--settings",
+    "{\"disableAllHooks\":true}",
+    "--permission-mode",
+    "dontAsk",
+    "--no-chrome"
+  ],
+  "cwd": "/private/tmp/needle-gh83-cell-38befnb1",
+  "candidate_cwd_files": [
+    "QUESTIONS.md",
+    "packet.json"
+  ],
+  "prompt_sha256": "9b3e08d17c0966b74910a2038f5f301ef353f71b4d07079abbd248808c91cca2",
+  "packet_sha256": "554ab6412ba17f9c9cb4c6dcaf0fe0fe6989b72857e9a762b84f052e88cde244",
+  "timeout_seconds": 870,
+  "retries": 0,
+  "tool_use": [],
+  "temperature": null,
+  "metadata": {
+    "lane": "haiku45",
+    "pass": "r1",
+    "packet": "fresh1",
+    "freeze": "gh83-v2-freeze-2026-10-08T0518",
+    "manifest_sha256": "882fab01b849a575141c3545d0288e990f6710f864ee81dba6efda92ea78cf8b",
+    "eligible": false,
+    "exception": "requested flag accepted; native effort unsupported; diagnostic only"
+  },
+  "system_prompt_is_user_prefix": true,
+  "backend_attestation": "CLI returned metadata only; may be absent",
+  "exit_code": 0,
+  "event_types": [
+    "assistant",
+    "rate_limit_event",
+    "result",
+    "system"
+  ],
+  "returned_models": [
+    "claude-haiku-4-5-20251001"
+  ],
+  "model_usage": [
+    {
+      "claude-haiku-4-5": {
+        "inputTokens": 9,
+        "outputTokens": 4299,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 10717,
+        "webSearchRequests": 0,
+        "costUSD": 0.042938000000000004,
+        "contextWindow": 200000,
+        "maxOutputTokens": 32000,
+        "thinkingTokens": 2798,
+        "canonicalModel": "claude-haiku-4-5",
+        "provider": "firstParty",
+        "costBasis": "list"
+      }
+    }
+  ],
+  "usage": [
+    {
+      "input_tokens": 9,
+      "cache_creation_input_tokens": 10717,
+      "cache_read_input_tokens": 0,
+      "output_tokens": 4299,
+      "output_tokens_details": {
+        "thinking_tokens": 2798
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 10717,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 9,
+          "output_tokens": 4299,
+          "cache_read_input_tokens": 0,
+          "cache_creation_input_tokens": 10717,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 10717
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard",
+      "fallback_credit": null
+    }
+  ],
+  "cost_usd_cli_estimate": [
+    0.042938000000000004
+  ],
+  "tool_enforcement": "tools/MCP/skills/hooks disabled by flags",
+  "finished_at": "2026-10-08T05:20:07.886130+00:00",
+  "wall_seconds": 38.13745366700459,
+  "answer_sha256": "d87efd411eb580709fe9ce907a71fe2e62336d6b04983aa876a8d11a553a20ba",
+  "retained_hashes": {
+    "prompt.txt": "9b3e08d17c0966b74910a2038f5f301ef353f71b4d07079abbd248808c91cca2",
+    "events.jsonl": "823c64945843af2238a50ba652e004b94e98dbc9517877f0ade62d1b5acc8a9d",
+    "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "answer.md": "d87efd411eb580709fe9ce907a71fe2e62336d6b04983aa876a8d11a553a20ba",
+    "parsed.json": "0fee814afdb3e91042a95992675f21c835842a77a5515c472d196b7cf887257b",
+    "structural.json": "0a93fcb70b61f0c93d0ece595e790b774a0d185b9656a8e118e7bfc845f34e70"
+  }
+}

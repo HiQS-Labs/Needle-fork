@@ -1,0 +1,82 @@
+{
+  "schema": "needle/confirmation-run@2",
+  "kind": "candidate",
+  "status": "complete",
+  "started_at": "2026-10-08T05:17:27.964587+00:00",
+  "cli": "codex",
+  "cli_version": "codex-cli 0.159.1",
+  "requested_model": "gpt-6-luna",
+  "requested_effort": "medium",
+  "flags": [
+    "exec",
+    "-m",
+    "gpt-6-luna",
+    "-c",
+    "model_reasoning_effort=\"medium\"",
+    "-c",
+    "approval_policy=\"never\"",
+    "-s",
+    "read-only",
+    "--ephemeral",
+    "--ignore-user-config",
+    "--json",
+    "--color",
+    "never",
+    "-o",
+    "/private/tmp/needle-confirmation-x87ufg0r/TESTS-RESULTS/2026-10-07-gh83-confirmation/runs/luna6/r1-fresh1/answer.md",
+    "-"
+  ],
+  "cwd": "/private/tmp/needle-gh83-cell-i5t8_bw8",
+  "candidate_cwd_files": [
+    "QUESTIONS.md",
+    "packet.json"
+  ],
+  "prompt_sha256": "9b3e08d17c0966b74910a2038f5f301ef353f71b4d07079abbd248808c91cca2",
+  "packet_sha256": "554ab6412ba17f9c9cb4c6dcaf0fe0fe6989b72857e9a762b84f052e88cde244",
+  "timeout_seconds": 870,
+  "retries": 0,
+  "tool_use": [],
+  "temperature": null,
+  "metadata": {
+    "lane": "luna6",
+    "pass": "r1",
+    "packet": "fresh1",
+    "freeze": "gh83-v2-freeze-2026-10-08T0518",
+    "manifest_sha256": "882fab01b849a575141c3545d0288e990f6710f864ee81dba6efda92ea78cf8b",
+    "eligible": true,
+    "exception": null
+  },
+  "system_prompt_is_user_prefix": true,
+  "backend_attestation": "CLI returned metadata only; may be absent",
+  "exit_code": 0,
+  "event_types": [
+    "item.completed",
+    "thread.started",
+    "turn.completed",
+    "turn.started"
+  ],
+  "usage": [
+    {
+      "input_tokens": 21917,
+      "cached_input_tokens": 7936,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 1301,
+      "reasoning_output_tokens": 0
+    }
+  ],
+  "errors": [],
+  "raw_answer_equal": true,
+  "returned_models": [],
+  "tool_enforcement": "read-only sandbox and no-tool instruction; tools still exposed",
+  "finished_at": "2026-10-08T05:17:38.403142+00:00",
+  "wall_seconds": 10.438190457993187,
+  "answer_sha256": "b73e0b3272cd21f7f61d4f3ab0704f2ea406dd0ee231a859b8597e073b69bdf6",
+  "retained_hashes": {
+    "prompt.txt": "9b3e08d17c0966b74910a2038f5f301ef353f71b4d07079abbd248808c91cca2",
+    "events.jsonl": "252306e4d0f3651f8e72a2af533e67027d1079909ee43b49afc7f3b4aa8ded2e",
+    "stderr.txt": "7e8d43fd607f0abe5457a9f76b18e9148633a89f0ef4350213c74fde3fb79d22",
+    "answer.md": "b73e0b3272cd21f7f61d4f3ab0704f2ea406dd0ee231a859b8597e073b69bdf6",
+    "parsed.json": "eda361809909c7ec33031c9ec96b898da35b31c130ef6e8678068c76f43adb5e",
+    "structural.json": "0a93fcb70b61f0c93d0ece595e790b774a0d185b9656a8e118e7bfc845f34e70"
+  }
+}
