@@ -1,0 +1,7 @@
+{
+  "checked": "2026-10-07 America/Los_Angeles",
+  "source": "https://platform.claude.com/docs/en/models/haiku-4-5/overview",
+  "native_effort_supported": false,
+  "cli_flag_accepted": true,
+  "interpretation": "CLI requested medium is not a native Medium-effort configuration; await operator exception."
+}

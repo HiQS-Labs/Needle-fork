@@ -1,0 +1,10 @@
+{
+  "command": "NEEDLE_TELEMETRY=0 PYTHONDONTWRITEBYTECODE=1 python3.12 -m pytest -q -m not slow",
+  "interpreter": "Python 3.12.13",
+  "base_sha": "baeb588ec1ec01b88d5663ed74244c7420af2fca",
+  "cwd_shape": "separate full clone",
+  "exit_code": 0,
+  "result": "545 passed, 7 skipped, 11 deselected in 26.98s",
+  "installed_extras": ".[test,train]",
+  "note": "Repository hygiene; not proof of benchmark validity."
+}

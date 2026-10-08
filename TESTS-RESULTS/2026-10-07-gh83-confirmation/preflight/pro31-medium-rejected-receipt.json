@@ -1,0 +1,7 @@
+{
+  "requested_model": "gemini-3.1-pro-high",
+  "requested_effort": "medium",
+  "status": "usage_rejected_before_inference",
+  "reason": "Model High route conflicts with --effort medium",
+  "subsequent_user_authorization": "Pro High explicitly authorized, separate settings probe retained."
+}

@@ -1,0 +1,17 @@
+{
+  "command": "bash test/claude-turn.sh",
+  "exit_code": 0,
+  "before": {
+    "head": "d822996cc083e1775501703302736184fe64d8de",
+    "origin": "https://github.com/HiQS-Labs/XYZ-forge.git",
+    "bare": "false",
+    "email": ""
+  },
+  "after": {
+    "head": "d822996cc083e1775501703302736184fe64d8de",
+    "origin": "https://github.com/HiQS-Labs/XYZ-forge.git",
+    "bare": "false",
+    "email": ""
+  },
+  "identity_unchanged": true
+}

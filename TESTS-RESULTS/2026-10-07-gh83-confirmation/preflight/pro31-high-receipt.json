@@ -1,0 +1,27 @@
+{
+  "lane": "pro31",
+  "model": "gemini-3.1-pro-high",
+  "requested_effort": "high",
+  "user_exception": "Operator explicitly authorized Antigravity High; Gemini3.1Pro Medium conflicts with available route.",
+  "command": [
+    "agy",
+    "-p",
+    "Return exactly OK. No tools or commands. Synthetic availability probe.",
+    "--model",
+    "gemini-3.1-pro-high",
+    "--effort",
+    "high",
+    "--output-format",
+    "stream-json",
+    "--disable-slash-commands",
+    "--sandbox",
+    "--print-timeout",
+    "90s",
+    "--log-file",
+    "/private/tmp/needle-confirmation-x87ufg0r/TESTS-RESULTS/2026-10-07-gh83-confirmation/preflight/pro31-high-local.log"
+  ],
+  "started_at": "2026-10-08T04:41:58.924174+00:00",
+  "synthetic": true,
+  "exit_code": 0,
+  "wall_seconds": 17.008685749955475
+}

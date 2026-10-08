@@ -1,0 +1,30 @@
+{
+  "lane": "flash38",
+  "model": "gemini-3.8-flash-medium",
+  "requested_effort": "medium",
+  "cli": "agy",
+  "command": [
+    "agy",
+    "-p",
+    "Return exactly OK. This is a synthetic model/effort availability probe. No tools, commands, files or contacts.",
+    "--model",
+    "gemini-3.8-flash-medium",
+    "--effort",
+    "medium",
+    "--output-format",
+    "stream-json",
+    "--disable-slash-commands",
+    "--mode",
+    "plan",
+    "--sandbox",
+    "--print-timeout",
+    "60s",
+    "--log-file",
+    "/private/tmp/needle-confirmation-x87ufg0r/TESTS-RESULTS/2026-10-07-gh83-confirmation/preflight/flash38-local.log"
+  ],
+  "started_at": "2026-10-08T04:40:41.972439+00:00",
+  "cwd": "/private/tmp/needle-gh83-smoke-nyb9gh87",
+  "synthetic": true,
+  "exit_code": 0,
+  "wall_seconds": 6.681952207989525
+}

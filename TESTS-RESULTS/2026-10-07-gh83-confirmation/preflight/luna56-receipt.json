@@ -1,0 +1,29 @@
+{
+  "lane": "luna56",
+  "model": "gpt-5.6-luna",
+  "requested_effort": "medium",
+  "cli": "codex",
+  "command": [
+    "codex",
+    "exec",
+    "-m",
+    "gpt-5.6-luna",
+    "-c",
+    "model_reasoning_effort=\"medium\"",
+    "-c",
+    "approval_policy=\"never\"",
+    "-s",
+    "read-only",
+    "--ephemeral",
+    "--ignore-user-config",
+    "--json",
+    "--color",
+    "never",
+    "-"
+  ],
+  "started_at": "2026-10-08T04:40:39.159883+00:00",
+  "cwd": "/private/tmp/needle-gh83-smoke-tjsb9zoq",
+  "synthetic": true,
+  "exit_code": 0,
+  "wall_seconds": 2.790899541985709
+}
