@@ -1,0 +1,24 @@
+relay-drive: GH-370 progress (main tree fallback: /private/tmp/needle-confirmation-x87ufg0r) changed-files=0
+codex-turn: worktree isolation ON (/var/folders/69/3l_82qtj7fzglnt_jjg07jh40000gn/T//rtl-wt.vzMidg)
+relay-drive: GH-370 progress (turn worktree: /private/var/folders/69/3l_82qtj7fzglnt_jjg07jh40000gn/T/rtl-wt.vzMidg) changed-files=0
+relay-drive: GH-370 progress (turn worktree: /private/var/folders/69/3l_82qtj7fzglnt_jjg07jh40000gn/T/rtl-wt.vzMidg) changed-files=1
+relay-drive: GH-370 progress (turn worktree: /private/var/folders/69/3l_82qtj7fzglnt_jjg07jh40000gn/T/rtl-wt.vzMidg) changed-files=1
+relay-drive: GH-370 progress (turn worktree: /private/var/folders/69/3l_82qtj7fzglnt_jjg07jh40000gn/T/rtl-wt.vzMidg) changed-files=1
+relay-drive: GH-370 progress (turn worktree: /private/var/folders/69/3l_82qtj7fzglnt_jjg07jh40000gn/T/rtl-wt.vzMidg) changed-files=1
+rtl: GH-654 allowlist: [] relay_file: /private/tmp/needle-confirmation-x87ufg0r/relay-system/2026-10-08/gh83-final.codex.md
+codex-turn: committed codex-reviewer turn (file-scoped, no push)
+codex-turn: dependency.drift — codex-reviewer changed relay-automation/relay-turn-lib.sh (0 lines); signalled for the next turn
+codex-turn: dependency.drift — codex-reviewer changed src/project.js (0 lines); signalled for the next turn
+codex-turn: dependency.drift — codex-reviewer changed src/events.js (0 lines); signalled for the next turn
+relay-drive: attested Approved by codex-reviewer — reviewed b0ba035f966b, 10409 bytes of review text, record /private/tmp/needle-confirmation-x87ufg0r/.git/relay-attest/RELAY-GH83-FINAL.json
+relay-drive: review-once — reviewer approved/closed (STATUS: Approved, attested) after 1 turn
+
+relay-drive: end-of-run cost summary (tick analyze) —
+--- cost ---
+run type: unspecified
+tokens: ≥0 total (≥0 in / ≥0 out) — PARTIAL, floor only: 0/1 done-tasks instrumented
+human minutes (self-reported): 0
+wall-clock (run window): 10m 17s
+per done-task: ≥0 tokens, 10m 17s wall-clock
+  turn peak RSS: codex-reviewer: 287MB peak RSS
+

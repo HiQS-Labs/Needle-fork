@@ -1,0 +1,18 @@
+{
+  "utc": "2026-10-08T08:20:29.959742+00:00",
+  "native_model": "gpt-6.1-sol",
+  "requested_effort": "medium",
+  "native_header_effort": "medium",
+  "driver_exit_code": 0,
+  "reviewed_head": "b0ba035f966b1f463f07635e410653c99f29364c",
+  "approval": "Approved",
+  "round": 1,
+  "round_cap": 3,
+  "scope": "Report content/evidence only; missing grades remain missing. Later changes are publication/closure metadata and receipts.",
+  "retained_hashes": {
+    "r1-attestation.json": "1f37b870e94567ededa521a5d257670edd70d6dd8cb98334d2a16dbff9c026ba",
+    "r1-driver.txt": "dbd1ad5d6037c1f248707fc0ec92772d20f8e232b8bcd386682e85c3ce01e329",
+    "r1-native.txt": "9fa8f73dae5538292448b1d50112bc0b088a35647043b1b34ec0469df5e00ae8",
+    "r1-thread.md": "7e58741ebcf3fe2198047f8d2e6d984d451f59c15db731de6e7ef8c806358cd5"
+  }
+}

@@ -1,6 +1,6 @@
 # GH83 — Consolidated confirmation round
 
-REPORT DRAFT: final independent QA and publication pending.
+Independent Codex6.1 Sol Medium final QA: **Approved**, round1, driver exit0, reviewed `b0ba035f966b1f463f07635e410653c99f29364c`. [Receipt](final-qa/receipt.json), [review/attestation](final-qa/r1-thread.md). Publication and issue reconciliation are the remaining closure steps.
 
 **All96 candidate calls completed, but this round does not establish a full-roster semantic winner.** Opus5.5 is the only configuration with complete eligible grading (143/142/141, mean142/144). Haiku4.5 has complete diagnostic grading (mean130/144), with native effort unsupported and observed critical flags. With only one complete eligible configuration, **zero pairwise intervals/comparisons are computed**; this is a coverage failure, not evidence that the models are equivalent. Another unchanged repeat is not recommended.
 
@@ -140,7 +140,7 @@ The candidate prompt asks for “one bounded recommended verification/next step�
 
 During grading, native Fable hit its five-hour quota. Five requests B018–B022 were retained as terminal failures without retry; the remaining unattempted Fable requests were held until reset while Astra finished its scheduled requests. The current thread pool drained on coordinator SIGINT with no ambiguous pending receipts. This changed review timing/order, not the64-call cap, prompts, pinned reviewers or candidate data.
 
-Codex user configuration fingerprint drift was observed during grading; the file modification timestamp is06:21:44Z, after all candidates completed. The timestamp is filesystem evidence, not an attribution of who changed it. The original frozen verification rejects that drift and remains unchanged. Native exec help and every Codex flag receipt establish that `--ignore-user-config` excludes this file. `continuation.py` explicitly logs that ignored-file exception for review/offline analysis only; all24 frozen files, other ambient fingerprints,32 blind prompt hashes and retained prior-review hashes must still match. User configuration was not overwritten; the cause of its change was not established. Positive/red copy controls witness rejection of actual frozen/blind prompt drift, other ambient drift, ambiguous pending reviews and altered captured answers. Final independent QA evaluates this disclosed exception.
+Codex user configuration fingerprint drift was observed during grading; the file modification timestamp is06:21:44Z, after all candidates completed. The timestamp is filesystem evidence, not an attribution of who changed it. The original frozen verification rejects that drift and remains unchanged. Native exec help and every Codex flag receipt establish that `--ignore-user-config` excludes this file. `continuation.py` explicitly logs that ignored-file exception for review/offline analysis only; all24 frozen files, other ambient fingerprints,32 blind prompt hashes and retained prior-review hashes must still match. User configuration was not overwritten; the cause of its change was not established. Positive/red copy controls witness rejection of actual frozen/blind prompt drift, other ambient drift, ambiguous pending reviews and altered captured answers. Final independent QA accepted this disclosed exception; the original guard remains failed.
 
 ## Protocol verdict and next decision
 
@@ -155,4 +155,3 @@ Do not run another unchanged full-roster repeat to confirm these totals. More re
 5. Add independently selected scenario families only if the operational decision requires transfer -> expect family/corpus uncertainty and tool/effort exceptions to remain visible. Keep matched prompts, fresh sessions, raw evidence, blind adjudication, no candidate retries and explicit failure outcomes.
 
 Mechanical verdict diagnostics from this round remain useful on all36 fresh cases and allthree passes, even where paired semantic grading failed. They show agreement with this controlled key, not deployment readiness or equivalence. Historical score tables are retained unchanged with the #82 reporting corrections cross-linked.
-

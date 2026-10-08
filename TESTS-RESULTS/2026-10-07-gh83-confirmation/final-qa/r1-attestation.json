@@ -1,0 +1,19 @@
+{
+  "added_len": 10409,
+  "added_sha256": "b1dfa5e7e0be4f35a088bfde7a7f2bee9998695ed1ee6c29c8e053bafe790a43",
+  "added_start": 11271,
+  "artifact_sha256": null,
+  "attested_at": "2026-10-08T08:19:39Z",
+  "driver_pid": 49812,
+  "isolated": true,
+  "relay_file": "/private/tmp/needle-confirmation-x87ufg0r/relay-system/2026-10-08/gh83-final.codex.md",
+  "relay_file_rel": "relay-system/2026-10-08/gh83-final.codex.md",
+  "reviewed_head": "b0ba035f966b1f463f07635e410653c99f29364c",
+  "reviewer": "codex-reviewer",
+  "schema": "relay-drive/attest@1",
+  "status": "Approved",
+  "target_repo": "/private/tmp/needle-confirmation-x87ufg0r",
+  "task": "RELAY-GH83-FINAL",
+  "trailer_sha256": "b2dfab0f8de36cebf4d16d0fd97f6702a322452e84bf79b774203745136e8494",
+  "transcript_repo": "/private/tmp/needle-confirmation-x87ufg0r"
+}
