@@ -1,0 +1,116 @@
+{
+  "assessments": [
+    {
+      "id": "N004",
+      "verdict": "UNKNOWN",
+      "analysis": "The supplied history records a cache-enabling change, but the final tip and later history were not fetched, so persistence at the final branch tip is unestablished.",
+      "next_step": "Verify the final branch-tip file and relevant later history for the cache setting.",
+      "evidence": [
+        "N004-E1"
+      ]
+    },
+    {
+      "id": "N024",
+      "verdict": "SUPPORTED",
+      "analysis": "The authoritative deployment record reports successful production inclusion of merge SHA d77 in release r77, with complete inventory.",
+      "next_step": "No additional verification is required within the supplied snapshot; optionally confirm the production record remains current.",
+      "evidence": [
+        "N024-E1"
+      ]
+    },
+    {
+      "id": "N023",
+      "verdict": "CONTRADICTED",
+      "analysis": "The complete required-check inventory for current head new42 shows the required unit check failed, although lint succeeded; therefore every required check does not pass.",
+      "next_step": "Resolve the unit-check failure and obtain a new complete receipt for the current head.",
+      "evidence": [
+        "N023-E1"
+      ]
+    },
+    {
+      "id": "N013",
+      "verdict": "SUPPORTED",
+      "analysis": "The supplied observation states PR214 is merged, closed, and contained in development at merge commit m214.",
+      "next_step": "No further verification is required within the supplied snapshot.",
+      "evidence": [
+        "N013-E1"
+      ]
+    },
+    {
+      "id": "N034",
+      "verdict": "UNKNOWN",
+      "analysis": "The runtime condition is supplied, but the effective retry limit and its mapping from retry_limit are omitted, so the behavior of retry_limit=0 cannot be determined.",
+      "next_step": "Inspect the implementation and configuration mapping for selected_limit, then verify the zero-limit execution path.",
+      "evidence": [
+        "N034-E1"
+      ]
+    },
+    {
+      "id": "N033",
+      "verdict": "CONTRADICTED",
+      "analysis": "Under the supplied rule, an unresolved conflict is a blocker; the complete inventory reports one unresolved conflict despite zero failed checks and zero requested changes.",
+      "next_step": "Resolve the unresolved conflict and rerun the complete blocker inventory.",
+      "evidence": [
+        "N033-E1"
+      ]
+    },
+    {
+      "id": "N019",
+      "verdict": "UNKNOWN",
+      "analysis": "The contract is explicitly incomplete and the consumer implementation is not supplied, so compatibility between the producer\u2019s version-2 text payload and consumer cannot be established.",
+      "next_step": "Review the complete wire contract and consumer implementation, then test the producer-consumer exchange.",
+      "evidence": [
+        "N019-E1"
+      ]
+    },
+    {
+      "id": "N018",
+      "verdict": "CONTRADICTED",
+      "analysis": "The complete changed-file inventory contains only ROUTER.md and SOP.md, and states that no runtime module was added; the evidence therefore contradicts a working executable prediction lookup.",
+      "next_step": "Inspect the intended executable runtime change and verify it with an invocation-level test.",
+      "evidence": [
+        "N018-E1"
+      ]
+    },
+    {
+      "id": "N016",
+      "verdict": "SUPPORTED",
+      "analysis": "The complete review inventory shows an independent APPROVED review at the exact current head h9 and no CHANGES_REQUESTED review at that SHA, satisfying the stated policy.",
+      "next_step": "No further verification is required within the supplied snapshot.",
+      "evidence": [
+        "N016-E1"
+      ]
+    },
+    {
+      "id": "N011",
+      "verdict": "UNKNOWN",
+      "analysis": "The classifier delegates to normalize_wrapper, but that implementation is not supplied, so the resulting normalized command and classification cannot be determined.",
+      "next_step": "Inspect normalize_wrapper and evaluate the supplied command through the complete classifier path.",
+      "evidence": [
+        "N011-E1"
+      ]
+    },
+    {
+      "id": "N015",
+      "verdict": "CONTRADICTED",
+      "analysis": "The complete graph shows local main has unique commit L while origin/main is R, so updating is not a fast-forward with no local commits to preserve; a clean working tree does not change that.",
+      "next_step": "Preserve or otherwise review local-only commit L, then determine the appropriate update strategy.",
+      "evidence": [
+        "N015-E1"
+      ]
+    },
+    {
+      "id": "N020",
+      "verdict": "SUPPORTED",
+      "analysis": "The complete changed-file inventory lists only README.md and SOP.md and describes documentation-only edits with no executable sections, supporting the claim that executable runtime code is unchanged.",
+      "next_step": "No further verification is required within the supplied snapshot.",
+      "evidence": [
+        "N020-E1"
+      ]
+    }
+  ],
+  "limitations": [
+    "Assessment is restricted to the supplied frozen sources; opaque padding and non-decisive metadata were treated as non-evidence.",
+    "No tests, deployments, repository state, or external facts were executed or independently verified."
+  ]
+}

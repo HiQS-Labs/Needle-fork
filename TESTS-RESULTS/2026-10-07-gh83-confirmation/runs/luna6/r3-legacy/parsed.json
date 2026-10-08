@@ -1,0 +1,123 @@
+{
+  "assessments": [
+    {
+      "id": "G01",
+      "verdict": "SUPPORTED",
+      "analysis": "The PR is recorded as merged, and the supplied diff updates planning pointers and explains why the earlier CPU-run instruction was superseded. The changed-file list contains only Markdown documents, supporting the claim that this PR did not change runtime code within the supplied diff inventory.",
+      "next_step": "If confirming repository-wide scope matters, verify the complete merged diff contains no files beyond the supplied list.",
+      "evidence": [
+        "G01-E1",
+        "G01-E2",
+        "G01-E3"
+      ]
+    },
+    {
+      "id": "G02",
+      "verdict": "SUPPORTED",
+      "analysis": "The supplied patch changes taxonomy matching rules, including command-position handling and patterns for git and test commands; this is behavioral logic, not merely file renaming. The patch is explicitly partial, so it does not establish the effect of the complete PR or prove tests ran.",
+      "next_step": "Review the complete merged diff and run the taxonomy tests against representative command strings.",
+      "evidence": [
+        "G02-E1",
+        "G02-E2",
+        "G02-E3"
+      ]
+    },
+    {
+      "id": "G03",
+      "verdict": "CONTRADICTED",
+      "analysis": "PR526 is explicitly marked open and unmerged in the snapshot. Its populated merge-commit SHA conflicts with those status fields and does not establish that the PR merged.",
+      "next_step": "Check the PR's authoritative merge event and target branch history to resolve the conflicting SHA field.",
+      "evidence": [
+        "G03-E1"
+      ]
+    },
+    {
+      "id": "G04",
+      "verdict": "CONTRADICTED",
+      "analysis": "PR10 is open and unmerged, and the supplied changed-file list shows edits to AGENTS.md, CHANGELOG.md, ROUTER.md, and SOP.md. That evidence describes documentation and operating-procedure changes, not an introduced runtime prediction engine.",
+      "next_step": "Inspect the complete diff and repository tree for executable prediction-engine code before making claims about runtime behavior.",
+      "evidence": [
+        "G04-E1",
+        "G04-E2"
+      ]
+    },
+    {
+      "id": "G05",
+      "verdict": "CONTRADICTED",
+      "analysis": "The required unit check succeeded on head 1111111, but the current PR head is 2222222 after a new code commit. The supplied complete check inventory contains no result for the current head, so the claim that the current head passes is unsupported by this evidence.",
+      "next_step": "Run or retrieve the required unit check for head 2222222.",
+      "evidence": [
+        "G05-E1"
+      ]
+    },
+    {
+      "id": "G06",
+      "verdict": "CONTRADICTED",
+      "analysis": "The policy requires an approval bound exactly to the current head bbbbbbb, while the only supplied approval is bound to aaaaaaa. It therefore does not satisfy the stated rule for the current head.",
+      "next_step": "Obtain an independent approval recorded against head bbbbbbb.",
+      "evidence": [
+        "G06-E1"
+      ]
+    },
+    {
+      "id": "G07",
+      "verdict": "CONTRADICTED",
+      "analysis": "The cache was enabled in commit c1 and then reverted in c2, which is the final tip; the current file has CACHE_ENABLED = False. The cache is not enabled at the supplied branch tip.",
+      "next_step": "If cache enablement remains intended, inspect the final configuration and relevant runtime path after the revert.",
+      "evidence": [
+        "G07-E1"
+      ]
+    },
+    {
+      "id": "G08",
+      "verdict": "CONTRADICTED",
+      "analysis": "Local main and origin/main each have one unique commit after their common ancestor, so updating by fast-forward is not possible and local main has unique work to preserve. A clean worktree does not remove that divergence.",
+      "next_step": "Inspect the two unique commits and choose an update strategy that preserves local work.",
+      "evidence": [
+        "G08-E1"
+      ]
+    },
+    {
+      "id": "G09",
+      "verdict": "CONTRADICTED",
+      "analysis": "With attempts starting at 0 and max_retries set to 0, the changed condition 0 <= 0 returns true, allowing a retry. The diff contradicts the commit message's promise; no tests were changed, and no test run is evidenced.",
+      "next_step": "Correct the boundary condition and verify zero, one, and multiple retry limits with focused tests.",
+      "evidence": [
+        "G09-E1"
+      ]
+    },
+    {
+      "id": "G10",
+      "verdict": "UNKNOWN",
+      "analysis": "The inventory is incomplete: the next file page failed, and review inventory was not fetched. The displayed paths are examples rather than a complete diff, so the evidence cannot establish whether undisplayed files or reviews contain blockers.",
+      "next_step": "Fetch the remaining changed-file pages and review inventory, then inspect them for blockers.",
+      "evidence": [
+        "G10-E1"
+      ]
+    },
+    {
+      "id": "G11",
+      "verdict": "CONTRADICTED",
+      "analysis": "Although the PRs change different paths, PR_A changes the producer's message from version 1/value to version 2/payload, while PR_B's consumer still expects version 1/value. The supplied integration evidence is null, so path separation alone cannot establish compatibility and the described interface changes indicate a likely incompatibility.",
+      "next_step": "Run an integration check for the producer-consumer pair and reconcile their message contract before treating the PRs as compatible.",
+      "evidence": [
+        "G11-E1"
+      ]
+    },
+    {
+      "id": "G12",
+      "verdict": "UNKNOWN",
+      "analysis": "The PR is merged, but the complete GitHub deployment inventory has no deployment records and no release tag. This does not prove production deployment; external deployment systems are outside the observed scope, so deployment status remains unknown.",
+      "next_step": "Check the production deployment system or release record for this merge commit.",
+      "evidence": [
+        "G12-E1"
+      ]
+    }
+  ],
+  "limitations": [
+    "These are frozen snapshots as of 2026-09-09T21:01:25.763163Z, not live status.",
+    "G02 supplies only a partial patch; the complete PR behavior is not established.",
+    "G10's file pagination failed and its review inventory was not fetched.",
+    "G12 observes GitHub deployment records only; external deployment systems are outside scope."
+  ]
+}

@@ -21,7 +21,7 @@ reversibility: Easy — isolated public/synthetic benchmark artifacts; no produc
 
 | What was just completed | What's next |
 |---|---|
-| Plan/corpus independently approved; balanced corpus, hash/structural red controls and resistant-child timeout control passed. | Run the frozen96-cell schedule; then prepare blind grading. |
+| All96 candidate cells complete/valid, unique sessions/CWDs, matching prompts and raw replay; no observed tools. | Capture complete; prepare and run the two blind grading seats. |
 
 ## Table of contents
 
@@ -118,15 +118,15 @@ Reuse #82's Claude/Codex construction and capture. Add one small Antigravity bra
 
 Explicit user prompt is identical across configurations for each packet and pass. System wrappers/tokenizers/provider-side behavior differ and are disclosed. Do not falsely equalize native output budgets or assert effective effort from token counters. Candidate settings fixed once the probes settle routes. Requested and returned identity/effort fields may be absent; no independent backend attestation is promised.
 
-- [ ] Raw events, complete prompt, stderr/log, parsed answer, status/timing/usage/identity/settings/hashes saved for every scheduled cell, plus provenance append.
-- [ ] Refuse duplicate output paths; resumed driver skips only verified completed/terminal cells and never reissues an ambiguous pending request without inspection.
-- [ ] Verify response is nonempty, twelve unique cases, raw/parsed equality and no observed tool events before grading. Invalid/failure outcomes remain visible.
+- [x] Raw events, complete prompt, stderr/log, parsed answer, status/timing/usage/identity/settings/hashes saved for every scheduled cell, plus provenance append.
+- [x] Refuse duplicate output paths; resumed driver skips only verified completed/terminal cells and never reissues an ambiguous pending request without inspection.
+- [x] Verify response is nonempty, twelve unique cases, raw/parsed equality and no observed tool events before grading. Invalid/failure outcomes remain visible.
 
 ### Phase 3 — QA checklist
 
-- [ ] Schedule attempted once for every available lane/cell; distinct sessions/CWDs and matching prompts.
-- [ ] All unsupported/failure cells accounted for; Haiku4.5 retains requested flag as diagnostic, with no substituted route/effort.
-- [ ] Correct telemetry semantics: inclusive output counters, missing counters unknown, cost estimates not invoices; latency descriptive, no p95 claims from three passes.
+- [x] Schedule attempted once for every available lane/cell; distinct sessions/CWDs and matching prompts.
+- [x] All unsupported/failure cells accounted for; Haiku4.5 retains requested flag as diagnostic, with no substituted route/effort.
+- [x] Correct telemetry semantics: inclusive output counters, missing counters unknown, cost estimates not invoices; latency descriptive, no p95 claims from three passes.
 
 ## Phase 4 — Blind grading, comparison and final QA
 
@@ -173,3 +173,5 @@ Corpus: 36 synthetic cases, 12/12/12 labels, each 12-case packet4/4/4 and one ca
 Existing GH82 structural grader extended only for non-G03 controls. Empty/duplicate/missing/flipped/invented-source/critical-false-support controls all witnessed red; empty and drifted manifest rejected. Local fake CLI timeout controls are not provider/model calls. A SIGTERM-resistant descendant revealed the need to always SIGKILL the remaining process group after leader exit; the corrected branch was witnessed with the resistant child no longer running. Artifacts/receipts retain both local controls.
 
 Primary completeness is strict across all12 scheduled candidate cells and both reviewers for all groups, including legacy diagnostic cells; missing any prevents a primary score/interval. Fresh and legacy totals remain separate, and available fresh subtotals may be exploratory. Haiku4.5 requested native-unsupported flag is available diagnostic only. Three corpus QA requests are separate from the64 actual blind grading cap and involved no candidate outputs. No grading replacement calls. Native output counters include exposed thinking and are never summed twice.
+
+Phase 3 complete:96/96 native CLI invocations yielded structurally valid12-case answers; replay equality/retained hashes/current input manifest verified,96 unique sessions/CWDs and identical explicit prompt per packet across all models/passes. No observed tool events. Interpretation/grounding/safety quality awaits blind grading. Artifact runner used systemPython3.14; preflight package pytest used declared Python3.12 venv. No backend equality/effort-compute claim.

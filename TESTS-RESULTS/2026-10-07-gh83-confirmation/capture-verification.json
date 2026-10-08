@@ -1,0 +1,31 @@
+{
+  "schema": "needle/capture-verification@2",
+  "utc": "2026-10-08T06:03:39.285881+00:00",
+  "scheduled_cells": 96,
+  "complete": 96,
+  "valid_12_case_answers": 96,
+  "raw_answer_parsed_replay_equal": 96,
+  "claude_assistant_result_equal": 36,
+  "unique_sessions": 96,
+  "unique_candidate_cwds": 96,
+  "same_prompt_per_packet_all_models_and_passes": {
+    "fresh1": "9b3e08d17c0966b74910a2038f5f301ef353f71b4d07079abbd248808c91cca2",
+    "fresh2": "19510e9d4c0e80402ac83d238101901bc798f9598f268b41fe71cc00d45a8192",
+    "fresh3": "68f5c06a07860090e3e89e2d68da1fe032e24236a789b44d1ed75c164d9d714c",
+    "legacy": "1863e246efa8215d944cf4c8a49753a3b0b8710ad6a5ee1b3c1bbfe51f472003"
+  },
+  "no_observed_tool_events": true,
+  "frozen_inputs_intact": true,
+  "all_receipt_retained_hashes_intact": true,
+  "copy_only_parsed_mutation_rejected": true,
+  "artifact_runner_python": "3.14.7 (main, Aug  5 2026, 10:29:49) [Clang 17.0.0 (clang-1700.6.4.2)]",
+  "artifact_runner_executable": "/opt/homebrew/opt/python@3.14/bin/python3.14",
+  "preflight_pytest_python": "3.12 separate venv; product code unchanged",
+  "transport_status_counts": {
+    "complete": 96
+  },
+  "native_effort_exceptions": [
+    "pro31 High explicitly approved",
+    "haiku45 CLI medium requested; native unsupported; diagnostic only"
+  ]
+}

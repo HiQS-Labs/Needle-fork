@@ -1,0 +1,124 @@
+{
+  "assessments": [
+    {
+      "id": "G01",
+      "verdict": "SUPPORTED",
+      "analysis": "The PR merged and its changed-file inventory contains only two planning documents. The displayed patch replaces the superseded CPU training pointer with prerequisite issue pointers; no runtime code changes are listed.",
+      "next_step": "Review both complete document diffs to verify the corrected pointers are consistent.",
+      "evidence": [
+        "G01-E1",
+        "G01-E2",
+        "G01-E3"
+      ]
+    },
+    {
+      "id": "G02",
+      "verdict": "SUPPORTED",
+      "analysis": "The patch changes classification rules, adds wrapper handling and introduces command-position machinery, so this is a behavioral change. The patch is explicitly partial, and the changed tests and results-document filenames do not prove tests passed.",
+      "next_step": "Review the remaining classifier diff and verify representative invocation-versus-argument cases.",
+      "evidence": [
+        "G02-E2",
+        "G02-E3"
+      ]
+    },
+    {
+      "id": "G03",
+      "verdict": "CONTRADICTED",
+      "analysis": "At the recorded snapshot, PR526 targets development but remains open with merged=false and no merged_at timestamp. Its populated merge_commit_sha does not override that explicit status; the file inventory includes script and test changes whose behavior is not shown.",
+      "next_step": "Obtain a later PR status snapshot to verify whether it subsequently merged.",
+      "evidence": [
+        "G03-E1",
+        "G03-E2"
+      ]
+    },
+    {
+      "id": "G04",
+      "verdict": "CONTRADICTED",
+      "analysis": "PR10's supplied changed-file inventory contains only Markdown governance and operational documents, which does not support introducing a runtime prediction engine. It also remains open and unmerged at the recorded snapshot.",
+      "next_step": "Review the document diffs to establish the exact operational guidance being introduced.",
+      "evidence": [
+        "G04-E1",
+        "G04-E2"
+      ]
+    },
+    {
+      "id": "G05",
+      "verdict": "CONTRADICTED",
+      "analysis": "The successful required unit check belongs to the previous head, 1111111. The complete check inventory supplies no passing check for current head 2222222; this is missing current-head validation, not evidence of a failed test run.",
+      "next_step": "Obtain the required unit check result bound to head 2222222.",
+      "evidence": [
+        "G05-E1"
+      ]
+    },
+    {
+      "id": "G06",
+      "verdict": "CONTRADICTED",
+      "analysis": "The approval binds to aaaaaaa, while the policy requires an independent approval bound exactly to current head bbbbbbb. The subsequent commit changes api/auth.py, and the supplied review therefore does not satisfy the current-head rule.",
+      "next_step": "Request an independent review of head bbbbbbb under the stated policy.",
+      "evidence": [
+        "G06-E1"
+      ]
+    },
+    {
+      "id": "G07",
+      "verdict": "CONTRADICTED",
+      "analysis": "Commit c1 enables the cache, but its successor c2 reverts that setting. The final tip and current file both show CACHE_ENABLED=False.",
+      "next_step": "Verify whether any other configuration overrides CACHE_ENABLED at runtime.",
+      "evidence": [
+        "G07-E1"
+      ]
+    },
+    {
+      "id": "G08",
+      "verdict": "CONTRADICTED",
+      "analysis": "Local main and origin/main diverge from their shared parent A, with one unique commit on each side. A clean worktree does not remove the local-only commit L, and updating to R is not a fast-forward.",
+      "next_step": "Inspect local-only commit L before selecting a reconciliation method that preserves its work.",
+      "evidence": [
+        "G08-E1"
+      ]
+    },
+    {
+      "id": "G09",
+      "verdict": "CONTRADICTED",
+      "analysis": "Changing < to <= makes should_retry(0, 0) return true under the supplied call contract. This permits a retry when zero should disable retries, contradicting the commit message; no tests were changed.",
+      "next_step": "Verify the zero-retry boundary case against the intended contract before accepting the change.",
+      "evidence": [
+        "G09-E1"
+      ]
+    },
+    {
+      "id": "G10",
+      "verdict": "UNKNOWN",
+      "analysis": "Only 100 of 130 changed files were returned, the next page failed, and reviews were not fetched. The two displayed documentation paths are examples, so neither the remaining changes nor review blockers can be assessed.",
+      "next_step": "Retrieve the remaining file page and complete review inventory before assessing merge blockers.",
+      "evidence": [
+        "G10-E1"
+      ]
+    },
+    {
+      "id": "G11",
+      "verdict": "CONTRADICTED",
+      "analysis": "The separate paths share a wire contract: PR_A emits version 2 with payload, while PR_B requires version 1 and reads value. Their supplied changes conflict when deployed together, although no integration execution result is provided.",
+      "next_step": "Verify the combined producer-consumer contract with a version-2 message before approving joint deployment.",
+      "evidence": [
+        "G11-E1"
+      ]
+    },
+    {
+      "id": "G12",
+      "verdict": "UNKNOWN",
+      "analysis": "The PR merged into main, but no release tag or GitHub deployment record is supplied. External deployment systems are outside the inventory scope, and the untrusted PR description provides no deployment evidence.",
+      "next_step": "Check the production deployment system for an artifact containing merge commit abc1234.",
+      "evidence": [
+        "G12-E1",
+        "G12-E2"
+      ]
+    }
+  ],
+  "limitations": [
+    "Assessments apply only to the supplied historical snapshots and controlled fixtures, not present-day live state.",
+    "Partial patches, missing pages and absent review inventories limit behavioral and blocker conclusions.",
+    "No tools were used or actions executed; next steps are recommendations only.",
+    "Changed tests do not prove test execution, and merged source does not prove production deployment."
+  ]
+}

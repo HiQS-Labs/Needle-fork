@@ -1,0 +1,88 @@
+{
+  "project": "Users-noelsaw-Documents-GH-Repos-needle-fork",
+  "signal": "best_effort",
+  "indexed_at": "2026-09-30T04:30:54Z",
+  "metadata": {
+    "generation": "2026-09-30T04:30:54Z",
+    "index_mode": "full",
+    "recorded_at": "2026-09-30T04:30:54Z",
+    "recording_status": "complete",
+    "ignored_files_stored": 84,
+    "ignored_files_total": 84,
+    "hash_records_complete": true,
+    "coverage_version": 3,
+    "generation_matches": true
+  },
+  "paths": [
+    {
+      "requested_path": "TESTS-RESULTS/2026-10-07-gh83-confirmation/run.py",
+      "path": "TESTS-RESULTS/2026-10-07-gh83-confirmation/run.py",
+      "status": "no_recorded_issue",
+      "freshness": "missing",
+      "recommended_action": "read_source_and_reindex",
+      "coverage": []
+    },
+    {
+      "requested_path": "TESTS-RESULTS/2026-10-07-gh83-confirmation/grade.py",
+      "path": "TESTS-RESULTS/2026-10-07-gh83-confirmation/grade.py",
+      "status": "no_recorded_issue",
+      "freshness": "missing",
+      "recommended_action": "read_source_and_reindex",
+      "coverage": []
+    },
+    {
+      "requested_path": "TESTS-RESULTS/2026-10-07-gh83-confirmation/review.py",
+      "path": "TESTS-RESULTS/2026-10-07-gh83-confirmation/review.py",
+      "status": "no_recorded_issue",
+      "freshness": "missing",
+      "recommended_action": "read_source_and_reindex",
+      "coverage": []
+    },
+    {
+      "requested_path": "TESTS-RESULTS/2026-10-07-gh83-confirmation/stats.py",
+      "path": "TESTS-RESULTS/2026-10-07-gh83-confirmation/stats.py",
+      "status": "no_recorded_issue",
+      "freshness": "missing",
+      "recommended_action": "read_source_and_reindex",
+      "coverage": []
+    },
+    {
+      "requested_path": "TESTS-RESULTS/2026-10-07-gh83-confirmation/build_corpus.py",
+      "path": "TESTS-RESULTS/2026-10-07-gh83-confirmation/build_corpus.py",
+      "status": "no_recorded_issue",
+      "freshness": "missing",
+      "recommended_action": "read_source_and_reindex",
+      "coverage": []
+    },
+    {
+      "requested_path": "utils/pdda/pdda.sh",
+      "path": "utils/pdda/pdda.sh",
+      "status": "no_recorded_issue",
+      "freshness": "metadata_match",
+      "recommended_action": "use_graph_with_best_effort_caveat",
+      "coverage": []
+    },
+    {
+      "requested_path": "utils/pdda/pdda-lib.sh",
+      "path": "utils/pdda/pdda-lib.sh",
+      "status": "no_recorded_issue",
+      "freshness": "metadata_match",
+      "recommended_action": "use_graph_with_best_effort_caveat",
+      "coverage": []
+    }
+  ],
+  "scopes": [
+    {
+      "requested_scope": "TESTS-RESULTS/2026-10-07-gh83-confirmation",
+      "scope": "TESTS-RESULTS/2026-10-07-gh83-confirmation",
+      "total": 0,
+      "has_more": false,
+      "entries": [],
+      "status": "no_recorded_issue"
+    }
+  ],
+  "caveat": "Best-effort signal only. No recorded issue does not prove graph or source completeness; read flagged source and qualify claims when metadata is changed or unavailable.",
+  "tier": "Verify",
+  "source_fallback": "All five newly authored artifact scripts read/operated directly in the task full clone; primary-index generation misses them. Shell/config literal reads used for targeted PDDA checks. No exhaustive product-caller claim.",
+  "pagination_complete": true
+}

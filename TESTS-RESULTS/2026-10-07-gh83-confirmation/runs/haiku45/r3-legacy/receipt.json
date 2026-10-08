@@ -1,0 +1,135 @@
+{
+  "schema": "needle/confirmation-run@2",
+  "kind": "candidate",
+  "status": "complete",
+  "started_at": "2026-10-08T05:59:50.141375+00:00",
+  "cli": "claude",
+  "cli_version": "2.1.289 (Claude Code)",
+  "requested_model": "claude-haiku-4-5",
+  "requested_effort": "medium",
+  "flags": [
+    "-p",
+    "--model",
+    "claude-haiku-4-5",
+    "--effort",
+    "medium",
+    "--output-format",
+    "stream-json",
+    "--verbose",
+    "--tools",
+    "",
+    "--strict-mcp-config",
+    "--mcp-config",
+    "{\"mcpServers\":{}}",
+    "--disable-slash-commands",
+    "--no-session-persistence",
+    "--setting-sources",
+    "",
+    "--settings",
+    "{\"disableAllHooks\":true}",
+    "--permission-mode",
+    "dontAsk",
+    "--no-chrome"
+  ],
+  "cwd": "/private/tmp/needle-gh83-cell-olm5dkat",
+  "candidate_cwd_files": [
+    "QUESTIONS.md",
+    "packet.json"
+  ],
+  "prompt_sha256": "1863e246efa8215d944cf4c8a49753a3b0b8710ad6a5ee1b3c1bbfe51f472003",
+  "packet_sha256": "dc19001fd5d1b4ad68f96516edb4c9b4538364689410450c5d33513e8ee5431b",
+  "timeout_seconds": 870,
+  "retries": 0,
+  "tool_use": [],
+  "temperature": null,
+  "metadata": {
+    "lane": "haiku45",
+    "pass": "r3",
+    "packet": "legacy",
+    "freeze": "gh83-v2-freeze-2026-10-08T0518",
+    "manifest_sha256": "882fab01b849a575141c3545d0288e990f6710f864ee81dba6efda92ea78cf8b",
+    "eligible": false,
+    "exception": "requested flag accepted; native effort unsupported; diagnostic only"
+  },
+  "system_prompt_is_user_prefix": true,
+  "backend_attestation": "CLI returned metadata only; may be absent",
+  "exit_code": 0,
+  "event_types": [
+    "assistant",
+    "rate_limit_event",
+    "result",
+    "system"
+  ],
+  "returned_models": [
+    "claude-haiku-4-5-20251001"
+  ],
+  "model_usage": [
+    {
+      "claude-haiku-4-5": {
+        "inputTokens": 9,
+        "outputTokens": 6396,
+        "cacheReadInputTokens": 0,
+        "cacheCreationInputTokens": 16346,
+        "webSearchRequests": 0,
+        "costUSD": 0.064681,
+        "contextWindow": 200000,
+        "maxOutputTokens": 32000,
+        "thinkingTokens": 4506,
+        "canonicalModel": "claude-haiku-4-5",
+        "provider": "firstParty",
+        "costBasis": "list"
+      }
+    }
+  ],
+  "usage": [
+    {
+      "input_tokens": 9,
+      "cache_creation_input_tokens": 16346,
+      "cache_read_input_tokens": 0,
+      "output_tokens": 6396,
+      "output_tokens_details": {
+        "thinking_tokens": 4506
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 16346,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 9,
+          "output_tokens": 6396,
+          "cache_read_input_tokens": 0,
+          "cache_creation_input_tokens": 16346,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 16346
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard",
+      "fallback_credit": null
+    }
+  ],
+  "cost_usd_cli_estimate": [
+    0.064681
+  ],
+  "tool_enforcement": "tools/MCP/skills/hooks disabled by flags",
+  "finished_at": "2026-10-08T06:00:53.270408+00:00",
+  "wall_seconds": 63.128251374990214,
+  "answer_sha256": "d7ed3ceabb10fb850b063f497aef850d6a6169d93d1b9d23f8dadce6187aa950",
+  "retained_hashes": {
+    "prompt.txt": "1863e246efa8215d944cf4c8a49753a3b0b8710ad6a5ee1b3c1bbfe51f472003",
+    "events.jsonl": "8dce3e1d962a7f8b3d59d66582b1dbde12f5cf6548bc3b3d203c3c3acc800802",
+    "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "answer.md": "d7ed3ceabb10fb850b063f497aef850d6a6169d93d1b9d23f8dadce6187aa950",
+    "parsed.json": "24fcc95cf24628327724ccbc4f06cecae45087c248d108d09704a6d281e66e33",
+    "structural.json": "9aa4ce7fa72bb66ea0f9820551ce98aa2b828a7e9c1132869daae75e752c0afe"
+  }
+}
