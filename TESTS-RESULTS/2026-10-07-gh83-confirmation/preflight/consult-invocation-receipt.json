@@ -1,0 +1,20 @@
+{
+  "claude": {
+    "model": "claude-fable-5-1",
+    "effort": "low",
+    "cli_version": "2.1.289",
+    "complete": "gh83-plan-fable-light-recovery-214157",
+    "failed_attempt": "gh83-plan-fable-light-213909",
+    "wall_cap_s": 600,
+    "idle_cap_s": 0,
+    "native_result_metadata_retained": false
+  },
+  "codex": {
+    "model": "gpt-6-astra",
+    "effort": "low",
+    "cli_version": "0.159.1",
+    "complete": "gh83-plan-light-213853",
+    "identity_evidence": "Codex transcript attestation and flags"
+  },
+  "candidate_calls_before_freeze": 0
+}
