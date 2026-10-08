@@ -1,0 +1,19 @@
+{
+  "added_len": 5142,
+  "added_sha256": "2c2c327eedf890078d95d650057364d4bac685889a7d6e8d16f206d36acb7ad8",
+  "added_start": 6420,
+  "artifact_sha256": "8b737fdd2f2f7fea3d20a073c9689899759d29a735a5c15a379160955c674ea2",
+  "attested_at": "2026-10-08T05:03:27Z",
+  "driver_pid": 43391,
+  "isolated": true,
+  "relay_file": "/private/tmp/xyz-gh83-qa-harness-jovhjq4i/relay-system/2026-10-07/gh83-plan-fable-high-r3.md",
+  "relay_file_rel": "relay-system/2026-10-07/gh83-plan-fable-high-r3.md",
+  "reviewed_head": "8f151e1af3d38443ae4026afe7a3e34924163201",
+  "reviewer": "fable-reviewer",
+  "schema": "relay-drive/attest@1",
+  "status": "Approved",
+  "target_repo": "/private/tmp/xyz-gh83-qa-harness-jovhjq4i",
+  "task": "RELAY-GH83-PLAN-R3",
+  "trailer_sha256": "8582b2e09688b8dc08a6a2483619c6dcc08ff89ac9877c41ed2e141fbf4e3754",
+  "transcript_repo": "/private/tmp/xyz-gh83-qa-harness-jovhjq4i"
+}
