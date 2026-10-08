@@ -1,0 +1,50 @@
+{
+  "opus55": {
+    "available": true,
+    "eligible": true,
+    "reason": "synthetic probe succeeded",
+    "exception": null
+  },
+  "haiku55": {
+    "available": true,
+    "eligible": true,
+    "reason": "synthetic probe succeeded",
+    "exception": null
+  },
+  "haiku45": {
+    "available": true,
+    "eligible": false,
+    "reason": "synthetic probe succeeded",
+    "exception": "requested flag accepted; native effort unsupported; diagnostic only"
+  },
+  "sol61": {
+    "available": true,
+    "eligible": true,
+    "reason": "synthetic probe succeeded",
+    "exception": null
+  },
+  "luna6": {
+    "available": true,
+    "eligible": true,
+    "reason": "synthetic probe succeeded",
+    "exception": null
+  },
+  "luna56": {
+    "available": true,
+    "eligible": true,
+    "reason": "synthetic probe succeeded",
+    "exception": null
+  },
+  "pro31": {
+    "available": true,
+    "eligible": true,
+    "reason": "synthetic probe succeeded",
+    "exception": "operator explicitly approves Pro31 High"
+  },
+  "flash38": {
+    "available": true,
+    "eligible": true,
+    "reason": "synthetic probe succeeded",
+    "exception": null
+  }
+}

@@ -1,0 +1,1 @@
+No provider call. Local timeout red control.

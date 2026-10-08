@@ -1,0 +1,125 @@
+{
+  "schema": "needle/confirmation-run@2",
+  "kind": "review",
+  "status": "complete",
+  "started_at": "2026-10-08T05:08:54.907894+00:00",
+  "cli": "claude",
+  "cli_version": "2.1.289 (Claude Code)",
+  "requested_model": "claude-fable-5-1",
+  "requested_effort": "high",
+  "flags": [
+    "-p",
+    "--model",
+    "claude-fable-5-1",
+    "--effort",
+    "high",
+    "--output-format",
+    "stream-json",
+    "--verbose",
+    "--tools",
+    "",
+    "--strict-mcp-config",
+    "--mcp-config",
+    "{\"mcpServers\":{}}",
+    "--disable-slash-commands",
+    "--no-session-persistence",
+    "--setting-sources",
+    "",
+    "--settings",
+    "{\"disableAllHooks\":true}",
+    "--permission-mode",
+    "dontAsk",
+    "--no-chrome"
+  ],
+  "cwd": "/private/tmp/needle-gh83-cell-8yed6lks",
+  "candidate_cwd_files": [
+    "QUESTIONS.md",
+    "packet.json"
+  ],
+  "prompt_sha256": "a0a0044a4aeb2bc2a5d7cfe96d779f8b563bc12134000f7cd758b6555d137ca8",
+  "packet_sha256": null,
+  "timeout_seconds": 870,
+  "retries": 0,
+  "tool_use": [],
+  "temperature": null,
+  "metadata": null,
+  "system_prompt_is_user_prefix": true,
+  "backend_attestation": "CLI returned metadata only; may be absent",
+  "exit_code": 0,
+  "event_types": [
+    "assistant",
+    "rate_limit_event",
+    "result",
+    "system"
+  ],
+  "returned_models": [
+    "claude-fable-5-1"
+  ],
+  "model_usage": [
+    {
+      "claude-fable-5-1": {
+        "inputTokens": 2,
+        "outputTokens": 6679,
+        "cacheReadInputTokens": 535,
+        "cacheCreationInputTokens": 34028,
+        "webSearchRequests": 0,
+        "costUSD": 1.01466375,
+        "contextWindow": 1000000,
+        "maxOutputTokens": 64000,
+        "thinkingTokens": 4916,
+        "canonicalModel": "claude-fable-5-1",
+        "provider": "firstParty",
+        "costBasis": "list"
+      }
+    }
+  ],
+  "usage": [
+    {
+      "input_tokens": 2,
+      "cache_creation_input_tokens": 34028,
+      "cache_read_input_tokens": 535,
+      "output_tokens": 6679,
+      "output_tokens_details": {
+        "thinking_tokens": 4916
+      },
+      "server_tool_use": {
+        "web_search_requests": 0,
+        "web_fetch_requests": 0
+      },
+      "service_tier": "standard",
+      "cache_creation": {
+        "ephemeral_1h_input_tokens": 34028,
+        "ephemeral_5m_input_tokens": 0
+      },
+      "inference_geo": "not_available",
+      "iterations": [
+        {
+          "input_tokens": 2,
+          "output_tokens": 6679,
+          "cache_read_input_tokens": 535,
+          "cache_creation_input_tokens": 34028,
+          "cache_creation": {
+            "ephemeral_5m_input_tokens": 0,
+            "ephemeral_1h_input_tokens": 34028
+          },
+          "type": "message"
+        }
+      ],
+      "speed": "standard",
+      "fallback_credit": null
+    }
+  ],
+  "cost_usd_cli_estimate": [
+    1.01466375
+  ],
+  "tool_enforcement": "tools/MCP/skills/hooks disabled by flags",
+  "finished_at": "2026-10-08T05:10:25.461089+00:00",
+  "wall_seconds": 90.5521747089806,
+  "answer_sha256": "9bfafad875be019ff44f109bfa95200250d23fe662c1357e6a24104cfe5b51d3",
+  "retained_hashes": {
+    "prompt.txt": "a0a0044a4aeb2bc2a5d7cfe96d779f8b563bc12134000f7cd758b6555d137ca8",
+    "events.jsonl": "f0058790be4068bfe7055463eaeb08758c03ec8ad816dbbb98c9b2956cb6d28c",
+    "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "answer.md": "9bfafad875be019ff44f109bfa95200250d23fe662c1357e6a24104cfe5b51d3"
+  }
+}

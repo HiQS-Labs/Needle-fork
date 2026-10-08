@@ -1,0 +1,37 @@
+{
+  "version": "gh83-v2-freeze-2026-10-08T0518",
+  "utc": "2026-10-08T05:16:46.205072+00:00",
+  "files": {
+    "inputs/PROTOCOL.md": "4d926bb06712945228c16261c6253b3b97d22a12578b3fe975717ea858fdc7e4",
+    "inputs/all-expected.json": "ec9aae0ea2f5a16b8d00795561241ad98d46d6d843aa07e0b65206040288fd08",
+    "inputs/environment.json": "e6c0755a38d2e4b65aeb8455acc60eb94446c4196ea134021a7b5b37b9d07744",
+    "inputs/fresh1/QUESTIONS.md": "93147dae97fee756ba19a970550fa2d096e3940638b1bd1de97261925c35970b",
+    "inputs/fresh1/expected.json": "92dec36589f7b139c05919ea49a78de49ecef06a973fa7db6cdf27e56892f0bb",
+    "inputs/fresh1/packet.json": "554ab6412ba17f9c9cb4c6dcaf0fe0fe6989b72857e9a762b84f052e88cde244",
+    "inputs/fresh2/QUESTIONS.md": "0a45586a718a1a7bc8089af4fb15417ab8d21a19719c3fdcf78e84b8316f6455",
+    "inputs/fresh2/expected.json": "8133221cc8158ae1bc4de13ab2fc7fa69969684a1dcbfca232d62e62c199bd64",
+    "inputs/fresh2/packet.json": "2066bd5a9cf9d0b9ceba414d9ba81517b86c27c5221e88fd0c2401191b7aa9ce",
+    "inputs/fresh3/QUESTIONS.md": "0989e08115662bdd89195c7dd9accdc2d51d823d03b1f156b539d3dbb9f594ab",
+    "inputs/fresh3/expected.json": "30c90cf53c765cbda9107973a10db54bd70c27d76e1b922fc6c823cecfb6b421",
+    "inputs/fresh3/packet.json": "b0319857ce93486e1020c49b877659ed0bce91b614d4fe3a50afc635b317d9bb",
+    "inputs/lanes.json": "1ab0781316920242526dc0af358f3ea04f074916bfbfa2d9527e203231bc52fd",
+    "inputs/legacy/QUESTIONS.md": "ea2818c77d9cffa40f0afc34076c8d594a5c8ee2bf0a058781291034e66b862b",
+    "inputs/legacy/expected.json": "66c294176789cdddc3578e1975a689e4ffaa6a650693261c9a62cd4303ae8fef",
+    "inputs/legacy/grade.py": "35cdc2d2c966e9677c3df278d6d59e13a741a1835405c3a17b11093f6d589b2f",
+    "inputs/legacy/packet.json": "dc19001fd5d1b4ad68f96516edb4c9b4538364689410450c5d33513e8ee5431b",
+    "inputs/schedule.json": "51b3b0472d3a644baad9b6dadacdbbe4477e7202bd1b40465ae6151d3a3ec1a6",
+    "inputs/semantic-controls.json": "bb45403a2c24243c8c12e3f50f0d3c357ca0a336a49732b5824c8db3c2db3046",
+    "build_corpus.py": "8429a43ac75286bea2864f1e08cc96eef035884bf38616eb6dfa7b8f5368f90c",
+    "run.py": "daea3de7d1abb1debb12cb0659b42f683342105b0f5ba6a798c92609e2c0c6c1",
+    "grade.py": "4020456923aa06635ba778764f6eb032556bac04bf09a9999774d0f9e47ae6b3",
+    "review.py": "d52640d20dc8a1eb018c5feabf29282c82f4fd39e94d7494f5e29931bf5d5a33",
+    "stats.py": "9458f0b60c968464063cd32d9b79f561fdd8865609b9d60c403c82420fd9ea5b"
+  },
+  "scope": "Candidate inputs, key, settings, schedule, controls, frozen protocol and artifact-local capture/grading/statistics code. SHA manifest excludes mutable outputs.",
+  "cap": {
+    "candidate_cells": 96,
+    "blind_grading_calls": 64,
+    "candidate_seconds": 21600,
+    "synthetic_availability_probes": 9
+  }
+}

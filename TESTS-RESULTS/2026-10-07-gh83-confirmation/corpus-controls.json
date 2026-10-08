@@ -1,0 +1,125 @@
+{
+  "schema": "needle/manual-controls@2",
+  "balanced_label_counts": {
+    "1": {
+      "UNKNOWN": 4,
+      "SUPPORTED": 4,
+      "CONTRADICTED": 4
+    },
+    "2": {
+      "SUPPORTED": 4,
+      "CONTRADICTED": 4,
+      "UNKNOWN": 4
+    },
+    "3": {
+      "CONTRADICTED": 4,
+      "UNKNOWN": 4,
+      "SUPPORTED": 4
+    }
+  },
+  "case_canonical_byte_lengths": {
+    "1": [
+      2400,
+      2400,
+      2400,
+      2400,
+      2400,
+      2400,
+      2400,
+      2400,
+      2400,
+      2400,
+      2400,
+      2400
+    ],
+    "2": [
+      2400,
+      2400,
+      2400,
+      2400,
+      2400,
+      2400,
+      2400,
+      2400,
+      2400,
+      2400,
+      2400,
+      2400
+    ],
+    "3": [
+      2400,
+      2400,
+      2400,
+      2400,
+      2400,
+      2400,
+      2400,
+      2400,
+      2400,
+      2400,
+      2400,
+      2400
+    ]
+  },
+  "source_count": 2,
+  "source_count_and_length_only_baseline_macro_recall": 0.3333333333333333,
+  "reason": "All three labels have identical count/length features; each family contains one of each.",
+  "structural_controls": {
+    "fresh1": {
+      "positive": true,
+      "negative_controls": {
+        "empty": true,
+        "duplicate": true,
+        "missing": true,
+        "flipped": true,
+        "invented_citation": true,
+        "critical_false_support": true
+      }
+    },
+    "fresh2": {
+      "positive": true,
+      "negative_controls": {
+        "empty": true,
+        "duplicate": true,
+        "missing": true,
+        "flipped": true,
+        "invented_citation": true,
+        "critical_false_support": true
+      }
+    },
+    "fresh3": {
+      "positive": true,
+      "negative_controls": {
+        "empty": true,
+        "duplicate": true,
+        "missing": true,
+        "flipped": true,
+        "invented_citation": true,
+        "critical_false_support": true
+      }
+    }
+  },
+  "schedule_unique_96": true,
+  "every_8_cell_block_has_all_lanes": true,
+  "legacy_byte_equal": true,
+  "note": "Controls are manual artifact checks, not a new test suite or gate.",
+  "serialized_packet_bytes": [
+    29014,
+    29014,
+    29014
+  ],
+  "manifest_verifier_controls": {
+    "positive": true,
+    "mutated_hash_rejected": true,
+    "empty_manifest_rejected": true
+  },
+  "syntax_checked": [
+    "run.py",
+    "grade.py",
+    "review.py",
+    "stats.py",
+    "build_corpus.py"
+  ],
+  "local_timeout_branch_witnessed": true,
+  "resistant_descendant_terminated": true
+}

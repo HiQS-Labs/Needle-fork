@@ -1,0 +1,23 @@
+{
+  "ambient_fingerprints": {
+    "~/.codex/AGENTS.md": "528d5b199a44410778f61292ab10c0adb4275326b7f0fea69ff5e7c5de5b2ce3",
+    "~/.codex/config.toml": "4cb9252fd6550fcd48b0b2402eb63536f7ac6ab2d246ab329dae9ec49596454c",
+    "~/.claude/CLAUDE.md": "28bdd523a9aa6759e42d535b25084d948f6c258aa5e1b8de164700f44cd788b1",
+    "~/.claude/settings.json": "809dcd593e2eebf1e8b45e33c75b3a1545c4cd07a5839ab19c9371017500700d",
+    "~/.gemini/GEMINI.md": "53237ddc12a9bc39b28c4e3ce45b84325eef9dcf68e14f7e829045afeab33854",
+    "~/.gemini/settings.json": "81765d580d0156630263a69ab3bcd3dc42c94fe988474a9fbb7231b92da7b0a1",
+    "~/.gemini/antigravity-cli/settings.json": "75774f9a06bec18286a7627706341c4e471465dc3d35bca3d721aa1d0d53180d",
+    "/private/AGENTS.md": null,
+    "/private/tmp/AGENTS.md": null,
+    "/private/CLAUDE.md": null,
+    "/private/tmp/CLAUDE.md": null
+  },
+  "versions": {
+    "claude": "2.1.289 (Claude Code)",
+    "codex": "codex-cli 0.159.1",
+    "agy": "1.3.1"
+  },
+  "provider_config_contents": "not retained; fingerprints only",
+  "agy_tool_visibility": "tool schemas exposed; step events audited; no bypass; terminal sandbox",
+  "snapshot_utc": "2026-10-08T05:08:42.811350+00:00"
+}
