@@ -7,7 +7,7 @@
     "failed_attempt": "gh83-plan-fable-light-213909",
     "wall_cap_s": 600,
     "idle_cap_s": 0,
-    "native_result_metadata_retained": false
+    "native_result_metadata_retained": true
   },
   "codex": {
     "model": "gpt-6-astra",
