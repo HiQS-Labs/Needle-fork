@@ -16,7 +16,7 @@
 > **Pointer/ledger only — not a plan body.** Execution detail (phase checklists, build steps, QA
 > gates, deep notes) lives in the linked `PROJECT/**` docs; keep it there. See the contract banner above.
 
-> **Queued confirmation:** [GH-83](PROJECT/1-INBOX/GH-83-CONFIRMATION-ROUND.md) — eight requested Medium configurations and protocol v2. ([#83](https://github.com/HiQS-Labs/Needle-fork/issues/83))
+> **Active confirmation:** [GH-83](PROJECT/2-WORKING/GH-83-CONFIRMATION-ROUND.md) — eight requested Medium configurations and protocol v2. ([#83](https://github.com/HiQS-Labs/Needle-fork/issues/83))
 
 ## Status
 
