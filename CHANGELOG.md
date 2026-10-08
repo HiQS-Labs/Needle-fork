@@ -3,6 +3,16 @@
 Newest-first, dated end-of-iteration record. One entry per substantive iteration: what changed,
 why, and the verification. See `PROJECT/PDDA.md` for the full contract.
 
+## 2026-10-08
+
+### Consolidated confirmation and protocol audit (#83, #82)
+
+Executed96 candidate calls across eight requested configurations, three passes and fresh36-case/legacy12-case packets after Fable/Astra Light consultation and attested Fable High plan QA. Gemini3.1 Pro High is the explicit operator exception; Haiku4.5 native effort is unsupported and diagnostic-only. All candidates delivered valid structure with zero observed tool events. Of64 fixed grading calls, five quota failures and nine completed canary failures leave50 valid batches/22 paired groups. Locked all203 anonymous disagreements before model-labelled analysis. Only Opus5.5 is complete and eligible (143/142/141, mean142/144), so no pairwise interval, winner or equivalence claim exists. Frozen inputs/marks and failed controls remain intact, including a disclosed ignored-config continuation exception. Recommend revised semantic controls and conditional next-step criteria before further comparison; another unchanged full-roster repeat would not repair these defects.
+
+Verification: existing package preflight545 passed/7 skipped/11 deselected in a separate disposable full clone; structural/timeout, copied-input and numerical positive/red controls; capture/hash replay. Independent Codex6.1 Sol Medium final relay round1 Approved, native/driver success, reviewed b0ba035f966b. [Report and receipts](TESTS-RESULTS/2026-10-07-gh83-confirmation/SUMMARY.md). Easy reversible artifact-only experiment: no product, training, deployment or release changes. The bet was that fresh balanced evidence and blind grading could clarify old near-ties; incomplete semantic coverage falsified a full-roster ranking, while capture/verdict diagnostics remain useful.
+
+Append-only #82 correction: Sonnet85/96 (88.542%) differs from the old84/96; Haiku explicitly rejected injection in both answers and demonstrated preservation of local-only L before reconciliation. Historical files, key and scores remain unchanged; identical key bytes do not guarantee identical semantic judging. [Historical review](TESTS-RESULTS/2026-10-07-gh83-confirmation/GH82-PROTOCOL-REVIEW.md).
+
 ## 2026-10-07
 
 ### Haiku 5.5 vs GPT 6 Luna vs Sonnet 5.5 three-way Phase 2 challenge (#82)

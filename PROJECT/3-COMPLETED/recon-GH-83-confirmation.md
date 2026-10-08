@@ -1,8 +1,8 @@
 ---
 title: GH-83 confirmation recon
-status: In progress
+status: Completed
 created: 2026-10-07
-updated: 2026-10-07
+updated: 2026-10-08
 owner: Codex
 goal: Ground the artifact-local protocol extension.
 gh_issue: 83
@@ -15,7 +15,7 @@ roadmap_exempt: true
 
 | What was just completed | What's next |
 |---|---|
-| GH82 runner, grader and evidence seams traced. | Apply the reviewed protocol within the same artifact boundary. |
+| Artifact-local recon led to the isolated campaign and origin-published, independently approved report. | No product runtime change. Refer to the completed plan for measured exceptions and coverage. |
 
 Commit: baeb588ec1ec01b88d5663ed74244c7420af2fca · Mode: graph+source fallback · Lanes: A/B/C/D contained in parent.
 
@@ -51,3 +51,7 @@ Graph generation 2026-09-30 does not contain #82 paths: check_index_coverage rep
 ## Current-state radius
 
 Historical benchmark artifacts/report readers, coordinator filesystem and candidate CLI processes only; no product runtime or operational Git actor.
+
+## Lessons Learned (For Future Agents)
+
+The stale operator graph could not cover new artifact scripts; retained coverage receipts and complete direct-source reads supplied evidence. Pro Medium was rejected, High explicitly authorized; Haiku4.5 native effort was unsupported. No observed tool events occurred, although Codex/Agy tool exposure remained possible. The ignored Codex user config drift occurred after candidates and required an explicit retained exception; other hashes remained enforced.

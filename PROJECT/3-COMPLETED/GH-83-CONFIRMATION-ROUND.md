@@ -1,6 +1,6 @@
 ---
 title: Consolidated Medium-effort Git/PR analyst confirmation — protocol v2
-status: In progress
+status: Completed
 created: 2026-10-07
 updated: 2026-10-08
 owner: Codex and operator
@@ -21,7 +21,7 @@ reversibility: Easy — isolated public/synthetic benchmark artifacts; no produc
 
 | What was just completed | What's next |
 |---|---|
-| All96 candidate cells and64 grading requests terminal; anonymous203-disagreement adjudication locked. Only Opus is fully graded and eligible; no primary comparison/winner. | Final independent Codex relay QA, focused doc/manual gates, publication and issue closure. Five quota/nine canary review failures remain excluded. |
+| Campaign/report complete and origin-verified:96 candidates,64 grading calls,203 blind dispositions locked; Codex Medium final QA Approved. Only Opus complete/eligible; no winner. | No additional inference in this campaign. Preserve excluded quota/canary reviews; any stronger comparison needs a separately revised protocol. |
 
 ## Table of contents
 
@@ -136,19 +136,19 @@ Anonymize lane/run IDs before grading, randomize display order with a frozen see
 
 For comparison use paired family-level score differences: average the three variants and passes within each of twelve families, then seeded percentile cluster bootstrap families (50,000 resamples) for all 28 prespecified pairs. Family means are /4; multiply the mean over families by 36 to express pair differences on /144. The intervals remain corpus-sensitivity estimates, even after adjustment; Bonferroni cannot guarantee bootstrap coverage with twelve hand-designed clusters; its adjusted tail has about 45 of 50,000 resamples. The fixed divisor 28 is conservative if fewer eligible configurations complete. Add leave-one-family-out comparison sensitivity. Display ordinary 95% intervals as exploratory and familywise-adjusted intervals for winner claims (Bonferroni 95% familywise). A meaningful winner must exceed every other eligible complete configuration with an adjusted lower bound above the predeclared 2-point /144 practical margin and have no critical failures. If any requested configuration is unavailable/incomplete, the claim is explicitly limited to completed eligible configurations. Default conclusion is inconclusive; claim practical equivalence only if an interval is wholly inside ±2 points, never infer equivalence from lack of superiority. These hand-designed families are not a representative population; intervals describe sensitivity to this corpus, not universal superiority. Do not count repeated calls/variants as independent observations. Do not exclude failed delivered cells to improve quality; invalid delivered structure stays zero. No primary interval/mean/winner is computed for an incomplete configuration: display missing counts and available-cell subtotals as exploratory only, without imputation or complete-case pooling. Complete eligible configurations can be compared with explicit coverage limits. The 2/144 margin is an operator-independent predeclared descriptive floor (~1.39 percentage points), not a claim about production utility; observed historical spread was about 3/144, so the interval and leave-family-out rules carry the uncertainty.
 
-- [ ] Deterministic totals, review completeness, raw/parsed equality, artifact tracked-only hash manifest and all terminal outcomes reconcile.
-- [ ] Primary fresh results, separate legacy scores, case/family errors, reviewer disagreement/sensitivity, token/latency profiles and limitations in SUMMARY.md. Correct #82's report inaccuracies by append-only cross-linked finding, preserving its historical scores.
-- [ ] Final independent Codex relay QA of committed results and evidence, max three rounds; require Approved and passing relevant doc/manual gates. No self-certification or tests-only signoff.
-- [ ] Publish scoped verified commits to origin/main under target offline-experiment policy; fetch/reconcile concurrent origin movement without overwriting operator work. Post findings/links to #83 and cross-link #82/#13, update plan/roadmap/changelog. No PR is required by this repo for offline artifact experiments; report this explicit policy override.
-- [ ] Verify final artifact commit on origin before cleanup. Remove task clone only if clean, no unique refs/stashes/dependent worktrees/active sessions, and all evidence published; otherwise retain with reason.
+- [x] Deterministic totals, review completeness, raw/parsed equality, artifact tracked-only hash manifest and all terminal outcomes reconcile.
+- [x] Primary fresh results, separate legacy scores, case/family errors, reviewer disagreement/sensitivity, token/latency profiles and limitations in SUMMARY.md. Correct #82's report inaccuracies by append-only cross-linked finding, preserving its historical scores.
+- [x] Final independent Codex relay QA of committed results and evidence, max three rounds; require Approved and passing relevant doc/manual gates. No self-certification or tests-only signoff.
+- [x] Publish scoped verified commits to origin/main under target offline-experiment policy; fetch/reconcile concurrent origin movement without overwriting operator work. Post findings/links to #83 and cross-link #82/#13, update plan/roadmap/changelog. No PR is required by this repo for offline artifact experiments; report this explicit policy override.
+- [x] Core evidence and approved final QA verified on origin/main (`c72e543e70be3dfa1a812a8b3529efce2cb41a65`; publication.json). Final closure commit is verified separately before teardown; ignored private evidence is archived securely, and any clone with unique refs remains preserved.
 
 ### Phase 4 — QA checklist
 
-- [ ] Every run's final marks have independent source review and a retained adjudication trail.
-- [ ] Multiplicity, family dependence, grading sensitivity and incomplete lanes cannot disappear from the headline.
-- [ ] Final review covers actual committed state, and publication SHA/links read back.
+- [ ] **Not met; retained as an inconclusive outcome:** every scheduled run has paired semantic marks. Ten groups lack a valid pair, so primary means for six configurations are withheld. All203 disagreements in valid paired groups have retained quote-backed dispositions.
+- [x] Multiplicity, family dependence, grading sensitivity and incomplete lanes cannot disappear from the headline.
+- [x] Final review covers actual committed state, and publication SHA/links read back.
 
-## Current unknowns and stop conditions
+## Pre-execution unknowns and stop conditions (retained)
 
 Model and effort availability, especially Pro Medium and Haiku 4.5 native effort, must be measured. Antigravity may have weaker tool/effort metadata; report limits. Review-derived rubric changes may require one uniform regrade, never candidate reinference. Caps: 3 plan relay rounds, 3 final QA rounds, 9 probes (including rejected Pro Medium), 96 candidate cells, 64 grading calls, six-hour candidate wall ceiling. Unavailable reviewers block the grading completion claim; surviving candidate work remains captured. No new provider or configuration is silently installed to resolve a blocker.
 
@@ -183,3 +183,11 @@ Phase 4 execution deviation: native Claude five-hour quota rejected Fable B018�
 Ignored-file environment exception: Codex user configuration fingerprint drift was observed during grading; its filesystem modification timestamp is06:21:44Z, after candidate capture completed. The timestamp is not attribution of who changed it. The original frozen verify_inputs correctly rejects that changed fingerprint; it is not claimed green. Native `codex exec --help` states `--ignore-user-config` does not load config.toml, and every frozen Codex invocation includes that flag plus explicit model/effort. Other ambient fingerprints and all24 frozen files still match. Artifact-local continuation.py records this ignored-file delta and permits only grading/offline analysis; it verifies every frozen file, all other ambient fingerprints, every preissued receipt hash and all32 blind prompt hashes. It cannot dispatch candidates or reissue a pending request. The coordinator did not edit user configuration; its change cause is unverified. No frozen code, rubric, key or prompt changed. Final independent QA must assess this disclosed nonmaterial-review-input exception; it does not silently rewrite the original protocol.
 
 Phase4 memory: marks locked before model mapping at07:58:49Z. All64 unique grading calls terminal (59 completed, five quota failures); nine completed control failures leave50 valid seats and22 paired groups. Opus143/142/141 (142/144) is the only complete eligible lane; Haiku4.5 diagnostic130/144 is excluded from eligibility. Six other primary means are withheld, and no pairwise interval/winner/equivalence estimate exists. Four critical false-SUPPORTED verdicts occur at the retry zero-boundary N035 (Haiku4.5 once, Luna6 once, Luna5.6 twice). Every other fresh verdict agrees with the controlled key; this high saturation is not broad capability equivalence. Conservative reviewed flags and all coverage appear in SUMMARY.md. Seventy-five quote-backed component restorations apply frozen materiality/semantic equivalence, principally rejecting unrelated global-limitation E penalties. No marks were changed after identity mapping opened.
+
+## Completion and final QA
+
+The experiment completed with an explicitly inconclusive full-roster semantic result. Native Codex6.1 Sol Medium final relay round1 returned PASS/Approved; driver exit0 attests reviewed b0ba035f966b1f463f07635e410653c99f29364c. Receipts: TESTS-RESULTS/2026-10-07-gh83-confirmation/final-qa/. The independent reviewer replayed captures/hashes/marks/usage and accepted the disclosed ignored-config continuation without changing frozen controls or marks. Later edits are publication/lifecycle metadata only. Existing package preflight545 passed/7 skipped/11 deselected. Focused final doc checks and tracked evidence inventory are retained beside the report. No PR under the target offline-experiment origin/main policy; no product modules or release workflow changed. Issue83 carries the final findings and historical cross-links.
+
+## Lessons Learned (For Future Agents)
+
+An ambiguous exact-component canary can discard otherwise useful independent reviews. Pilot safe/unsafe controls before a future freeze; do not relax them after observing outputs. Grade useful next steps conditionally on supplied evidence. Separate fresh completeness from legacy regression in a future protocol, never retroactively. Respect fixed call caps and quota windows: five transport and nine canary failures remain visible. An accepted effort flag need not activate native effort; Pro High is an explicit exception and Haiku4.5 diagnostic-only. Missing grades are not evidence of safety/equivalence. Keep anonymous locks unchanged after identities open.

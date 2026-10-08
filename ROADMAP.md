@@ -16,7 +16,7 @@
 > **Pointer/ledger only — not a plan body.** Execution detail (phase checklists, build steps, QA
 > gates, deep notes) lives in the linked `PROJECT/**` docs; keep it there. See the contract banner above.
 
-> **Active confirmation:** [GH-83](PROJECT/2-WORKING/GH-83-CONFIRMATION-ROUND.md) — eight requested models with disclosed effort exceptions; protocol v2. ([#83](https://github.com/HiQS-Labs/Needle-fork/issues/83))
+> **Completed confirmation:** [GH-83](PROJECT/3-COMPLETED/GH-83-CONFIRMATION-ROUND.md) —96 candidate calls; grading coverage prevents a full-roster winner. [Report](TESTS-RESULTS/2026-10-07-gh83-confirmation/SUMMARY.md). ([#83](https://github.com/HiQS-Labs/Needle-fork/issues/83))
 
 ## Status
 
@@ -47,6 +47,8 @@
 - [Label correctness audit — make the §2 gate trustworthy](PROJECT/2-WORKING/LABEL-CORRECTNESS-AUDIT.md) — source identity and disjoint manifests are merged; #25 clears its 30-session floor but remains blocked because the frozen sampler can allocate only 541/1,000 evaluation rows under its label quotas and session cap. ([#20](https://github.com/HiQS-Labs/Needle-fork/issues/20), [#23](https://github.com/HiQS-Labs/Needle-fork/issues/23), [#25](https://github.com/HiQS-Labs/Needle-fork/issues/25))
 
 ### Completed
+
+- [GH-83: consolidated confirmation](PROJECT/3-COMPLETED/GH-83-CONFIRMATION-ROUND.md) — fresh balanced protocol, disclosed effort exceptions, independent Approved final QA; ranking inconclusive.
 
 - [GH-80: latest Luna benchmark](PROJECT/3-COMPLETED/GH-80-LUNA6-PHASE2.md) — GPT 6 Luna Medium 43/41 (87.50%, B) vs GPT 5.6 Luna 44/43 (90.625%, B); no improvement on frozen Phase 2 packet.
 

@@ -1,6 +1,6 @@
 # GH83 consolidated confirmation artifacts
 
-Canonical [issue83](https://github.com/HiQS-Labs/Needle-fork/issues/83) and [working plan](../../PROJECT/2-WORKING/GH-83-CONFIRMATION-ROUND.md). All96 candidate calls and64 scheduled grading requests are terminal. [Locked results/report](SUMMARY.md) received independent Codex6.1 Sol Medium [Approved final QA](final-qa/receipt.json), with driver exit0. Publication/issue closure remains pending.
+Canonical [issue83](https://github.com/HiQS-Labs/Needle-fork/issues/83) and [completed plan](../../PROJECT/3-COMPLETED/GH-83-CONFIRMATION-ROUND.md). All96 candidate calls and64 scheduled grading requests are terminal. [Locked results/report](SUMMARY.md) received independent Codex6.1 Sol Medium [Approved final QA](final-qa/receipt.json), with driver exit0. Core evidence and QA are [verified on origin](publication.json); final findings are recorded in issue83.
 
 `inputs/` contains the frozen questions, packets, keys, schedule, exact lane settings, semantic controls and protocol snapshot. `input-manifest.json` hashes these and the artifact-local scripts. The original GH82 packet/questions/key/structural grader are copied byte-for-byte under `inputs/legacy/`. Historical scores remain untouched. Neutral whitespace padding matches the fresh case source counts/serialized lengths; it is explicitly non-evidence.
 

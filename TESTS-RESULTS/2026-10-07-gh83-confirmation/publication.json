@@ -1,0 +1,9 @@
+{
+  "utc": "2026-10-08T08:22:14.948082+00:00",
+  "origin": "https://github.com/HiQS-Labs/Needle-fork.git",
+  "ref": "refs/heads/main",
+  "verified_sha": "c72e543e70be3dfa1a812a8b3529efce2cb41a65",
+  "verification": "git push origin main exit0; git ls-remote origin refs/heads/main returned the same SHA",
+  "scope": "Candidate/grading/locked analysis/report/independent final QA publication; subsequent scoped commit records doc closeout and final hash inventory.",
+  "hosted_ci": "No push-triggered hosted run configured or claimed."
+}

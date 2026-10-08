@@ -1,6 +1,6 @@
 # GH83 — Consolidated confirmation round
 
-Independent Codex6.1 Sol Medium final QA: **Approved**, round1, driver exit0, reviewed `b0ba035f966b1f463f07635e410653c99f29364c`. [Receipt](final-qa/receipt.json), [review/attestation](final-qa/r1-thread.md). Publication and issue reconciliation are the remaining closure steps.
+Independent Codex6.1 Sol Medium final QA: **Approved**, round1, driver exit0, reviewed `b0ba035f966b1f463f07635e410653c99f29364c`. [Receipt](final-qa/receipt.json), [review/attestation](final-qa/r1-thread.md). Core evidence and QA are [verified on origin/main](publication.json). The [completed plan](../../PROJECT/3-COMPLETED/GH-83-CONFIRMATION-ROUND.md) and [issue83](https://github.com/HiQS-Labs/Needle-fork/issues/83) record closure.
 
 **All96 candidate calls completed, but this round does not establish a full-roster semantic winner.** Opus5.5 is the only configuration with complete eligible grading (143/142/141, mean142/144). Haiku4.5 has complete diagnostic grading (mean130/144), with native effort unsupported and observed critical flags. With only one complete eligible configuration, **zero pairwise intervals/comparisons are computed**; this is a coverage failure, not evidence that the models are equivalent. Another unchanged repeat is not recommended.
 

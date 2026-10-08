@@ -1,8 +1,8 @@
 ---
 title: GH-83 consult synthesis
-status: In progress
+status: Completed
 created: 2026-10-07
-updated: 2026-10-07
+updated: 2026-10-08
 owner: Codex
 goal: Preserve independent plan consultation and dispositions.
 gh_issue: 83
@@ -13,11 +13,11 @@ roadmap_exempt: true
 
 | What was just completed | What's next |
 |---|---|
-| Two independent Light/Low adviser answers reconciled. | Fable High plan QA attested Approved; follow the frozen protocol. |
+| Requested Fable/Astra Light consult and Fable High plan QA complete; final Codex Medium report QA Approved. | Campaign complete; use the completed canonical plan and locked report. |
 
 # GH-83 consult synthesis
 
-## TLDR
+## Historical plan-stage conclusion
 
 Fable Low and Astra Low support the bounded design after small protocol corrections. Adopt the corrections below, preserve the exact requested roster with authorized exceptions, and run final plan QA through Fable High relay before inference. Agreement is advisory, not proof.
 
@@ -49,3 +49,7 @@ Fable Low and Astra Low support the bounded design after small protocol correcti
 ## Consult execution limitations
 
 The target's tracked vendored consult did not support the Claude seat and skipped it; Astra completed there. The missing Fable seat used the located current canonical consult against the same isolated target snapshot/question. Its first actual call was killed by the 90-second idle watchdog before output; one bounded recovery with CONSULT_IDLE_S=0 and a 600-second wall cap completed. Not candidate retries. Both advisers read the original draft; amendments were made only in the parent after their independent inputs were isolated. No candidate outputs existed. Original transcript/PROMPT/stderr retained under relay-system/2026-10-07/. Claude consult retained the native result JSON beside answer text, including modelUsage for claude-fable-5-1; Low effort remains invocation evidence, not independent backend attestation.
+
+## Lessons Learned (For Future Agents)
+
+Consultation sharpened eligibility, failure handling and rubric semantics, but did not guarantee control quality. The actual campaign exposed exact-I unsafe-reset canary ambiguity and quota-driven incomplete grading. Preserve advisory disagreements and failed relay attempts; only a native successful, attested Approved turn establishes QA.

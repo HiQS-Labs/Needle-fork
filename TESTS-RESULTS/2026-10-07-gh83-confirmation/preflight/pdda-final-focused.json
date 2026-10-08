@@ -1,0 +1,146 @@
+{
+  "utc": "2026-10-08T08:22:55.559967+00:00",
+  "scope": "three completed GH83 documents only; full enforcement mode, nonempty exact files",
+  "positive_checks": [
+    {
+      "file": "PROJECT/3-COMPLETED/GH-83-CONFIRMATION-ROUND.md",
+      "sha256": "076877d02fb18a09942986490a121042040576db0d597a0574e7b8732924155d",
+      "check": "frontmatter",
+      "command": [
+        "bash",
+        "utils/pdda/pdda.sh",
+        "frontmatter"
+      ],
+      "mode": "full",
+      "scope_override": "PDDA_WORKING_DIR=PROJECT/3-COMPLETED; PDDA_ONLY_FILE=the exact file (avoids empty active-doc enumeration)",
+      "exit_code": 0,
+      "stdout": "SUMMARY [pdda-check-frontmatter] errors=0 warns=0 info=0\n",
+      "stderr": ""
+    },
+    {
+      "file": "PROJECT/3-COMPLETED/GH-83-CONFIRMATION-ROUND.md",
+      "sha256": "076877d02fb18a09942986490a121042040576db0d597a0574e7b8732924155d",
+      "check": "status-table",
+      "command": [
+        "bash",
+        "utils/pdda/pdda.sh",
+        "status-table"
+      ],
+      "mode": "full",
+      "scope_override": "PDDA_WORKING_DIR=PROJECT/3-COMPLETED; PDDA_ONLY_FILE=the exact file (avoids empty active-doc enumeration)",
+      "exit_code": 0,
+      "stdout": "SUMMARY [pdda-check-status-table] errors=0 warns=0 info=0\n",
+      "stderr": ""
+    },
+    {
+      "file": "PROJECT/3-COMPLETED/GH-83-CONFIRMATION-ROUND.md",
+      "sha256": "076877d02fb18a09942986490a121042040576db0d597a0574e7b8732924155d",
+      "check": "hardcoded-paths",
+      "command": [
+        "bash",
+        "utils/pdda/pdda.sh",
+        "hardcoded-paths"
+      ],
+      "mode": "full",
+      "scope_override": "PDDA_WORKING_DIR=PROJECT/3-COMPLETED; PDDA_ONLY_FILE=the exact file (avoids empty active-doc enumeration)",
+      "exit_code": 0,
+      "stdout": "SUMMARY [pdda-check-hardcoded-paths] errors=0 warns=0 info=0\n",
+      "stderr": ""
+    },
+    {
+      "file": "PROJECT/3-COMPLETED/GH-83-CONSULT-SYNTHESIS.md",
+      "sha256": "a7d3adf5d10f79fe9194272b42d1919ab3075c97c9c1dac0f33260352ca5d153",
+      "check": "frontmatter",
+      "command": [
+        "bash",
+        "utils/pdda/pdda.sh",
+        "frontmatter"
+      ],
+      "mode": "full",
+      "scope_override": "PDDA_WORKING_DIR=PROJECT/3-COMPLETED; PDDA_ONLY_FILE=the exact file (avoids empty active-doc enumeration)",
+      "exit_code": 0,
+      "stdout": "SUMMARY [pdda-check-frontmatter] errors=0 warns=0 info=0\n",
+      "stderr": ""
+    },
+    {
+      "file": "PROJECT/3-COMPLETED/GH-83-CONSULT-SYNTHESIS.md",
+      "sha256": "a7d3adf5d10f79fe9194272b42d1919ab3075c97c9c1dac0f33260352ca5d153",
+      "check": "status-table",
+      "command": [
+        "bash",
+        "utils/pdda/pdda.sh",
+        "status-table"
+      ],
+      "mode": "full",
+      "scope_override": "PDDA_WORKING_DIR=PROJECT/3-COMPLETED; PDDA_ONLY_FILE=the exact file (avoids empty active-doc enumeration)",
+      "exit_code": 0,
+      "stdout": "SUMMARY [pdda-check-status-table] errors=0 warns=0 info=0\n",
+      "stderr": ""
+    },
+    {
+      "file": "PROJECT/3-COMPLETED/GH-83-CONSULT-SYNTHESIS.md",
+      "sha256": "a7d3adf5d10f79fe9194272b42d1919ab3075c97c9c1dac0f33260352ca5d153",
+      "check": "hardcoded-paths",
+      "command": [
+        "bash",
+        "utils/pdda/pdda.sh",
+        "hardcoded-paths"
+      ],
+      "mode": "full",
+      "scope_override": "PDDA_WORKING_DIR=PROJECT/3-COMPLETED; PDDA_ONLY_FILE=the exact file (avoids empty active-doc enumeration)",
+      "exit_code": 0,
+      "stdout": "SUMMARY [pdda-check-hardcoded-paths] errors=0 warns=0 info=0\n",
+      "stderr": ""
+    },
+    {
+      "file": "PROJECT/3-COMPLETED/recon-GH-83-confirmation.md",
+      "sha256": "8fe8f8d81ee6b2d3a80e16b6a7d58bd8af29938107b5eaaf852053d1f33fd47c",
+      "check": "frontmatter",
+      "command": [
+        "bash",
+        "utils/pdda/pdda.sh",
+        "frontmatter"
+      ],
+      "mode": "full",
+      "scope_override": "PDDA_WORKING_DIR=PROJECT/3-COMPLETED; PDDA_ONLY_FILE=the exact file (avoids empty active-doc enumeration)",
+      "exit_code": 0,
+      "stdout": "SUMMARY [pdda-check-frontmatter] errors=0 warns=0 info=0\n",
+      "stderr": ""
+    },
+    {
+      "file": "PROJECT/3-COMPLETED/recon-GH-83-confirmation.md",
+      "sha256": "8fe8f8d81ee6b2d3a80e16b6a7d58bd8af29938107b5eaaf852053d1f33fd47c",
+      "check": "status-table",
+      "command": [
+        "bash",
+        "utils/pdda/pdda.sh",
+        "status-table"
+      ],
+      "mode": "full",
+      "scope_override": "PDDA_WORKING_DIR=PROJECT/3-COMPLETED; PDDA_ONLY_FILE=the exact file (avoids empty active-doc enumeration)",
+      "exit_code": 0,
+      "stdout": "SUMMARY [pdda-check-status-table] errors=0 warns=0 info=0\n",
+      "stderr": ""
+    },
+    {
+      "file": "PROJECT/3-COMPLETED/recon-GH-83-confirmation.md",
+      "sha256": "8fe8f8d81ee6b2d3a80e16b6a7d58bd8af29938107b5eaaf852053d1f33fd47c",
+      "check": "hardcoded-paths",
+      "command": [
+        "bash",
+        "utils/pdda/pdda.sh",
+        "hardcoded-paths"
+      ],
+      "mode": "full",
+      "scope_override": "PDDA_WORKING_DIR=PROJECT/3-COMPLETED; PDDA_ONLY_FILE=the exact file (avoids empty active-doc enumeration)",
+      "exit_code": 0,
+      "stdout": "SUMMARY [pdda-check-hardcoded-paths] errors=0 warns=0 info=0\n",
+      "stderr": ""
+    }
+  ],
+  "red_missing_goal": {
+    "exit_code": 1,
+    "stdout": "ERROR [pdda-check-frontmatter] temp/gh83-final-doc-red/case.md:1 missing required frontmatter key 'goal'\nSUMMARY [pdda-check-frontmatter] errors=1 warns=0 info=0\n"
+  },
+  "full_repository_hygiene_claim": false
+}
