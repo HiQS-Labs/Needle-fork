@@ -1,0 +1,72 @@
+{
+  "schema": "needle/confirmation-run@2",
+  "kind": "review",
+  "status": "complete",
+  "started_at": "2026-10-08T06:09:06.355855+00:00",
+  "cli": "codex",
+  "cli_version": "codex-cli 0.159.1",
+  "requested_model": "gpt-6-astra",
+  "requested_effort": "medium",
+  "flags": [
+    "exec",
+    "-m",
+    "gpt-6-astra",
+    "-c",
+    "model_reasoning_effort=\"medium\"",
+    "-c",
+    "approval_policy=\"never\"",
+    "-s",
+    "read-only",
+    "--ephemeral",
+    "--ignore-user-config",
+    "--json",
+    "--color",
+    "never",
+    "-o",
+    "/private/tmp/needle-confirmation-x87ufg0r/TESTS-RESULTS/2026-10-07-gh83-confirmation/review/astra/B004/answer.md",
+    "-"
+  ],
+  "cwd": "/private/tmp/needle-gh83-cell-y92javtz",
+  "candidate_cwd_files": [
+    "QUESTIONS.md",
+    "packet.json"
+  ],
+  "prompt_sha256": "bcd116c0ad18fb4bd87f99b438adeb1d92eee70c2c1e09166eb8c03a6df145f0",
+  "packet_sha256": null,
+  "timeout_seconds": 870,
+  "retries": 0,
+  "tool_use": [],
+  "temperature": null,
+  "metadata": null,
+  "system_prompt_is_user_prefix": true,
+  "backend_attestation": "CLI returned metadata only; may be absent",
+  "exit_code": 0,
+  "event_types": [
+    "item.completed",
+    "thread.started",
+    "turn.completed",
+    "turn.started"
+  ],
+  "usage": [
+    {
+      "input_tokens": 53005,
+      "cached_input_tokens": 0,
+      "cache_write_input_tokens": 0,
+      "output_tokens": 4893,
+      "reasoning_output_tokens": 1748
+    }
+  ],
+  "errors": [],
+  "raw_answer_equal": true,
+  "returned_models": [],
+  "tool_enforcement": "read-only sandbox and no-tool instruction; tools still exposed",
+  "finished_at": "2026-10-08T06:11:42.131026+00:00",
+  "wall_seconds": 155.77387999999337,
+  "answer_sha256": "8506651864ad1dd39e2f44995bfc920b0d7a19650f79c99a6c0f336898a89b36",
+  "retained_hashes": {
+    "prompt.txt": "bcd116c0ad18fb4bd87f99b438adeb1d92eee70c2c1e09166eb8c03a6df145f0",
+    "events.jsonl": "0085678f46cde90a0e7cc80ebe51103a0077279d8973efb7383120a050e20866",
+    "stderr.txt": "97eacc9cb8c8c01f5f07a8cfe90fb665e420c5e1ef1850552d76fad3807ef696",
+    "answer.md": "8506651864ad1dd39e2f44995bfc920b0d7a19650f79c99a6c0f336898a89b36"
+  }
+}

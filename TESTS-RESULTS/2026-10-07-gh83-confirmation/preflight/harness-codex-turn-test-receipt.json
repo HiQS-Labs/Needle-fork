@@ -1,0 +1,30 @@
+{
+  "utc": "2026-10-08T06:17:06.861549+00:00",
+  "scope": "Codex shim existing suite in a separate disposable full clone, not campaign or QA state",
+  "command": [
+    "bash",
+    "test/codex-turn.sh"
+  ],
+  "source_head": "f99cc0cbee58b0edd4cdb79d141970183616048f",
+  "exit_code": 0,
+  "wall_seconds": 24.030069082975388,
+  "identity_before": {
+    "head": "f99cc0cbee58b0edd4cdb79d141970183616048f\n",
+    "bare": "false\n",
+    "remote": "origin\t/private/tmp/xyz-gh83-qa-harness-jovhjq4i (fetch)\norigin\t/private/tmp/xyz-gh83-qa-harness-jovhjq4i (push)\n",
+    "email": "",
+    "worktrees": "worktree /private/tmp/xyz-gh83-codex-gate-xm9huw9p\nHEAD f99cc0cbee58b0edd4cdb79d141970183616048f\nbranch refs/heads/development\n\n",
+    "status": "",
+    "stash": ""
+  },
+  "identity_after": {
+    "head": "f99cc0cbee58b0edd4cdb79d141970183616048f\n",
+    "bare": "false\n",
+    "remote": "origin\t/private/tmp/xyz-gh83-qa-harness-jovhjq4i (fetch)\norigin\t/private/tmp/xyz-gh83-qa-harness-jovhjq4i (push)\n",
+    "email": "",
+    "worktrees": "worktree /private/tmp/xyz-gh83-codex-gate-xm9huw9p\nHEAD f99cc0cbee58b0edd4cdb79d141970183616048f\nbranch refs/heads/development\n\n",
+    "status": "",
+    "stash": ""
+  },
+  "identity_intact": true
+}

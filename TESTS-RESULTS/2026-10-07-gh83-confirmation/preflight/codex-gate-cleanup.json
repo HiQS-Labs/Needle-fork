@@ -1,0 +1,12 @@
+{
+  "utc": "2026-10-08T06:17:46.737791+00:00",
+  "clone": "/private/tmp/xyz-gh83-codex-gate-xm9huw9p",
+  "source_head": "f99cc0cbee58b0edd4cdb79d141970183616048f",
+  "status": "",
+  "stashes": "",
+  "unique_local_commits": "",
+  "registered_worktree_count": 1,
+  "lsof_cwd_exit": 1,
+  "action": "removed full disposable clone after clean/ref/dependency checks; parent QA history remains in its owning clone",
+  "removed": true
+}
