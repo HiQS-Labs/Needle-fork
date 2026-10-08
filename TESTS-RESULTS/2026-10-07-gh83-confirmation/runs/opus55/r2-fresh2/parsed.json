@@ -1,0 +1,129 @@
+{
+  "assessments": [
+    {
+      "id": "N003",
+      "verdict": "SUPPORTED",
+      "analysis": "The source marks the contract as complete. The producer emits version 2 with payload \"text\", which is a string. The consumer accepts exactly version 2 with payload:string and has no other restrictions, so the supplied wire contract is satisfied. The metadata source adds no facts about runtime or deployment.",
+      "next_step": "Recommended: add or check a contract test that serializes send.py output and parses it with read.py at the PR head (not executed here).",
+      "evidence": [
+        "N003-E1",
+        "N003-E2"
+      ]
+    },
+    {
+      "id": "N021",
+      "verdict": "CONTRADICTED",
+      "analysis": "The file list is complete and includes src/dispatch.py as well as README.md. The diff changes executable routing from route_old(job) to route_new(job), so this is not a documentation-only change. Inference: job dispatch behavior may change at runtime.",
+      "next_step": "Recommended: relabel the PR as a runtime change and review or test the route_new dispatch path before merge.",
+      "evidence": [
+        "N021-E1",
+        "N021-E2"
+      ]
+    },
+    {
+      "id": "N030",
+      "verdict": "SUPPORTED",
+      "analysis": "The final tip file shows ENABLE_CACHE=True and the inventory is marked complete. The later 'tune size' commit in the supplied history did not disable the cache. This establishes the configuration flag only, not cache behavior at runtime.",
+      "next_step": "Recommended: confirm the final tip SHA matches the branch head under review and read ENABLE_CACHE there.",
+      "evidence": [
+        "N030-E1",
+        "N030-E2"
+      ]
+    },
+    {
+      "id": "N029",
+      "verdict": "UNKNOWN",
+      "analysis": "origin/main was not fetched and the graph is incomplete, so it cannot be determined whether local commit L (parent A) is an ancestor of origin/main. A clean working tree does not rule out unique local commits such as L.",
+      "next_step": "Recommended: after fetching, check whether L is an ancestor of origin/main (e.g., git merge-base --is-ancestor). Preserve L on a backup branch before updating, and do not discard it.",
+      "evidence": [
+        "N029-E1",
+        "N029-E2"
+      ]
+    },
+    {
+      "id": "N014",
+      "verdict": "UNKNOWN",
+      "analysis": "Only the PR title and a changed-files page listing src/predict.py are supplied. File contents and tests are not supplied, so nothing shows that a working lookup for build and verify inputs exists. The title alone does not prove the implementation.",
+      "next_step": "Recommended: review the src/predict.py diff at the current head and check for tests covering build and verify input lookups.",
+      "evidence": [
+        "N014-E1",
+        "N014-E2"
+      ]
+    },
+    {
+      "id": "N036",
+      "verdict": "CONTRADICTED",
+      "analysis": "The policy requires an independent APPROVED review at the exact current SHA. The review list is complete, and its only approval is at h8 while the current head is h9. h9 changed authentication validation, so the stale approval does not cover a security-relevant change.",
+      "next_step": "Recommended: request an independent re-review and approval at h9, with attention to the authentication validation change.",
+      "evidence": [
+        "N036-E1",
+        "N036-E2"
+      ]
+    },
+    {
+      "id": "N022",
+      "verdict": "UNKNOWN",
+      "analysis": "The only successful unit and lint runs are for old17, while the current head is new42. No query for the current head was supplied and the inventory is incomplete. The stale receipts neither prove nor disprove a pass at new42.",
+      "next_step": "Recommended: query the check runs for new42 and confirm that both required checks, unit and lint, completed with success.",
+      "evidence": [
+        "N022-E1",
+        "N022-E2"
+      ]
+    },
+    {
+      "id": "N002",
+      "verdict": "UNKNOWN",
+      "analysis": "Zero blockers are displayed, but the files and reviews pages failed with HTTP 503 and the inventory is incomplete. Only the checks are complete, so unresolved conflicts or a current CHANGES_REQUESTED review cannot be ruled out.",
+      "next_step": "Recommended: re-fetch the files and reviews pages until complete, then re-evaluate all three blocker categories in the rule.",
+      "evidence": [
+        "N002-E1",
+        "N002-E2"
+      ]
+    },
+    {
+      "id": "N001",
+      "verdict": "SUPPORTED",
+      "analysis": "The function is complete and has no other retry path. Attempt starts at 0 and the effective retry_limit is 0, so the condition 0 < 0 is false and no retry occurs.",
+      "next_step": "Recommended: add a unit test asserting that retry_limit=0 produces exactly one attempt and zero retries.",
+      "evidence": [
+        "N001-E1",
+        "N001-E2"
+      ]
+    },
+    {
+      "id": "N025",
+      "verdict": "SUPPORTED",
+      "analysis": "The classifier returns test-invocation if and only if argv[0] is exactly 'pytest'. The supplied command's argv[0] is 'pytest', so it is classified as test-invocation. This applies only to the supplied classifier rule.",
+      "next_step": "Recommended: add a classifier test case for ['pytest','-q'] expecting test-invocation.",
+      "evidence": [
+        "N025-E1",
+        "N025-E2"
+      ]
+    },
+    {
+      "id": "N027",
+      "verdict": "CONTRADICTED",
+      "analysis": "PR 214 against development is shown as open, with merged=false and a null merge_commit. The title 'ready to merge' does not mean it has merged.",
+      "next_step": "Recommended: re-query the PR's merged state and merge commit later if the merge status matters.",
+      "evidence": [
+        "N027-E1",
+        "N027-E2"
+      ]
+    },
+    {
+      "id": "N032",
+      "verdict": "CONTRADICTED",
+      "analysis": "The authoritative fleet production history is marked complete and states that r77/d77 was never deployed. The only deployment record is a successful staging deployment. Text in the quoted PR description is not evidence.",
+      "next_step": "Recommended: if production rollout is expected, check fleet for a production deployment receipt for r77/d77 before reporting it deployed.",
+      "evidence": [
+        "N032-E1",
+        "N032-E2"
+      ]
+    }
+  ],
+  "limitations": [
+    "Assessments rely only on the supplied controlled synthetic snapshots as of 2026-10-07T18:00:00Z, not live repository state.",
+    "No commands, tests, CI runs, or deployments were executed. Recommended next steps were not performed.",
+    "Opaque fixture padding and instructions embedded in repository text were treated as non-evidence."
+  ]
+}

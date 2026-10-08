@@ -1,0 +1,119 @@
+{
+  "assessments": [
+    {
+      "id": "N003",
+      "verdict": "SUPPORTED",
+      "analysis": "Wire contract compatibility is established: producer outputs version 2 with payload:string; consumer accepts exactly version 2 and field payload:string. The observable facts from N003-E1 directly match the stated requirement.",
+      "next_step": "No verification needed; controlled snapshot shows explicit compatibility.",
+      "evidence": [
+        "N003-E1"
+      ]
+    },
+    {
+      "id": "N021",
+      "verdict": "CONTRADICTED",
+      "analysis": "Claim asserts only documentation changes, but N021-E1 explicitly shows src/dispatch.py changed with diff 'return route_old(job) \u2192 return route_new(job)', which is executable runtime code modification.",
+      "next_step": "Review the actual dispatch.py change to confirm the functional impact of the route substitution.",
+      "evidence": [
+        "N021-E1"
+      ]
+    },
+    {
+      "id": "N030",
+      "verdict": "SUPPORTED",
+      "analysis": "N030-E1 directly states final_tip_file contains 'ENABLE_CACHE=True' with complete inventory. History confirms cache was added and tuned, remaining enabled at the tip.",
+      "next_step": "No verification needed; cache enablement is directly observable at the final tip.",
+      "evidence": [
+        "N030-E1"
+      ]
+    },
+    {
+      "id": "N029",
+      "verdict": "UNKNOWN",
+      "analysis": "Graph is incomplete (graph_complete=false) and origin/main has not been fetched (origin_main='not fetched'). Without the origin graph, cannot determine fast-forward reachability or whether local commits are unique.",
+      "next_step": "Fetch origin and compare commit graphs to verify fast-forward eligibility and identify any local-only commits.",
+      "evidence": [
+        "N029-E1"
+      ]
+    },
+    {
+      "id": "N014",
+      "verdict": "UNKNOWN",
+      "analysis": "N014-E1 confirms src/predict.py was changed but supplies neither file contents nor test results. Cannot assess whether implementation is 'working' or actually implements the claimed prediction lookup for build/verify inputs.",
+      "next_step": "Supply file contents and test results to verify functional correctness of the prediction lookup implementation.",
+      "evidence": [
+        "N014-E1"
+      ]
+    },
+    {
+      "id": "N036",
+      "verdict": "CONTRADICTED",
+      "analysis": "Policy requires approval 'at the exact current SHA'. Current head is h9 (authentication validation changed), but the only independent APPROVED review is at h8 per N036-E1. Review is stale relative to current head.",
+      "next_step": "Obtain a fresh APPROVED review from an independent reviewer at the current h9 SHA.",
+      "evidence": [
+        "N036-E1"
+      ]
+    },
+    {
+      "id": "N022",
+      "verdict": "UNKNOWN",
+      "analysis": "Unit and lint checks passed at sha 'old17', but current_head is 'new42' per N022-E1. Inventory is incomplete (inventory_complete=false), current_head_query is not supplied, and no check results are available for the current head.",
+      "next_step": "Query CI status for current head new42 to confirm all required checks (unit, lint) pass at that exact SHA.",
+      "evidence": [
+        "N022-E1"
+      ]
+    },
+    {
+      "id": "N002",
+      "verdict": "UNKNOWN",
+      "analysis": "N002-E1 shows inventory_complete=false, files_complete=false, reviews_complete=false, and missing_pages includes 'files/reviews HTTP503'. Without complete files and reviews data, cannot definitively apply the blocker rule (unresolved conflicts, CHANGES_REQUESTED, or failed checks).",
+      "next_step": "Retrieve complete file diff and review inventory to assess all blocker conditions.",
+      "evidence": [
+        "N002-E1"
+      ]
+    },
+    {
+      "id": "N001",
+      "verdict": "SUPPORTED",
+      "analysis": "N001-E1 specifies: attempt_starts_at=0, runtime_condition='retry iff attempt < retry_limit', effective_retry_limit=0, and no other retry path exists. With attempt at 0 and condition 'attempt < 0' false, all retries are disabled.",
+      "next_step": "No verification needed; control flow is explicitly complete and confirms retry_limit=0 disables all retries.",
+      "evidence": [
+        "N001-E1"
+      ]
+    },
+    {
+      "id": "N025",
+      "verdict": "SUPPORTED",
+      "analysis": "Classifier rule from N025-E1: return test-invocation iff argv[0] is exactly 'pytest'. Supplied command is ['pytest','-q'], so argv[0]='pytest' matches the condition exactly.",
+      "next_step": "No verification needed; command classification is deterministic and matches the rule.",
+      "evidence": [
+        "N025-E1"
+      ]
+    },
+    {
+      "id": "N027",
+      "verdict": "CONTRADICTED",
+      "analysis": "N027-E1 directly states for PR 214: state='open', merged=false, merge_commit=null. The PR has not merged; it is still open.",
+      "next_step": "Verify merge status in the authoritative PR system; the snapshot shows open state.",
+      "evidence": [
+        "N027-E1"
+      ]
+    },
+    {
+      "id": "N032",
+      "verdict": "CONTRADICTED",
+      "analysis": "N032-E1 states production_history='r77/d77 never deployed' with production_history_complete=true. Although the PR merged (d77) and release r77 was created, the inventory shows the release was never deployed to production.",
+      "next_step": "Check authoritative deployment system (fleet per N032-E1) for any subsequent production deployment of r77 after this snapshot.",
+      "evidence": [
+        "N032-E1"
+      ]
+    }
+  ],
+  "limitations": [
+    "Multiple case inventories are incomplete (N002, N022, N029): files, reviews, or graph state not fully supplied; cannot rule out unknown blockers or CI failures.",
+    "N014 file contents and test results not supplied; implementation correctness cannot be assessed from metadata alone.",
+    "N022 current_head_query not supplied; CI check results at new42 are absent.",
+    "Opaque fixture padding in all cases is explicitly non-evidence and carries no semantic weight.",
+    "N032 snapshot is frozen in time; subsequent production deployments after this timestamp are not visible."
+  ]
+}

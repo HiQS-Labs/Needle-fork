@@ -57,7 +57,7 @@ Task rating: rated 65/35/50/55; priority user-requested confirmation, severity s
 **Goal:** independently sharpen and approve the protocol before implementation/inference.
 
 - [x] One consult through the existing harness asks Claude Fable 5.1 Low and GPT 6 Astra Low the same questions; Light maps to native Low and is recorded. Save both raw transcripts/settings.
-- [x] Reconcile agreement, disagreement and every finding in consult-synthesis.md; accept cheap correctness fixes and reject unrelated machinery with reasons.
+- [x] Reconcile agreement, disagreement and every finding in GH-83-CONSULT-SYNTHESIS.md; accept cheap correctness fixes and reject unrelated machinery with reasons.
 - [x] Use the authorized Claude Fable 5.1 High review-once relay for final plan QA, up to three rounds. Reviewer edits only the thread; candidate roster/prompt/key are not silently changed. Require Approved and successful driver outcome.
 - [x] Commit the approved plan and consultation/relay receipts before corpus implementation.
 

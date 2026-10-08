@@ -1,0 +1,94 @@
+```json
+{
+  "assessments": [
+    {
+      "id": "N035",
+      "verdict": "CONTRADICTED",
+      "analysis": "With retry condition `attempt <= retry_limit` and starts at attempt 0, a limit of 0 permits one attempt. The supplied function says there is no other retry path, so the claim that it disables all retries conflicts with the observed control flow.",
+      "next_step": "Verify the behavior by tracing the attempt counter and retry condition for limit 0; do not execute the check as part of this assessment.",
+      "evidence": ["N035-E1"]
+    },
+    {
+      "id": "N009",
+      "verdict": "CONTRADICTED",
+      "analysis": "The complete inventory shows the cache was added as enabled and then reverted; the final tip has `ENABLE_CACHE=False`. That conflicts with the claim that it remains enabled.",
+      "next_step": "If the claim concerns a later tip, inspect that tip’s complete file state.",
+      "evidence": ["N009-E1"]
+    },
+    {
+      "id": "N007",
+      "verdict": "UNKNOWN",
+      "analysis": "The PR is closed and targets `development`, but the merge fields were not fetched. Closed state alone does not establish that it merged into the base branch.",
+      "next_step": "Check the PR’s merged field or verify its merge commit is present in `development`.",
+      "evidence": ["N007-E1"]
+    },
+    {
+      "id": "N031",
+      "verdict": "CONTRADICTED",
+      "analysis": "The classifier returns test-invocation only when `argv[0]` is exactly `pytest`. The supplied command starts with `echo`, so it returns ordinary-command.",
+      "next_step": "Check the classifier result against the supplied argv without executing the command.",
+      "evidence": ["N031-E1"]
+    },
+    {
+      "id": "N017",
+      "verdict": "SUPPORTED",
+      "analysis": "The complete diff adds executable `predict` code, and its rules map `build` to `verify` and `verify` to `report`. A focused test receipt passed at the supplied current head, supporting the claimed working lookup for those inputs; the evidence does not establish behavior beyond the supplied rules and test.",
+      "next_step": "Review the focused test’s assertions and coverage for both supplied inputs.",
+      "evidence": ["N017-E1"]
+    },
+    {
+      "id": "N028",
+      "verdict": "UNKNOWN",
+      "analysis": "Only two of four files are listed, and the remaining page returned HTTP 503 without a diff. The available evidence cannot establish that the PR is documentation-only or that runtime code is unchanged.",
+      "next_step": "Obtain the missing diff and complete file inventory, then inspect all changed files.",
+      "evidence": ["N028-E1"]
+    },
+    {
+      "id": "N026",
+      "verdict": "SUPPORTED",
+      "analysis": "The supplied blocker rule covers unresolved conflicts, current change requests, and failed required checks. The complete inventories report zero for each, so there are no blockers under that rule.",
+      "next_step": "Recheck these three conditions if the PR state changes.",
+      "evidence": ["N026-E1"]
+    },
+    {
+      "id": "N012",
+      "verdict": "SUPPORTED",
+      "analysis": "The complete graph shows local `main` at B, `origin/main` at C, and B as C’s parent, with no local-only commits. This supports a fast-forward update with no unique local commits to preserve; the clean working tree is not needed to establish the commit relationship.",
+      "next_step": "Before updating, confirm the branch tips still match the supplied snapshot.",
+      "evidence": ["N012-E1"]
+    },
+    {
+      "id": "N010",
+      "verdict": "UNKNOWN",
+      "analysis": "The PR is marked merged, but the authoritative deployment system’s records were not fetched and the record inventory is incomplete. The supplied evidence does not establish production deployment; the quoted PR-description instruction is non-decisive text.",
+      "next_step": "Check the authoritative fleet deployment record for release r77 or merge SHA d77.",
+      "evidence": ["N010-E1", "N010-E2"]
+    },
+    {
+      "id": "N005",
+      "verdict": "UNKNOWN",
+      "analysis": "One independent APPROVED review exists at current head h9, satisfying the approval portion of the rule. Reviews are incomplete, however, so the evidence cannot establish that no CHANGES_REQUESTED review exists at that SHA.",
+      "next_step": "Fetch the remaining review pages and check for any CHANGES_REQUESTED review at h9.",
+      "evidence": ["N005-E1"]
+    },
+    {
+      "id": "N006",
+      "verdict": "SUPPORTED",
+      "analysis": "The complete inventory lists both required checks, and each has a completed success result at current head new42. This supports the claim that the current head passes every required check in the supplied inventory.",
+      "next_step": "Recheck the required-check inventory and receipts if the head changes.",
+      "evidence": ["N006-E1"]
+    },
+    {
+      "id": "N008",
+      "verdict": "CONTRADICTED",
+      "analysis": "The consumer accepts exactly version 1 with a `value:string` field, while the producer emits version 2 with `payload:text`. Under the complete supplied contract, those outputs are incompatible.",
+      "next_step": "Compare a proposed producer output or consumer change against the complete wire contract before integration.",
+      "evidence": ["N008-E1"]
+    }
+  ],
+  "limitations": [
+    "Assessments use only the supplied frozen sources; they do not establish live repository, CI, review, deployment, or runtime state.",
+    "Opaque fixture padding has no evidentiary meaning."
+  ]
+}
+```

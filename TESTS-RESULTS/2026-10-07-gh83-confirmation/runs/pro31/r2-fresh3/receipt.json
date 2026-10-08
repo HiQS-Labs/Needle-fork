@@ -1,0 +1,89 @@
+{
+  "schema": "needle/confirmation-run@2",
+  "kind": "candidate",
+  "status": "complete",
+  "started_at": "2026-10-08T05:33:01.318282+00:00",
+  "cli": "agy",
+  "cli_version": "1.3.1",
+  "requested_model": "gemini-3.1-pro-high",
+  "requested_effort": "high",
+  "flags": [
+    "-p",
+    "<identical bytes in prompt.txt>",
+    "--model",
+    "gemini-3.1-pro-high",
+    "--effort",
+    "high",
+    "--output-format",
+    "stream-json",
+    "--disable-slash-commands",
+    "--sandbox",
+    "--print-timeout",
+    "870s",
+    "--log-file",
+    "/private/tmp/needle-confirmation-x87ufg0r/TESTS-RESULTS/2026-10-07-gh83-confirmation/runs/pro31/r2-fresh3/local.log"
+  ],
+  "cwd": "/private/tmp/needle-gh83-cell-1rfooav2",
+  "candidate_cwd_files": [
+    "QUESTIONS.md",
+    "packet.json"
+  ],
+  "prompt_sha256": "68f5c06a07860090e3e89e2d68da1fe032e24236a789b44d1ed75c164d9d714c",
+  "packet_sha256": "b0319857ce93486e1020c49b877659ed0bce91b614d4fe3a50afc635b317d9bb",
+  "timeout_seconds": 870,
+  "retries": 0,
+  "tool_use": [],
+  "temperature": null,
+  "metadata": {
+    "lane": "pro31",
+    "pass": "r2",
+    "packet": "fresh3",
+    "freeze": "gh83-v2-freeze-2026-10-08T0518",
+    "manifest_sha256": "882fab01b849a575141c3545d0288e990f6710f864ee81dba6efda92ea78cf8b",
+    "eligible": true,
+    "exception": "operator explicitly approves Pro31 High"
+  },
+  "system_prompt_is_user_prefix": true,
+  "backend_attestation": "CLI returned metadata only; may be absent",
+  "exit_code": 0,
+  "event_types": [
+    "init",
+    "result",
+    "step_update"
+  ],
+  "returned_models": [
+    "gemini-3.1-pro-high"
+  ],
+  "usage": [
+    {
+      "input_tokens": 18531,
+      "output_tokens": 4184,
+      "thinking_tokens": 2630,
+      "cache_read_tokens": 8141,
+      "total_tokens": 22715
+    }
+  ],
+  "native_status": [
+    "SUCCESS"
+  ],
+  "permission_mode": [
+    "request-review"
+  ],
+  "tool_schema_count": [
+    60
+  ],
+  "raw_answer_equal": true,
+  "tool_enforcement": "terminal sandbox; request-review permissions; tool schemas exposed; observed step events audited",
+  "finished_at": "2026-10-08T05:33:40.032778+00:00",
+  "wall_seconds": 38.71377475000918,
+  "answer_sha256": "3bcca9a078460c0c04bd243c5c5d8b136b2eaddaa0939fab7c3f1a13336ebf58",
+  "retained_hashes": {
+    "prompt.txt": "68f5c06a07860090e3e89e2d68da1fe032e24236a789b44d1ed75c164d9d714c",
+    "events.jsonl": "48de500b130d0bd305b56ea639865209093d6f388074a44295ea307203a3cee8",
+    "stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "answer.md": "3bcca9a078460c0c04bd243c5c5d8b136b2eaddaa0939fab7c3f1a13336ebf58",
+    "parsed.json": "194dd9e435194953007511822bad8d573976e86dd4d0b1590672adf95016a6b8",
+    "structural.json": "a3c40469252dbae60bf030af1a26b23b10be6eda06508f59c0a3088a72420be7"
+  },
+  "local_log_sha256": "d0c8b2836ab1adffb8933b04973195ab659b6aa0faeb08ecb9b9ca1dcb83352d"
+}

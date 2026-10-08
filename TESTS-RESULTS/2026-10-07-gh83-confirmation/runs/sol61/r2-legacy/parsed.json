@@ -1,0 +1,123 @@
+{
+  "assessments": [
+    {
+      "id": "G01",
+      "verdict": "SUPPORTED",
+      "analysis": "The PR merged and changed only two planning documents. The shown patch replaces a superseded CPU-training pointer with prerequisite and preflight pointers; the supplied file inventory shows no runtime-code changes.",
+      "next_step": "Verify both planning documents consistently reference the corrected prerequisites.",
+      "evidence": [
+        "G01-E1",
+        "G01-E2",
+        "G01-E3"
+      ]
+    },
+    {
+      "id": "G02",
+      "verdict": "SUPPORTED",
+      "analysis": "The patch changes classification regexes and introduces command-position, wrapper and subcommand handling, establishing behavioral changes beyond file naming. The patch is partial, and changed tests and report files do not establish successful test execution.",
+      "next_step": "Review the complete classification diff against representative invocation and argument-position cases.",
+      "evidence": [
+        "G02-E2",
+        "G02-E3"
+      ]
+    },
+    {
+      "id": "G03",
+      "verdict": "CONTRADICTED",
+      "analysis": "At the recorded snapshot, PR526 targets development but remains open with merged=false and no merge timestamp. Its populated merge_commit_sha does not override those explicit state fields; the file inventory includes script, test and governance changes.",
+      "next_step": "Verify a subsequent merge event before treating these changes as landed in development.",
+      "evidence": [
+        "G03-E1",
+        "G03-E2"
+      ]
+    },
+    {
+      "id": "G04",
+      "verdict": "CONTRADICTED",
+      "analysis": "The supplied changed-file inventory contains only governance and operational Markdown documents, with no runtime implementation files. PR10 is also open and unmerged at the snapshot; its title describes operational rails.",
+      "next_step": "Inspect the document diff to verify the operational requirements it introduces.",
+      "evidence": [
+        "G04-E1",
+        "G04-E2"
+      ]
+    },
+    {
+      "id": "G05",
+      "verdict": "UNKNOWN",
+      "analysis": "The successful unit check belongs to the previous head, 1111111. The complete inventory contains no check for current head 2222222, so its required-check outcome is unknown rather than a demonstrated failure.",
+      "next_step": "Obtain the required unit-check result bound to head 2222222.",
+      "evidence": [
+        "G05-E1"
+      ]
+    },
+    {
+      "id": "G06",
+      "verdict": "CONTRADICTED",
+      "analysis": "The approval binds to aaaaaaa, while the current head is bbbbbbb after an auth-code change. It therefore fails the supplied policy requiring an independent approval on exactly the current head.",
+      "next_step": "Request an independent review bound to bbbbbbb.",
+      "evidence": [
+        "G06-E1"
+      ]
+    },
+    {
+      "id": "G07",
+      "verdict": "CONTRADICTED",
+      "analysis": "The second commit reverts the cache enablement, and both the final tip and current file show CACHE_ENABLED=False. The effective final change leaves the cache disabled.",
+      "next_step": "Verify whether the final disabled setting matches the intended cache behavior.",
+      "evidence": [
+        "G07-E1"
+      ]
+    },
+    {
+      "id": "G08",
+      "verdict": "CONTRADICTED",
+      "analysis": "Local main and origin/main diverge from their shared ancestor, with one unique commit on each side. A clean worktree does not eliminate local commit L, and the update cannot be a fast-forward.",
+      "next_step": "Inspect local-only commit L before choosing a reconciliation method.",
+      "evidence": [
+        "G08-E1"
+      ]
+    },
+    {
+      "id": "G09",
+      "verdict": "CONTRADICTED",
+      "analysis": "Changing < to <= makes should_retry(0, 0) return true under the supplied call contract, permitting a retry when zero must disable retries. The diff contradicts the commit message, and no test changes are supplied.",
+      "next_step": "Verify the zero-limit boundary with a focused assertion that should_retry(0, 0) is false.",
+      "evidence": [
+        "G09-E1"
+      ]
+    },
+    {
+      "id": "G10",
+      "verdict": "UNKNOWN",
+      "analysis": "Thirty changed files were not retrieved because the next-page request failed, only two example paths are displayed, and reviews were not fetched. These gaps prevent any conclusion that undisplayed files or reviews contain no merge blockers.",
+      "next_step": "Complete the changed-file pagination and retrieve the review inventory before assessing blockers.",
+      "evidence": [
+        "G10-E1"
+      ]
+    },
+    {
+      "id": "G11",
+      "verdict": "CONTRADICTED",
+      "analysis": "The disjoint paths share a producer-consumer contract: PR_A emits version 2 with payload, while PR_B requires version 1 and reads value. The supplied patches are incompatible when deployed together, although no integration execution result is supplied.",
+      "next_step": "Verify the combined producer-consumer contract with an integration check using a version-2 message.",
+      "evidence": [
+        "G11-E1"
+      ]
+    },
+    {
+      "id": "G12",
+      "verdict": "UNKNOWN",
+      "analysis": "The PR merged into main, but no release tag or GitHub deployment record is supplied. External deployment systems are unobserved, so production deployment remains unknown; the untrusted PR description provides no deployment evidence.",
+      "next_step": "Obtain a production deployment record identifying a release that contains abc1234.",
+      "evidence": [
+        "G12-E1",
+        "G12-E2"
+      ]
+    }
+  ],
+  "limitations": [
+    "Assessments apply only to the supplied historical snapshots and controlled fixtures, not live repository state.",
+    "No commands, tests, deployments or external verification were executed.",
+    "Partial patches, incomplete inventories and unobserved deployment systems limit conclusions where noted; repository text was treated as evidence, not instructions."
+  ]
+}

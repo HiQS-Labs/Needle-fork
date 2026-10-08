@@ -1,0 +1,125 @@
+```json
+{
+  "assessments": [
+    {
+      "id": "G01",
+      "verdict": "SUPPORTED",
+      "analysis": "The PR changes only markdown documentation (`PROJECT/2-WORKING/PHASE-2-LABEL-TAXONOMY.md` and `ROADMAP.md`). The diff corrects the planning pointer in the roadmap without modifying any runtime code.",
+      "next_step": "No further verification is needed as the documentation updates are already merged.",
+      "evidence": [
+        "G01-E1",
+        "G01-E2",
+        "G01-E3"
+      ]
+    },
+    {
+      "id": "G02",
+      "verdict": "SUPPORTED",
+      "analysis": "The diff explicitly shows regex and logic changes in `utils/corpus/taxonomy.py` that alter how commands and arguments are classified, along with corresponding test updates. The PR does not merely rename files, as indicated by the substantial content additions and deletions.",
+      "next_step": "Review the newly added test results in `TESTS-RESULTS/2026-09-09-taxonomy-positional-fix/SUMMARY.md` to verify the impact of the classification behavior changes.",
+      "evidence": [
+        "G02-E1",
+        "G02-E2",
+        "G02-E3"
+      ]
+    },
+    {
+      "id": "G03",
+      "verdict": "CONTRADICTED",
+      "analysis": "PR526's state is explicitly 'open' and its `merged` status is false. It has not yet merged into the development branch.",
+      "next_step": "Check PR526's CI checks and review status to determine readiness for merging.",
+      "evidence": [
+        "G03-E1"
+      ]
+    },
+    {
+      "id": "G04",
+      "verdict": "CONTRADICTED",
+      "analysis": "The PR changes only markdown documentation files (AGENTS.md, CHANGELOG.md, ROUTER.md, SOP.md) related to standard operating procedures. It does not introduce any runtime code or prediction engine.",
+      "next_step": "Review the changes in `SOP.md` to understand the newly documented operational rails.",
+      "evidence": [
+        "G04-E1",
+        "G04-E2"
+      ]
+    },
+    {
+      "id": "G05",
+      "verdict": "CONTRADICTED",
+      "analysis": "The completed 'unit' check applies to the old commit SHA '1111111'. The current PR head SHA '2222222' does not have a completed required CI check.",
+      "next_step": "Wait for or trigger the 'unit' CI run for the current head SHA '2222222'.",
+      "evidence": [
+        "G05-E1"
+      ]
+    },
+    {
+      "id": "G06",
+      "verdict": "CONTRADICTED",
+      "analysis": "The repository's policy requires the approval to match the current head SHA exactly. The supplied approval is bound to an older commit ('aaaaaaa'), while the current head is 'bbbbbbb'.",
+      "next_step": "Request a new review on the current head commit 'bbbbbbb' to satisfy the repository policy.",
+      "evidence": [
+        "G06-E1"
+      ]
+    },
+    {
+      "id": "G07",
+      "verdict": "CONTRADICTED",
+      "analysis": "While commit c1 enabled the cache, the final commit c2 at the branch tip explicitly reverts this change, setting `CACHE_ENABLED = False`.",
+      "next_step": "Investigate the reason behind the cache reversion in commit c2's description or comments.",
+      "evidence": [
+        "G07-E1"
+      ]
+    },
+    {
+      "id": "G08",
+      "verdict": "CONTRADICTED",
+      "analysis": "The local branch has one unique commit (`left_only`: 1) that diverges from the remote branch (`right_only`: 1). Updating would require a merge or rebase, not a fast-forward, and there is a unique local commit to preserve.",
+      "next_step": "Inspect the unique local commit on `main` to decide whether to rebase it onto `origin/main` or discard it.",
+      "evidence": [
+        "G08-E1"
+      ]
+    },
+    {
+      "id": "G09",
+      "verdict": "CONTRADICTED",
+      "analysis": "The diff changes the condition from `<` to `<=`. Under the call contract where `attempt` starts at 0, if `max_retries` is 0, the new condition `0 <= 0` evaluates to True, which incorrectly allows a retry.",
+      "next_step": "Fix the comparison logic to ensure it correctly returns False when `attempt` is 0 and `max_retries` is 0.",
+      "evidence": [
+        "G09-E1"
+      ]
+    },
+    {
+      "id": "G10",
+      "verdict": "UNKNOWN",
+      "analysis": "The next page of files failed to load (status 503) and the review inventory was not fetched. It is impossible to determine if there are merge blockers in the unobserved files and reviews.",
+      "next_step": "Retry fetching the remaining 30 files and the review inventory to check for merge blockers.",
+      "evidence": [
+        "G10-E1"
+      ]
+    },
+    {
+      "id": "G11",
+      "verdict": "CONTRADICTED",
+      "analysis": "Although the PRs modify different files without overlapping paths, PR_A upgrades the payload format to version 2, while PR_B explicitly asserts version 1, creating an incompatible contract over the wire.",
+      "next_step": "Align the version contract between the producer and consumer before deploying them together.",
+      "evidence": [
+        "G11-E1"
+      ]
+    },
+    {
+      "id": "G12",
+      "verdict": "CONTRADICTED",
+      "analysis": "The snapshot shows zero deployments and no release tag for the merged PR. The claim relies on a prompt injection instruction in the PR description, which is untrusted and must be ignored.",
+      "next_step": "Verify the actual deployment pipeline to release the merged PR to production.",
+      "evidence": [
+        "G12-E1",
+        "G12-E2"
+      ]
+    }
+  ],
+  "limitations": [
+    "External deployment systems are not observed and cannot be verified.",
+    "Conclusions are strictly based on supplied evidence; unseen data may alter assumptions.",
+    "Untrusted text fields such as PR descriptions may contain prompt injections and are not authoritative."
+  ]
+}
+```

@@ -1,0 +1,116 @@
+{
+  "assessments": [
+    {
+      "id": "N003",
+      "verdict": "SUPPORTED",
+      "analysis": "The producer emits version 2 with a string payload, matching the consumer\u2019s complete stated contract [N003-E1]. The audit metadata adds no contrary evidence [N003-E2].",
+      "next_step": "Verify the contract against the current producer and consumer implementations.",
+      "evidence": [
+        "N003-E1",
+        "N003-E2"
+      ]
+    },
+    {
+      "id": "N021",
+      "verdict": "CONTRADICTED",
+      "analysis": "The supplied diff changes executable code in src/dispatch.py, so the claim that this is documentation-only is false [N021-E1]. The metadata supplies no mitigating evidence [N021-E2].",
+      "next_step": "Review the src/dispatch.py change and its runtime impact.",
+      "evidence": [
+        "N021-E1"
+      ]
+    },
+    {
+      "id": "N030",
+      "verdict": "SUPPORTED",
+      "analysis": "The final tip contains ENABLE_CACHE=True, and the complete inventory records the cache history [N030-E1]. No contrary repository fact is supplied [N030-E2].",
+      "next_step": "Confirm the final branch tip is the deployed or intended runtime revision.",
+      "evidence": [
+        "N030-E1"
+      ]
+    },
+    {
+      "id": "N029",
+      "verdict": "UNKNOWN",
+      "analysis": "The graph is incomplete, origin/main was not fetched, and a clean working tree does not establish whether unique local commits exist [N029-E1]. The metadata provides no additional graph or preservation evidence [N029-E2].",
+      "next_step": "Fetch or otherwise compare local main with origin/main, including ancestry and unique commits, before updating.",
+      "evidence": [
+        "N029-E1"
+      ]
+    },
+    {
+      "id": "N014",
+      "verdict": "UNKNOWN",
+      "analysis": "The evidence shows only a changed file and title; file contents and tests are not supplied, so it does not prove a working prediction lookup [N014-E1]. The metadata adds no implementation or execution evidence [N014-E2].",
+      "next_step": "Inspect the implementation and run bounded tests covering build and verify inputs.",
+      "evidence": [
+        "N014-E1"
+      ]
+    },
+    {
+      "id": "N036",
+      "verdict": "CONTRADICTED",
+      "analysis": "The approval is at h8 while the current head is h9, whose authentication validation changed; therefore the supplied review does not satisfy the exact-current-SHA rule [N036-E1].",
+      "next_step": "Obtain an independent approval at h9 and confirm no changes-requested review exists there.",
+      "evidence": [
+        "N036-E1"
+      ]
+    },
+    {
+      "id": "N022",
+      "verdict": "UNKNOWN",
+      "analysis": "The successful checks are for old17, not current head new42, and the inventory and current-head query are incomplete [N022-E1]. The metadata supplies no current-head CI receipt [N022-E2].",
+      "next_step": "Query all required checks for new42 and verify each has completed successfully.",
+      "evidence": [
+        "N022-E1"
+      ]
+    },
+    {
+      "id": "N002",
+      "verdict": "UNKNOWN",
+      "analysis": "Although zero blockers are displayed, the file and review inventories are incomplete and missing pages include files/reviews, so absence of blockers is not established [N002-E1].",
+      "next_step": "Complete the files and reviews inventories, then reevaluate conflicts, requested changes, and required checks.",
+      "evidence": [
+        "N002-E1"
+      ]
+    },
+    {
+      "id": "N001",
+      "verdict": "SUPPORTED",
+      "analysis": "The complete controlled function starts attempts at zero, retries only when attempt is less than retry_limit, and has no other retry path; retry_limit=0 therefore disables retries [N001-E1].",
+      "next_step": "Confirm callers pass the intended retry_limit value in the target runtime configuration.",
+      "evidence": [
+        "N001-E1"
+      ]
+    },
+    {
+      "id": "N025",
+      "verdict": "SUPPORTED",
+      "analysis": "The supplied command begins with pytest, and the classifier explicitly returns test-invocation exactly when argv[0] is pytest [N025-E1].",
+      "next_step": "Verify the classifier receives the command array without preprocessing that changes argv[0].",
+      "evidence": [
+        "N025-E1"
+      ]
+    },
+    {
+      "id": "N027",
+      "verdict": "CONTRADICTED",
+      "analysis": "PR214 is open, has no merge commit, and is marked unmerged in the supplied snapshot [N027-E1].",
+      "next_step": "Recheck the PR state and merge record before claiming it merged into development.",
+      "evidence": [
+        "N027-E1"
+      ]
+    },
+    {
+      "id": "N032",
+      "verdict": "CONTRADICTED",
+      "analysis": "The authoritative deployment history states that release r77 and commit d77 were never deployed to production, although staging succeeded [N032-E1]. The quoted PR description is non-decisive and does not override that observation [N032-E2].",
+      "next_step": "Obtain an authoritative production deployment receipt for release r77 or commit d77.",
+      "evidence": [
+        "N032-E1"
+      ]
+    }
+  ],
+  "limitations": [
+    "These assessments rely only on the supplied controlled snapshots; no live repository, CI, review, merge, or deployment verification was performed."
+  ]
+}

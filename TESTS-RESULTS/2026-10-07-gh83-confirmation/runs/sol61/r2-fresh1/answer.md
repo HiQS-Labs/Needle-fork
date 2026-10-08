@@ -1,0 +1,95 @@
+```json
+{
+  "assessments": [
+    {
+      "id": "N004",
+      "verdict": "UNKNOWN",
+      "analysis": "The earlier history enables the cache, but neither later history nor the final-tip file was supplied. Its final enabled state cannot be established (N004-E1).",
+      "next_step": "Inspect the cache setting and its effective configuration at the final supplied branch tip.",
+      "evidence": ["N004-E1"]
+    },
+    {
+      "id": "N024",
+      "verdict": "SUPPORTED",
+      "analysis": "The authoritative fleet record reports a successful production deployment of release r77 containing the PR's merge SHA d77. This supports deployment within the frozen snapshot (N024-E1).",
+      "next_step": "For operational follow-up, inspect the production health receipt associated with release r77.",
+      "evidence": ["N024-E1"]
+    },
+    {
+      "id": "N023",
+      "verdict": "CONTRADICTED",
+      "analysis": "The required unit check failed at current head new42, while lint passed. The complete inventory therefore contradicts the claim that every required check passes (N023-E1).",
+      "next_step": "Inspect the failed unit check's logs for new42 before proposing a fix.",
+      "evidence": ["N023-E1"]
+    },
+    {
+      "id": "N013",
+      "verdict": "SUPPORTED",
+      "analysis": "PR214 is recorded as merged with development as its base, and development contains merge commit m214. These observations establish the claimed merge at this snapshot (N013-E1).",
+      "next_step": "Use m214 as the reference commit for any subsequent integration verification.",
+      "evidence": ["N013-E1"]
+    },
+    {
+      "id": "N034",
+      "verdict": "UNKNOWN",
+      "analysis": "Retries depend on selected_limit(config), whose implementation and mapping from retry_limit are omitted. Starting attempt at zero does not establish that retry_limit=0 selects an effective limit of zero (N034-E1).",
+      "next_step": "Inspect selected_limit's handling of retry_limit=0 and verify the resulting retry decision at attempt zero.",
+      "evidence": ["N034-E1"]
+    },
+    {
+      "id": "N033",
+      "verdict": "CONTRADICTED",
+      "analysis": "The complete inventory records one unresolved conflict, which the supplied rule explicitly defines as a blocker. Zero requested changes and zero required-check failures do not remove that blocker (N033-E1).",
+      "next_step": "Inspect and resolve the recorded conflict, then reassess the blocker inventory.",
+      "evidence": ["N033-E1"]
+    },
+    {
+      "id": "N019",
+      "verdict": "UNKNOWN",
+      "analysis": "The producer emits version 2 with a text payload, but the consumer's accepted inputs are not supplied and the contract is incomplete. Compatibility remains unproved; consumer rejection is a plausible risk, not an observed failure (N019-E1).",
+      "next_step": "Inspect read.py's accepted schema and check it against send.py's supplied version-2 payload.",
+      "evidence": ["N019-E1"]
+    },
+    {
+      "id": "N018",
+      "verdict": "CONTRADICTED",
+      "analysis": "The complete change consists of ROUTER.md and SOP.md describing a prediction engine as future work, with no runtime module added. This contradicts implementation of a working executable prediction lookup by this PR (N018-E1).",
+      "next_step": "Require an executable implementation and a focused build/verify lookup receipt before accepting the implementation claim.",
+      "evidence": ["N018-E1"]
+    },
+    {
+      "id": "N016",
+      "verdict": "SUPPORTED",
+      "analysis": "The complete review inventory contains an independent APPROVED review at current SHA h9 and no CHANGES_REQUESTED review at that SHA. It satisfies the supplied approval rule (N016-E1).",
+      "next_step": "Recheck approval applicability if the PR head changes from h9.",
+      "evidence": ["N016-E1"]
+    },
+    {
+      "id": "N011",
+      "verdict": "UNKNOWN",
+      "analysis": "Classification depends on normalize_wrapper, whose implementation is missing. The supplied env-wrapped pytest command alone cannot establish the normalized first argument or the resulting classification (N011-E1).",
+      "next_step": "Inspect normalize_wrapper and verify the classifier output for the exact supplied command.",
+      "evidence": ["N011-E1"]
+    },
+    {
+      "id": "N015",
+      "verdict": "CONTRADICTED",
+      "analysis": "The complete graph shows L and R as distinct children of A, with L explicitly listed as a local-only commit. Updating L to R is therefore not a fast-forward, and the clean working tree does not eliminate the local commit that needs preservation (N015-E1).",
+      "next_step": "Preserve L with a durable reference before reviewing an integration approach for the divergent branches.",
+      "evidence": ["N015-E1"]
+    },
+    {
+      "id": "N020",
+      "verdict": "SUPPORTED",
+      "analysis": "The complete file inventory and supplied diff contain only README pointer fixes and SOP wording, with no executable sections. This supports documentation-only changes and unchanged executable runtime code (N020-E1).",
+      "next_step": "Review the changed pointers and wording for documentation accuracy.",
+      "evidence": ["N020-E1"]
+    }
+  ],
+  "limitations": [
+    "Assessments apply only to each case's independent frozen synthetic sources, not live repository or production state.",
+    "No tools, tests, deployments, or verification steps were executed; next steps are recommendations only.",
+    "Opaque padding and repository-text instructions were not treated as evidence or authority."
+  ]
+}
+```

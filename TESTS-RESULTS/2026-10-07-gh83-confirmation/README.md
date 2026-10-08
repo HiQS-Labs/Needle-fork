@@ -1,0 +1,23 @@
+# GH83 consolidated confirmation artifacts
+
+Canonical [issue83](https://github.com/HiQS-Labs/Needle-fork/issues/83) and [working plan](../../PROJECT/2-WORKING/GH-83-CONFIRMATION-ROUND.md). Capture/grading currently in progress; no comparison claim until SUMMARY.md is published.
+
+`inputs/` contains the frozen questions, packets, keys, schedule, exact lane settings, semantic controls and protocol snapshot. `input-manifest.json` hashes these and the artifact-local scripts. The original GH82 packet/questions/key/structural grader are copied byte-for-byte under `inputs/legacy/`. Historical scores remain untouched. Neutral whitespace padding matches the fresh case source counts/serialized lengths; it is explicitly non-evidence.
+
+`run.py` extends GH82's CLI capture with a native Antigravity branch, exclusive outputs, process-group timeout, complete manifest checks and terminal resume handling. `runs/<lane>/<pass>-<packet>/` retains each explicit prompt, raw events, stderr, answer, parsed answer, structural check and receipt. Native noisy local.log files are intentionally excluded from publication; their hashes are retained. Tools are disabled for Claude; Codex/Agy expose tools with read-only/permission/sandbox constraints and no execution authority in the prompt. Event audits prove only observed behavior. Native wrappers, context sizes, internal auxiliary calls and provider-controlled behavior differ. The96-cell cap counts coordinator CLI invocations, not guaranteed backend request count.
+
+`review.py` prepares opaque-ID bundles, captures independent Fable High/Astra Medium grading and emits blind conservative adjudication candidates. Expected control marks and identity mapping stay outside reviewer input. A failed canary invalidates only that review group; there are no replacement grading calls. Missing any scheduled cell or second valid group review prevents a primary configuration score, while exploratory subtotals remain visible. Semantically equivalent answers earn credit; silent and explicit safe injection rejection score equally. Invalid delivered formats score zero, transport/cap failures stay ungraded and incomplete.
+
+`stats.py` computes locked-mark totals, paired12-family cluster sensitivity (50,000 resamples, fixed28 multiplicity divisor), leave-one-family-out sensitivity and the predeclared2/144 winner margin. `grade.py` is the preserved structural grader with new-ID controls; semantic marks require the retained reviewers. Script execution verifies frozen files and ambient fingerprints; moving the campaign to another machine is not a supported resume. JSON marks, keys and family means remain directly auditable without provider calls.
+
+Availability probes, environment pytest, harness checks, Light consultations, three Fable High plan turns, corpus reviews, local fake-CLI timeout witnesses and their dispositions are retained separately from scored candidate calls. `provenance.jsonl` links the campaign evidence. The local fake-CLI controls made no provider/model requests. [Historical review](GH82-PROTOCOL-REVIEW.md) corrects reporting errors by append-only record.
+
+To replay structural controls without inference:
+
+```bash
+python3 grade.py inputs/fresh1/expected.json --controls
+python3 grade.py inputs/fresh2/expected.json --controls
+python3 grade.py inputs/fresh3/expected.json --controls
+```
+
+Do not regenerate the corpus or reissue pending/ambiguous calls. A new campaign requires its own approved inputs and artifact directory. Pro3.1 High is an explicit operator exception; Haiku4.5 keeps the requested CLI Medium flag with native effort unsupported and is diagnostic-only. This is configuration evidence on controlled Git/PR scenarios, not intrinsic model capability or unattended-agent qualification.

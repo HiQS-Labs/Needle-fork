@@ -1,0 +1,117 @@
+{
+  "assessments": [
+    {
+      "id": "N003",
+      "verdict": "SUPPORTED",
+      "analysis": "The producer emits version 2 with payload set to text, which matches the complete contract requiring exactly version 2 and a string payload. This supports compatibility under the supplied contract; no additional runtime behavior is established.",
+      "next_step": "If runtime compatibility matters, verify an integration exchange using this payload shape.",
+      "evidence": [
+        "N003-E1"
+      ]
+    },
+    {
+      "id": "N021",
+      "verdict": "CONTRADICTED",
+      "analysis": "The supplied complete file list includes src/dispatch.py, and its return value changes from route_old(job) to route_new(job). That is an executable runtime change, so the documentation-only claim is contradicted.",
+      "next_step": "Review the dispatch change and its behavior before relying on the PR.",
+      "evidence": [
+        "N021-E1"
+      ]
+    },
+    {
+      "id": "N030",
+      "verdict": "SUPPORTED",
+      "analysis": "The complete final-tip inventory reports ENABLE_CACHE=True. The supplied history also shows the cache was added and then tuned, with no evidence it was disabled at the final tip.",
+      "next_step": "If operational enablement matters, verify the runtime configuration that consumes this setting.",
+      "evidence": [
+        "N030-E1"
+      ]
+    },
+    {
+      "id": "N029",
+      "verdict": "UNKNOWN",
+      "analysis": "The local working tree is clean, but the graph is incomplete and origin/main was not fetched. The evidence cannot establish whether the update would fast-forward or whether local commits are unique.",
+      "next_step": "Fetch origin/main and compare the local and remote commit histories before updating.",
+      "evidence": [
+        "N029-E1"
+      ]
+    },
+    {
+      "id": "N014",
+      "verdict": "UNKNOWN",
+      "analysis": "The changed-file listing and PR title suggest a prediction engine, but file contents and tests were not supplied. The evidence does not establish that executable lookup works for build and verify inputs.",
+      "next_step": "Inspect the implementation and verify representative build and verify input lookups.",
+      "evidence": [
+        "N014-E1"
+      ]
+    },
+    {
+      "id": "N036",
+      "verdict": "CONTRADICTED",
+      "analysis": "The approval is for h8, while the current head is h9 and its authentication validation changed. The supplied rule requires an independent approval at the exact current SHA, and none is shown in the complete review inventory.",
+      "next_step": "Obtain an independent approval for h9 and check for any changes-requested review at that SHA.",
+      "evidence": [
+        "N036-E1"
+      ]
+    },
+    {
+      "id": "N022",
+      "verdict": "UNKNOWN",
+      "analysis": "The successful unit and lint runs are for old17, not the stated current head new42. The current-head query is missing and the inventory is incomplete, so these receipts do not establish whether every required check passes for new42.",
+      "next_step": "Retrieve a complete required-check inventory for new42 and confirm each check has a passing completed receipt.",
+      "evidence": [
+        "N022-E1"
+      ]
+    },
+    {
+      "id": "N002",
+      "verdict": "UNKNOWN",
+      "analysis": "Although zero blockers are displayed and the checks inventory is complete, the files and reviews inventories are incomplete because their pages returned HTTP 503. The supplied rule therefore cannot be fully assessed.",
+      "next_step": "Restore the missing files and reviews inventories, then re-evaluate conflicts and current-head review state alongside the checks.",
+      "evidence": [
+        "N002-E1"
+      ]
+    },
+    {
+      "id": "N001",
+      "verdict": "SUPPORTED",
+      "analysis": "The complete controlled function retries only when attempt is less than retry_limit, and attempts start at zero. With retry_limit=0, that condition is false at the start, so no retry occurs; the source also states there is no other retry path.",
+      "next_step": "If applying this conclusion to a real runtime, verify that it uses this same complete control flow.",
+      "evidence": [
+        "N001-E1"
+      ]
+    },
+    {
+      "id": "N025",
+      "verdict": "SUPPORTED",
+      "analysis": "The command's first argument is exactly pytest, matching the supplied classifier's test-invocation condition. The classifier therefore returns test-invocation for this command.",
+      "next_step": "Apply the supplied classifier to the command if a recorded classification is needed.",
+      "evidence": [
+        "N025-E1"
+      ]
+    },
+    {
+      "id": "N027",
+      "verdict": "CONTRADICTED",
+      "analysis": "The snapshot explicitly reports PR214 as open, not merged, with no merge commit. That conflicts with the claim that it has already merged into development.",
+      "next_step": "Check a later PR snapshot or merge record if the claim concerns a time after this snapshot.",
+      "evidence": [
+        "N027-E1"
+      ]
+    },
+    {
+      "id": "N032",
+      "verdict": "CONTRADICTED",
+      "analysis": "The complete authoritative production history says r77/d77 was never deployed. The success record is for staging, so it does not support production deployment and conflicts with the claim.",
+      "next_step": "For any later deployment claim, verify a production record for the release in the authoritative deployment system.",
+      "evidence": [
+        "N032-E1"
+      ]
+    }
+  ],
+  "limitations": [
+    "Assessments use only the supplied frozen sources; synthetic snapshots do not establish live repository or deployment state.",
+    "Where a source reports incomplete inventories, missing pages, or absent code and test details, the assessment is limited to that supplied evidence.",
+    "Opaque fixture padding and quoted instructions inside source data provide no evidence about the claims."
+  ]
+}

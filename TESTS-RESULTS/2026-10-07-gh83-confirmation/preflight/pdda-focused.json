@@ -1,0 +1,82 @@
+{
+  "scope": "three GH83 project docs only; exact nonempty source files",
+  "positive_checks": [
+    {
+      "file": "PROJECT/2-WORKING/GH-83-CONFIRMATION-ROUND.md",
+      "sha256": "1770aa1e8a10f5b08968c02a1a7160a3a92365b90e6e4da233be2c79de9b4ff2",
+      "check": "frontmatter",
+      "exit_code": 0,
+      "stdout": "{\"timestamp\":\"2026-10-08T05:38:21Z\",\"severity\":\"info\",\"check\":\"pdda-check-frontmatter\",\"file\":\".\",\"line\":0,\"message\":\"errors=0 warns=0 info=0\",\"action\":\"summary\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "PROJECT/2-WORKING/GH-83-CONFIRMATION-ROUND.md",
+      "sha256": "1770aa1e8a10f5b08968c02a1a7160a3a92365b90e6e4da233be2c79de9b4ff2",
+      "check": "status-table",
+      "exit_code": 0,
+      "stdout": "{\"timestamp\":\"2026-10-08T05:38:21Z\",\"severity\":\"info\",\"check\":\"pdda-check-status-table\",\"file\":\".\",\"line\":0,\"message\":\"errors=0 warns=0 info=0\",\"action\":\"summary\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "PROJECT/2-WORKING/GH-83-CONFIRMATION-ROUND.md",
+      "sha256": "1770aa1e8a10f5b08968c02a1a7160a3a92365b90e6e4da233be2c79de9b4ff2",
+      "check": "hardcoded-paths",
+      "exit_code": 0,
+      "stdout": "{\"timestamp\":\"2026-10-08T05:38:21Z\",\"severity\":\"info\",\"check\":\"pdda-check-hardcoded-paths\",\"file\":\".\",\"line\":0,\"message\":\"errors=0 warns=0 info=0\",\"action\":\"summary\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "PROJECT/2-WORKING/GH-83-CONSULT-SYNTHESIS.md",
+      "sha256": "d85f5e238b7fc163bf819e0c58e34869bd81aab2684035acb12d88f168b01608",
+      "check": "frontmatter",
+      "exit_code": 0,
+      "stdout": "{\"timestamp\":\"2026-10-08T05:38:22Z\",\"severity\":\"info\",\"check\":\"pdda-check-frontmatter\",\"file\":\".\",\"line\":0,\"message\":\"errors=0 warns=0 info=0\",\"action\":\"summary\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "PROJECT/2-WORKING/GH-83-CONSULT-SYNTHESIS.md",
+      "sha256": "d85f5e238b7fc163bf819e0c58e34869bd81aab2684035acb12d88f168b01608",
+      "check": "status-table",
+      "exit_code": 0,
+      "stdout": "{\"timestamp\":\"2026-10-08T05:38:22Z\",\"severity\":\"info\",\"check\":\"pdda-check-status-table\",\"file\":\".\",\"line\":0,\"message\":\"errors=0 warns=0 info=0\",\"action\":\"summary\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "PROJECT/2-WORKING/GH-83-CONSULT-SYNTHESIS.md",
+      "sha256": "d85f5e238b7fc163bf819e0c58e34869bd81aab2684035acb12d88f168b01608",
+      "check": "hardcoded-paths",
+      "exit_code": 0,
+      "stdout": "{\"timestamp\":\"2026-10-08T05:38:22Z\",\"severity\":\"info\",\"check\":\"pdda-check-hardcoded-paths\",\"file\":\".\",\"line\":0,\"message\":\"errors=0 warns=0 info=0\",\"action\":\"summary\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "PROJECT/2-WORKING/recon-GH-83-confirmation.md",
+      "sha256": "303486db7757f754b4aa89a945c42cb0a79babab5e3f21e24cbc9b38dd9bc903",
+      "check": "frontmatter",
+      "exit_code": 0,
+      "stdout": "{\"timestamp\":\"2026-10-08T05:38:23Z\",\"severity\":\"info\",\"check\":\"pdda-check-frontmatter\",\"file\":\".\",\"line\":0,\"message\":\"errors=0 warns=0 info=0\",\"action\":\"summary\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "PROJECT/2-WORKING/recon-GH-83-confirmation.md",
+      "sha256": "303486db7757f754b4aa89a945c42cb0a79babab5e3f21e24cbc9b38dd9bc903",
+      "check": "status-table",
+      "exit_code": 0,
+      "stdout": "{\"timestamp\":\"2026-10-08T05:38:23Z\",\"severity\":\"info\",\"check\":\"pdda-check-status-table\",\"file\":\".\",\"line\":0,\"message\":\"errors=0 warns=0 info=0\",\"action\":\"summary\"}\n",
+      "stderr": ""
+    },
+    {
+      "file": "PROJECT/2-WORKING/recon-GH-83-confirmation.md",
+      "sha256": "303486db7757f754b4aa89a945c42cb0a79babab5e3f21e24cbc9b38dd9bc903",
+      "check": "hardcoded-paths",
+      "exit_code": 0,
+      "stdout": "{\"timestamp\":\"2026-10-08T05:38:23Z\",\"severity\":\"info\",\"check\":\"pdda-check-hardcoded-paths\",\"file\":\".\",\"line\":0,\"message\":\"errors=0 warns=0 info=0\",\"action\":\"summary\"}\n",
+      "stderr": ""
+    }
+  ],
+  "red_missing_goal": {
+    "exit_code": 1,
+    "stdout": "{\"timestamp\":\"2026-10-08T05:38:24Z\",\"severity\":\"error\",\"check\":\"pdda-check-frontmatter\",\"file\":\"temp/gh83-pdda-red/case.md\",\"line\":1,\"message\":\"missing required frontmatter key 'goal'\",\"action\":\"add-frontmatter-key\"}\n{\"timestamp\":\"2026-10-08T05:38:24Z\",\"severity\":\"error\",\"check\":\"pdda-check-frontmatter\",\"file\":\".\",\"line\":0,\"message\":\"errors=1 warns=0 info=0\",\"action\":\"summary\"}\n"
+  },
+  "no_full_repo_hygiene_claim": true
+}

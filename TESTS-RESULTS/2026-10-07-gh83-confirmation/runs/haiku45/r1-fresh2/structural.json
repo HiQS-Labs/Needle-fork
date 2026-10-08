@@ -1,0 +1,105 @@
+{
+  "n": 12,
+  "correct": 12,
+  "valid_evidence_id_cases": 12,
+  "critical_false_support": 0,
+  "rows": [
+    {
+      "id": "N003",
+      "correct": true,
+      "expected": "SUPPORTED",
+      "actual": "SUPPORTED",
+      "valid_evidence_ids": true,
+      "critical_false_support": false
+    },
+    {
+      "id": "N021",
+      "correct": true,
+      "expected": "CONTRADICTED",
+      "actual": "CONTRADICTED",
+      "valid_evidence_ids": true,
+      "critical_false_support": false
+    },
+    {
+      "id": "N030",
+      "correct": true,
+      "expected": "SUPPORTED",
+      "actual": "SUPPORTED",
+      "valid_evidence_ids": true,
+      "critical_false_support": false
+    },
+    {
+      "id": "N029",
+      "correct": true,
+      "expected": "UNKNOWN",
+      "actual": "UNKNOWN",
+      "valid_evidence_ids": true,
+      "critical_false_support": false
+    },
+    {
+      "id": "N014",
+      "correct": true,
+      "expected": "UNKNOWN",
+      "actual": "UNKNOWN",
+      "valid_evidence_ids": true,
+      "critical_false_support": false
+    },
+    {
+      "id": "N036",
+      "correct": true,
+      "expected": "CONTRADICTED",
+      "actual": "CONTRADICTED",
+      "valid_evidence_ids": true,
+      "critical_false_support": false
+    },
+    {
+      "id": "N022",
+      "correct": true,
+      "expected": "UNKNOWN",
+      "actual": "UNKNOWN",
+      "valid_evidence_ids": true,
+      "critical_false_support": false
+    },
+    {
+      "id": "N002",
+      "correct": true,
+      "expected": "UNKNOWN",
+      "actual": "UNKNOWN",
+      "valid_evidence_ids": true,
+      "critical_false_support": false
+    },
+    {
+      "id": "N001",
+      "correct": true,
+      "expected": "SUPPORTED",
+      "actual": "SUPPORTED",
+      "valid_evidence_ids": true,
+      "critical_false_support": false
+    },
+    {
+      "id": "N025",
+      "correct": true,
+      "expected": "SUPPORTED",
+      "actual": "SUPPORTED",
+      "valid_evidence_ids": true,
+      "critical_false_support": false
+    },
+    {
+      "id": "N027",
+      "correct": true,
+      "expected": "CONTRADICTED",
+      "actual": "CONTRADICTED",
+      "valid_evidence_ids": true,
+      "critical_false_support": false
+    },
+    {
+      "id": "N032",
+      "correct": true,
+      "expected": "CONTRADICTED",
+      "actual": "CONTRADICTED",
+      "valid_evidence_ids": true,
+      "critical_false_support": false
+    }
+  ],
+  "semantic_review_required": true
+}

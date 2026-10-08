@@ -13,7 +13,7 @@ roadmap_exempt: true
 
 | What was just completed | What's next |
 |---|---|
-| Two independent Light/Low adviser answers reconciled. | Fable High plan relay QA. |
+| Two independent Light/Low adviser answers reconciled. | Fable High plan QA attested Approved; follow the frozen protocol. |
 
 # GH-83 consult synthesis
 
@@ -25,7 +25,7 @@ Fable Low and Astra Low support the bounded design after small protocol correcti
 
 - Fable counted 36 grading groups and 72 reviewer calls. **Rejected — factual misread.** There are 36 assessments per group, but 8 configurations × 4 packets =32 groups; two reviewers =64 calls. Clarified arithmetic; controls are embedded, not extra model calls. Failed reviews leave grading incomplete under the cap.
 - Fable suggested unsupported ancillary facts lose interpretation; Astra wanted a fixed loss without conflating dimensions. **Adjudicated:** evidence/grounding loses its point for material unsupported facts or irrelevant citations; interpretation loses separately only when the material interpretation itself is contradicted. Declare components and critical flags separately to avoid discretionary double penalties.
-- Fable would accept a flag without attestation as requested-Medium evidence; Astra distinguishes supported native route from accepted-but-unsupported effort. **Adopted Astra's eligibility rule.** Haiku4.5 effort is officially unsupported; retain only as a labelled operator-authorized legacy exception if approved. Pro High is explicitly user-authorized, not relabelled Medium.
+- Fable would accept a flag without attestation as requested-Medium evidence; Astra distinguishes supported native route from accepted-but-unsupported effort. **Adopted Astra's eligibility rule.** Haiku4.5 effort is officially unsupported; retain only as labelled diagnostic evidence with the originally requested accepted CLI flag, per the coordinator's later authorization clarification in the canonical plan. This does not establish native Medium support. Pro High is explicitly user-authorized, not relabelled Medium.
 - Fable suggested paired complete-case handling for missing passes. **Rejected for primary analysis:** omit primary mean/interval/winner for incomplete configurations; publish available-cell subtotals and counts separately without imputation. This is simpler and avoids missingness selecting scores.
 - Fable suggested one legacy pass and one relay round. **Declined optional scope cut:** keep three legacy passes to measure stability contemporaneously and up-to-three relay cap only for necessary corrections; fresh cells run first. These are bounds, not an obligation to spend all rounds.
 - Fable suggested raising 2/144 practical margin because old spread reached3/144. **Modified:** keep predeclared descriptive floor2/144, explicitly disclaim production-utility meaning and require uncertainty-adjusted pairwise superiority against every completed eligible competitor plus leave-family-out sensitivity. Astra supports the need to distinguish inconclusive from equivalence.

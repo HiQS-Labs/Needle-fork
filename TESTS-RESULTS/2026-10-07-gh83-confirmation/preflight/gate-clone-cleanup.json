@@ -1,0 +1,13 @@
+{
+  "kind": "clone_cleanup",
+  "clone": "/private/tmp/needle-confirmation-gate-whui1n2o",
+  "utc": "2026-10-08T05:24:23.338256+00:00",
+  "working_tree_clean": true,
+  "stashes": 0,
+  "unique_branch_commits": 0,
+  "registered_worktrees": 1,
+  "active_visible_cwd_users": [],
+  "head": "baeb588ec1ec01b88d5663ed74244c7420af2fca",
+  "evidence_retained": "preflight/pytest-preflight.txt and its receipt in task clone",
+  "removed": true
+}
