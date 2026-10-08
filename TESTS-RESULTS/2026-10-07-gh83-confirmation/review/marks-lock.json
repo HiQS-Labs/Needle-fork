@@ -1,0 +1,10 @@
+{
+  "utc": "2026-10-08T07:58:49.214961+00:00",
+  "sha256": "89e22abaa83d1dcaf6f1a7b01b83c97ee75494268adb0bad88dc750e6854e0d3",
+  "adjudication_sha256": "bfd8c4739c5984ec3a72494709083f82a7dc6794458686ec8926ac03d2ea5fa0",
+  "blind_disagreements": 203,
+  "quoted_dispositions": 203,
+  "component_overrides": 75,
+  "coordinator_identity_mapping_opened_before_lock": false,
+  "scope": "procedural coordinator blinding; driver enumerates anonymous group IDs, styles may leak identity; no rubric/key/controls changed"
+}

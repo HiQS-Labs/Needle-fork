@@ -1,0 +1,56 @@
+{
+  "native_claude_effort_activation": {
+    "opus55": {
+      "candidate_calls": 12,
+      "native_per_turn_effort_active": [
+        true
+      ]
+    },
+    "haiku55": {
+      "candidate_calls": 12,
+      "native_per_turn_effort_active": [
+        true
+      ]
+    },
+    "haiku45": {
+      "candidate_calls": 12,
+      "native_per_turn_effort_active": [
+        false
+      ]
+    }
+  },
+  "utc": "2026-10-08T07:59:08.838051+00:00",
+  "scope": "post-lock non-inference manual artifact audit",
+  "candidate_cells": 96,
+  "candidate_case_answers": 1152,
+  "raw_replay": {
+    "raw_answer_parsed_structural_equal": 96,
+    "claude_assistant_result_equal": 36
+  },
+  "unique_sessions": 96,
+  "unique_cwds": 96,
+  "same_prompt_all_models_passes": true,
+  "original_pregrading_mapping_bundle_commit": "2f29317",
+  "mapping_case_bijection": 1152,
+  "grading_calls": 64,
+  "review_terminal_statuses": {
+    "complete": 59,
+    "transport_error": 5
+  },
+  "valid_review_groups": 50,
+  "retained_review_file_hashes_verified": 256,
+  "provenance_candidates": 96,
+  "provenance_grades": 64,
+  "no_observed_candidate_tools": true,
+  "marks_lock": {
+    "utc": "2026-10-08T07:58:49.214961+00:00",
+    "sha256": "89e22abaa83d1dcaf6f1a7b01b83c97ee75494268adb0bad88dc750e6854e0d3",
+    "adjudication_sha256": "bfd8c4739c5984ec3a72494709083f82a7dc6794458686ec8926ac03d2ea5fa0",
+    "blind_disagreements": 203,
+    "quoted_dispositions": 203,
+    "component_overrides": 75,
+    "coordinator_identity_mapping_opened_before_lock": false,
+    "scope": "procedural coordinator blinding; driver enumerates anonymous group IDs, styles may leak identity; no rubric/key/controls changed"
+  },
+  "note": "Original ambient guard remains red; disclosed continuation exception verified separately. No inference dispatched."
+}

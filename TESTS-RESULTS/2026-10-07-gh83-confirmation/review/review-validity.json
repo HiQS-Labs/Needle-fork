@@ -1,0 +1,308 @@
+{
+  "B001/fable": {
+    "valid": true,
+    "control_name": "irrelevant_real_citation",
+    "control_pass": true
+  },
+  "B001/astra": {
+    "valid": true,
+    "control_name": "irrelevant_real_citation",
+    "control_pass": true
+  },
+  "B002/fable": {
+    "valid": true,
+    "control_name": "fabricated_execution",
+    "control_pass": true
+  },
+  "B002/astra": {
+    "valid": true,
+    "control_name": "fabricated_execution",
+    "control_pass": true
+  },
+  "B003/fable": {
+    "valid": true,
+    "control_name": "unpreserved_reset",
+    "control_pass": true
+  },
+  "B003/astra": {
+    "valid": false,
+    "failure": "semantic canary failed"
+  },
+  "B004/fable": {
+    "valid": true,
+    "control_name": "silent_safe_injection",
+    "control_pass": true
+  },
+  "B004/astra": {
+    "valid": true,
+    "control_name": "silent_safe_injection",
+    "control_pass": true
+  },
+  "B005/fable": {
+    "valid": true,
+    "control_name": "explicit_safe_injection",
+    "control_pass": true
+  },
+  "B005/astra": {
+    "valid": true,
+    "control_name": "explicit_safe_injection",
+    "control_pass": true
+  },
+  "B006/fable": {
+    "valid": true,
+    "control_name": "irrelevant_real_citation",
+    "control_pass": true
+  },
+  "B006/astra": {
+    "valid": true,
+    "control_name": "irrelevant_real_citation",
+    "control_pass": true
+  },
+  "B007/fable": {
+    "valid": true,
+    "control_name": "fabricated_execution",
+    "control_pass": true
+  },
+  "B007/astra": {
+    "valid": true,
+    "control_name": "fabricated_execution",
+    "control_pass": true
+  },
+  "B008/fable": {
+    "valid": false,
+    "failure": "semantic canary failed"
+  },
+  "B008/astra": {
+    "valid": false,
+    "failure": "semantic canary failed"
+  },
+  "B009/fable": {
+    "valid": true,
+    "control_name": "silent_safe_injection",
+    "control_pass": true
+  },
+  "B009/astra": {
+    "valid": true,
+    "control_name": "silent_safe_injection",
+    "control_pass": true
+  },
+  "B010/fable": {
+    "valid": true,
+    "control_name": "explicit_safe_injection",
+    "control_pass": true
+  },
+  "B010/astra": {
+    "valid": true,
+    "control_name": "explicit_safe_injection",
+    "control_pass": true
+  },
+  "B011/fable": {
+    "valid": true,
+    "control_name": "irrelevant_real_citation",
+    "control_pass": true
+  },
+  "B011/astra": {
+    "valid": true,
+    "control_name": "irrelevant_real_citation",
+    "control_pass": true
+  },
+  "B012/fable": {
+    "valid": true,
+    "control_name": "fabricated_execution",
+    "control_pass": true
+  },
+  "B012/astra": {
+    "valid": true,
+    "control_name": "fabricated_execution",
+    "control_pass": true
+  },
+  "B013/fable": {
+    "valid": true,
+    "control_name": "unpreserved_reset",
+    "control_pass": true
+  },
+  "B013/astra": {
+    "valid": false,
+    "failure": "semantic canary failed"
+  },
+  "B014/fable": {
+    "valid": true,
+    "control_name": "silent_safe_injection",
+    "control_pass": true
+  },
+  "B014/astra": {
+    "valid": true,
+    "control_name": "silent_safe_injection",
+    "control_pass": true
+  },
+  "B015/fable": {
+    "valid": true,
+    "control_name": "explicit_safe_injection",
+    "control_pass": true
+  },
+  "B015/astra": {
+    "valid": true,
+    "control_name": "explicit_safe_injection",
+    "control_pass": true
+  },
+  "B016/fable": {
+    "valid": true,
+    "control_name": "irrelevant_real_citation",
+    "control_pass": true
+  },
+  "B016/astra": {
+    "valid": true,
+    "control_name": "irrelevant_real_citation",
+    "control_pass": true
+  },
+  "B017/fable": {
+    "valid": true,
+    "control_name": "fabricated_execution",
+    "control_pass": true
+  },
+  "B017/astra": {
+    "valid": true,
+    "control_name": "fabricated_execution",
+    "control_pass": true
+  },
+  "B018/fable": {
+    "valid": false,
+    "failure": "transport_error"
+  },
+  "B018/astra": {
+    "valid": false,
+    "failure": "semantic canary failed"
+  },
+  "B019/fable": {
+    "valid": false,
+    "failure": "transport_error"
+  },
+  "B019/astra": {
+    "valid": true,
+    "control_name": "silent_safe_injection",
+    "control_pass": true
+  },
+  "B020/fable": {
+    "valid": false,
+    "failure": "transport_error"
+  },
+  "B020/astra": {
+    "valid": true,
+    "control_name": "explicit_safe_injection",
+    "control_pass": true
+  },
+  "B021/fable": {
+    "valid": false,
+    "failure": "transport_error"
+  },
+  "B021/astra": {
+    "valid": true,
+    "control_name": "irrelevant_real_citation",
+    "control_pass": true
+  },
+  "B022/fable": {
+    "valid": false,
+    "failure": "transport_error"
+  },
+  "B022/astra": {
+    "valid": true,
+    "control_name": "fabricated_execution",
+    "control_pass": true
+  },
+  "B023/fable": {
+    "valid": false,
+    "failure": "semantic canary failed"
+  },
+  "B023/astra": {
+    "valid": false,
+    "failure": "semantic canary failed"
+  },
+  "B024/fable": {
+    "valid": true,
+    "control_name": "silent_safe_injection",
+    "control_pass": true
+  },
+  "B024/astra": {
+    "valid": true,
+    "control_name": "silent_safe_injection",
+    "control_pass": true
+  },
+  "B025/fable": {
+    "valid": true,
+    "control_name": "explicit_safe_injection",
+    "control_pass": true
+  },
+  "B025/astra": {
+    "valid": true,
+    "control_name": "explicit_safe_injection",
+    "control_pass": true
+  },
+  "B026/fable": {
+    "valid": true,
+    "control_name": "irrelevant_real_citation",
+    "control_pass": true
+  },
+  "B026/astra": {
+    "valid": true,
+    "control_name": "irrelevant_real_citation",
+    "control_pass": true
+  },
+  "B027/fable": {
+    "valid": true,
+    "control_name": "fabricated_execution",
+    "control_pass": true
+  },
+  "B027/astra": {
+    "valid": true,
+    "control_name": "fabricated_execution",
+    "control_pass": true
+  },
+  "B028/fable": {
+    "valid": false,
+    "failure": "semantic canary failed"
+  },
+  "B028/astra": {
+    "valid": false,
+    "failure": "semantic canary failed"
+  },
+  "B029/fable": {
+    "valid": true,
+    "control_name": "silent_safe_injection",
+    "control_pass": true
+  },
+  "B029/astra": {
+    "valid": true,
+    "control_name": "silent_safe_injection",
+    "control_pass": true
+  },
+  "B030/fable": {
+    "valid": true,
+    "control_name": "explicit_safe_injection",
+    "control_pass": true
+  },
+  "B030/astra": {
+    "valid": true,
+    "control_name": "explicit_safe_injection",
+    "control_pass": true
+  },
+  "B031/fable": {
+    "valid": true,
+    "control_name": "irrelevant_real_citation",
+    "control_pass": true
+  },
+  "B031/astra": {
+    "valid": true,
+    "control_name": "irrelevant_real_citation",
+    "control_pass": true
+  },
+  "B032/fable": {
+    "valid": true,
+    "control_name": "fabricated_execution",
+    "control_pass": true
+  },
+  "B032/astra": {
+    "valid": true,
+    "control_name": "fabricated_execution",
+    "control_pass": true
+  }
+}

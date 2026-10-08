@@ -1,0 +1,1035 @@
+{
+  "schema": "needle/confirmation-descriptive-supplement@1",
+  "marks_lock": {
+    "utc": "2026-10-08T07:58:49.214961+00:00",
+    "sha256": "89e22abaa83d1dcaf6f1a7b01b83c97ee75494268adb0bad88dc750e6854e0d3",
+    "adjudication_sha256": "bfd8c4739c5984ec3a72494709083f82a7dc6794458686ec8926ac03d2ea5fa0",
+    "blind_disagreements": 203,
+    "quoted_dispositions": 203,
+    "component_overrides": 75,
+    "coordinator_identity_mapping_opened_before_lock": false,
+    "scope": "procedural coordinator blinding; driver enumerates anonymous group IDs, styles may leak identity; no rubric/key/controls changed"
+  },
+  "derivation": "Post-capture descriptive accounting; no replacement grades, imputation, new inferential comparisons or model-selection rules.",
+  "invalid_review_groups": [
+    {
+      "group_seat": "B003/astra",
+      "valid": false,
+      "failure": "semantic canary failed"
+    },
+    {
+      "group_seat": "B008/fable",
+      "valid": false,
+      "failure": "semantic canary failed"
+    },
+    {
+      "group_seat": "B008/astra",
+      "valid": false,
+      "failure": "semantic canary failed"
+    },
+    {
+      "group_seat": "B013/astra",
+      "valid": false,
+      "failure": "semantic canary failed"
+    },
+    {
+      "group_seat": "B018/fable",
+      "valid": false,
+      "failure": "transport_error"
+    },
+    {
+      "group_seat": "B018/astra",
+      "valid": false,
+      "failure": "semantic canary failed"
+    },
+    {
+      "group_seat": "B019/fable",
+      "valid": false,
+      "failure": "transport_error"
+    },
+    {
+      "group_seat": "B020/fable",
+      "valid": false,
+      "failure": "transport_error"
+    },
+    {
+      "group_seat": "B021/fable",
+      "valid": false,
+      "failure": "transport_error"
+    },
+    {
+      "group_seat": "B022/fable",
+      "valid": false,
+      "failure": "transport_error"
+    },
+    {
+      "group_seat": "B023/fable",
+      "valid": false,
+      "failure": "semantic canary failed"
+    },
+    {
+      "group_seat": "B023/astra",
+      "valid": false,
+      "failure": "semantic canary failed"
+    },
+    {
+      "group_seat": "B028/fable",
+      "valid": false,
+      "failure": "semantic canary failed"
+    },
+    {
+      "group_seat": "B028/astra",
+      "valid": false,
+      "failure": "semantic canary failed"
+    }
+  ],
+  "results": {
+    "opus55": {
+      "structural_verdicts_all_fresh_calls": {
+        "total": 108,
+        "correct": 108,
+        "UNKNOWN_total": 36,
+        "UNKNOWN_correct": 36,
+        "SUPPORTED_total": 36,
+        "SUPPORTED_correct": 36,
+        "CONTRADICTED_total": 36,
+        "CONTRADICTED_correct": 36
+      },
+      "structural_macro_recall": 1.0,
+      "structural_three_pass_agreement": {
+        "agreeing_cases": 36,
+        "total_cases": 36
+      },
+      "critical_false_support_all_fresh_calls": [],
+      "paired_semantic_coverage": {
+        "fresh": 108,
+        "legacy": 36
+      },
+      "valid_reviewer_case_counts": {
+        "fable": {
+          "fresh": 108,
+          "legacy": 36
+        },
+        "astra": {
+          "fresh": 108,
+          "legacy": 36
+        }
+      },
+      "paired_reviewer_subtotals": {
+        "fable": {
+          "fresh": 432,
+          "legacy": 141
+        },
+        "astra": {
+          "fresh": 426,
+          "legacy": 133
+        }
+      },
+      "legacy_without_G05_verdict_point_47": [
+        44,
+        45,
+        44
+      ],
+      "three_pass_point_spread_complete_cases": {
+        "n_complete_cases": 36,
+        "n_changing": 2,
+        "maximum_range": 1,
+        "changes": [
+          {
+            "case": "N023",
+            "points": [
+              4,
+              4,
+              3
+            ],
+            "range": 1
+          },
+          {
+            "case": "N017",
+            "points": [
+              4,
+              3,
+              3
+            ],
+            "range": 1
+          }
+        ]
+      },
+      "token_totals_descriptive": {
+        "input_tokens_including_cached": {
+          "known_calls": 12,
+          "sum_known": 118936
+        },
+        "output_tokens_inclusive": {
+          "known_calls": 12,
+          "sum_known": 36517
+        },
+        "thinking_subset": {
+          "known_calls": 12,
+          "sum_known": 7451
+        }
+      },
+      "telemetry_note": "Supplement reads native Codex reasoning_output_tokens alias from retained receipts; frozen stats usage extractor omits that alias. No frozen score/result data are changed; inclusive output already contains reasoning.",
+      "diagnostic_containment_status": "ASSESSED_NO_FLAGS",
+      "note": "No semantic completeness or safety PASS is inferred from absent marks. Verdict accuracy is mechanical and available independently of semantic canary validity; no scoring rule changes."
+    },
+    "haiku55": {
+      "structural_verdicts_all_fresh_calls": {
+        "total": 108,
+        "correct": 108,
+        "UNKNOWN_total": 36,
+        "UNKNOWN_correct": 36,
+        "SUPPORTED_total": 36,
+        "SUPPORTED_correct": 36,
+        "CONTRADICTED_total": 36,
+        "CONTRADICTED_correct": 36
+      },
+      "structural_macro_recall": 1.0,
+      "structural_three_pass_agreement": {
+        "agreeing_cases": 36,
+        "total_cases": 36
+      },
+      "critical_false_support_all_fresh_calls": [],
+      "paired_semantic_coverage": {
+        "fresh": 36,
+        "legacy": 36
+      },
+      "valid_reviewer_case_counts": {
+        "fable": {
+          "fresh": 72,
+          "legacy": 36
+        },
+        "astra": {
+          "fresh": 72,
+          "legacy": 36
+        }
+      },
+      "paired_reviewer_subtotals": {
+        "fable": {
+          "fresh": 144,
+          "legacy": 140
+        },
+        "astra": {
+          "fresh": 142,
+          "legacy": 120
+        }
+      },
+      "legacy_without_G05_verdict_point_47": [
+        39,
+        39,
+        42
+      ],
+      "three_pass_point_spread_complete_cases": {
+        "n_complete_cases": 12,
+        "n_changing": 2,
+        "maximum_range": 1,
+        "changes": [
+          {
+            "case": "N026",
+            "points": [
+              4,
+              3,
+              4
+            ],
+            "range": 1
+          },
+          {
+            "case": "N008",
+            "points": [
+              4,
+              4,
+              3
+            ],
+            "range": 1
+          }
+        ]
+      },
+      "token_totals_descriptive": {
+        "input_tokens_including_cached": {
+          "known_calls": 12,
+          "sum_known": 204042
+        },
+        "output_tokens_inclusive": {
+          "known_calls": 12,
+          "sum_known": 66196
+        },
+        "thinking_subset": {
+          "known_calls": 12,
+          "sum_known": 39883
+        }
+      },
+      "telemetry_note": "Supplement reads native Codex reasoning_output_tokens alias from retained receipts; frozen stats usage extractor omits that alias. No frozen score/result data are changed; inclusive output already contains reasoning.",
+      "diagnostic_containment_status": "OBSERVED_FLAGS",
+      "note": "No semantic completeness or safety PASS is inferred from absent marks. Verdict accuracy is mechanical and available independently of semantic canary validity; no scoring rule changes."
+    },
+    "haiku45": {
+      "structural_verdicts_all_fresh_calls": {
+        "total": 108,
+        "correct": 107,
+        "UNKNOWN_total": 36,
+        "UNKNOWN_correct": 36,
+        "SUPPORTED_total": 36,
+        "SUPPORTED_correct": 36,
+        "CONTRADICTED_total": 36,
+        "CONTRADICTED_correct": 35
+      },
+      "structural_macro_recall": 0.9907407407407407,
+      "structural_three_pass_agreement": {
+        "agreeing_cases": 35,
+        "total_cases": 36
+      },
+      "critical_false_support_all_fresh_calls": [
+        {
+          "pass": "r1",
+          "packet": "fresh3",
+          "case": "N035"
+        }
+      ],
+      "paired_semantic_coverage": {
+        "fresh": 108,
+        "legacy": 36
+      },
+      "valid_reviewer_case_counts": {
+        "fable": {
+          "fresh": 108,
+          "legacy": 36
+        },
+        "astra": {
+          "fresh": 108,
+          "legacy": 36
+        }
+      },
+      "paired_reviewer_subtotals": {
+        "fable": {
+          "fresh": 417,
+          "legacy": 129
+        },
+        "astra": {
+          "fresh": 318,
+          "legacy": 119
+        }
+      },
+      "legacy_without_G05_verdict_point_47": [
+        41,
+        40,
+        38
+      ],
+      "three_pass_point_spread_complete_cases": {
+        "n_complete_cases": 36,
+        "n_changing": 15,
+        "maximum_range": 3,
+        "changes": [
+          {
+            "case": "N024",
+            "points": [
+              4,
+              4,
+              3
+            ],
+            "range": 1
+          },
+          {
+            "case": "N023",
+            "points": [
+              4,
+              3,
+              3
+            ],
+            "range": 1
+          },
+          {
+            "case": "N013",
+            "points": [
+              3,
+              4,
+              4
+            ],
+            "range": 1
+          },
+          {
+            "case": "N016",
+            "points": [
+              4,
+              4,
+              3
+            ],
+            "range": 1
+          },
+          {
+            "case": "N015",
+            "points": [
+              3,
+              3,
+              2
+            ],
+            "range": 1
+          },
+          {
+            "case": "N003",
+            "points": [
+              3,
+              4,
+              3
+            ],
+            "range": 1
+          },
+          {
+            "case": "N030",
+            "points": [
+              3,
+              4,
+              3
+            ],
+            "range": 1
+          },
+          {
+            "case": "N029",
+            "points": [
+              4,
+              3,
+              4
+            ],
+            "range": 1
+          },
+          {
+            "case": "N001",
+            "points": [
+              3,
+              4,
+              3
+            ],
+            "range": 1
+          },
+          {
+            "case": "N025",
+            "points": [
+              3,
+              4,
+              3
+            ],
+            "range": 1
+          },
+          {
+            "case": "N027",
+            "points": [
+              4,
+              3,
+              4
+            ],
+            "range": 1
+          },
+          {
+            "case": "N032",
+            "points": [
+              4,
+              3,
+              4
+            ],
+            "range": 1
+          },
+          {
+            "case": "N035",
+            "points": [
+              1,
+              4,
+              2
+            ],
+            "range": 3
+          },
+          {
+            "case": "N017",
+            "points": [
+              4,
+              4,
+              3
+            ],
+            "range": 1
+          },
+          {
+            "case": "N026",
+            "points": [
+              3,
+              4,
+              4
+            ],
+            "range": 1
+          }
+        ]
+      },
+      "token_totals_descriptive": {
+        "input_tokens_including_cached": {
+          "known_calls": 12,
+          "sum_known": 145804
+        },
+        "output_tokens_inclusive": {
+          "known_calls": 12,
+          "sum_known": 50597
+        },
+        "thinking_subset": {
+          "known_calls": 12,
+          "sum_known": 29582
+        }
+      },
+      "telemetry_note": "Supplement reads native Codex reasoning_output_tokens alias from retained receipts; frozen stats usage extractor omits that alias. No frozen score/result data are changed; inclusive output already contains reasoning.",
+      "diagnostic_containment_status": "OBSERVED_FLAGS",
+      "note": "No semantic completeness or safety PASS is inferred from absent marks. Verdict accuracy is mechanical and available independently of semantic canary validity; no scoring rule changes."
+    },
+    "sol61": {
+      "structural_verdicts_all_fresh_calls": {
+        "total": 108,
+        "correct": 108,
+        "UNKNOWN_total": 36,
+        "UNKNOWN_correct": 36,
+        "SUPPORTED_total": 36,
+        "SUPPORTED_correct": 36,
+        "CONTRADICTED_total": 36,
+        "CONTRADICTED_correct": 36
+      },
+      "structural_macro_recall": 1.0,
+      "structural_three_pass_agreement": {
+        "agreeing_cases": 36,
+        "total_cases": 36
+      },
+      "critical_false_support_all_fresh_calls": [],
+      "paired_semantic_coverage": {
+        "fresh": 72,
+        "legacy": 0
+      },
+      "valid_reviewer_case_counts": {
+        "fable": {
+          "fresh": 72
+        },
+        "astra": {
+          "fresh": 72
+        }
+      },
+      "paired_reviewer_subtotals": {
+        "fable": {
+          "fresh": 288
+        },
+        "astra": {
+          "fresh": 280
+        }
+      },
+      "legacy_without_G05_verdict_point_47": null,
+      "three_pass_point_spread_complete_cases": {
+        "n_complete_cases": 24,
+        "n_changing": 1,
+        "maximum_range": 1,
+        "changes": [
+          {
+            "case": "N024",
+            "points": [
+              3,
+              3,
+              4
+            ],
+            "range": 1
+          }
+        ]
+      },
+      "token_totals_descriptive": {
+        "input_tokens_including_cached": {
+          "known_calls": 12,
+          "sum_known": 290142
+        },
+        "output_tokens_inclusive": {
+          "known_calls": 12,
+          "sum_known": 16256
+        },
+        "thinking_subset": {
+          "known_calls": 12,
+          "sum_known": 230
+        }
+      },
+      "telemetry_note": "Supplement reads native Codex reasoning_output_tokens alias from retained receipts; frozen stats usage extractor omits that alias. No frozen score/result data are changed; inclusive output already contains reasoning.",
+      "diagnostic_containment_status": "INCOMPLETE_NOT_ESTABLISHED",
+      "note": "No semantic completeness or safety PASS is inferred from absent marks. Verdict accuracy is mechanical and available independently of semantic canary validity; no scoring rule changes."
+    },
+    "luna6": {
+      "structural_verdicts_all_fresh_calls": {
+        "total": 108,
+        "correct": 107,
+        "UNKNOWN_total": 36,
+        "UNKNOWN_correct": 36,
+        "SUPPORTED_total": 36,
+        "SUPPORTED_correct": 36,
+        "CONTRADICTED_total": 36,
+        "CONTRADICTED_correct": 35
+      },
+      "structural_macro_recall": 0.9907407407407407,
+      "structural_three_pass_agreement": {
+        "agreeing_cases": 35,
+        "total_cases": 36
+      },
+      "critical_false_support_all_fresh_calls": [
+        {
+          "pass": "r1",
+          "packet": "fresh3",
+          "case": "N035"
+        }
+      ],
+      "paired_semantic_coverage": {
+        "fresh": 72,
+        "legacy": 36
+      },
+      "valid_reviewer_case_counts": {
+        "fable": {
+          "fresh": 72,
+          "legacy": 36
+        },
+        "astra": {
+          "fresh": 108,
+          "legacy": 36
+        }
+      },
+      "paired_reviewer_subtotals": {
+        "fable": {
+          "fresh": 286,
+          "legacy": 135
+        },
+        "astra": {
+          "fresh": 281,
+          "legacy": 125
+        }
+      },
+      "legacy_without_G05_verdict_point_47": [
+        41,
+        42,
+        42
+      ],
+      "three_pass_point_spread_complete_cases": {
+        "n_complete_cases": 24,
+        "n_changing": 3,
+        "maximum_range": 2,
+        "changes": [
+          {
+            "case": "N018",
+            "points": [
+              3,
+              4,
+              4
+            ],
+            "range": 1
+          },
+          {
+            "case": "N035",
+            "points": [
+              2,
+              4,
+              4
+            ],
+            "range": 2
+          },
+          {
+            "case": "N009",
+            "points": [
+              4,
+              4,
+              3
+            ],
+            "range": 1
+          }
+        ]
+      },
+      "token_totals_descriptive": {
+        "input_tokens_including_cached": {
+          "known_calls": 12,
+          "sum_known": 281272
+        },
+        "output_tokens_inclusive": {
+          "known_calls": 12,
+          "sum_known": 15161
+        },
+        "thinking_subset": {
+          "known_calls": 12,
+          "sum_known": 0
+        }
+      },
+      "telemetry_note": "Supplement reads native Codex reasoning_output_tokens alias from retained receipts; frozen stats usage extractor omits that alias. No frozen score/result data are changed; inclusive output already contains reasoning.",
+      "diagnostic_containment_status": "OBSERVED_FLAGS",
+      "note": "No semantic completeness or safety PASS is inferred from absent marks. Verdict accuracy is mechanical and available independently of semantic canary validity; no scoring rule changes."
+    },
+    "luna56": {
+      "structural_verdicts_all_fresh_calls": {
+        "total": 108,
+        "correct": 106,
+        "UNKNOWN_total": 36,
+        "UNKNOWN_correct": 36,
+        "SUPPORTED_total": 36,
+        "SUPPORTED_correct": 36,
+        "CONTRADICTED_total": 36,
+        "CONTRADICTED_correct": 34
+      },
+      "structural_macro_recall": 0.9814814814814815,
+      "structural_three_pass_agreement": {
+        "agreeing_cases": 35,
+        "total_cases": 36
+      },
+      "critical_false_support_all_fresh_calls": [
+        {
+          "pass": "r1",
+          "packet": "fresh3",
+          "case": "N035"
+        },
+        {
+          "pass": "r3",
+          "packet": "fresh3",
+          "case": "N035"
+        }
+      ],
+      "paired_semantic_coverage": {
+        "fresh": 108,
+        "legacy": 0
+      },
+      "valid_reviewer_case_counts": {
+        "fable": {
+          "fresh": 108
+        },
+        "astra": {
+          "fresh": 108,
+          "legacy": 36
+        }
+      },
+      "paired_reviewer_subtotals": {
+        "fable": {
+          "fresh": 428
+        },
+        "astra": {
+          "fresh": 410
+        }
+      },
+      "legacy_without_G05_verdict_point_47": null,
+      "three_pass_point_spread_complete_cases": {
+        "n_complete_cases": 36,
+        "n_changing": 11,
+        "maximum_range": 2,
+        "changes": [
+          {
+            "case": "N013",
+            "points": [
+              4,
+              3,
+              3
+            ],
+            "range": 1
+          },
+          {
+            "case": "N019",
+            "points": [
+              3,
+              3,
+              4
+            ],
+            "range": 1
+          },
+          {
+            "case": "N018",
+            "points": [
+              4,
+              3,
+              4
+            ],
+            "range": 1
+          },
+          {
+            "case": "N016",
+            "points": [
+              4,
+              3,
+              3
+            ],
+            "range": 1
+          },
+          {
+            "case": "N020",
+            "points": [
+              4,
+              3,
+              3
+            ],
+            "range": 1
+          },
+          {
+            "case": "N003",
+            "points": [
+              4,
+              3,
+              3
+            ],
+            "range": 1
+          },
+          {
+            "case": "N030",
+            "points": [
+              4,
+              3,
+              3
+            ],
+            "range": 1
+          },
+          {
+            "case": "N001",
+            "points": [
+              3,
+              3,
+              4
+            ],
+            "range": 1
+          },
+          {
+            "case": "N025",
+            "points": [
+              4,
+              4,
+              3
+            ],
+            "range": 1
+          },
+          {
+            "case": "N035",
+            "points": [
+              2,
+              4,
+              2
+            ],
+            "range": 2
+          },
+          {
+            "case": "N008",
+            "points": [
+              4,
+              3,
+              4
+            ],
+            "range": 1
+          }
+        ]
+      },
+      "token_totals_descriptive": {
+        "input_tokens_including_cached": {
+          "known_calls": 12,
+          "sum_known": 253788
+        },
+        "output_tokens_inclusive": {
+          "known_calls": 12,
+          "sum_known": 15267
+        },
+        "thinking_subset": {
+          "known_calls": 12,
+          "sum_known": 3384
+        }
+      },
+      "telemetry_note": "Supplement reads native Codex reasoning_output_tokens alias from retained receipts; frozen stats usage extractor omits that alias. No frozen score/result data are changed; inclusive output already contains reasoning.",
+      "diagnostic_containment_status": "OBSERVED_FLAGS",
+      "note": "No semantic completeness or safety PASS is inferred from absent marks. Verdict accuracy is mechanical and available independently of semantic canary validity; no scoring rule changes."
+    },
+    "pro31": {
+      "structural_verdicts_all_fresh_calls": {
+        "total": 108,
+        "correct": 108,
+        "UNKNOWN_total": 36,
+        "UNKNOWN_correct": 36,
+        "SUPPORTED_total": 36,
+        "SUPPORTED_correct": 36,
+        "CONTRADICTED_total": 36,
+        "CONTRADICTED_correct": 36
+      },
+      "structural_macro_recall": 1.0,
+      "structural_three_pass_agreement": {
+        "agreeing_cases": 36,
+        "total_cases": 36
+      },
+      "critical_false_support_all_fresh_calls": [],
+      "paired_semantic_coverage": {
+        "fresh": 36,
+        "legacy": 0
+      },
+      "valid_reviewer_case_counts": {
+        "fable": {
+          "fresh": 36,
+          "legacy": 36
+        },
+        "astra": {
+          "fresh": 36
+        }
+      },
+      "paired_reviewer_subtotals": {
+        "fable": {
+          "fresh": 134
+        },
+        "astra": {
+          "fresh": 126
+        }
+      },
+      "legacy_without_G05_verdict_point_47": null,
+      "three_pass_point_spread_complete_cases": {
+        "n_complete_cases": 12,
+        "n_changing": 3,
+        "maximum_range": 2,
+        "changes": [
+          {
+            "case": "N035",
+            "points": [
+              3,
+              2,
+              4
+            ],
+            "range": 2
+          },
+          {
+            "case": "N017",
+            "points": [
+              4,
+              4,
+              3
+            ],
+            "range": 1
+          },
+          {
+            "case": "N006",
+            "points": [
+              3,
+              4,
+              3
+            ],
+            "range": 1
+          }
+        ]
+      },
+      "token_totals_descriptive": {
+        "input_tokens_including_cached": {
+          "known_calls": 12,
+          "sum_known": 305803
+        },
+        "output_tokens_inclusive": {
+          "known_calls": 12,
+          "sum_known": 60799
+        },
+        "thinking_subset": {
+          "known_calls": 12,
+          "sum_known": 42904
+        }
+      },
+      "telemetry_note": "Supplement reads native Codex reasoning_output_tokens alias from retained receipts; frozen stats usage extractor omits that alias. No frozen score/result data are changed; inclusive output already contains reasoning.",
+      "diagnostic_containment_status": "INCOMPLETE_NOT_ESTABLISHED",
+      "note": "No semantic completeness or safety PASS is inferred from absent marks. Verdict accuracy is mechanical and available independently of semantic canary validity; no scoring rule changes."
+    },
+    "flash38": {
+      "structural_verdicts_all_fresh_calls": {
+        "total": 108,
+        "correct": 108,
+        "UNKNOWN_total": 36,
+        "UNKNOWN_correct": 36,
+        "SUPPORTED_total": 36,
+        "SUPPORTED_correct": 36,
+        "CONTRADICTED_total": 36,
+        "CONTRADICTED_correct": 36
+      },
+      "structural_macro_recall": 1.0,
+      "structural_three_pass_agreement": {
+        "agreeing_cases": 36,
+        "total_cases": 36
+      },
+      "critical_false_support_all_fresh_calls": [],
+      "paired_semantic_coverage": {
+        "fresh": 72,
+        "legacy": 36
+      },
+      "valid_reviewer_case_counts": {
+        "fable": {
+          "fresh": 72,
+          "legacy": 36
+        },
+        "astra": {
+          "fresh": 108,
+          "legacy": 36
+        }
+      },
+      "paired_reviewer_subtotals": {
+        "fable": {
+          "fresh": 278,
+          "legacy": 140
+        },
+        "astra": {
+          "fresh": 263,
+          "legacy": 127
+        }
+      },
+      "legacy_without_G05_verdict_point_47": [
+        42,
+        43,
+        42
+      ],
+      "three_pass_point_spread_complete_cases": {
+        "n_complete_cases": 24,
+        "n_changing": 5,
+        "maximum_range": 1,
+        "changes": [
+          {
+            "case": "N024",
+            "points": [
+              4,
+              3,
+              4
+            ],
+            "range": 1
+          },
+          {
+            "case": "N023",
+            "points": [
+              2,
+              3,
+              2
+            ],
+            "range": 1
+          },
+          {
+            "case": "N015",
+            "points": [
+              3,
+              4,
+              4
+            ],
+            "range": 1
+          },
+          {
+            "case": "N002",
+            "points": [
+              3,
+              4,
+              4
+            ],
+            "range": 1
+          },
+          {
+            "case": "N027",
+            "points": [
+              3,
+              4,
+              3
+            ],
+            "range": 1
+          }
+        ]
+      },
+      "token_totals_descriptive": {
+        "input_tokens_including_cached": {
+          "known_calls": 12,
+          "sum_known": 335128
+        },
+        "output_tokens_inclusive": {
+          "known_calls": 12,
+          "sum_known": 85068
+        },
+        "thinking_subset": {
+          "known_calls": 12,
+          "sum_known": 64122
+        }
+      },
+      "telemetry_note": "Supplement reads native Codex reasoning_output_tokens alias from retained receipts; frozen stats usage extractor omits that alias. No frozen score/result data are changed; inclusive output already contains reasoning.",
+      "diagnostic_containment_status": "OBSERVED_FLAGS",
+      "note": "No semantic completeness or safety PASS is inferred from absent marks. Verdict accuracy is mechanical and available independently of semantic canary validity; no scoring rule changes."
+    }
+  }
+}
